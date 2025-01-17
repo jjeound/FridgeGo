@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.Untitled_Capstone" parent="android:Theme.Material.Light.NoActionBar" />
     <style name="Theme.App.Starting" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">@color/white</item>
         <item name="postSplashScreenTheme">@style/Theme.Untitled_Capstone</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash_logo_temp</item>
     </style>
 </resources>

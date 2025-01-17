@@ -5,6 +5,7 @@ plugins {
     id("kotlin-kapt")
     alias(libs.plugins.ksp)
     alias(libs.plugins.dagger.hilt)
+    kotlin("plugin.serialization") version "2.0.21"
 }
 
     android {
@@ -43,18 +44,27 @@ plugins {
     }
 
 dependencies {
+    //Hilt
     implementation (libs.hilt.android)
     kapt (libs.hilt.compiler)
     implementation(libs.androidx.runtime.livedata)
-
     implementation(libs.androidx.hilt.navigation.compose)
+
+    //ViewModel
     implementation(libs.androidx.lifecycle.viewmodel.compose)
+
+    //Navigation
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.kotlinx.serialization.json)
+
 
     //Retrofit
     implementation(libs.retrofit)
     implementation (libs.converter.gson)
     implementation (libs.okhttp)
     implementation (libs.logging.interceptor)
+
+    implementation(libs.androidx.core.splashscreen)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

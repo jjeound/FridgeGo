@@ -10,19 +10,21 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.untitled_capstone.R
 
 @Immutable
 data class CustomColors(
-    val bg: Color,
     val iconSelected: Color,
     val iconDefault: Color,
     val iconRed: Color,
     val primary: Color,
     val onPrimary: Color,
     val surface: Color,
-    val onsurface: Color,
+    val onSurface: Color,
+    val border: Color,
     val textPrimary: Color,
     val textSecondary: Color,
     val textTeritary: Color,
@@ -30,28 +32,28 @@ data class CustomColors(
 )
 
 val LightCustomColors = CustomColors(
-    bg = Blue100,
     iconSelected = Black,
     iconDefault = Grey300,
     iconRed = Red,
     primary = Blue100,
     onPrimary = White,
     surface = Grey500,
-    onsurface = White,
+    onSurface = White,
+    border = Grey300,
     textPrimary = Black,
     textSecondary = Grey300,
     textTeritary = Grey400,
     error = Red
 )
 val DarkCustomColors = CustomColors(
-    bg = Blue100,
     iconSelected = White,
     iconDefault = Grey300,
     iconRed = Red,
     primary = Blue100,
     onPrimary = White,
     surface = Black100,
-    onsurface = Black200,
+    onSurface = Black200,
+    border = Grey300,
     textPrimary = White,
     textSecondary = Grey300,
     textTeritary = Grey400,
@@ -85,11 +87,24 @@ val customTypography =  CustomTypography(
     caption2 = TextStyle(fontFamily = fontFamily, fontWeight = FontWeight.Normal, fontSize = 10.sp)
 )
 
+@Immutable
+data class CustomElevation(
+    val bgPadding : Dp,
+    val itemPadiing: Dp
+)
+
 val LocalCustomColors = staticCompositionLocalOf {
     LightCustomColors
 }
 val LocalCustomTypography = staticCompositionLocalOf {
     customTypography
+}
+
+val LocalCustomElevation = staticCompositionLocalOf {
+    CustomElevation(
+        bgPadding = Dp.Unspecified,
+        itemPadiing = Dp.Unspecified
+    )
 }
 
 
@@ -122,6 +137,10 @@ fun Untitled_CapstoneTheme(
     CompositionLocalProvider(
         LocalCustomColors provides colors,
         LocalCustomTypography provides customTypography,
+        LocalCustomElevation provides  CustomElevation(
+            bgPadding = 20.dp,
+            itemPadiing = 10.dp
+        ),
         content = content
     )
 }
@@ -133,6 +152,9 @@ object CustomTheme {
     val typography: CustomTypography
         @Composable
         get() = LocalCustomTypography.current
+    val elevation: CustomElevation
+        @Composable
+        get() = LocalCustomElevation.current
 }
 
 

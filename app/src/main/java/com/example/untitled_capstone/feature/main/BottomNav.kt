@@ -1,4 +1,4 @@
-package com.example.untitled_capstone
+package com.example.untitled_capstone.feature.main
 
 import androidx.compose.ui.graphics.vector.ImageVector
 

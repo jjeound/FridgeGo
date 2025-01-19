@@ -27,8 +27,14 @@ data class CustomColors(
     val border: Color,
     val textPrimary: Color,
     val textSecondary: Color,
-    val textTeritary: Color,
+    val textTertiary: Color,
     val error: Color,
+    val buttonSurface: Color,
+    val buttonBorderUnfocused: Color,
+    val buttonBorderFocused: Color,
+    val textFieldSurface: Color,
+    val textFieldBorder: Color,
+    val placeholder: Color
 )
 
 val LightCustomColors = CustomColors(
@@ -42,8 +48,14 @@ val LightCustomColors = CustomColors(
     border = Grey300,
     textPrimary = Black,
     textSecondary = Grey300,
-    textTeritary = Grey400,
-    error = Red
+    textTertiary = Grey400,
+    error = Red,
+    buttonSurface = White,
+    buttonBorderUnfocused = Grey400,
+    buttonBorderFocused = Black,
+    textFieldSurface = White,
+    textFieldBorder = Black,
+    placeholder = Grey300
 )
 val DarkCustomColors = CustomColors(
     iconSelected = White,
@@ -56,8 +68,14 @@ val DarkCustomColors = CustomColors(
     border = Grey300,
     textPrimary = White,
     textSecondary = Grey300,
-    textTeritary = Grey400,
-    error = Red
+    textTertiary = Grey400,
+    error = Red,
+    buttonSurface = Black,
+    buttonBorderUnfocused = Grey300,
+    buttonBorderFocused = White,
+    textFieldSurface = Black200,
+    textFieldBorder = White,
+    placeholder = Grey300
 )
 
 val fontFamily = FontFamily(
@@ -90,7 +108,8 @@ val customTypography =  CustomTypography(
 @Immutable
 data class CustomElevation(
     val bgPadding : Dp,
-    val itemPadiing: Dp
+    val itemPadding: Dp,
+    val cardCornerRadius: Dp,
 )
 
 val LocalCustomColors = staticCompositionLocalOf {
@@ -103,7 +122,8 @@ val LocalCustomTypography = staticCompositionLocalOf {
 val LocalCustomElevation = staticCompositionLocalOf {
     CustomElevation(
         bgPadding = Dp.Unspecified,
-        itemPadiing = Dp.Unspecified
+        itemPadding = Dp.Unspecified,
+        cardCornerRadius = Dp.Unspecified
     )
 }
 
@@ -139,7 +159,8 @@ fun Untitled_CapstoneTheme(
         LocalCustomTypography provides customTypography,
         LocalCustomElevation provides  CustomElevation(
             bgPadding = 20.dp,
-            itemPadiing = 10.dp
+            itemPadding = 10.dp,
+            cardCornerRadius = 12.dp
         ),
         content = content
     )

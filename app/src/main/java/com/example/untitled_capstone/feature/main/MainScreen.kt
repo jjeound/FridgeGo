@@ -1,6 +1,5 @@
 package com.example.untitled_capstone.feature.main
 
-import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -18,29 +17,43 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.untitled_capstone.Navigation
+import com.example.untitled_capstone.navigation.Navigation
 import com.example.untitled_capstone.R
-import com.example.untitled_capstone.feature.chatting.Chatting
-import com.example.untitled_capstone.feature.home.presentation.screen.Home
-import com.example.untitled_capstone.feature.my.My
-import com.example.untitled_capstone.feature.refrigerator.Refrigerator
-import com.example.untitled_capstone.feature.shopping.Shopping
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @Composable
 fun MainScreen(){
     val navController = rememberNavController()
     val viewModel = viewModel<MainViewModel>()
+    val screens = listOf(
+        BottomScreen.Home,
+        BottomScreen.Shopping,
+        BottomScreen.Refrigerator,
+        BottomScreen.Chat,
+        BottomScreen.My
+    )
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentDestination = navBackStackEntry?.destination
+
+    val bottomBarDestination = screens.any { it.route == currentDestination?.route }
     Scaffold(
         containerColor = CustomTheme.colors.surface,
         topBar = {
-            TopBar()
+            when(currentDestination?.route){
+                BottomScreen.Home.route -> TopBar()
+                BottomScreen.Shopping.route -> TopBar()
+                BottomScreen.Refrigerator.route -> TopBar()
+                BottomScreen.Chat.route -> TopBar()
+                BottomScreen.My.route -> TopBar()
+            }
         },
         bottomBar = {
-            BottomNavBar(navController = navController, viewModel = viewModel)
+            if(bottomBarDestination){
+                BottomNavBar(navController = navController, viewModel = viewModel)
+            }
         },
         floatingActionButton = {
-            if(viewModel.selectedIndex == 0){
+            if(viewModel.selectedIndex == 0 && bottomBarDestination){
                 FloatingActionButton(
                     onClick = { /*TODO*/ },
                     elevation = FloatingActionButtonDefaults.elevation(0.dp),
@@ -55,10 +68,18 @@ fun MainScreen(){
             }
         }
     ){  innerPadding ->
-        Box(
-            modifier = Modifier.fillMaxSize().padding(innerPadding)
-        ){
-            Navigation(navController = navController)
+        if(bottomBarDestination) {
+            Box(
+                modifier = Modifier.fillMaxSize().padding(innerPadding)
+            ){
+                Navigation(navController = navController)
+            }
+        }else{
+            Box(
+                modifier = Modifier.fillMaxSize()
+            ){
+                Navigation(navController = navController)
+            }
         }
     }
 }

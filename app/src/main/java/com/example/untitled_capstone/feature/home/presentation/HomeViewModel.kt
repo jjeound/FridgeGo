@@ -31,14 +31,14 @@ class HomeViewModel: ViewModel(){
                 ),
                 Recipe(
                     title = "title3",
-                    image = R.drawable.ic_launcher_background,
+                    image = null,
                     ingredients = listOf("ingredient1", "ingredient2"),
                     steps = listOf("step1", "step2"),
                     isLiked = false
                 ),
                 Recipe(
                     title = "title4",
-                    image = R.drawable.ic_launcher_background,
+                    image = null,
                     ingredients = listOf("ingredient1", "ingredient2"),
                     steps = listOf("step1", "step2"),
                     isLiked = false

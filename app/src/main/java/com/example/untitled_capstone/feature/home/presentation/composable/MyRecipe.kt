@@ -26,13 +26,18 @@ import com.example.untitled_capstone.feature.home.domain.model.Recipe
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @Composable
-fun MyRecipe(recipe: Recipe, onClick: () -> Unit){
+fun MyRecipe(recipe: Recipe, onClick : () -> Unit){
     Column(
         modifier = Modifier.clickable {
             onClick()
         }
     ) {
-        Box{
+        Box(
+            modifier = Modifier
+                .width(160.dp).height(160.dp)
+                .clip(shape = RoundedCornerShape(12.dp))
+                .background(CustomTheme.colors.surface)
+        ){
             if (recipe.image != null) {
                 Image(
                     painter = painterResource(recipe.image),
@@ -41,13 +46,6 @@ fun MyRecipe(recipe: Recipe, onClick: () -> Unit){
                     contentScale = ContentScale.Fit,
                     modifier = Modifier.width(160.dp).height(160.dp)
                         .clip(shape = RoundedCornerShape(12.dp))
-                )
-            } else {
-                Box(
-                    modifier = Modifier
-                        .width(160.dp).height(160.dp)
-                        .clip(shape = RoundedCornerShape(12.dp))
-                        .background(CustomTheme.colors.surface)
                 )
             }
             Icon(

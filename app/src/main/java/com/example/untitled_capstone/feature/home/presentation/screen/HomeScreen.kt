@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
@@ -31,10 +32,6 @@ import com.example.untitled_capstone.feature.home.presentation.composable.MyReci
 import com.example.untitled_capstone.feature.home.presentation.composable.SetTaste
 import com.example.untitled_capstone.feature.home.presentation.state.MyRecipeState
 import com.example.untitled_capstone.ui.theme.CustomTheme
-import kotlinx.serialization.Serializable
-
-@Serializable
-object Home
 
 @Composable
 fun HomeScreen(state: MyRecipeState, navController: NavHostController) {
@@ -65,11 +62,11 @@ fun HomeScreen(state: MyRecipeState, navController: NavHostController) {
                 contentPadding = PaddingValues(start = 20.dp, end = 20.dp)
             ) {
                 if(!state.isLoading){
-                    items(state.recipeItems){ item ->
+                    items( state.recipeItems,){ item ->
                         MyRecipe(item, onClick = {
-//                            navController.navigate(RecipeNav(
-//                                recipe = item
-//                            ))
+                            navController.navigate(RecipeNav(
+                                recipe = item
+                            ))
                         })
                     }
                 }

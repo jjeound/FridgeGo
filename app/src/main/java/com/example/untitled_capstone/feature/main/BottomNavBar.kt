@@ -14,11 +14,6 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import com.example.untitled_capstone.R
-import com.example.untitled_capstone.feature.chatting.Chatting
-import com.example.untitled_capstone.feature.home.presentation.screen.Home
-import com.example.untitled_capstone.feature.my.My
-import com.example.untitled_capstone.feature.refrigerator.Refrigerator
-import com.example.untitled_capstone.feature.shopping.Shopping
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @Composable
@@ -26,27 +21,27 @@ fun BottomNavBar(navController: NavHostController, viewModel: MainViewModel){
     val items = listOf(
         BottomNavItem(
             title = "홈",
-            route = Home,
+            route = "home",
             icon = ImageVector.vectorResource(id = R.drawable.home)
         ),
         BottomNavItem(
             title = "공동구매",
-            route = Shopping,
+            route = "shopping",
             icon = ImageVector.vectorResource(id = R.drawable.shopping)
         ),
         BottomNavItem(
             title = "냉장고",
-            route = Refrigerator,
+            route = "refrigerator",
             icon = ImageVector.vectorResource(id = R.drawable.refrigerator)
         ),
         BottomNavItem(
             title = "채팅",
-            route = Chatting,
+            route = "chatting",
             icon = ImageVector.vectorResource(id = R.drawable.chat)
         ),
         BottomNavItem(
             title = "My",
-            route = My,
+            route = "my",
             icon = ImageVector.vectorResource(id = R.drawable.my)
         )
     )

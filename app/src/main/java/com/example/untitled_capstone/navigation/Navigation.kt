@@ -7,12 +7,10 @@ import androidx.compose.runtime.remember
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
-import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.navigation
 import androidx.navigation.toRoute
 import com.example.untitled_capstone.feature.chatting.ChattingScreen
 import com.example.untitled_capstone.feature.home.domain.model.Recipe
@@ -23,7 +21,11 @@ import com.example.untitled_capstone.feature.home.presentation.screen.RecipeScre
 import com.example.untitled_capstone.feature.main.BottomScreen
 import com.example.untitled_capstone.feature.my.MyScreen
 import com.example.untitled_capstone.feature.refrigerator.RefrigeratorScreen
-import com.example.untitled_capstone.feature.shopping.ShoppingScreen
+import com.example.untitled_capstone.feature.shopping.domain.model.Post
+import com.example.untitled_capstone.feature.shopping.presentation.PostViewModel
+import com.example.untitled_capstone.feature.shopping.presentation.screen.PostNav
+import com.example.untitled_capstone.feature.shopping.presentation.screen.PostScreen
+import com.example.untitled_capstone.feature.shopping.presentation.screen.ShoppingScreen
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlin.reflect.typeOf
@@ -37,7 +39,8 @@ fun Navigation(navController: NavHostController) {
              HomeScreen(viewModel.state, navController)
          }
          composable(BottomScreen.Shopping.route){
-             ShoppingScreen(navController = navController)
+             val viewModel = PostViewModel()
+             ShoppingScreen(navController = navController, viewModel.state)
          }
          composable(BottomScreen.Refrigerator.route){
              RefrigeratorScreen()
@@ -52,38 +55,29 @@ fun Navigation(navController: NavHostController) {
             typeMap = mapOf(
                 typeOf<Recipe>() to CustomNavType.RecipeType
             )
-        ) {
+         ) {
             val args = it.toRoute<RecipeNav>()
             RecipeScreen(
                 args.recipe, navController
             )
-        }
+         }
+         composable<PostNav>(
+             typeMap = mapOf(
+                 typeOf<Post>() to CustomNavType.PostType
+             )
+         ) {
+             val args = it.toRoute<PostNav>()
+             PostScreen(
+                 args.post, navController
+             )
+         }
      }
 
 }
 
-//fun NavGraphBuilder.detailsNavGraph(navController: NavHostController){
-//    navigation(route = Graph.Home, startDestination = HomeDetailScreen.RecipeNav.route){
-//        composable<HomeDetailScreen.RecipeNav.route>(
-//            typeMap = mapOf(
-//                typeOf<Recipe>() to CustomNavType.RecipeType
-//            )
-//        ) {
-//            val args = it.toRoute<RecipeNav>()
-//            RecipeScreen(
-//                args.recipe
-//            )
-//        }
-//    }
-//}
-
 object Graph{
     const val Main = "main_graph"
     const val Home = "home_graph"
-}
-
-sealed class HomeDetailScreen(val route: String){
-    object RecipeNav: HomeDetailScreen(route = "recipe")
 }
 
 @Composable
@@ -112,6 +106,26 @@ object CustomNavType{
         }
 
         override fun put(bundle: Bundle, key: String, value: Recipe) {
+            bundle.putString(key, Json.encodeToString(value))
+        }
+
+    }
+    val PostType = object: NavType<Post>(
+        isNullableAllowed = false
+    ){
+        override fun get(bundle: Bundle, key: String): Post? {
+            return Json.decodeFromString(bundle.getString(key) ?: return null)
+        }
+
+        override fun parseValue(value: String): Post {
+            return Json.decodeFromString(Uri.decode(value))
+        }
+
+        override fun serializeAsValue(value: Post): String {
+            return Uri.encode(Json.encodeToString(value))
+        }
+
+        override fun put(bundle: Bundle, key: String, value: Post) {
             bundle.putString(key, Json.encodeToString(value))
         }
 

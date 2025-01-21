@@ -19,6 +19,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.untitled_capstone.navigation.Navigation
 import com.example.untitled_capstone.R
+import com.example.untitled_capstone.feature.shopping.presentation.composable.ShoppingTopBar
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @Composable
@@ -41,7 +42,7 @@ fun MainScreen(){
         topBar = {
             when(currentDestination?.route){
                 BottomScreen.Home.route -> TopBar()
-                BottomScreen.Shopping.route -> TopBar()
+                BottomScreen.Shopping.route -> ShoppingTopBar()
                 BottomScreen.Refrigerator.route -> TopBar()
                 BottomScreen.Chat.route -> TopBar()
                 BottomScreen.My.route -> TopBar()
@@ -53,17 +54,31 @@ fun MainScreen(){
             }
         },
         floatingActionButton = {
-            if(viewModel.selectedIndex == 0 && bottomBarDestination){
-                FloatingActionButton(
-                    onClick = { /*TODO*/ },
-                    elevation = FloatingActionButtonDefaults.elevation(0.dp),
-                    containerColor = Color.Unspecified,
-                    contentColor = Color.Unspecified,
-                ) {
-                    Icon(
-                        imageVector = ImageVector.vectorResource(id = R.drawable.ai_big),
-                        contentDescription = "ai"
-                    )
+            if(bottomBarDestination){
+                if(viewModel.selectedIndex == 0){
+                    FloatingActionButton(
+                        onClick = { /*TODO*/ },
+                        elevation = FloatingActionButtonDefaults.elevation(0.dp),
+                        containerColor = Color.Unspecified,
+                        contentColor = Color.Unspecified,
+                    ) {
+                        Icon(
+                            imageVector = ImageVector.vectorResource(id = R.drawable.ai_big),
+                            contentDescription = "ai"
+                        )
+                    }
+                }else if(viewModel.selectedIndex == 1){
+                    FloatingActionButton(
+                        onClick = { /*TODO*/ },
+                        elevation = FloatingActionButtonDefaults.elevation(0.dp),
+                        containerColor = Color.Unspecified,
+                        contentColor = Color.Unspecified,
+                    ) {
+                        Icon(
+                            imageVector = ImageVector.vectorResource(id = R.drawable.writing),
+                            contentDescription = "write new post"
+                        )
+                    }
                 }
             }
         }
@@ -75,11 +90,7 @@ fun MainScreen(){
                 Navigation(navController = navController)
             }
         }else{
-            Box(
-                modifier = Modifier.fillMaxSize()
-            ){
-                Navigation(navController = navController)
-            }
+            Navigation(navController = navController)
         }
     }
 }

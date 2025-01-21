@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -33,6 +34,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.feature.home.domain.model.Recipe
@@ -51,11 +53,11 @@ fun RecipeScreen(recipe: Recipe, navController: NavHostController){
         modifier = Modifier.background(CustomTheme.colors.onSurface),
         topBar = {
             CenterAlignedTopAppBar(
-                modifier = Modifier.padding(20.dp),
+                modifier = Modifier.padding(CustomTheme.elevation.bgPadding),
                 navigationIcon = {
                     Icon(
                         imageVector = ImageVector.vectorResource(R.drawable.chevron_left),
-                        tint = Color.Unspecified,
+                        tint = CustomTheme.colors.iconDefault,
                         contentDescription = "back",
                         modifier = Modifier.clickable {
                             navController.popBackStack()
@@ -75,8 +77,11 @@ fun RecipeScreen(recipe: Recipe, navController: NavHostController){
                 actions = {
                     Icon(
                         imageVector = ImageVector.vectorResource(R.drawable.more),
-                        tint = Color.Unspecified,
-                        contentDescription = "more"
+                        tint = CustomTheme.colors.iconDefault,
+                        contentDescription = "more",
+                        modifier = Modifier.clickable {
+                            TODO("menu drawer")
+                        }
                     )
                 }
             )
@@ -84,12 +89,12 @@ fun RecipeScreen(recipe: Recipe, navController: NavHostController){
     ) { innerPadding ->
         Column(
             modifier = Modifier.padding(innerPadding).fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
+            verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Box(
                 modifier = Modifier.width(300.dp).height(300.dp)
-                    .clip(shape = RoundedCornerShape(12.dp)),
+                    .clip(shape = RoundedCornerShape(12.dp)).padding(CustomTheme.elevation.bgPadding),
                 contentAlignment = Alignment.BottomEnd
             ){
                 if (recipe.image != null) {
@@ -106,14 +111,18 @@ fun RecipeScreen(recipe: Recipe, navController: NavHostController){
                     Icon(
                         imageVector = ImageVector.vectorResource(R.drawable.camera),
                         contentDescription = "like",
-                        tint = Color.Unspecified,
-                        modifier = Modifier.padding(10.dp)
+                        tint = CustomTheme.colors.iconDefault,
+                        modifier = Modifier.padding(10.dp).clickable {
+                            TODO("image upload")
+                        }
                     )
                     Icon(
                         imageVector = ImageVector.vectorResource(R.drawable.heart),
                         contentDescription = "like",
-                        tint = Color.Unspecified,
-                        modifier = Modifier.padding(10.dp)
+                        tint = CustomTheme.colors.iconDefault,
+                        modifier = Modifier.padding(10.dp).clickable {
+                            TODO("set like")
+                        }
                     )
                 }
             }
@@ -122,7 +131,8 @@ fun RecipeScreen(recipe: Recipe, navController: NavHostController){
                 fontFamily = CustomTheme.typography.title1.fontFamily,
                 fontWeight = CustomTheme.typography.title1.fontWeight,
                 fontSize = CustomTheme.typography.title1.fontSize,
-                color = CustomTheme.colors.textPrimary
+                color = CustomTheme.colors.textPrimary,
+                modifier = Modifier.padding(20.dp)
             )
             for(ingredient in recipe.ingredients){
                 Text(
@@ -138,7 +148,8 @@ fun RecipeScreen(recipe: Recipe, navController: NavHostController){
                 fontFamily = CustomTheme.typography.title1.fontFamily,
                 fontWeight = CustomTheme.typography.title1.fontWeight,
                 fontSize = CustomTheme.typography.title1.fontSize,
-                color = CustomTheme.colors.textPrimary
+                color = CustomTheme.colors.textPrimary,
+                modifier = Modifier.padding(20.dp)
             )
             for(step in recipe.steps){
                 Text(
@@ -149,6 +160,7 @@ fun RecipeScreen(recipe: Recipe, navController: NavHostController){
                     color = CustomTheme.colors.textPrimary
                 )
             }
+            Box(modifier = Modifier.fillMaxWidth().padding(20.dp))
         }
     }
 }

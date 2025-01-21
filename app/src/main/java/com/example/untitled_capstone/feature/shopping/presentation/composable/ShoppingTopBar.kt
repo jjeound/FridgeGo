@@ -1,5 +1,8 @@
-package com.example.untitled_capstone.feature.main
+package com.example.untitled_capstone.feature.shopping.presentation.composable
 
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -7,6 +10,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarColors
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -17,13 +21,29 @@ import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopBar(){
+fun ShoppingTopBar(){
     TopAppBar(
-        modifier = Modifier.padding(20.dp),
+        modifier = Modifier.padding(CustomTheme.elevation.bgPadding),
         title = {
-            Text(
-                text = "",
-            )
+            Row (
+                modifier = Modifier.clickable {
+                        TODO("change location")
+                    },
+                verticalAlignment = Alignment.CenterVertically
+            ){
+                Text(
+                    text = "무거동", //todo(state로 변경),
+                    fontFamily = CustomTheme.typography.headline3.fontFamily,
+                    fontWeight = CustomTheme.typography.headline3.fontWeight,
+                    fontSize = CustomTheme.typography.headline3.fontSize,
+                    color = CustomTheme.colors.textPrimary,
+                )
+                Spacer(modifier = Modifier.padding(6.dp))
+                Icon(
+                    imageVector = ImageVector.vectorResource(R.drawable.chevron_down),
+                    contentDescription = "dropdown"
+                )
+            }
         },
         actions = {
             Icon(

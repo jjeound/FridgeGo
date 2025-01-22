@@ -24,6 +24,7 @@ import androidx.compose.material3.MediumTopAppBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -50,7 +51,7 @@ data class RecipeNav(
 @Composable
 fun RecipeScreen(recipe: Recipe, navController: NavHostController){
     Scaffold(
-        modifier = Modifier.background(CustomTheme.colors.onSurface),
+        containerColor = CustomTheme.colors.onSurface,
         topBar = {
             CenterAlignedTopAppBar(
                 modifier = Modifier.padding(CustomTheme.elevation.bgPadding),
@@ -83,7 +84,10 @@ fun RecipeScreen(recipe: Recipe, navController: NavHostController){
                             TODO("menu drawer")
                         }
                     )
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = CustomTheme.colors.onSurface
+                )
             )
         }
     ) { innerPadding ->

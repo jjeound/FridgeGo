@@ -108,7 +108,7 @@ fun PostListContainer(post: Post){
                 Icon(
                     imageVector  = ImageVector.vectorResource(R.drawable.people),
                     contentDescription = "numberOfPeople",
-                    tint = Color.Unspecified,
+                    tint = CustomTheme.colors.iconDefault,
                 )
                 Text(
                     text = "${post.currentNumOfPeople}/${post.totalNumbOfPeople}",
@@ -120,7 +120,7 @@ fun PostListContainer(post: Post){
                 Icon(
                     imageVector = ImageVector.vectorResource(R.drawable.heart),
                     contentDescription = "like",
-                    tint = Color.Unspecified,
+                    tint = CustomTheme.colors.iconDefault,
                 )
                 Text(
                     text = "${post.likes}",

@@ -132,7 +132,9 @@ fun PostScreen(post: Post, navController: NavHostController){
                         ) {
                             Button(
                                 modifier = Modifier.padding(end = 4.dp),
-                                onClick = {},
+                                onClick = {
+
+                                },
                                 shape = RoundedCornerShape(12.dp),
                                 colors = ButtonDefaults.buttonColors(
                                     containerColor = CustomTheme.colors.primary,
@@ -150,7 +152,7 @@ fun PostScreen(post: Post, navController: NavHostController){
                             Icon(
                                 imageVector  = ImageVector.vectorResource(R.drawable.people),
                                 contentDescription = "numberOfPeople",
-                                tint = Color.Unspecified,
+                                tint = CustomTheme.colors.iconDefault,
                             )
                             Text(
                                 text = "${post.currentNumOfPeople}/${post.totalNumbOfPeople}",

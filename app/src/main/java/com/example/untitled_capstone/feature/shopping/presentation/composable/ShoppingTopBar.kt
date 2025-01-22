@@ -41,7 +41,8 @@ fun ShoppingTopBar(){
                 Spacer(modifier = Modifier.padding(6.dp))
                 Icon(
                     imageVector = ImageVector.vectorResource(R.drawable.chevron_down),
-                    contentDescription = "dropdown"
+                    contentDescription = "dropdown",
+                    tint = CustomTheme.colors.iconSelected
                 )
             }
         },

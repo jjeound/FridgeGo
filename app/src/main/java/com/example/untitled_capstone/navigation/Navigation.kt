@@ -20,12 +20,15 @@ import com.example.untitled_capstone.feature.home.presentation.screen.RecipeNav
 import com.example.untitled_capstone.feature.home.presentation.screen.RecipeScreen
 import com.example.untitled_capstone.feature.main.BottomScreen
 import com.example.untitled_capstone.feature.my.MyScreen
-import com.example.untitled_capstone.feature.refrigerator.RefrigeratorScreen
+import com.example.untitled_capstone.feature.refrigerator.presentation.FridgeViewModel
+import com.example.untitled_capstone.feature.refrigerator.presentation.screen.RefrigeratorScreen
 import com.example.untitled_capstone.feature.shopping.domain.model.Post
 import com.example.untitled_capstone.feature.shopping.presentation.PostViewModel
 import com.example.untitled_capstone.feature.shopping.presentation.screen.PostNav
 import com.example.untitled_capstone.feature.shopping.presentation.screen.PostScreen
 import com.example.untitled_capstone.feature.shopping.presentation.screen.ShoppingScreen
+import com.example.untitled_capstone.feature.shopping.presentation.screen.WritingNav
+import com.example.untitled_capstone.feature.shopping.presentation.screen.WritingNewPostScreen
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlin.reflect.typeOf
@@ -43,7 +46,8 @@ fun Navigation(navController: NavHostController) {
              ShoppingScreen(navController = navController, viewModel.state)
          }
          composable(BottomScreen.Refrigerator.route){
-             RefrigeratorScreen()
+             val viewModel = FridgeViewModel()
+             RefrigeratorScreen(viewModel.state)
          }
          composable(BottomScreen.Chat.route){
              ChattingScreen()
@@ -70,6 +74,9 @@ fun Navigation(navController: NavHostController) {
              PostScreen(
                  args.post, navController
              )
+         }
+         composable<WritingNav> {
+             WritingNewPostScreen(navController)
          }
      }
 

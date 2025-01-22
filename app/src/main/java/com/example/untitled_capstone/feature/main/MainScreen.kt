@@ -20,6 +20,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.untitled_capstone.navigation.Navigation
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.feature.shopping.presentation.composable.ShoppingTopBar
+import com.example.untitled_capstone.feature.shopping.presentation.screen.WritingNav
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @Composable
@@ -69,7 +70,9 @@ fun MainScreen(){
                     }
                 }else if(viewModel.selectedIndex == 1){
                     FloatingActionButton(
-                        onClick = { /*TODO*/ },
+                        onClick = {
+                            navController.navigate(WritingNav)
+                        },
                         elevation = FloatingActionButtonDefaults.elevation(0.dp),
                         containerColor = Color.Unspecified,
                         contentColor = Color.Unspecified,

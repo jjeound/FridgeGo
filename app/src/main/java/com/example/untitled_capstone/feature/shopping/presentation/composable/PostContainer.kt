@@ -28,13 +28,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import com.example.untitled_capstone.R
+import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.feature.shopping.domain.model.Post
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @Composable
 fun PostContainer(post: Post){
     Column(
-        modifier = Modifier.fillMaxSize().padding(CustomTheme.elevation.bgPadding)
+        modifier = Modifier.fillMaxSize().padding(Dimens.surfacePadding)
     ) {
         if (post.image != null) {
             Image(
@@ -43,7 +44,7 @@ fun PostContainer(post: Post){
                 alignment = Alignment.Center,
                 contentScale = ContentScale.Fit,
                 modifier = Modifier.fillMaxWidth().aspectRatio(1f)
-                    .padding(CustomTheme.elevation.itemPadding)
+                    .padding(Dimens.onSurfacePadding)
                     .clip(shape = RoundedCornerShape(12.dp))
             )
         } else {
@@ -51,13 +52,13 @@ fun PostContainer(post: Post){
                 modifier = Modifier
                     .fillMaxWidth()
                     .aspectRatio(1f)
-                    .padding(CustomTheme.elevation.itemPadding)
+                    .padding(Dimens.onSurfacePadding)
                     .clip(shape = RoundedCornerShape(12.dp))
                     .background(CustomTheme.colors.surface)
             )
         }
         Row(
-            modifier = Modifier.fillMaxWidth().padding(CustomTheme.elevation.itemPadding),
+            modifier = Modifier.fillMaxWidth().padding(Dimens.onSurfacePadding),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Row {
@@ -91,7 +92,7 @@ fun PostContainer(post: Post){
             modifier = Modifier.height(1.dp).fillMaxWidth().background(CustomTheme.colors.surface)
         )
         Column(
-            modifier = Modifier.padding(CustomTheme.elevation.itemPadding)
+            modifier = Modifier.padding(Dimens.onSurfacePadding)
         ) {
             Text(
                 text = post.title,

@@ -27,6 +27,7 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.untitled_capstone.R
+import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.feature.shopping.domain.model.Post
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
@@ -36,10 +37,9 @@ fun PostListContainer(post: Post){
         colors = CardDefaults.cardColors(
             containerColor = CustomTheme.colors.onSurface,
         ),
-        shape = RoundedCornerShape(12.dp),
+        shape = RoundedCornerShape(Dimens.cornerRadius),
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = CustomTheme.elevation.bgPadding)
             .padding(bottom = 10.dp),
     ) {
         Row{
@@ -50,19 +50,19 @@ fun PostListContainer(post: Post){
                     alignment = Alignment.Center,
                     contentScale = ContentScale.Fit,
                     modifier = Modifier.size(120.dp)
-                        .padding(CustomTheme.elevation.itemPadding)
+                        .padding(Dimens.onSurfacePadding)
                         .clip(shape = RoundedCornerShape(12.dp))
                 )
             } else {
                 Box(
                     modifier = Modifier
-                        .size(120.dp).padding(CustomTheme.elevation.itemPadding)
+                        .size(120.dp).padding(Dimens.onSurfacePadding)
                         .clip(shape = RoundedCornerShape(12.dp))
                         .background(CustomTheme.colors.surface)
                 )
             }
             Column(
-                modifier = Modifier.weight(1f).padding(CustomTheme.elevation.itemPadding),
+                modifier = Modifier.weight(1f).padding(Dimens.onSurfacePadding),
                 verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.Start
             ){
@@ -101,7 +101,7 @@ fun PostListContainer(post: Post){
                 }
             }
             Row(
-                modifier = Modifier.fillMaxHeight().padding(CustomTheme.elevation.itemPadding),
+                modifier = Modifier.fillMaxHeight().padding(Dimens.onSurfacePadding),
                 horizontalArrangement = Arrangement.End,
                 verticalAlignment = Alignment.Bottom
             ){

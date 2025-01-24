@@ -37,6 +37,7 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.untitled_capstone.R
+import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.feature.shopping.domain.model.Post
 import com.example.untitled_capstone.feature.shopping.presentation.composable.PostContainer
 import com.example.untitled_capstone.ui.theme.CustomTheme
@@ -54,7 +55,7 @@ fun PostScreen(post: Post, navController: NavHostController){
         containerColor = CustomTheme.colors.onSurface,
         topBar = {
             TopAppBar(
-                modifier = Modifier.padding(CustomTheme.elevation.bgPadding),
+                modifier = Modifier.padding(Dimens.surfacePadding),
                 navigationIcon = {
                     Icon(
                         imageVector = ImageVector.vectorResource(R.drawable.chevron_left),
@@ -87,7 +88,7 @@ fun PostScreen(post: Post, navController: NavHostController){
         bottomBar = {
             BottomAppBar(
                 modifier = Modifier.height(80.dp)
-                    .padding(horizontal = CustomTheme.elevation.bgPadding,
+                    .padding(horizontal = Dimens.surfacePadding,
                         vertical = 10.dp),
                 containerColor = CustomTheme.colors.onSurface,
                 content = {

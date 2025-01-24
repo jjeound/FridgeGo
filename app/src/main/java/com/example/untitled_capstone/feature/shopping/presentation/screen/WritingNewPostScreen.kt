@@ -2,8 +2,6 @@ package com.example.untitled_capstone.feature.shopping.presentation.screen
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -12,8 +10,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -23,12 +19,12 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.untitled_capstone.R
+import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.feature.shopping.presentation.composable.NewPostForm
 import com.example.untitled_capstone.ui.theme.CustomTheme
 import kotlinx.serialization.Serializable
@@ -44,7 +40,7 @@ fun WritingNewPostScreen(navController: NavHostController){
         containerColor = CustomTheme.colors.onSurface,
         topBar = {
             CenterAlignedTopAppBar(
-                modifier = Modifier.padding(CustomTheme.elevation.bgPadding),
+                modifier = Modifier.padding(Dimens.surfacePadding),
                 title = {
                     Text(
                         text = "공동구매",
@@ -82,7 +78,7 @@ fun WritingNewPostScreen(navController: NavHostController){
                 containerColor = CustomTheme.colors.onSurface,
                 content = {
                     Button(
-                        modifier = Modifier.fillMaxWidth().padding(CustomTheme.elevation.itemPadding),
+                        modifier = Modifier.fillMaxWidth().padding(Dimens.onSurfacePadding),
                         shape = RoundedCornerShape(12.dp),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = CustomTheme.colors.primary,

@@ -44,6 +44,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import com.example.untitled_capstone.R
+import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @Composable
@@ -59,10 +60,10 @@ fun NewPostForm() {
         color = CustomTheme.colors.textTertiary,
     )
     Column(
-        modifier = Modifier.fillMaxSize().padding(CustomTheme.elevation.bgPadding)
+        modifier = Modifier.fillMaxSize().padding(Dimens.surfacePadding)
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth().padding(CustomTheme.elevation.itemPadding),
+            modifier = Modifier.fillMaxWidth().padding(Dimens.onSurfacePadding),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(

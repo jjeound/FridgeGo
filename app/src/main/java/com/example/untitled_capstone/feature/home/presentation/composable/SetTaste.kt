@@ -26,6 +26,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import com.example.untitled_capstone.R
+import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @Composable
@@ -40,7 +41,7 @@ fun SetTaste() {
         modifier = Modifier.wrapContentHeight().fillMaxWidth()
     ){
         Column (
-            modifier = Modifier.padding(CustomTheme.elevation.bgPadding)
+            modifier = Modifier.padding(Dimens.surfacePadding)
         ){
             Text(
                 text = "내 취향 설정하기",

@@ -12,7 +12,11 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
-import com.example.untitled_capstone.feature.chatting.ChattingScreen
+import com.example.untitled_capstone.feature.chatting.domain.model.ChattingRoom
+import com.example.untitled_capstone.feature.chatting.presentation.ChatViewModel
+import com.example.untitled_capstone.feature.chatting.presentation.screen.ChattingRoomNav
+import com.example.untitled_capstone.feature.chatting.presentation.screen.ChattingRoomScreen
+import com.example.untitled_capstone.feature.chatting.presentation.screen.ChattingScreen
 import com.example.untitled_capstone.feature.home.domain.model.Recipe
 import com.example.untitled_capstone.feature.home.presentation.screen.HomeScreen
 import com.example.untitled_capstone.feature.home.presentation.HomeViewModel
@@ -21,6 +25,8 @@ import com.example.untitled_capstone.feature.home.presentation.screen.RecipeScre
 import com.example.untitled_capstone.feature.main.BottomScreen
 import com.example.untitled_capstone.feature.my.MyScreen
 import com.example.untitled_capstone.feature.refrigerator.presentation.FridgeViewModel
+import com.example.untitled_capstone.feature.refrigerator.presentation.screen.AddFridgeItemNav
+import com.example.untitled_capstone.feature.refrigerator.presentation.screen.AddFridgeItemScreen
 import com.example.untitled_capstone.feature.refrigerator.presentation.screen.RefrigeratorScreen
 import com.example.untitled_capstone.feature.shopping.domain.model.Post
 import com.example.untitled_capstone.feature.shopping.presentation.PostViewModel
@@ -50,7 +56,8 @@ fun Navigation(navController: NavHostController) {
              RefrigeratorScreen(viewModel.state)
          }
          composable(BottomScreen.Chat.route){
-             ChattingScreen()
+             val viewModel = it.sharedViewModel<ChatViewModel>(navController)
+             ChattingScreen(viewModel.chatState, navController)
          }
          composable(BottomScreen.My.route){
              MyScreen()
@@ -78,13 +85,20 @@ fun Navigation(navController: NavHostController) {
          composable<WritingNav> {
              WritingNewPostScreen(navController)
          }
+         composable<AddFridgeItemNav> {
+             AddFridgeItemScreen()
+         }
+         composable<ChattingRoomNav>(
+             typeMap = mapOf(
+                 typeOf<ChattingRoom>() to CustomNavType.ChatType
+             )
+         ) {
+             val viewModel = it.sharedViewModel<ChatViewModel>(navController)
+             val args = it.toRoute<ChattingRoomNav>()
+             ChattingRoomScreen(viewModel.messageState, args.chattingRoom , navController)
+         }
      }
 
-}
-
-object Graph{
-    const val Main = "main_graph"
-    const val Home = "home_graph"
 }
 
 @Composable
@@ -133,6 +147,26 @@ object CustomNavType{
         }
 
         override fun put(bundle: Bundle, key: String, value: Post) {
+            bundle.putString(key, Json.encodeToString(value))
+        }
+
+    }
+    val ChatType = object: NavType<ChattingRoom>(
+        isNullableAllowed = false
+    ){
+        override fun get(bundle: Bundle, key: String): ChattingRoom? {
+            return Json.decodeFromString(bundle.getString(key) ?: return null)
+        }
+
+        override fun parseValue(value: String): ChattingRoom {
+            return Json.decodeFromString(Uri.decode(value))
+        }
+
+        override fun serializeAsValue(value: ChattingRoom): String {
+            return Uri.encode(Json.encodeToString(value))
+        }
+
+        override fun put(bundle: Bundle, key: String, value: ChattingRoom) {
             bundle.putString(key, Json.encodeToString(value))
         }
 

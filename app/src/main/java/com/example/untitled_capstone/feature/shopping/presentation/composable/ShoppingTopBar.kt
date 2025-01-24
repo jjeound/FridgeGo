@@ -17,13 +17,14 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import com.example.untitled_capstone.R
+import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ShoppingTopBar(){
     TopAppBar(
-        modifier = Modifier.padding(CustomTheme.elevation.bgPadding),
+        modifier = Modifier.padding(Dimens.surfacePadding),
         title = {
             Row (
                 modifier = Modifier.clickable {

@@ -10,15 +10,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.feature.shopping.presentation.composable.PostListContainer
 import com.example.untitled_capstone.feature.shopping.presentation.state.PostState
 
 @Composable
 fun ShoppingScreen(navController: NavHostController, state: PostState) {
-    LazyColumn {
-        item {
-            Spacer(modifier = Modifier.padding(10.dp))
-        }
+    LazyColumn(
+        modifier = Modifier.padding(horizontal = Dimens.surfacePadding, vertical = 10.dp)
+    ) {
         items(state.posts) { post ->
             Box(
                 modifier = Modifier.clickable {

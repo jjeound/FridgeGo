@@ -17,13 +17,35 @@ import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopBar(){
+fun TopBar(index: Int){
     TopAppBar(
         modifier = Modifier.padding(20.dp),
         title = {
-            Text(
-                text = "",
-            )
+            when(index){
+                1 -> {
+                    Text(
+                        text = "",
+                    )
+                }
+                4 -> {
+                    Text(
+                        text = "채팅",
+                        fontFamily = CustomTheme.typography.headline3.fontFamily,
+                        fontWeight = CustomTheme.typography.headline3.fontWeight,
+                        fontSize = CustomTheme.typography.headline3.fontSize,
+                        color = CustomTheme.colors.textPrimary,
+                    )
+                }
+                5 -> {
+                    Text(
+                        text = "설정",
+                        fontFamily = CustomTheme.typography.headline3.fontFamily,
+                        fontWeight = CustomTheme.typography.headline3.fontWeight,
+                        fontSize = CustomTheme.typography.headline3.fontSize,
+                        color = CustomTheme.colors.textPrimary,
+                    )
+                }
+            }
         },
         actions = {
             Icon(

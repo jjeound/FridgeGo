@@ -13,7 +13,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import com.example.untitled_capstone.R
@@ -55,7 +54,7 @@ fun BottomNavBar(navController: NavHostController, viewModel: MainViewModel){
     ) {
         items.forEachIndexed() { index, item ->
             NavigationBarItem(
-                modifier = Modifier.padding(3.dp),
+                modifier = Modifier.padding(3.dp).padding(top = 10.dp),
                 selected = viewModel.selectedIndex == index,
                 onClick = {
                     viewModel.updateSelectedIndex(index)

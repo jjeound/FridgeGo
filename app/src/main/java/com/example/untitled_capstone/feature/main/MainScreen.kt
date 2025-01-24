@@ -19,6 +19,8 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.untitled_capstone.navigation.Navigation
 import com.example.untitled_capstone.R
+import com.example.untitled_capstone.feature.refrigerator.presentation.composable.FridgeTopBar
+import com.example.untitled_capstone.feature.refrigerator.presentation.screen.AddFridgeItemNav
 import com.example.untitled_capstone.feature.shopping.presentation.composable.ShoppingTopBar
 import com.example.untitled_capstone.feature.shopping.presentation.screen.WritingNav
 import com.example.untitled_capstone.ui.theme.CustomTheme
@@ -42,11 +44,11 @@ fun MainScreen(){
         containerColor = CustomTheme.colors.surface,
         topBar = {
             when(currentDestination?.route){
-                BottomScreen.Home.route -> TopBar()
+                BottomScreen.Home.route -> TopBar(1)
                 BottomScreen.Shopping.route -> ShoppingTopBar()
-                BottomScreen.Refrigerator.route -> TopBar()
-                BottomScreen.Chat.route -> TopBar()
-                BottomScreen.My.route -> TopBar()
+                BottomScreen.Refrigerator.route -> FridgeTopBar()
+                BottomScreen.Chat.route -> TopBar(4)
+                BottomScreen.My.route -> TopBar(5)
             }
         },
         bottomBar = {
@@ -68,10 +70,11 @@ fun MainScreen(){
                             contentDescription = "ai"
                         )
                     }
-                }else if(viewModel.selectedIndex == 1){
+                }else if(viewModel.selectedIndex == 1 || viewModel.selectedIndex == 2){
                     FloatingActionButton(
                         onClick = {
-                            navController.navigate(WritingNav)
+                            if(viewModel.selectedIndex == 1) navController.navigate(WritingNav)
+                            else navController.navigate(AddFridgeItemNav)
                         },
                         elevation = FloatingActionButtonDefaults.elevation(0.dp),
                         containerColor = Color.Unspecified,

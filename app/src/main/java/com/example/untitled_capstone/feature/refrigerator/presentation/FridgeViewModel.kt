@@ -34,14 +34,14 @@ class FridgeViewModel: ViewModel() {
                     image = null,
                     quantity = 3,
                     expirationDate = "2021-12-31",
-                    notification = true
+                    notification = false
                 ),
                 FridgeItem(
                     name = "name4",
                     image = null,
                     quantity = 4,
                     expirationDate = "2021-12-31",
-                    notification = true
+                    notification = false
                 )
             ),
             loading = false

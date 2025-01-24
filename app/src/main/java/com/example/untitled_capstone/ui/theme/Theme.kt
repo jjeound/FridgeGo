@@ -105,26 +105,11 @@ val customTypography =  CustomTypography(
     caption2 = TextStyle(fontFamily = fontFamily, fontWeight = FontWeight.Normal, fontSize = 10.sp)
 )
 
-@Immutable
-data class CustomElevation(
-    val bgPadding : Dp,
-    val itemPadding: Dp,
-    val cardCornerRadius: Dp,
-)
-
 val LocalCustomColors = staticCompositionLocalOf {
     LightCustomColors
 }
 val LocalCustomTypography = staticCompositionLocalOf {
     customTypography
-}
-
-val LocalCustomElevation = staticCompositionLocalOf {
-    CustomElevation(
-        bgPadding = Dp.Unspecified,
-        itemPadding = Dp.Unspecified,
-        cardCornerRadius = Dp.Unspecified
-    )
 }
 
 
@@ -157,11 +142,6 @@ fun Untitled_CapstoneTheme(
     CompositionLocalProvider(
         LocalCustomColors provides colors,
         LocalCustomTypography provides customTypography,
-        LocalCustomElevation provides  CustomElevation(
-            bgPadding = 20.dp,
-            itemPadding = 10.dp,
-            cardCornerRadius = 12.dp
-        ),
         content = content
     )
 }
@@ -173,9 +153,6 @@ object CustomTheme {
     val typography: CustomTypography
         @Composable
         get() = LocalCustomTypography.current
-    val elevation: CustomElevation
-        @Composable
-        get() = LocalCustomElevation.current
 }
 
 

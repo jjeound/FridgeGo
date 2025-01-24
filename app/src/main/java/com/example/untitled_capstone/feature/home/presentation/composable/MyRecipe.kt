@@ -26,6 +26,7 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.untitled_capstone.R
+import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.feature.home.domain.model.Recipe
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
@@ -71,7 +72,7 @@ fun MyRecipe(recipe: Recipe, onClick : () -> Unit){
             fontWeight = CustomTheme.typography.title1.fontWeight,
             fontSize = CustomTheme.typography.title1.fontSize,
             color = CustomTheme.colors.textPrimary,
-            modifier = Modifier.padding(top = 4.dp, bottom = CustomTheme.elevation.bgPadding),
+            modifier = Modifier.padding(top = 4.dp, bottom =Dimens.surfacePadding),
             overflow = TextOverflow.Ellipsis,
             maxLines = 1
         )

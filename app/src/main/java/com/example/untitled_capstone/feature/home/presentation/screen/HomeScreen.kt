@@ -26,6 +26,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.untitled_capstone.R
+import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.feature.home.domain.model.Recipe
 import com.example.untitled_capstone.feature.home.presentation.HomeViewModel
 import com.example.untitled_capstone.feature.home.presentation.composable.MyRecipe
@@ -36,7 +37,7 @@ import com.example.untitled_capstone.ui.theme.CustomTheme
 @Composable
 fun HomeScreen(state: MyRecipeState, navController: NavHostController) {
     Column(
-        modifier = Modifier.fillMaxSize().padding(CustomTheme.elevation.bgPadding)
+        modifier = Modifier.fillMaxSize().padding(Dimens.surfacePadding)
     ) {
         SetTaste()
         Card (

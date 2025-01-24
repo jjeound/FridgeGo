@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.untitled_capstone.R
+import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.feature.home.domain.model.Recipe
 import com.example.untitled_capstone.ui.theme.CustomTheme
 import kotlinx.serialization.Serializable
@@ -54,7 +55,7 @@ fun RecipeScreen(recipe: Recipe, navController: NavHostController){
         containerColor = CustomTheme.colors.onSurface,
         topBar = {
             CenterAlignedTopAppBar(
-                modifier = Modifier.padding(CustomTheme.elevation.bgPadding),
+                modifier = Modifier.padding(Dimens.surfacePadding),
                 navigationIcon = {
                     Icon(
                         imageVector = ImageVector.vectorResource(R.drawable.chevron_left),
@@ -98,7 +99,7 @@ fun RecipeScreen(recipe: Recipe, navController: NavHostController){
         ) {
             Box(
                 modifier = Modifier.width(300.dp).height(300.dp)
-                    .clip(shape = RoundedCornerShape(12.dp)).padding(CustomTheme.elevation.bgPadding),
+                    .clip(shape = RoundedCornerShape(12.dp)).padding(Dimens.surfacePadding),
                 contentAlignment = Alignment.BottomEnd
             ){
                 if (recipe.image != null) {

@@ -23,7 +23,7 @@ import com.example.untitled_capstone.feature.home.presentation.HomeViewModel
 import com.example.untitled_capstone.feature.home.presentation.screen.RecipeNav
 import com.example.untitled_capstone.feature.home.presentation.screen.RecipeScreen
 import com.example.untitled_capstone.feature.main.BottomScreen
-import com.example.untitled_capstone.feature.my.MyScreen
+import com.example.untitled_capstone.feature.my.presentation.screen.MyScreen
 import com.example.untitled_capstone.feature.refrigerator.presentation.FridgeViewModel
 import com.example.untitled_capstone.feature.refrigerator.presentation.screen.AddFridgeItemNav
 import com.example.untitled_capstone.feature.refrigerator.presentation.screen.AddFridgeItemScreen

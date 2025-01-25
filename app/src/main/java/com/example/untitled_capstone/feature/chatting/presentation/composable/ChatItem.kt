@@ -8,8 +8,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Badge
@@ -47,7 +49,7 @@ fun ChatItem(chat: ChattingRoom){
                 )
             )
             Spacer(
-                modifier = Modifier.padding(horizontal = Dimens.onSurfacePadding)
+                modifier = Modifier.width(Dimens.onSurfacePadding)
             )
             Column(
                 modifier = Modifier.padding(vertical = 4.dp),
@@ -61,7 +63,7 @@ fun ChatItem(chat: ChattingRoom){
                         color = CustomTheme.colors.textPrimary,
                     )
                     Spacer(
-                        modifier = Modifier.padding(6.dp)
+                        modifier = Modifier.width(6.dp)
                     )
                     Text(
                         text = chat.numberOfPeople.toString(),
@@ -92,7 +94,7 @@ fun ChatItem(chat: ChattingRoom){
                 color = CustomTheme.colors.textSecondary,
             )
             Spacer(
-                modifier = Modifier.padding(6.dp)
+                modifier = Modifier.height(6.dp)
             )
             if(chat.messagesNotReadYet > 0){
                 Badge(

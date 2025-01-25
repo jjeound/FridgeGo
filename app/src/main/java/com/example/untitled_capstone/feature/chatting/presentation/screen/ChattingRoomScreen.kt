@@ -2,7 +2,12 @@ package com.example.untitled_capstone.feature.chatting.presentation.screen
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -12,9 +17,11 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
@@ -38,13 +45,28 @@ fun ChattingRoomScreen(state: MessageState, chattingRoom: ChattingRoom, navContr
             CenterAlignedTopAppBar(
                 modifier = Modifier.padding(Dimens.surfacePadding),
                 title = {
-                    Text(
-                        text = chattingRoom.title,
-                        fontFamily = CustomTheme.typography.headline3.fontFamily,
-                        fontWeight = CustomTheme.typography.headline3.fontWeight,
-                        fontSize = CustomTheme.typography.headline3.fontSize,
-                        color = CustomTheme.colors.textPrimary,
-                    )
+                    Row(
+                        modifier = Modifier.height(24.dp)
+                    ) {
+                        Text(
+                            text = chattingRoom.title,
+                            fontFamily = CustomTheme.typography.title1.fontFamily,
+                            fontWeight = CustomTheme.typography.title1.fontWeight,
+                            fontSize = CustomTheme.typography.title1.fontSize,
+                            color = CustomTheme.colors.textPrimary,
+                        )
+                        Spacer(
+                            modifier = Modifier.width(3.dp)
+                        )
+                        Text(
+                            text = chattingRoom.numberOfPeople.toString(),
+                            fontFamily = CustomTheme.typography.title2.fontFamily,
+                            fontWeight = CustomTheme.typography.title2.fontWeight,
+                            fontSize = CustomTheme.typography.title2.fontSize,
+                            color = CustomTheme.colors.textSecondary,
+                            modifier = Modifier.align(Alignment.Bottom)
+                        )
+                    }
                 },
                 navigationIcon = {
                     Icon(

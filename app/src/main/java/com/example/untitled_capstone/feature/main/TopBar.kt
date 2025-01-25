@@ -36,15 +36,6 @@ fun TopBar(index: Int){
                         color = CustomTheme.colors.textPrimary,
                     )
                 }
-                5 -> {
-                    Text(
-                        text = "설정",
-                        fontFamily = CustomTheme.typography.headline3.fontFamily,
-                        fontWeight = CustomTheme.typography.headline3.fontWeight,
-                        fontSize = CustomTheme.typography.headline3.fontSize,
-                        color = CustomTheme.colors.textPrimary,
-                    )
-                }
             }
         },
         actions = {

@@ -19,6 +19,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.untitled_capstone.navigation.Navigation
 import com.example.untitled_capstone.R
+import com.example.untitled_capstone.feature.my.presentation.composable.MyTopBar
 import com.example.untitled_capstone.feature.refrigerator.presentation.composable.FridgeTopBar
 import com.example.untitled_capstone.feature.refrigerator.presentation.screen.AddFridgeItemNav
 import com.example.untitled_capstone.feature.shopping.presentation.composable.ShoppingTopBar
@@ -48,7 +49,7 @@ fun MainScreen(){
                 BottomScreen.Shopping.route -> ShoppingTopBar()
                 BottomScreen.Refrigerator.route -> FridgeTopBar()
                 BottomScreen.Chat.route -> TopBar(4)
-                BottomScreen.My.route -> TopBar(5)
+                BottomScreen.My.route -> MyTopBar()
             }
         },
         bottomBar = {

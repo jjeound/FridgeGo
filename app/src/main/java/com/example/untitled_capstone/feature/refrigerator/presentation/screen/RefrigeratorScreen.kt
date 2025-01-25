@@ -113,7 +113,7 @@ fun RefrigeratorScreen(state: FridgeState) {
             thickness = 1.dp,
             color = CustomTheme.colors.border
         )
-        Spacer(modifier = Modifier.padding(Dimens.onSurfacePadding))
+        Spacer(modifier = Modifier.height(Dimens.onSurfacePadding))
         LazyColumn {
             items(state.fridgeItems) { item ->
                 FridgeItemContainer(item)

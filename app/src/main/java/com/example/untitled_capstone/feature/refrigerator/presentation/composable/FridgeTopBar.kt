@@ -4,6 +4,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -38,7 +39,7 @@ fun FridgeTopBar(){
                     fontSize = CustomTheme.typography.headline3.fontSize,
                     color = CustomTheme.colors.textPrimary,
                 )
-                Spacer(modifier = Modifier.padding(6.dp))
+                Spacer(modifier = Modifier.width(6.dp))
                 Icon(
                     imageVector = ImageVector.vectorResource(R.drawable.chevron_down),
                     contentDescription = "dropdown",

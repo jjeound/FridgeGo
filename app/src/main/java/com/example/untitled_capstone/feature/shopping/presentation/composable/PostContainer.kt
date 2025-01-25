@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
@@ -67,6 +68,9 @@ fun PostContainer(post: Post){
                     contentDescription = "profile image",
                     tint = CustomTheme.colors.iconDefault
                 )
+                Spacer(
+                    modifier = Modifier.width(6.dp)
+                )
                 Column {
                     Text(
                         text = "닉네임", //post.user.name
@@ -117,7 +121,7 @@ fun PostContainer(post: Post){
                 softWrap = true
             )
             Spacer(
-                modifier = Modifier.padding(10.dp)
+                modifier = Modifier.height(10.dp)
             )
             Text(
                 text = "조회 ${post.views}",

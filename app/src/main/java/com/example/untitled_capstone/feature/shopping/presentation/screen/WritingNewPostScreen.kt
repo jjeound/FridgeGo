@@ -44,9 +44,9 @@ fun WritingNewPostScreen(navController: NavHostController){
                 title = {
                     Text(
                         text = "공동구매",
-                        fontFamily = CustomTheme.typography.headline3.fontFamily,
-                        fontWeight = CustomTheme.typography.headline3.fontWeight,
-                        fontSize = CustomTheme.typography.headline3.fontSize,
+                        fontFamily = CustomTheme.typography.title1.fontFamily,
+                        fontWeight = CustomTheme.typography.title1.fontWeight,
+                        fontSize = CustomTheme.typography.title1.fontSize,
                         color = CustomTheme.colors.textPrimary,
                     )
                 },

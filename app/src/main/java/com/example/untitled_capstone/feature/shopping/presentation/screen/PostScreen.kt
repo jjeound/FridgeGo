@@ -27,6 +27,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -103,13 +104,12 @@ fun PostScreen(post: Post, navController: NavHostController){
                                 imageVector = ImageVector.vectorResource(R.drawable.heart),
                                 contentDescription = "like",
                                 tint = CustomTheme.colors.iconDefault,
-                                modifier = Modifier.padding(start = 10.dp, end = 6.dp)
+                                modifier = Modifier.padding(start = 10.dp)
                             )
-                            Spacer(
-                                modifier = Modifier
-                                    .width(1.dp)
-                                    .fillMaxHeight()
-                                    .background(CustomTheme.colors.textTertiary)
+                            VerticalDivider(
+                                modifier = Modifier.padding(horizontal = 6.dp),
+                                thickness = 1.dp,
+                                color = CustomTheme.colors.textTertiary
                             )
                             Text(
                                 text = post.price.toString(),
@@ -117,7 +117,7 @@ fun PostScreen(post: Post, navController: NavHostController){
                                 fontWeight = CustomTheme.typography.title2.fontWeight,
                                 fontSize = CustomTheme.typography.title2.fontSize,
                                 color = CustomTheme.colors.textPrimary,
-                                modifier = Modifier.padding(start = 6.dp)
+                                modifier = Modifier.padding(end = 4.dp)
                             )
                             Text(
                                 text = "(${post.currentNumOfPeople}/${post.totalNumbOfPeople})",

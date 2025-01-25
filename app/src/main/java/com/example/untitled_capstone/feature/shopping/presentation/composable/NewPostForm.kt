@@ -79,7 +79,7 @@ fun NewPostForm() {
                 color = CustomTheme.colors.textSecondary,
             )
             Spacer(
-                modifier = Modifier.padding(6.dp)
+                modifier = Modifier.width(6.dp)
             )
             Box(){
                 Card(

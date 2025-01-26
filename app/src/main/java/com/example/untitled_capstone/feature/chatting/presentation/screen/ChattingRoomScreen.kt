@@ -27,6 +27,7 @@ import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.feature.chatting.domain.model.ChattingRoom
 import com.example.untitled_capstone.feature.chatting.presentation.composable.MessageCard
+import com.example.untitled_capstone.feature.chatting.presentation.composable.NewMessageForm
 import com.example.untitled_capstone.feature.chatting.presentation.state.MessageState
 import com.example.untitled_capstone.ui.theme.CustomTheme
 import kotlinx.serialization.Serializable
@@ -90,6 +91,9 @@ fun ChattingRoomScreen(state: MessageState, chattingRoom: ChattingRoom, navContr
                 )
             )
         },
+        bottomBar = {
+            NewMessageForm()
+        }
     ) { innerPadding ->
         Box(
             modifier = Modifier.padding(innerPadding)

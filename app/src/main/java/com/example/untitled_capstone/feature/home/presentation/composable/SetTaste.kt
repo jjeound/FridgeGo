@@ -79,6 +79,7 @@ fun SetTaste() {
                         Icon(
                             imageVector = ImageVector.vectorResource(R.drawable.delete),
                             contentDescription = "delete",
+                            tint = CustomTheme.colors.iconDefault,
                             modifier = Modifier.clickable(
                                 onClick = { text = "" }
                             )

@@ -45,11 +45,11 @@ fun MainScreen(){
         containerColor = CustomTheme.colors.surface,
         topBar = {
             when(currentDestination?.route){
-                BottomScreen.Home.route -> TopBar(1)
-                BottomScreen.Shopping.route -> ShoppingTopBar()
-                BottomScreen.Refrigerator.route -> FridgeTopBar()
-                BottomScreen.Chat.route -> TopBar(4)
-                BottomScreen.My.route -> MyTopBar()
+                BottomScreen.Home.route -> TopBar(1, navController)
+                BottomScreen.Shopping.route -> ShoppingTopBar(navController)
+                BottomScreen.Refrigerator.route -> FridgeTopBar(navController)
+                BottomScreen.Chat.route -> TopBar(4, navController)
+                BottomScreen.My.route -> MyTopBar(navController)
             }
         },
         bottomBar = {

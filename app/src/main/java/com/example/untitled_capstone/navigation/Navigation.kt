@@ -12,6 +12,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
+import com.example.untitled_capstone.feature.notification.presentation.NotificationViewModel
 import com.example.untitled_capstone.feature.chatting.domain.model.ChattingRoom
 import com.example.untitled_capstone.feature.chatting.presentation.ChatViewModel
 import com.example.untitled_capstone.feature.chatting.presentation.screen.ChattingRoomNav
@@ -24,6 +25,8 @@ import com.example.untitled_capstone.feature.home.presentation.screen.RecipeNav
 import com.example.untitled_capstone.feature.home.presentation.screen.RecipeScreen
 import com.example.untitled_capstone.feature.main.BottomScreen
 import com.example.untitled_capstone.feature.my.presentation.screen.MyScreen
+import com.example.untitled_capstone.feature.notification.presentation.screen.NotificationNav
+import com.example.untitled_capstone.feature.notification.presentation.screen.NotificationScreen
 import com.example.untitled_capstone.feature.refrigerator.presentation.FridgeViewModel
 import com.example.untitled_capstone.feature.refrigerator.presentation.screen.AddFridgeItemNav
 import com.example.untitled_capstone.feature.refrigerator.presentation.screen.AddFridgeItemScreen
@@ -86,7 +89,7 @@ fun Navigation(navController: NavHostController) {
              WritingNewPostScreen(navController)
          }
          composable<AddFridgeItemNav> {
-             AddFridgeItemScreen()
+             AddFridgeItemScreen(navController)
          }
          composable<ChattingRoomNav>(
              typeMap = mapOf(
@@ -96,6 +99,10 @@ fun Navigation(navController: NavHostController) {
              val viewModel = it.sharedViewModel<ChatViewModel>(navController)
              val args = it.toRoute<ChattingRoomNav>()
              ChattingRoomScreen(viewModel.messageState, args.chattingRoom , navController)
+         }
+         composable<NotificationNav> {
+             val viewModel = NotificationViewModel()
+             NotificationScreen(navController, viewModel.state)
          }
      }
 

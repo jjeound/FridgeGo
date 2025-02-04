@@ -20,7 +20,9 @@ loggingInterceptor = "4.9.3"
 material = "1.12.0"
 navigationCompose = "2.8.5"
 okhttp = "4.9.3"
+pagingRuntimeKtx = "3.3.5"
 retrofit = "2.11.0"
+roomKtx = "2.6.1"
 runtimeLivedata = "1.7.6"
 
 [libraries]
@@ -29,6 +31,11 @@ androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", versi
 androidx-hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
 androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycleRuntimeKtx" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
+androidx-paging-compose = { module = "androidx.paging:paging-compose", version.ref = "pagingRuntimeKtx" }
+androidx-paging-runtime-ktx = { module = "androidx.paging:paging-runtime-ktx", version.ref = "pagingRuntimeKtx" }
+androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomKtx" }
+androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomKtx" }
+androidx-room-paging = { module = "androidx.room:room-paging", version.ref = "roomKtx" }
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "converterGson" }
 core-splashscreen = { module = "libs.androidx.core.ktx:core-splashscreen", version.ref = "coreSplashscreen" }

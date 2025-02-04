@@ -47,11 +47,11 @@ dependencies {
     //Hilt
     implementation (libs.hilt.android)
     kapt (libs.hilt.compiler)
-    implementation(libs.androidx.runtime.livedata)
     implementation(libs.androidx.hilt.navigation.compose)
 
     //ViewModel
     implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.androidx.runtime.livedata)
 
     //Navigation
     implementation(libs.androidx.navigation.compose)
@@ -63,6 +63,15 @@ dependencies {
     implementation (libs.converter.gson)
     implementation (libs.okhttp)
     implementation (libs.logging.interceptor)
+
+    //Paging
+    implementation (libs.androidx.paging.runtime.ktx)
+    implementation (libs.androidx.paging.compose)
+
+    // Room
+    implementation (libs.androidx.room.ktx)
+    kapt (libs.androidx.room.compiler)
+    implementation (libs.androidx.room.paging)
 
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.coil.compose)

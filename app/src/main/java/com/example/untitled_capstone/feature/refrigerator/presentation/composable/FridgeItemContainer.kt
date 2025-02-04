@@ -37,36 +37,35 @@ fun FridgeItemContainer(item: FridgeItem) {
         colors = CardDefaults.cardColors(
             containerColor = CustomTheme.colors.onSurface,
         ),
-        shape = RoundedCornerShape(12.dp),
+        shape = RoundedCornerShape(Dimens.cornerRadius),
         modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = 10.dp),
     ) {
         Row(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().padding(Dimens.onSurfacePadding),
             horizontalArrangement = Arrangement.SpaceBetween
         ){
-            Row {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(Dimens.onSurfacePadding)
+            ) {
                 if (item.image != null) {
                     Image(
                         painter = painterResource(item.image),
                         contentDescription = item.name,
                         alignment = Alignment.Center,
                         contentScale = ContentScale.Fit,
-                        modifier = Modifier.size(120.dp)
-                            .padding(Dimens.onSurfacePadding)
-                            .clip(shape = RoundedCornerShape(12.dp))
+                        modifier = Modifier.size(80.dp)
+                            .clip(shape = RoundedCornerShape(Dimens.cornerRadius))
                     )
                 } else {
                     Box(
                         modifier = Modifier
-                            .size(120.dp).padding(Dimens.onSurfacePadding)
-                            .clip(shape = RoundedCornerShape(12.dp))
+                            .size(80.dp)
+                            .clip(shape = RoundedCornerShape(Dimens.onSurfacePadding))
                             .background(CustomTheme.colors.surface)
                     )
                 }
                 Column(
-                    modifier = Modifier.padding(Dimens.onSurfacePadding),
                     verticalArrangement = Arrangement.Top,
                     horizontalAlignment = Alignment.Start
                 ){
@@ -89,7 +88,7 @@ fun FridgeItemContainer(item: FridgeItem) {
                 }
             }
             Column(
-                modifier = Modifier.height(120.dp).padding(Dimens.onSurfacePadding),
+                modifier = Modifier.height(80.dp),
                 verticalArrangement = Arrangement.SpaceBetween,
             ){
                 Icon(

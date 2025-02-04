@@ -33,7 +33,7 @@ import com.example.untitled_capstone.ui.theme.CustomTheme
 @Composable
 fun MyRecipe(recipe: Recipe, onClick : () -> Unit){
     Column(
-        modifier = Modifier.clickable {
+        modifier = Modifier.wrapContentSize().clickable {
             onClick()
         }
     ) {
@@ -45,8 +45,8 @@ fun MyRecipe(recipe: Recipe, onClick : () -> Unit){
                     contentDescription = recipe.title,
                     alignment = Alignment.Center,
                     contentScale = ContentScale.Fit,
-                    modifier = Modifier.size(160.dp)
-                        .clip(shape = RoundedCornerShape(12.dp))
+                    modifier = Modifier.size(130.dp)
+                        .clip(shape = RoundedCornerShape(Dimens.cornerRadius))
                 )
                 Icon(
                     imageVector = ImageVector.vectorResource(R.drawable.heart),
@@ -58,21 +58,25 @@ fun MyRecipe(recipe: Recipe, onClick : () -> Unit){
         } else {
             Box(
                 modifier = Modifier
-                    .width(160.dp).height(160.dp)
-                    .clip(shape = RoundedCornerShape(12.dp))
+                    .size(130.dp)
+                    .clip(shape = RoundedCornerShape(Dimens.cornerRadius))
                     .background(CustomTheme.colors.surface)
-            )
+            ){
+                Icon(
+                    imageVector = ImageVector.vectorResource(R.drawable.heart),
+                    contentDescription = "like",
+                    tint = Color.Unspecified,
+                    modifier = Modifier.align(Alignment.BottomEnd).padding(10.dp)
+                )
+            }
         }
         Spacer(
             modifier = Modifier.height(4.dp)
         )
         Text(
             text = recipe.title,
-            fontFamily = CustomTheme.typography.title1.fontFamily,
-            fontWeight = CustomTheme.typography.title1.fontWeight,
-            fontSize = CustomTheme.typography.title1.fontSize,
+            style = CustomTheme.typography.title1,
             color = CustomTheme.colors.textPrimary,
-            modifier = Modifier.padding(top = 4.dp, bottom =Dimens.surfacePadding),
             overflow = TextOverflow.Ellipsis,
             maxLines = 1
         )

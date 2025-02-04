@@ -3,6 +3,7 @@ package com.example.untitled_capstone.feature.my.presentation.composable
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarColors
@@ -12,12 +13,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MyTopBar() {
+fun MyTopBar(navController: NavHostController) {
     TopAppBar(
         modifier = Modifier.padding(20.dp),
         title = {
@@ -30,11 +32,15 @@ fun MyTopBar() {
             )
         },
         actions = {
-            Icon(
-                imageVector = ImageVector.vectorResource(R.drawable.setting),
-                tint = CustomTheme.colors.iconDefault,
-                contentDescription = "setting"
-            )
+            IconButton(
+                onClick = { }
+            ) {
+                Icon(
+                    imageVector = ImageVector.vectorResource(R.drawable.setting),
+                    tint = CustomTheme.colors.iconDefault,
+                    contentDescription = "setting"
+                )
+            }
         },
         colors = TopAppBarColors(
             containerColor = CustomTheme.colors.surface,

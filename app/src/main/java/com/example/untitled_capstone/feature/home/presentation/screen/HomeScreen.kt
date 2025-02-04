@@ -3,8 +3,10 @@ package com.example.untitled_capstone.feature.home.presentation.screen
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -37,38 +39,43 @@ import com.example.untitled_capstone.ui.theme.CustomTheme
 @Composable
 fun HomeScreen(state: MyRecipeState, navController: NavHostController) {
     Column(
-        modifier = Modifier.fillMaxSize().padding(Dimens.surfacePadding)
+        modifier = Modifier.fillMaxSize().padding(horizontal = Dimens.surfacePadding),
     ) {
         SetTaste()
+        Spacer(modifier = Modifier.height(Dimens.surfacePadding))
         Card (
             colors = CardDefaults.cardColors(
                 containerColor = CustomTheme.colors.onSurface,
             ),
-            shape = RoundedCornerShape(12.dp),
-            modifier = Modifier.fillMaxWidth().padding(top = 25.dp)
+            shape = RoundedCornerShape(Dimens.cornerRadius),
+            modifier = Modifier.fillMaxWidth()
         ){
-            Text(
-                text = "My 레시피",
-                fontSize = CustomTheme.typography.title1.fontSize,
-                fontWeight = CustomTheme.typography.title1.fontWeight,
-                fontFamily = CustomTheme.typography.title1.fontFamily,
-                color = CustomTheme.colors.textPrimary,
-                modifier = Modifier.fillMaxWidth().padding(20.dp)
-            )
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
-                state = rememberLazyGridState(),
-                verticalArrangement = Arrangement.spacedBy(10.dp),
-                horizontalArrangement = Arrangement.spacedBy(50.dp),
-                contentPadding = PaddingValues(start = 20.dp, end = 20.dp)
+            Column(
+                modifier = Modifier.padding(Dimens.surfacePadding),
+                verticalArrangement = Arrangement.spacedBy(Dimens.surfacePadding)
             ) {
-                if(!state.isLoading){
-                    items( state.recipeItems,){ item ->
-                        MyRecipe(item, onClick = {
-                            navController.navigate(RecipeNav(
-                                recipe = item
-                            ))
-                        })
+                Text(
+                    text = "My 레시피",
+                    fontSize = CustomTheme.typography.title1.fontSize,
+                    fontWeight = CustomTheme.typography.title1.fontWeight,
+                    fontFamily = CustomTheme.typography.title1.fontFamily,
+                    color = CustomTheme.colors.textPrimary,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(2),
+                    state = rememberLazyGridState(),
+                    verticalArrangement = Arrangement.spacedBy(20.dp),
+                    horizontalArrangement = Arrangement.spacedBy(20.dp),
+                ) {
+                    if(!state.isLoading){
+                        items( state.recipeItems,){ item ->
+                            MyRecipe(item, onClick = {
+                                navController.navigate(RecipeNav(
+                                    recipe = item
+                                ))
+                            })
+                        }
                     }
                 }
             }

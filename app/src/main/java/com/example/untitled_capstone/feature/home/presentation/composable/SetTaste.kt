@@ -37,7 +37,7 @@ fun SetTaste() {
         colors = CardDefaults.cardColors(
             containerColor = CustomTheme.colors.onSurface,
         ),
-        shape = RoundedCornerShape(12.dp),
+        shape = RoundedCornerShape(Dimens.cornerRadius),
         modifier = Modifier.wrapContentHeight().fillMaxWidth()
     ){
         Column (
@@ -99,7 +99,7 @@ fun SetTaste() {
                     focusedTrailingIconColor = CustomTheme.colors.iconDefault,
                     unfocusedTrailingIconColor = Color.Transparent,
                 ),
-                shape = RoundedCornerShape(12.dp),
+                shape = RoundedCornerShape(Dimens.cornerRadius),
                 singleLine = true,
                 keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() })
             )

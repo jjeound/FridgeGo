@@ -39,10 +39,10 @@ import com.example.untitled_capstone.ui.theme.CustomTheme
 @Composable
 fun HomeScreen(state: MyRecipeState, navController: NavHostController) {
     Column(
-        modifier = Modifier.fillMaxSize().padding(horizontal = Dimens.surfacePadding),
+        modifier = Modifier.padding(horizontal = Dimens.surfaceHorizontalPadding, vertical = Dimens.surfaceVerticalPadding)
     ) {
         SetTaste()
-        Spacer(modifier = Modifier.height(Dimens.surfacePadding))
+        Spacer(modifier = Modifier.height(Dimens.largePadding))
         Card (
             colors = CardDefaults.cardColors(
                 containerColor = CustomTheme.colors.onSurface,
@@ -51,14 +51,12 @@ fun HomeScreen(state: MyRecipeState, navController: NavHostController) {
             modifier = Modifier.fillMaxWidth()
         ){
             Column(
-                modifier = Modifier.padding(Dimens.surfacePadding),
-                verticalArrangement = Arrangement.spacedBy(Dimens.surfacePadding)
+                modifier = Modifier.padding(Dimens.largePadding),
+                verticalArrangement = Arrangement.spacedBy(Dimens.largePadding)
             ) {
                 Text(
                     text = "My 레시피",
-                    fontSize = CustomTheme.typography.title1.fontSize,
-                    fontWeight = CustomTheme.typography.title1.fontWeight,
-                    fontFamily = CustomTheme.typography.title1.fontFamily,
+                    style = CustomTheme.typography.title1,
                     color = CustomTheme.colors.textPrimary,
                     modifier = Modifier.fillMaxWidth()
                 )

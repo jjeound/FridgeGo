@@ -34,7 +34,7 @@ data class CustomColors(
     val buttonBorderFocused: Color,
     val textFieldSurface: Color,
     val textFieldBorder: Color,
-    val placeholder: Color
+    val placeholder: Color,
 )
 
 val LightCustomColors = CustomColors(
@@ -55,7 +55,7 @@ val LightCustomColors = CustomColors(
     buttonBorderFocused = Black,
     textFieldSurface = White,
     textFieldBorder = Black,
-    placeholder = Grey300
+    placeholder = Grey300,
 )
 val DarkCustomColors = CustomColors(
     iconSelected = White,
@@ -75,7 +75,7 @@ val DarkCustomColors = CustomColors(
     buttonBorderFocused = White,
     textFieldSurface = Black200,
     textFieldBorder = White,
-    placeholder = Grey300
+    placeholder = Grey300,
 )
 
 val fontFamily = FontFamily(

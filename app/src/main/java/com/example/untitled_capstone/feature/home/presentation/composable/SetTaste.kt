@@ -1,8 +1,11 @@
 package com.example.untitled_capstone.feature.home.presentation.composable
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -10,6 +13,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -41,52 +45,44 @@ fun SetTaste() {
         modifier = Modifier.wrapContentHeight().fillMaxWidth()
     ){
         Column (
-            modifier = Modifier.padding(Dimens.surfacePadding)
+            modifier = Modifier.padding(Dimens.largePadding),
+            verticalArrangement = Arrangement.spacedBy(Dimens.smallPadding),
+            horizontalAlignment = Alignment.Start
         ){
             Text(
                 text = "내 취향 설정하기",
-                fontFamily = CustomTheme.typography.title1.fontFamily,
-                fontWeight = CustomTheme.typography.title1.fontWeight,
-                fontSize = CustomTheme.typography.title1.fontSize,
+                style = CustomTheme.typography.title1,
                 color = CustomTheme.colors.textPrimary,
-                modifier = Modifier.
-                padding(bottom = 2.dp).
-                align(Alignment.Start)
             )
             Text(
                 text = "내 취향에 맞는 레시피를 추천받아보세요!",
-                fontFamily = CustomTheme.typography.caption1.fontFamily,
-                fontWeight = CustomTheme.typography.caption1.fontWeight,
-                fontSize = CustomTheme.typography.caption1.fontSize,
+                style = CustomTheme.typography.caption1,
                 color = CustomTheme.colors.textSecondary,
-                modifier = Modifier.padding(bottom = 2.dp).
-                align(Alignment.Start)
             )
             TextField(
+                modifier = Modifier.fillMaxWidth(),
                 value = text,
                 onValueChange = {text = it},
                 placeholder = {
                     Text(
                         text = "나의 취향 입력하기!",
-                        fontFamily = CustomTheme.typography.button2.fontFamily,
-                        fontWeight = CustomTheme.typography.button2.fontWeight,
-                        fontSize = CustomTheme.typography.button2.fontSize,
+                        style = CustomTheme.typography.button2,
                         color = CustomTheme.colors.textSecondary
                     )
                 },
                 trailingIcon = {
                     if(text.isNotBlank()){
-                        Icon(
-                            imageVector = ImageVector.vectorResource(R.drawable.delete),
-                            contentDescription = "delete",
-                            tint = CustomTheme.colors.iconDefault,
-                            modifier = Modifier.clickable(
-                                onClick = { text = "" }
+                        IconButton(
+                            onClick = { text = "" }
+                        ) {
+                            Icon(
+                                imageVector = ImageVector.vectorResource(R.drawable.delete),
+                                contentDescription = "delete",
+                                tint = CustomTheme.colors.iconDefault,
                             )
-                        )
+                        }
                     }
                 },
-                modifier = Modifier.fillMaxWidth(),
                 textStyle = CustomTheme.typography.button2,
                 colors = TextFieldDefaults.colors(
                     focusedTextColor = CustomTheme.colors.textPrimary,

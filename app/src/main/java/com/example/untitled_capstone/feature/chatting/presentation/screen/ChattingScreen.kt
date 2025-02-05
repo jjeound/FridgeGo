@@ -18,7 +18,8 @@ import com.example.untitled_capstone.feature.chatting.presentation.state.ChatSta
 @Composable
 fun ChattingScreen(state: ChatState, navController: NavHostController) {
     LazyColumn(
-        modifier = Modifier.padding(horizontal = Dimens.surfacePadding).padding(bottom = Dimens.onSurfacePadding)
+        modifier = Modifier.padding(horizontal = Dimens.surfaceHorizontalPadding
+        , vertical = Dimens.surfaceVerticalPadding)
     ) {
         items(state.chats){ chat ->
            Box(

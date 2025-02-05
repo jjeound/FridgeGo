@@ -2,12 +2,14 @@ package com.example.untitled_capstone.feature.chatting.presentation.composable
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -33,9 +35,8 @@ fun NewMessageForm(){
     val focusManager = LocalFocusManager.current
 
     Row(
-        modifier = Modifier.fillMaxWidth().wrapContentHeight()
-            .padding(horizontal = Dimens.surfacePadding, vertical = 10.dp),
-        horizontalArrangement = Arrangement.spacedBy(10.dp),
+        modifier = Modifier.fillMaxWidth().wrapContentHeight(),
+        horizontalArrangement = Arrangement.spacedBy(Dimens.mediumPadding),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
@@ -49,18 +50,20 @@ fun NewMessageForm(){
             placeholder = {
                 Text(
                     text = "메시지 보내기",
-                    fontFamily = CustomTheme.typography.button2.fontFamily,
-                    fontWeight = CustomTheme.typography.button2.fontWeight,
-                    fontSize = CustomTheme.typography.button2.fontSize,
+                    style = CustomTheme.typography.button2,
                     color = CustomTheme.colors.textSecondary
                 )
             },
             trailingIcon = {
-                Icon(
-                    imageVector = ImageVector.vectorResource(R.drawable.emoji),
-                    contentDescription = "emoji",
-                    tint = CustomTheme.colors.iconDefault
-                )
+                IconButton(
+                    onClick = { }
+                ) {
+                    Icon(
+                        imageVector = ImageVector.vectorResource(R.drawable.emoji),
+                        contentDescription = "emoji",
+                        tint = CustomTheme.colors.iconDefault
+                    )
+                }
             },
             modifier = Modifier.weight(1f),
             textStyle = CustomTheme.typography.button2,
@@ -76,10 +79,14 @@ fun NewMessageForm(){
             shape = RoundedCornerShape(Dimens.cornerRadius),
             keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() })
         )
-        Icon(
-            imageVector = ImageVector.vectorResource(R.drawable.send),
-            contentDescription = "send message",
-            tint = CustomTheme.colors.iconDefault
-        )
+        IconButton(
+            onClick = { }
+        ) {
+            Icon(
+                imageVector = ImageVector.vectorResource(R.drawable.send),
+                contentDescription = "send message",
+                tint = CustomTheme.colors.iconDefault
+            )
+        }
     }
 }

@@ -23,6 +23,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -39,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
+import com.example.untitled_capstone.feature.notification.presentation.screen.NotificationNav
 import com.example.untitled_capstone.feature.shopping.domain.model.Post
 import com.example.untitled_capstone.feature.shopping.presentation.composable.PostContainer
 import com.example.untitled_capstone.ui.theme.CustomTheme
@@ -56,30 +58,38 @@ fun PostScreen(post: Post, navController: NavHostController){
         containerColor = CustomTheme.colors.onSurface,
         topBar = {
             TopAppBar(
-                modifier = Modifier.padding(Dimens.surfacePadding),
+                modifier = Modifier.padding(horizontal = Dimens.topBarPadding),
                 navigationIcon = {
-                    Icon(
-                        imageVector = ImageVector.vectorResource(R.drawable.chevron_left),
-                        tint = CustomTheme.colors.iconDefault,
-                        contentDescription = "back",
-                        modifier = Modifier.clickable {
-                            navController.popBackStack()
-                        }
-                    )
+                    IconButton(
+                        onClick = { navController.popBackStack()}
+                    ) {
+                        Icon(
+                            imageVector = ImageVector.vectorResource(R.drawable.chevron_left),
+                            tint = CustomTheme.colors.iconDefault,
+                            contentDescription = "back",
+                        )
+                    }
                 },
                 title = {},
                 actions = {
-                    Icon(
-                        imageVector = ImageVector.vectorResource(R.drawable.share),
-                        tint = CustomTheme.colors.iconDefault,
-                        contentDescription = "search"
-                    )
-                    Icon(
-                        modifier = Modifier.padding(start = 24.dp),
-                        tint = CustomTheme.colors.iconDefault,
-                        imageVector = ImageVector.vectorResource(R.drawable.bell),
-                        contentDescription = "alarm"
-                    )
+                    IconButton(
+                        onClick = { }
+                    ) {
+                        Icon(
+                            imageVector = ImageVector.vectorResource(R.drawable.share),
+                            tint = CustomTheme.colors.iconDefault,
+                            contentDescription = "share"
+                        )
+                    }
+                    IconButton(
+                        onClick = { navController.navigate(NotificationNav)}
+                    ) {
+                        Icon(
+                            tint = CustomTheme.colors.iconDefault,
+                            imageVector = ImageVector.vectorResource(R.drawable.bell),
+                            contentDescription = "notification"
+                        )
+                    }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = CustomTheme.colors.onSurface
@@ -89,8 +99,8 @@ fun PostScreen(post: Post, navController: NavHostController){
         bottomBar = {
             BottomAppBar(
                 modifier = Modifier.height(80.dp)
-                    .padding(horizontal = Dimens.surfacePadding,
-                        vertical = 10.dp),
+                    .padding(horizontal = Dimens.largePadding,
+                        vertical = Dimens.mediumPadding),
                 containerColor = CustomTheme.colors.onSurface,
                 content = {
                     Row(
@@ -100,12 +110,15 @@ fun PostScreen(post: Post, navController: NavHostController){
                         Row(
                             verticalAlignment = Alignment.CenterVertically
                         ){
-                            Icon(
-                                imageVector = ImageVector.vectorResource(R.drawable.heart),
-                                contentDescription = "like",
-                                tint = CustomTheme.colors.iconDefault,
-                                modifier = Modifier.padding(start = 10.dp)
-                            )
+                            IconButton(
+                                onClick = { }
+                            ) {
+                                Icon(
+                                    imageVector = ImageVector.vectorResource(R.drawable.heart),
+                                    contentDescription = "like",
+                                    tint = CustomTheme.colors.iconDefault,
+                                )
+                            }
                             VerticalDivider(
                                 modifier = Modifier.padding(horizontal = 6.dp),
                                 thickness = 1.dp,
@@ -113,17 +126,13 @@ fun PostScreen(post: Post, navController: NavHostController){
                             )
                             Text(
                                 text = post.price.toString(),
-                                fontFamily = CustomTheme.typography.title2.fontFamily,
-                                fontWeight = CustomTheme.typography.title2.fontWeight,
-                                fontSize = CustomTheme.typography.title2.fontSize,
+                                style = CustomTheme.typography.title2,
                                 color = CustomTheme.colors.textPrimary,
                                 modifier = Modifier.padding(end = 4.dp)
                             )
                             Text(
                                 text = "(${post.currentNumOfPeople}/${post.totalNumbOfPeople})",
-                                fontFamily = CustomTheme.typography.caption2.fontFamily,
-                                fontWeight = CustomTheme.typography.caption2.fontWeight,
-                                fontSize = CustomTheme.typography.caption2.fontSize,
+                                style = CustomTheme.typography.caption2,
                                 color = CustomTheme.colors.textPrimary,
                                 modifier = Modifier.align(Alignment.Bottom)
                             )
@@ -136,7 +145,7 @@ fun PostScreen(post: Post, navController: NavHostController){
                                 onClick = {
 
                                 },
-                                shape = RoundedCornerShape(12.dp),
+                                shape = RoundedCornerShape(Dimens.cornerRadius),
                                 colors = ButtonDefaults.buttonColors(
                                     containerColor = CustomTheme.colors.primary,
                                 ),
@@ -144,9 +153,7 @@ fun PostScreen(post: Post, navController: NavHostController){
                             ) {
                                 Text(
                                     text = "채팅하기",
-                                    fontFamily = CustomTheme.typography.button1.fontFamily,
-                                    fontWeight = CustomTheme.typography.button1.fontWeight,
-                                    fontSize = CustomTheme.typography.button1.fontSize,
+                                    style = CustomTheme.typography.button1,
                                     color = CustomTheme.colors.onPrimary
                                 )
                             }
@@ -157,9 +164,7 @@ fun PostScreen(post: Post, navController: NavHostController){
                             )
                             Text(
                                 text = "${post.currentNumOfPeople}/${post.totalNumbOfPeople}",
-                                fontWeight = CustomTheme.typography.caption2.fontWeight,
-                                fontFamily = CustomTheme.typography.caption2.fontFamily,
-                                fontSize = CustomTheme.typography.caption2.fontSize,
+                                style = CustomTheme.typography.caption2,
                                 color = CustomTheme.colors.textSecondary,
                             )
                         }
@@ -170,6 +175,8 @@ fun PostScreen(post: Post, navController: NavHostController){
     ) { innerPadding ->
        Box(
            modifier = Modifier.padding(innerPadding)
+               .padding(horizontal = Dimens.surfaceHorizontalPadding,
+                   vertical = Dimens.surfaceVerticalPadding),
        ){
            PostContainer(post= post)
        }

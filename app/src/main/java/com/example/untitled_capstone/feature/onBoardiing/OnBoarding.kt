@@ -49,27 +49,21 @@ fun OnBoarding(){
             Text(
                 text = "시작하기",
                 color = CustomTheme.colors.onPrimary,
-                fontFamily = CustomTheme.typography.button1.fontFamily,
-                fontWeight = CustomTheme.typography.button1.fontWeight,
-                fontSize = CustomTheme.typography.button1.fontSize
+                style = CustomTheme.typography.button1
             )
         }
         Row (modifier = Modifier.padding(vertical = 6.dp), verticalAlignment = Alignment.CenterVertically){
             Text(
                 text = "이미 계정이 있나요?",
                 color = CustomTheme.colors.textSecondary,
-                fontFamily = CustomTheme.typography.caption2.fontFamily,
-                fontSize = CustomTheme.typography.caption2.fontSize,
-                fontWeight = CustomTheme.typography.caption2.fontWeight
+                style = CustomTheme.typography.caption2
             )
             Spacer(modifier = Modifier.width(6.dp))
             Text(
                 modifier = Modifier.clickable {  },
                 text = "로그인",
                 color = CustomTheme.colors.textPrimary,
-                fontFamily = CustomTheme.typography.caption1.fontFamily,
-                fontSize = CustomTheme.typography.caption1.fontSize,
-                fontWeight = CustomTheme.typography.caption1.fontWeight
+                style = CustomTheme.typography.caption1
             )
         }
     }

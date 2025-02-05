@@ -28,7 +28,7 @@ import com.example.untitled_capstone.ui.theme.CustomTheme
 @Composable
 fun ShoppingTopBar(navController: NavHostController){
     TopAppBar(
-        modifier = Modifier.padding(Dimens.surfacePadding),
+        modifier = Modifier.padding(horizontal = Dimens.topBarPadding),
         title = {
             Row (
                 modifier = Modifier.clickable {

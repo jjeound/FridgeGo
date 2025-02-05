@@ -22,18 +22,18 @@ fun NotificationCard(notification: Notification) {
     Card(
         onClick = {  },
         colors = CardDefaults.cardColors(
-            containerColor = if(notification.isRead) CustomTheme.colors.textTertiary else CustomTheme.colors.onSurface,
+            containerColor = if(notification.isRead) CustomTheme.colors.surface else CustomTheme.colors.onSurface,
         ),
         shape = RoundedCornerShape(Dimens.cornerRadius),
         modifier = Modifier
             .fillMaxWidth()
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth().padding(Dimens.onSurfacePadding),
+            modifier = Modifier.fillMaxWidth().padding(Dimens.mediumPadding),
             horizontalArrangement = Arrangement.SpaceBetween
         ){
             Column(
-                modifier = Modifier.padding(vertical = Dimens.onSurfacePadding)
+                modifier = Modifier.padding(vertical = Dimens.mediumPadding),
             ) {
                 Text(
                     text = notification.title,

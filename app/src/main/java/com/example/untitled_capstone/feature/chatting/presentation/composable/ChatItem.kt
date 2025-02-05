@@ -35,7 +35,7 @@ import com.example.untitled_capstone.ui.theme.CustomTheme
 @Composable
 fun ChatItem(chat: ChattingRoom){
     Row (
-        modifier = Modifier.fillMaxWidth().padding(vertical = Dimens.onSurfacePadding),
+        modifier = Modifier.fillMaxWidth().padding(vertical = Dimens.mediumPadding),
         horizontalArrangement = Arrangement.SpaceBetween,
     ){
         Row(
@@ -49,17 +49,15 @@ fun ChatItem(chat: ChattingRoom){
                 )
             )
             Spacer(
-                modifier = Modifier.width(Dimens.onSurfacePadding)
+                modifier = Modifier.width(Dimens.mediumPadding)
             )
             Column(
-                modifier = Modifier.padding(vertical = 4.dp),
+                modifier = Modifier.padding(vertical = Dimens.smallPadding),
             ) {
                 Row{
                     Text(
                         text = chat.title,
-                        fontFamily = CustomTheme.typography.title1.fontFamily,
-                        fontWeight = CustomTheme.typography.title1.fontWeight,
-                        fontSize = CustomTheme.typography.title1.fontSize,
+                        style = CustomTheme.typography.title1,
                         color = CustomTheme.colors.textPrimary,
                     )
                     Spacer(
@@ -67,30 +65,24 @@ fun ChatItem(chat: ChattingRoom){
                     )
                     Text(
                         text = chat.numberOfPeople.toString(),
-                        fontFamily = CustomTheme.typography.caption1.fontFamily,
-                        fontWeight = CustomTheme.typography.caption1.fontWeight,
-                        fontSize = CustomTheme.typography.caption1.fontSize,
+                        style = CustomTheme.typography.caption1,
                         color = CustomTheme.colors.textSecondary,
                     )
                 }
                 Text(
                     text = chat.message,
-                    fontFamily = CustomTheme.typography.body2.fontFamily,
-                    fontWeight = CustomTheme.typography.body2.fontWeight,
-                    fontSize = CustomTheme.typography.body2.fontSize,
+                    style = CustomTheme.typography.body2,
                     color = CustomTheme.colors.textSecondary,
                 )
             }
         }
         Column(
-            modifier = Modifier.padding(vertical = 4.dp),
+            modifier = Modifier.padding(vertical = Dimens.smallPadding),
             horizontalAlignment = Alignment.End
         ) {
             Text(
                 text = chat.lastSentMessageTime,
-                fontFamily = CustomTheme.typography.caption1.fontFamily,
-                fontWeight = CustomTheme.typography.caption1.fontWeight,
-                fontSize = CustomTheme.typography.caption1.fontSize,
+                style = CustomTheme.typography.caption1,
                 color = CustomTheme.colors.textSecondary,
             )
             Spacer(
@@ -101,9 +93,7 @@ fun ChatItem(chat: ChattingRoom){
                     content = {
                         Text(
                             text = chat.messagesNotReadYet.toString(),
-                            fontFamily = CustomTheme.typography.caption2.fontFamily,
-                            fontWeight = CustomTheme.typography.caption2.fontWeight,
-                            fontSize = CustomTheme.typography.caption2.fontSize,
+                            style = CustomTheme.typography.caption2,
                             color = Color.White
                         )
                     },

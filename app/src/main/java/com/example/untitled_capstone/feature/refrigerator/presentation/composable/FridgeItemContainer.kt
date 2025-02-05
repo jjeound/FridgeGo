@@ -16,6 +16,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -42,11 +43,11 @@ fun FridgeItemContainer(item: FridgeItem) {
             .fillMaxWidth()
     ) {
         Row(
-            modifier = Modifier.fillMaxSize().padding(Dimens.onSurfacePadding),
+            modifier = Modifier.fillMaxSize().padding(Dimens.mediumPadding),
             horizontalArrangement = Arrangement.SpaceBetween
         ){
             Row(
-                horizontalArrangement = Arrangement.spacedBy(Dimens.onSurfacePadding)
+                horizontalArrangement = Arrangement.spacedBy(Dimens.mediumPadding)
             ) {
                 if (item.image != null) {
                     Image(
@@ -61,7 +62,7 @@ fun FridgeItemContainer(item: FridgeItem) {
                     Box(
                         modifier = Modifier
                             .size(80.dp)
-                            .clip(shape = RoundedCornerShape(Dimens.onSurfacePadding))
+                            .clip(shape = RoundedCornerShape(Dimens.mediumPadding))
                             .background(CustomTheme.colors.surface)
                     )
                 }
@@ -71,17 +72,13 @@ fun FridgeItemContainer(item: FridgeItem) {
                 ){
                     Text(
                         text = item.name,
-                        fontWeight = CustomTheme.typography.title1.fontWeight,
-                        fontFamily = CustomTheme.typography.title1.fontFamily,
-                        fontSize = CustomTheme.typography.title1.fontSize,
+                        style = CustomTheme.typography.title1,
                         color = CustomTheme.colors.textPrimary,
                         maxLines = 1,
                     )
                     Text(
                         text = item.expirationDate,
-                        fontWeight = CustomTheme.typography.body3.fontWeight,
-                        fontFamily = CustomTheme.typography.body3.fontFamily,
-                        fontSize = CustomTheme.typography.body3.fontSize,
+                        style = CustomTheme.typography.body3,
                         color = CustomTheme.colors.textPrimary,
                         maxLines = 1,
                     )
@@ -91,32 +88,35 @@ fun FridgeItemContainer(item: FridgeItem) {
                 modifier = Modifier.height(80.dp),
                 verticalArrangement = Arrangement.SpaceBetween,
             ){
-                Icon(
-                    imageVector  = ImageVector.vectorResource(R.drawable.more),
-                    contentDescription = "numberOfPeople",
-                    tint = CustomTheme.colors.iconDefault,
-                    modifier = Modifier.clickable {
-                        //TODO
-                    }
-                )
-                if(item.notification){
+                IconButton(
+                    onClick = {}
+                ) {
                     Icon(
-                        imageVector = ImageVector.vectorResource(R.drawable.bell_selected),
-                        contentDescription = "like",
-                        tint = CustomTheme.colors.iconSelected,
-                        modifier = Modifier.clickable {
-                            //TODO
-                        }
-                    )
-                } else {
-                    Icon(
-                        imageVector = ImageVector.vectorResource(R.drawable.bell_outlined),
-                        contentDescription = "like",
+                        imageVector  = ImageVector.vectorResource(R.drawable.more),
+                        contentDescription = "numberOfPeople",
                         tint = CustomTheme.colors.iconDefault,
-                        modifier = Modifier.clickable {
-                            //TODO
-                        }
                     )
+                }
+                if(item.notification){
+                    IconButton(
+                        onClick = {}
+                    ) {
+                        Icon(
+                            imageVector = ImageVector.vectorResource(R.drawable.bell_selected),
+                            contentDescription = "notification is on",
+                            tint = CustomTheme.colors.iconSelected,
+                        )
+                    }
+                } else {
+                    IconButton(
+                        onClick = {}
+                    ) {
+                        Icon(
+                            imageVector = ImageVector.vectorResource(R.drawable.bell_outlined),
+                            contentDescription = "notification is off",
+                            tint = CustomTheme.colors.iconDefault,
+                        )
+                    }
                 }
             }
         }

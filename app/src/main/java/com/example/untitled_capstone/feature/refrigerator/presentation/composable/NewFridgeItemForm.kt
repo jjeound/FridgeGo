@@ -78,66 +78,74 @@ fun NewFridgeItemForm(navController: NavHostController){
     validator = name.isNotBlank() && selectedDate.isNotBlank()
     Column(
         modifier = Modifier
-            .fillMaxSize()
-            .padding(Dimens.surfacePadding),
+            .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Column(
             modifier = Modifier.weight(1f),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(Dimens.surfacePadding)
+            verticalArrangement = Arrangement.spacedBy(Dimens.largePadding)
         ) {
             if(image != null){
-                AsyncImage(
-                    model = image,
-                    contentDescription = "image",
-                    alignment = Alignment.Center,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .size(300.dp)
-                        .clip(shape = RoundedCornerShape(12.dp))
-                )
+                Box{
+                    AsyncImage(
+                        model = image,
+                        contentDescription = "image",
+                        alignment = Alignment.Center,
+                        contentScale = ContentScale.Fit,
+                        modifier = Modifier
+                            .size(300.dp)
+                            .clip(shape = RoundedCornerShape(Dimens.cornerRadius))
+                    )
+                    IconButton(
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd),
+                        onClick = {
+                            launcher.launch("image/*")
+                        }
+                    ){
+                        Icon(
+                            imageVector = ImageVector.vectorResource(R.drawable.camera),
+                            contentDescription = "get image",
+                            tint = CustomTheme.colors.iconDefault,
+                        )
+                    }
+                }
             } else {
                 Box(
                     modifier = Modifier
                         .size(300.dp)
-                        .clip(shape = RoundedCornerShape(12.dp))
+                        .clip(shape = RoundedCornerShape(Dimens.cornerRadius))
                         .background(CustomTheme.colors.surface)
                 ){
                     IconButton(
                         modifier = Modifier
-                            .align(Alignment.BottomEnd)
-                            .padding(10.dp),
-                        content = {
-                            Icon(
-                                imageVector = ImageVector.vectorResource(R.drawable.camera),
-                                contentDescription = "get image",
-                                tint = CustomTheme.colors.iconDefault,
-                            )
-                        },
+                            .align(Alignment.BottomEnd),
                         onClick = {
                             launcher.launch("image/*")
                         }
-                    )
+                    ){
+                        Icon(
+                            imageVector = ImageVector.vectorResource(R.drawable.camera),
+                            contentDescription = "get image",
+                            tint = CustomTheme.colors.iconDefault,
+                        )
+                    }
                 }
             }
             Row(
-                horizontalArrangement = Arrangement.spacedBy(Dimens.onSurfacePadding)
+                horizontalArrangement = Arrangement.spacedBy(Dimens.mediumPadding)
             ) {
                 Column {
                     Row {
                         Text(
                             text = "이름",
-                            fontFamily = CustomTheme.typography.caption1.fontFamily,
-                            fontWeight = CustomTheme.typography.caption1.fontWeight,
-                            fontSize = CustomTheme.typography.caption1.fontSize,
+                            style = CustomTheme.typography.caption1,
                             color = CustomTheme.colors.textPrimary,
                         )
                         Text(
                             text = " *",
-                            fontFamily = CustomTheme.typography.caption1.fontFamily,
-                            fontWeight = CustomTheme.typography.caption1.fontWeight,
-                            fontSize = CustomTheme.typography.caption1.fontSize,
+                            style = CustomTheme.typography.caption1,
                             color = CustomTheme.colors.iconRed,
                         )
                     }
@@ -171,9 +179,7 @@ fun NewFridgeItemForm(navController: NavHostController){
                     Row {
                         Text(
                             text = "수량",
-                            fontFamily = CustomTheme.typography.caption1.fontFamily,
-                            fontWeight = CustomTheme.typography.caption1.fontWeight,
-                            fontSize = CustomTheme.typography.caption1.fontSize,
+                            style = CustomTheme.typography.caption1,
                             color = CustomTheme.colors.textPrimary,
                         )
                     }
@@ -209,16 +215,12 @@ fun NewFridgeItemForm(navController: NavHostController){
                 Row {
                     Text(
                         text = "유통기한",
-                        fontFamily = CustomTheme.typography.caption1.fontFamily,
-                        fontWeight = CustomTheme.typography.caption1.fontWeight,
-                        fontSize = CustomTheme.typography.caption1.fontSize,
+                        style = CustomTheme.typography.caption1,
                         color = CustomTheme.colors.textPrimary,
                     )
                     Text(
                         text = " *",
-                        fontFamily = CustomTheme.typography.caption1.fontFamily,
-                        fontWeight = CustomTheme.typography.caption1.fontWeight,
-                        fontSize = CustomTheme.typography.caption1.fontSize,
+                        style = CustomTheme.typography.caption1,
                         color = CustomTheme.colors.iconRed,
                     )
                 }
@@ -265,9 +267,7 @@ fun NewFridgeItemForm(navController: NavHostController){
                                 Text(
                                     text = "확인",
                                     color = CustomTheme.colors.textPrimary,
-                                    fontSize = CustomTheme.typography.button2.fontSize,
-                                    fontFamily = CustomTheme.typography.button2.fontFamily,
-                                    fontWeight = CustomTheme.typography.button2.fontWeight,
+                                    style = CustomTheme.typography.button2,
                                 )
                             }
                         },
@@ -276,9 +276,7 @@ fun NewFridgeItemForm(navController: NavHostController){
                                 Text(
                                     text = "취소",
                                     color = CustomTheme.colors.textPrimary,
-                                    fontSize = CustomTheme.typography.button2.fontSize,
-                                    fontFamily = CustomTheme.typography.button2.fontFamily,
-                                    fontWeight = CustomTheme.typography.button2.fontWeight,
+                                    style = CustomTheme.typography.button2,
                                 )
                             }
                         },
@@ -313,9 +311,7 @@ fun NewFridgeItemForm(navController: NavHostController){
             ) {
                 Text(
                     text = "스캔하기",
-                    fontFamily = CustomTheme.typography.button1.fontFamily,
-                    fontWeight = CustomTheme.typography.button1.fontWeight,
-                    fontSize = CustomTheme.typography.button1.fontSize,
+                    style = CustomTheme.typography.button1,
                     color = CustomTheme.colors.onPrimary
                 )
             }
@@ -323,7 +319,7 @@ fun NewFridgeItemForm(navController: NavHostController){
         Button(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(Dimens.onSurfacePadding),
+                .padding(Dimens.mediumPadding),
             shape = RoundedCornerShape(Dimens.cornerRadius),
             colors = ButtonDefaults.buttonColors(
                 containerColor = CustomTheme.colors.primary,
@@ -340,9 +336,7 @@ fun NewFridgeItemForm(navController: NavHostController){
         ) {
             Text(
                 text = "등록하기",
-                fontFamily = CustomTheme.typography.button1.fontFamily,
-                fontWeight = CustomTheme.typography.button1.fontWeight,
-                fontSize = CustomTheme.typography.button1.fontSize,
+                style = CustomTheme.typography.button1,
             )
         }
     }
@@ -353,60 +347,3 @@ fun convertMillisToDate(millis: Long): String {
     val formatter = SimpleDateFormat("yyyy년 MM월 dd일", Locale.getDefault())
     return formatter.format(Date(millis))
 }
-
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun DatePickerModal() {
-    val datePickerState = rememberDatePickerState()
-
-    DatePickerDialog(
-        onDismissRequest = {  },
-        confirmButton = {
-            TextButton(onClick = {
-            }) {
-                Text(
-                    text = "확인",
-                    color = CustomTheme.colors.textPrimary,
-                    fontSize = CustomTheme.typography.button2.fontSize,
-                    fontFamily = CustomTheme.typography.button2.fontFamily,
-                    fontWeight = CustomTheme.typography.button2.fontWeight,
-                )
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = {}) {
-                Text(
-                    text = "취소",
-                    color = CustomTheme.colors.textPrimary,
-                    fontSize = CustomTheme.typography.button2.fontSize,
-                    fontFamily = CustomTheme.typography.button2.fontFamily,
-                    fontWeight = CustomTheme.typography.button2.fontWeight,
-                )
-            }
-        },
-        colors = DatePickerDefaults.colors(
-            containerColor = CustomTheme.colors.onSurface,
-        )
-    ) {
-        DatePicker(
-            state = datePickerState,
-            showModeToggle = false,
-            title = {
-                Text(
-                    text = ""
-                )
-            },
-            colors = DatePickerDefaults.colors(
-                containerColor = CustomTheme.colors.onSurface,
-            )
-        )
-    }
-}
-
-@Preview
-@Composable
-fun DatePickerModalPreview() {
-    DatePickerModal()
-}
-

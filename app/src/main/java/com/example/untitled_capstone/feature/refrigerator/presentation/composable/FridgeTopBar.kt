@@ -28,7 +28,7 @@ import com.example.untitled_capstone.ui.theme.CustomTheme
 @Composable
 fun FridgeTopBar(navController: NavHostController){
     TopAppBar(
-        modifier = Modifier.padding(Dimens.surfacePadding),
+        modifier = Modifier.padding(horizontal = Dimens.topBarPadding),
         title = {
             Row (
                 modifier = Modifier.clickable {
@@ -37,9 +37,7 @@ fun FridgeTopBar(navController: NavHostController){
             ){
                 Text(
                     text = "냉장고",
-                    fontFamily = CustomTheme.typography.headline3.fontFamily,
-                    fontWeight = CustomTheme.typography.headline3.fontWeight,
-                    fontSize = CustomTheme.typography.headline3.fontSize,
+                    style = CustomTheme.typography.headline3,
                     color = CustomTheme.colors.textPrimary,
                 )
                 Spacer(modifier = Modifier.width(6.dp))

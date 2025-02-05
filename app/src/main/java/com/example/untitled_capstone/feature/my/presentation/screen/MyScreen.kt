@@ -2,7 +2,6 @@ package com.example.untitled_capstone.feature.my.presentation.screen
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -14,8 +13,9 @@ import com.example.untitled_capstone.feature.my.presentation.composable.MyContai
 @Composable
 fun MyScreen() {
     Column(
-        modifier = Modifier.fillMaxSize().padding(Dimens.surfacePadding),
-        verticalArrangement = Arrangement.spacedBy(Dimens.onSurfacePadding),
+        modifier = Modifier.padding(horizontal = Dimens.surfaceHorizontalPadding,
+            vertical = Dimens.surfaceVerticalPadding),
+        verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding),
     ) {
         MyAccountContainer()
         MyContainer(

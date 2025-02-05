@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -36,8 +37,9 @@ import com.example.untitled_capstone.ui.theme.CustomTheme
 @Composable
 fun PostContainer(post: Post){
     Column(
-        modifier = Modifier.fillMaxSize().padding(Dimens.surfacePadding)
-    ) {
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding)
+    ){
         if (post.image != null) {
             Image(
                 painter = painterResource(post.image),
@@ -45,22 +47,21 @@ fun PostContainer(post: Post){
                 alignment = Alignment.Center,
                 contentScale = ContentScale.Fit,
                 modifier = Modifier.fillMaxWidth().aspectRatio(1f)
-                    .padding(Dimens.onSurfacePadding)
-                    .clip(shape = RoundedCornerShape(12.dp))
+                    .clip(shape = RoundedCornerShape(Dimens.cornerRadius))
             )
         } else {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .aspectRatio(1f)
-                    .padding(Dimens.onSurfacePadding)
-                    .clip(shape = RoundedCornerShape(12.dp))
+                    .clip(shape = RoundedCornerShape(Dimens.cornerRadius))
                     .background(CustomTheme.colors.surface)
             )
         }
         Row(
-            modifier = Modifier.fillMaxWidth().padding(Dimens.onSurfacePadding),
-            horizontalArrangement = Arrangement.SpaceBetween
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Row {
                 Icon(
@@ -69,21 +70,17 @@ fun PostContainer(post: Post){
                     tint = CustomTheme.colors.iconDefault
                 )
                 Spacer(
-                    modifier = Modifier.width(6.dp)
+                    modifier = Modifier.width(Dimens.smallPadding)
                 )
                 Column {
                     Text(
                         text = "닉네임", //post.user.name
-                        fontWeight = CustomTheme.typography.button2.fontWeight,
-                        fontFamily = CustomTheme.typography.button2.fontFamily,
-                        fontSize = CustomTheme.typography.button2.fontSize,
+                        style = CustomTheme.typography.button2,
                         color = CustomTheme.colors.textPrimary,
                     )
                     Text(
                         text = post.location,
-                        fontWeight = CustomTheme.typography.caption2.fontWeight,
-                        fontFamily = CustomTheme.typography.caption2.fontFamily,
-                        fontSize = CustomTheme.typography.caption2.fontSize,
+                        style = CustomTheme.typography.caption2,
                         color = CustomTheme.colors.textSecondary,
                     )
                 }
@@ -92,42 +89,36 @@ fun PostContainer(post: Post){
                 text = "어쩌고 레벨"
             )
         }
-        Box(
-            modifier = Modifier.height(1.dp).fillMaxWidth().background(CustomTheme.colors.surface)
+        HorizontalDivider(
+            thickness = 1.dp,
+            color = CustomTheme.colors.surface
         )
-        Column(
-            modifier = Modifier.padding(Dimens.onSurfacePadding)
-        ) {
+        Column{
             Text(
                 text = post.title,
-                fontWeight = CustomTheme.typography.headline3.fontWeight,
-                fontFamily = CustomTheme.typography.headline3.fontFamily,
-                fontSize = CustomTheme.typography.headline3.fontSize,
+                style = CustomTheme.typography.headline3,
                 color = CustomTheme.colors.textPrimary,
             )
             Text(
                 text = "${post.category} ${post.time}",
-                fontWeight = CustomTheme.typography.caption1.fontWeight,
-                fontFamily = CustomTheme.typography.caption1.fontFamily,
-                fontSize = CustomTheme.typography.caption1.fontSize,
+                style = CustomTheme.typography.caption1,
                 color = CustomTheme.colors.textSecondary,
+            )
+            Spacer(
+                modifier = Modifier.height(Dimens.mediumPadding)
             )
             Text(
                 text = post.content,
-                fontWeight = CustomTheme.typography.body2.fontWeight,
-                fontFamily = CustomTheme.typography.body2.fontFamily,
-                fontSize = CustomTheme.typography.body2.fontSize,
+                style = CustomTheme.typography.body2,
                 color = CustomTheme.colors.textPrimary,
                 softWrap = true
             )
             Spacer(
-                modifier = Modifier.height(10.dp)
+                modifier = Modifier.height(Dimens.mediumPadding)
             )
             Text(
                 text = "조회 ${post.views}",
-                fontWeight = CustomTheme.typography.caption1.fontWeight,
-                fontFamily = CustomTheme.typography.caption1.fontFamily,
-                fontSize = CustomTheme.typography.caption1.fontSize,
+                style = CustomTheme.typography.caption1,
                 color = CustomTheme.colors.textSecondary,
             )
         }

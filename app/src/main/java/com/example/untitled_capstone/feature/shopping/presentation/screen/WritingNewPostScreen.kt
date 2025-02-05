@@ -12,7 +12,9 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
@@ -40,73 +42,52 @@ fun WritingNewPostScreen(navController: NavHostController){
         containerColor = CustomTheme.colors.onSurface,
         topBar = {
             CenterAlignedTopAppBar(
-                modifier = Modifier.padding(Dimens.surfacePadding),
+                modifier = Modifier.padding(horizontal = Dimens.topBarPadding),
                 title = {
                     Text(
                         text = "공동구매",
-                        fontFamily = CustomTheme.typography.title1.fontFamily,
-                        fontWeight = CustomTheme.typography.title1.fontWeight,
-                        fontSize = CustomTheme.typography.title1.fontSize,
+                        style = CustomTheme.typography.title1,
                         color = CustomTheme.colors.textPrimary,
                     )
                 },
                 navigationIcon = {
-                    Icon(
-                        imageVector = ImageVector.vectorResource(R.drawable.close),
-                        tint = CustomTheme.colors.iconSelected,
-                        contentDescription = "back",
-                        modifier = Modifier.clickable {
-                            navController.popBackStack()
-                        }
-                    )
+                    IconButton(
+                        onClick = { navController.popBackStack()}
+                    ) {
+                        Icon(
+                            imageVector = ImageVector.vectorResource(R.drawable.close),
+                            tint = CustomTheme.colors.iconSelected,
+                            contentDescription = "close",
+                        )
+                    }
                 },
                 actions = {
-                    Icon(
-                        imageVector = ImageVector.vectorResource(R.drawable.camera),
-                        contentDescription = "upload image",
-                        tint = CustomTheme.colors.iconSelected
-                    )
+                    IconButton(
+                        onClick = { }
+                    ) {
+                        Icon(
+                            imageVector = ImageVector.vectorResource(R.drawable.camera),
+                            contentDescription = "upload image",
+                            tint = CustomTheme.colors.iconSelected
+                        )
+                    }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = CustomTheme.colors.onSurface
                 )
             )
         },
-        bottomBar = {
-            BottomAppBar(
-                modifier = Modifier.height(80.dp),
-                containerColor = CustomTheme.colors.onSurface,
-                content = {
-                    Button(
-                        modifier = Modifier.fillMaxWidth().padding(Dimens.onSurfacePadding),
-                        shape = RoundedCornerShape(12.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = CustomTheme.colors.primary,
-                        ),
-                        onClick = {}
-                    ) {
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = "등록하기",
-                                fontFamily = CustomTheme.typography.button1.fontFamily,
-                                fontWeight = CustomTheme.typography.button1.fontWeight,
-                                fontSize = CustomTheme.typography.button1.fontSize,
-                                color = CustomTheme.colors.onPrimary,
-                                modifier = Modifier.align(Alignment.Center)
-                            )
-                        }
-                    }
-                }
-            )
-        }
     ) { innerPadding ->
+        HorizontalDivider(
+            modifier = Modifier.fillMaxWidth().height(1.dp),
+            color = CustomTheme.colors.border,
+        )
         Box(
             modifier = Modifier.padding(innerPadding)
+                .padding(horizontal = Dimens.surfaceHorizontalPadding,
+                vertical = Dimens.surfaceVerticalPadding),
         ){
-            NewPostForm()
+            NewPostForm(navController = navController)
         }
     }
 }

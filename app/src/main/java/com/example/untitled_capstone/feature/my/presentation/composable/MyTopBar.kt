@@ -15,19 +15,18 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.untitled_capstone.R
+import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyTopBar(navController: NavHostController) {
     TopAppBar(
-        modifier = Modifier.padding(20.dp),
+        modifier = Modifier.padding(horizontal = Dimens.topBarPadding),
         title = {
             Text(
                 text = "My",
-                fontFamily = CustomTheme.typography.headline3.fontFamily,
-                fontWeight = CustomTheme.typography.headline3.fontWeight,
-                fontSize = CustomTheme.typography.headline3.fontSize,
+                style = CustomTheme.typography.headline3,
                 color = CustomTheme.colors.textPrimary,
             )
         },

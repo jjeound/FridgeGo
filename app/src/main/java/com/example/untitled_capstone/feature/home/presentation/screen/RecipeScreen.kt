@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -19,6 +20,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MediumTopAppBar
 import androidx.compose.material3.Scaffold
@@ -55,36 +57,36 @@ fun RecipeScreen(recipe: Recipe, navController: NavHostController){
         containerColor = CustomTheme.colors.onSurface,
         topBar = {
             CenterAlignedTopAppBar(
-                modifier = Modifier.padding(Dimens.surfacePadding),
+                modifier = Modifier.padding(Dimens.topBarPadding),
                 navigationIcon = {
-                    Icon(
-                        imageVector = ImageVector.vectorResource(R.drawable.chevron_left),
-                        tint = CustomTheme.colors.iconDefault,
-                        contentDescription = "back",
-                        modifier = Modifier.clickable {
-                            navController.popBackStack()
-                        }
-                    )
+                    IconButton(
+                        onClick = {navController.popBackStack()}
+                    ) {
+                        Icon(
+                            imageVector = ImageVector.vectorResource(R.drawable.chevron_left),
+                            tint = CustomTheme.colors.iconDefault,
+                            contentDescription = "back",
+                        )
+                    }
                 },
                 title = {
                     Text(
                         text = recipe.title,
-                        fontFamily = CustomTheme.typography.title1.fontFamily,
-                        fontWeight = CustomTheme.typography.title1.fontWeight,
-                        fontSize = CustomTheme.typography.title1.fontSize,
+                        style = CustomTheme.typography.title1,
                         color = CustomTheme.colors.textPrimary,
                         softWrap = true
                     )
                 },
                 actions = {
-                    Icon(
-                        imageVector = ImageVector.vectorResource(R.drawable.more),
-                        tint = CustomTheme.colors.iconDefault,
-                        contentDescription = "more",
-                        modifier = Modifier.clickable {
-                            TODO("menu drawer")
-                        }
-                    )
+                    IconButton(
+                        onClick = { }
+                    ) {
+                        Icon(
+                            imageVector = ImageVector.vectorResource(R.drawable.more),
+                            tint = CustomTheme.colors.iconDefault,
+                            contentDescription = "more",
+                        )
+                    }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = CustomTheme.colors.onSurface
@@ -93,13 +95,15 @@ fun RecipeScreen(recipe: Recipe, navController: NavHostController){
         }
     ) { innerPadding ->
         Column(
-            modifier = Modifier.padding(innerPadding).fillMaxSize(),
-            verticalArrangement = Arrangement.Top,
+            modifier = Modifier.padding(innerPadding).fillMaxSize()
+                .padding(horizontal = Dimens.surfaceHorizontalPadding,
+                    vertical = Dimens.surfaceVerticalPadding),
+            verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Box(
-                modifier = Modifier.width(300.dp).height(300.dp)
-                    .clip(shape = RoundedCornerShape(12.dp)).padding(Dimens.surfacePadding),
+                modifier = Modifier.size(300.dp)
+                    .clip(shape = RoundedCornerShape(Dimens.cornerRadius)),
                 contentAlignment = Alignment.BottomEnd
             ){
                 if (recipe.image != null) {
@@ -108,64 +112,59 @@ fun RecipeScreen(recipe: Recipe, navController: NavHostController){
                         contentDescription = recipe.title,
                         alignment = Alignment.Center,
                         contentScale = ContentScale.Fit,
-                        modifier = Modifier.width(300.dp).height(300.dp)
-                            .clip(shape = RoundedCornerShape(12.dp))
+                        modifier = Modifier.size(300.dp)
+                            .clip(shape = RoundedCornerShape(Dimens.cornerRadius))
                     )
                 }
                 Row {
-                    Icon(
-                        imageVector = ImageVector.vectorResource(R.drawable.camera),
-                        contentDescription = "like",
-                        tint = CustomTheme.colors.iconDefault,
-                        modifier = Modifier.padding(10.dp).clickable {
-                            TODO("image upload")
-                        }
-                    )
-                    Icon(
-                        imageVector = ImageVector.vectorResource(R.drawable.heart),
-                        contentDescription = "like",
-                        tint = CustomTheme.colors.iconDefault,
-                        modifier = Modifier.padding(10.dp).clickable {
-                            TODO("set like")
-                        }
-                    )
+                    IconButton(
+                        onClick = { }
+                    ) {
+                        Icon(
+                            imageVector = ImageVector.vectorResource(R.drawable.camera),
+                            contentDescription = "like",
+                            tint = CustomTheme.colors.iconDefault,
+                        )
+                    }
+                    IconButton(
+                        onClick = { }
+                    ) {
+                        Icon(
+                            imageVector = ImageVector.vectorResource(R.drawable.heart),
+                            contentDescription = "like",
+                            tint = CustomTheme.colors.iconDefault,
+                        )
+                    }
                 }
             }
             Text(
                 text = "재료",
-                fontFamily = CustomTheme.typography.title1.fontFamily,
-                fontWeight = CustomTheme.typography.title1.fontWeight,
-                fontSize = CustomTheme.typography.title1.fontSize,
+                style = CustomTheme.typography.title1,
                 color = CustomTheme.colors.textPrimary,
-                modifier = Modifier.padding(20.dp)
             )
-            for(ingredient in recipe.ingredients){
-                Text(
-                    text = ingredient,
-                    fontFamily = CustomTheme.typography.body2.fontFamily,
-                    fontWeight = CustomTheme.typography.body2.fontWeight,
-                    fontSize = CustomTheme.typography.body2.fontSize,
-                    color = CustomTheme.colors.textPrimary
-                )
+            Column {
+                for(ingredient in recipe.ingredients){
+                    Text(
+                        text = ingredient,
+                        style = CustomTheme.typography.body2,
+                        color = CustomTheme.colors.textPrimary
+                    )
+                }
             }
             Text(
                 text = "레시피",
-                fontFamily = CustomTheme.typography.title1.fontFamily,
-                fontWeight = CustomTheme.typography.title1.fontWeight,
-                fontSize = CustomTheme.typography.title1.fontSize,
+                style = CustomTheme.typography.title1,
                 color = CustomTheme.colors.textPrimary,
-                modifier = Modifier.padding(20.dp)
             )
-            for(step in recipe.steps){
-                Text(
-                    text = step,
-                    fontFamily = CustomTheme.typography.body2.fontFamily,
-                    fontWeight = CustomTheme.typography.body2.fontWeight,
-                    fontSize = CustomTheme.typography.body2.fontSize,
-                    color = CustomTheme.colors.textPrimary
-                )
+            Column {
+                for(step in recipe.steps){
+                    Text(
+                        text = step,
+                        style = CustomTheme.typography.body2,
+                        color = CustomTheme.colors.textPrimary
+                    )
+                }
             }
-            Box(modifier = Modifier.fillMaxWidth().padding(20.dp))
         }
     }
 }

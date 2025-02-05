@@ -8,20 +8,24 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -42,69 +46,65 @@ fun PostListContainer(post: Post){
         shape = RoundedCornerShape(Dimens.cornerRadius),
         modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = 10.dp),
     ) {
-        Row{
+        Row(
+            modifier = Modifier.fillMaxSize().padding(Dimens.mediumPadding)
+        ){
             if (post.image != null) {
                 Image(
                     painter = painterResource(post.image),
                     contentDescription = post.title,
                     alignment = Alignment.Center,
                     contentScale = ContentScale.Fit,
-                    modifier = Modifier.size(120.dp)
-                        .padding(Dimens.onSurfacePadding)
-                        .clip(shape = RoundedCornerShape(12.dp))
+                    modifier = Modifier.size(80.dp)
+                        .clip(shape = RoundedCornerShape(Dimens.cornerRadius))
                 )
             } else {
                 Box(
                     modifier = Modifier
-                        .size(120.dp).padding(Dimens.onSurfacePadding)
-                        .clip(shape = RoundedCornerShape(12.dp))
+                        .size(80.dp)
+                        .clip(shape = RoundedCornerShape(Dimens.cornerRadius))
                         .background(CustomTheme.colors.surface)
                 )
             }
+            Spacer(
+                modifier = Modifier.width(Dimens.largePadding)
+            )
             Column(
-                modifier = Modifier.weight(1f).padding(Dimens.onSurfacePadding),
+                modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.Start
             ){
                 Text(
                     text = post.title,
-                    fontWeight = CustomTheme.typography.title1.fontWeight,
-                    fontFamily = CustomTheme.typography.title1.fontFamily,
-                    fontSize = CustomTheme.typography.title1.fontSize,
+                    style = CustomTheme.typography.title1,
                     color = CustomTheme.colors.textPrimary,
                     maxLines = 1,
                 )
                 Text(
                     text = post.content,
-                    fontWeight = CustomTheme.typography.body3.fontWeight,
-                    fontFamily = CustomTheme.typography.body3.fontFamily,
-                    fontSize = CustomTheme.typography.body3.fontSize,
+                    style = CustomTheme.typography.body3,
                     color = CustomTheme.colors.textPrimary,
                     maxLines = 1,
                 )
                 Row {
                     Text(
                         text = post.location,
-                        fontWeight = CustomTheme.typography.caption2.fontWeight,
-                        fontFamily = CustomTheme.typography.caption2.fontFamily,
-                        fontSize = CustomTheme.typography.caption2.fontSize,
+                        style = CustomTheme.typography.caption2,
                         color = CustomTheme.colors.textSecondary,
-                        modifier = Modifier.padding(end = 3.dp)
+                    )
+                    Spacer(
+                        modifier = Modifier.width(3.dp)
                     )
                     Text(
                         text = post.time,
-                        fontWeight = CustomTheme.typography.caption2.fontWeight,
-                        fontFamily = CustomTheme.typography.caption2.fontFamily,
-                        fontSize = CustomTheme.typography.caption2.fontSize,
+                        style = CustomTheme.typography.caption2,
                         color = CustomTheme.colors.textSecondary,
                     )
                 }
             }
             Row(
-                modifier = Modifier.fillMaxHeight().padding(Dimens.onSurfacePadding),
-                horizontalArrangement = Arrangement.End,
+                modifier = Modifier.fillMaxHeight(),
                 verticalAlignment = Alignment.Bottom
             ){
                 Icon(
@@ -114,12 +114,9 @@ fun PostListContainer(post: Post){
                 )
                 Text(
                     text = "${post.currentNumOfPeople}/${post.totalNumbOfPeople}",
-                    fontWeight = CustomTheme.typography.caption2.fontWeight,
-                    fontFamily = CustomTheme.typography.caption2.fontFamily,
-                    fontSize = CustomTheme.typography.caption2.fontSize,
+                    style = CustomTheme.typography.caption2,
                     color = CustomTheme.colors.textSecondary,
                 )
-                Spacer(modifier = Modifier.width(6.dp))
                 Icon(
                     imageVector = ImageVector.vectorResource(R.drawable.heart),
                     contentDescription = "like",
@@ -127,9 +124,7 @@ fun PostListContainer(post: Post){
                 )
                 Text(
                     text = "${post.likes}",
-                    fontWeight = CustomTheme.typography.caption2.fontWeight,
-                    fontFamily = CustomTheme.typography.caption2.fontFamily,
-                    fontSize = CustomTheme.typography.caption2.fontSize,
+                    style = CustomTheme.typography.caption2,
                     color = CustomTheme.colors.textSecondary,
                 )
             }

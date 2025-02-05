@@ -37,6 +37,7 @@ fun NotificationScreen(navController: NavHostController, state: NotificationStat
         containerColor = CustomTheme.colors.surface,
         topBar = {
             CenterAlignedTopAppBar(
+                modifier = Modifier.padding(Dimens.topBarPadding),
                 title = {
                     Text(
                         text = "알림",
@@ -73,8 +74,10 @@ fun NotificationScreen(navController: NavHostController, state: NotificationStat
         }
     ){ innerPadding ->
         LazyColumn(
-            modifier = Modifier.padding(innerPadding).padding(horizontal = Dimens.surfacePadding, vertical = Dimens.onSurfacePadding),
-            verticalArrangement = Arrangement.spacedBy(Dimens.onSurfacePadding)
+            modifier = Modifier.padding(innerPadding).padding(
+                horizontal = Dimens.surfaceHorizontalPadding,
+                vertical = Dimens.surfaceVerticalPadding),
+            verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding)
         ) {
             if(!state.isLoading){
                 items( state.notifications,){ item ->

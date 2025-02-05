@@ -15,8 +15,8 @@ class NotificationViewModel: ViewModel() {
         state = state.copy(
             notifications = listOf(
                 Notification(
-                    title = "title1",
-                    content = "content1",
+                    title = "유통기한",
+                    content = "양파의 유통기한이 1일 남았습니다.",
                     time = "time1",
                     isRead = false,
                     navigation = "id1"
@@ -25,21 +25,21 @@ class NotificationViewModel: ViewModel() {
                     title = "title2",
                     content = "content2",
                     time = "time2",
-                    isRead = false,
+                    isRead = true,
                     navigation = "id1"
                 ),
                 Notification(
                     title = "title3",
                     content = "content3",
                     time = "time3",
-                    isRead = false,
+                    isRead = true,
                     navigation = "id1"
                 ),
                 Notification(
                     title = "title4",
                     content = "content4",
                     time = "time4",
-                    isRead = false,
+                    isRead = true,
                     navigation = "id1"
                 )
             ),

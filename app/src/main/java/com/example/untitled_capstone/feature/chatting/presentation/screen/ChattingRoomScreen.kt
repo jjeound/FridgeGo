@@ -1,11 +1,9 @@
 package com.example.untitled_capstone.feature.chatting.presentation.screen
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -13,6 +11,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
@@ -44,16 +43,12 @@ fun ChattingRoomScreen(state: MessageState, chattingRoom: ChattingRoom, navContr
         containerColor = CustomTheme.colors.onSurface,
         topBar = {
             CenterAlignedTopAppBar(
-                modifier = Modifier.padding(Dimens.surfacePadding),
+                modifier = Modifier.padding(horizontal = Dimens.topBarPadding),
                 title = {
-                    Row(
-                        modifier = Modifier.height(24.dp)
-                    ) {
+                    Row{
                         Text(
                             text = chattingRoom.title,
-                            fontFamily = CustomTheme.typography.title1.fontFamily,
-                            fontWeight = CustomTheme.typography.title1.fontWeight,
-                            fontSize = CustomTheme.typography.title1.fontSize,
+                            style = CustomTheme.typography.title1,
                             color = CustomTheme.colors.textPrimary,
                         )
                         Spacer(
@@ -61,48 +56,54 @@ fun ChattingRoomScreen(state: MessageState, chattingRoom: ChattingRoom, navContr
                         )
                         Text(
                             text = chattingRoom.numberOfPeople.toString(),
-                            fontFamily = CustomTheme.typography.title2.fontFamily,
-                            fontWeight = CustomTheme.typography.title2.fontWeight,
-                            fontSize = CustomTheme.typography.title2.fontSize,
+                            style = CustomTheme.typography.title2,
                             color = CustomTheme.colors.textSecondary,
                             modifier = Modifier.align(Alignment.Bottom)
                         )
                     }
                 },
                 navigationIcon = {
-                    Icon(
-                        imageVector = ImageVector.vectorResource(R.drawable.chevron_left),
-                        tint = CustomTheme.colors.iconDefault,
-                        contentDescription = "back",
-                        modifier = Modifier.clickable {
-                            navController.popBackStack()
-                        }
-                    )
+                    IconButton(
+                        onClick = { navController.popBackStack()}
+                    ) {
+                        Icon(
+                            imageVector = ImageVector.vectorResource(R.drawable.chevron_left),
+                            tint = CustomTheme.colors.iconDefault,
+                            contentDescription = "back",
+                        )
+                    }
                 },
                 actions = {
-                    Icon(
-                        imageVector = ImageVector.vectorResource(R.drawable.more),
-                        contentDescription = "upload image",
-                        tint = CustomTheme.colors.iconDefault
-                    )
+                    IconButton(
+                        onClick = { }
+                    ) {
+                        Icon(
+                            imageVector = ImageVector.vectorResource(R.drawable.more),
+                            contentDescription = "upload image",
+                            tint = CustomTheme.colors.iconDefault
+                        )
+                    }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = CustomTheme.colors.onSurface
                 )
             )
         },
-        bottomBar = {
-            NewMessageForm()
-        }
     ) { innerPadding ->
         Box(
             modifier = Modifier.padding(innerPadding)
+                .padding(horizontal = Dimens.surfaceHorizontalPadding,
+                    vertical = Dimens.surfaceVerticalPadding)
         ){
-            LazyColumn(
-            ) {
-                items(state.messages){ message ->
-                    MessageCard(message = message)
+            Column {
+                LazyColumn(
+                    modifier = Modifier.weight(1f)
+                ) {
+                    items(state.messages){ message ->
+                        MessageCard(message = message)
+                    }
                 }
+                NewMessageForm()
             }
         }
     }

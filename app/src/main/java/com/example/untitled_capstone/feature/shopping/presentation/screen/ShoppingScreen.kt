@@ -1,6 +1,7 @@
 package com.example.untitled_capstone.feature.shopping.presentation.screen
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -16,7 +17,9 @@ import com.example.untitled_capstone.feature.shopping.presentation.state.PostSta
 @Composable
 fun ShoppingScreen(navController: NavHostController, state: PostState) {
     LazyColumn(
-        modifier = Modifier.padding(horizontal = Dimens.surfacePadding, vertical = 10.dp)
+        modifier = Modifier.padding(horizontal = Dimens.surfaceHorizontalPadding,
+            vertical = Dimens.surfaceVerticalPadding),
+        verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding)
     ) {
         items(state.posts) { post ->
             Box(

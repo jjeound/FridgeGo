@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -38,8 +39,7 @@ fun MyRecipe(recipe: Recipe, onClick : () -> Unit){
         }
     ) {
         if(recipe.image != null){
-            Box(
-            ){
+            Box{
                 Image(
                     painter = painterResource(recipe.image),
                     contentDescription = recipe.title,
@@ -48,12 +48,16 @@ fun MyRecipe(recipe: Recipe, onClick : () -> Unit){
                     modifier = Modifier.size(130.dp)
                         .clip(shape = RoundedCornerShape(Dimens.cornerRadius))
                 )
-                Icon(
-                    imageVector = ImageVector.vectorResource(R.drawable.heart),
-                    contentDescription = "like",
-                    tint = Color.Unspecified,
-                    modifier = Modifier.align(Alignment.BottomEnd).padding(10.dp)
-                )
+                IconButton(
+                    modifier = Modifier.align(Alignment.BottomEnd),
+                    onClick = {  }
+                ) {
+                    Icon(
+                        imageVector = ImageVector.vectorResource(R.drawable.heart),
+                        contentDescription = "like",
+                        tint = Color.Unspecified,
+                    )
+                }
             }
         } else {
             Box(
@@ -62,16 +66,20 @@ fun MyRecipe(recipe: Recipe, onClick : () -> Unit){
                     .clip(shape = RoundedCornerShape(Dimens.cornerRadius))
                     .background(CustomTheme.colors.surface)
             ){
-                Icon(
-                    imageVector = ImageVector.vectorResource(R.drawable.heart),
-                    contentDescription = "like",
-                    tint = Color.Unspecified,
-                    modifier = Modifier.align(Alignment.BottomEnd).padding(10.dp)
-                )
+                IconButton(
+                    modifier = Modifier.align(Alignment.BottomEnd),
+                    onClick = {  }
+                ) {
+                    Icon(
+                        imageVector = ImageVector.vectorResource(R.drawable.heart),
+                        contentDescription = "like",
+                        tint = Color.Unspecified,
+                    )
+                }
             }
         }
         Spacer(
-            modifier = Modifier.height(4.dp)
+            modifier = Modifier.height(Dimens.smallPadding)
         )
         Text(
             text = recipe.title,

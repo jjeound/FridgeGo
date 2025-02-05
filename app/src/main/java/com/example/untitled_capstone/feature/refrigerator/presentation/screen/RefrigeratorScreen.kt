@@ -21,6 +21,7 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -43,39 +44,31 @@ import com.example.untitled_capstone.ui.theme.CustomTheme
 fun RefrigeratorScreen(state: FridgeState) {
     var expanded by remember { mutableStateOf(false) }
     val menuItemData = listOf("최신 순", "오래된 순")
-    var menu by remember { mutableStateOf(menuItemData[0]) }
+    var alignMenu by remember { mutableStateOf("최신 순") }
     Column(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = Dimens.surfacePadding),
+        modifier = Modifier.fillMaxWidth().padding(
+            horizontal = Dimens.surfaceHorizontalPadding,
+        vertical = Dimens.surfaceVerticalPadding),
         horizontalAlignment = Alignment.End
     ) {
-        Box{
-            Card(
-                modifier = Modifier.width(54.dp).height(24.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = Color.Transparent,
-                ),
+        Column {
+            Row(
+                modifier = Modifier.clickable {
+                    expanded = !expanded
+                },
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.End,
             ) {
-                Row(
-                    modifier = Modifier.fillMaxSize().clickable {
-                        expanded = !expanded
-                    },
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                ) {
-                    Text(
-                        modifier = Modifier.padding(start = 16.dp),
-                        text = menu,
-                        fontWeight = CustomTheme.typography.caption2.fontWeight,
-                        fontFamily = CustomTheme.typography.caption2.fontFamily,
-                        fontSize = CustomTheme.typography.caption2.fontSize,
-                        color = CustomTheme.colors.textPrimary,
-                    )
-                    Icon(
-                        imageVector = ImageVector.vectorResource(R.drawable.dropdown),
-                        contentDescription = "select number of people",
-                        tint = CustomTheme.colors.iconSelected,
-                    )
-                }
+                Text(
+                    text = alignMenu,
+                    style = CustomTheme.typography.caption2,
+                    color = CustomTheme.colors.textPrimary,
+                )
+                Icon(
+                    imageVector = ImageVector.vectorResource(R.drawable.dropdown),
+                    contentDescription = "open dropdown menu",
+                    tint = CustomTheme.colors.iconSelected,
+                )
             }
             DropdownMenu(
                 expanded = expanded,
@@ -83,7 +76,7 @@ fun RefrigeratorScreen(state: FridgeState) {
                 containerColor = CustomTheme.colors.textTertiary,
                 shadowElevation = 0.dp,
                 tonalElevation = 0.dp,
-                shape = RoundedCornerShape(12.dp),
+                shape = RoundedCornerShape(Dimens.cornerRadius),
             ) {
                 menuItemData.forEach { option ->
                     DropdownMenuItem(
@@ -91,15 +84,13 @@ fun RefrigeratorScreen(state: FridgeState) {
                         text = {
                             Text(
                                 text = option,
-                                fontWeight = CustomTheme.typography.caption2.fontWeight,
-                                fontFamily = CustomTheme.typography.caption2.fontFamily,
-                                fontSize = CustomTheme.typography.caption2.fontSize,
+                                style = CustomTheme.typography.caption2,
                                 color = CustomTheme.colors.textPrimary,
                             )
                         },
                         onClick = {
                             expanded = false
-                            menu = option
+                            alignMenu = option
                         },
                     )
                     HorizontalDivider(
@@ -113,9 +104,9 @@ fun RefrigeratorScreen(state: FridgeState) {
             thickness = 1.dp,
             color = CustomTheme.colors.border
         )
-        Spacer(modifier = Modifier.height(Dimens.onSurfacePadding))
+        Spacer(modifier = Modifier.height(Dimens.mediumPadding))
         LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(Dimens.onSurfacePadding)
+            verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding)
         ) {
             items(state.fridgeItems) { item ->
                 FridgeItemContainer(item)

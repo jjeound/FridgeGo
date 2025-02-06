@@ -1,5 +1,6 @@
 package com.example.untitled_capstone.feature.my.presentation.composable
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -44,7 +45,7 @@ fun MyContainer(title: String, content: List<String>, icons: List<Int>){
             )
             for(i in content.indices){
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().clickable {  },
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -63,16 +64,11 @@ fun MyContainer(title: String, content: List<String>, icons: List<Int>){
                             color = CustomTheme.colors.textPrimary,
                         )
                     }
-                    IconButton(
-                        modifier = Modifier.then(Modifier.size(24.dp)),
-                        onClick = {}
-                    ) {
-                        Icon(
-                            imageVector = ImageVector.vectorResource(R.drawable.chevron_right),
-                            contentDescription = "navigate",
-                            tint = CustomTheme.colors.iconDefault
-                        )
-                    }
+                    Icon(
+                        imageVector = ImageVector.vectorResource(R.drawable.chevron_right),
+                        contentDescription = "navigate",
+                        tint = CustomTheme.colors.iconDefault
+                    )
                 }
             }
         }

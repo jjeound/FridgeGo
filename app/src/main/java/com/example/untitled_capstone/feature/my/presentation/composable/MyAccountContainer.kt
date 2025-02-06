@@ -1,6 +1,7 @@
 package com.example.untitled_capstone.feature.my.presentation.composable
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -25,6 +26,7 @@ import com.example.untitled_capstone.ui.theme.CustomTheme
 @Composable
 fun MyAccountContainer() {
     Card(
+        modifier = Modifier.clickable {  },
         shape = RoundedCornerShape(Dimens.cornerRadius),
         colors = CardDefaults.cardColors(
             containerColor = CustomTheme.colors.onSurface
@@ -36,7 +38,7 @@ fun MyAccountContainer() {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Row(
-                horizontalArrangement = Arrangement.spacedBy(Dimens.smallPadding),
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Image(
@@ -50,16 +52,11 @@ fun MyAccountContainer() {
                     color = CustomTheme.colors.textPrimary,
                 )
             }
-            IconButton(
-                modifier = Modifier.then(Modifier.size(24.dp)),
-                onClick = {}
-            ) {
-                Icon(
-                    imageVector = ImageVector.vectorResource(R.drawable.chevron_right),
-                    contentDescription = "navigate",
-                    tint = CustomTheme.colors.iconDefault
-                )
-            }
+            Icon(
+                imageVector = ImageVector.vectorResource(R.drawable.chevron_right),
+                contentDescription = "navigate",
+                tint = CustomTheme.colors.iconDefault
+            )
         }
     }
 }

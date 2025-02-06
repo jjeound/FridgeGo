@@ -92,7 +92,7 @@ fun NewFridgeItemForm(navController: NavHostController){
                         model = image,
                         contentDescription = "image",
                         alignment = Alignment.Center,
-                        contentScale = ContentScale.Fit,
+                        contentScale = ContentScale.Crop,
                         modifier = Modifier
                             .size(300.dp)
                             .clip(shape = RoundedCornerShape(Dimens.cornerRadius))

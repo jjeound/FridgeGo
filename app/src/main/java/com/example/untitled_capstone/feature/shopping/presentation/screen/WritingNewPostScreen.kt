@@ -61,17 +61,6 @@ fun WritingNewPostScreen(navController: NavHostController){
                         )
                     }
                 },
-                actions = {
-                    IconButton(
-                        onClick = { }
-                    ) {
-                        Icon(
-                            imageVector = ImageVector.vectorResource(R.drawable.camera),
-                            contentDescription = "upload image",
-                            tint = CustomTheme.colors.iconSelected
-                        )
-                    }
-                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = CustomTheme.colors.onSurface
                 )

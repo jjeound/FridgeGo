@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -37,13 +38,18 @@ fun NewMessageForm(){
     Row(
         modifier = Modifier.fillMaxWidth().wrapContentHeight(),
         horizontalArrangement = Arrangement.spacedBy(Dimens.mediumPadding),
-        verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(
-            imageVector = ImageVector.vectorResource(R.drawable.plus),
-            contentDescription = "more",
-            tint = CustomTheme.colors.iconDefault,
-        )
+        IconButton(
+            modifier = Modifier.align(Alignment.Bottom)
+                .padding(bottom = 16.dp).then(Modifier.size(24.dp)),
+            onClick = { }
+        ) {
+            Icon(
+                imageVector = ImageVector.vectorResource(R.drawable.plus),
+                contentDescription = "more",
+                tint = CustomTheme.colors.iconDefault,
+            )
+        }
         TextField(
             value = text,
             onValueChange = {text = it},
@@ -80,6 +86,8 @@ fun NewMessageForm(){
             keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() })
         )
         IconButton(
+            modifier = Modifier.align(Alignment.Bottom)
+                .padding(bottom = 16.dp).then(Modifier.size(24.dp)),
             onClick = { }
         ) {
             Icon(

@@ -1,9 +1,11 @@
 package com.example.untitled_capstone.feature.chatting.presentation.screen
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -97,12 +99,17 @@ fun ChattingRoomScreen(state: MessageState, chattingRoom: ChattingRoom, navContr
         ){
             Column {
                 LazyColumn(
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.Bottom,
+                    reverseLayout = true
                 ) {
                     items(state.messages){ message ->
                         MessageCard(message = message)
                     }
                 }
+                Spacer(
+                    modifier = Modifier.height(22.dp)
+                )
                 NewMessageForm()
             }
         }

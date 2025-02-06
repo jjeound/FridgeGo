@@ -5,5 +5,6 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class User(
     val id: Int,
-    val profile: Int
+    val name: String,
+    val profile: Int?
 )

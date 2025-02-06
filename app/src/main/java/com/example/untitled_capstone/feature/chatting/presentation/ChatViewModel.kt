@@ -4,6 +4,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import com.example.untitled_capstone.R
 import com.example.untitled_capstone.feature.chatting.domain.model.ChattingRoom
 import com.example.untitled_capstone.feature.chatting.domain.model.Message
 import com.example.untitled_capstone.feature.chatting.domain.model.User
@@ -26,7 +27,8 @@ class ChatViewModel: ViewModel(){
                     lastSentMessageTime = "2021-12-31",
                     user = User(
                         id = 1,
-                        profile = 1
+                        name = "닉네임",
+                        profile = R.drawable.ic_launcher_background
                     ),
                     title = "title1",
                     numberOfPeople = 1,
@@ -37,7 +39,8 @@ class ChatViewModel: ViewModel(){
                     lastSentMessageTime = "2021-12-31",
                     user = User(
                         id = 2,
-                        profile = 1
+                        name = "닉네임",
+                        profile = R.drawable.ic_launcher_background
                     ),
                     title = "title2",
                     numberOfPeople = 2,
@@ -48,7 +51,8 @@ class ChatViewModel: ViewModel(){
                     lastSentMessageTime = "2021-12-31",
                     user = User(
                         id = 3,
-                        profile = 1
+                        name = "닉네임",
+                        profile = R.drawable.ic_launcher_background
                     ),
                     title = "title3",
                     numberOfPeople = 3
@@ -58,7 +62,8 @@ class ChatViewModel: ViewModel(){
                     lastSentMessageTime = "2021-12-31",
                     user = User(
                         id = 4,
-                        profile = 1
+                        name = "닉네임",
+                        profile = R.drawable.ic_launcher_background
                     ),
                     title = "title1",
                     numberOfPeople = 4
@@ -69,35 +74,39 @@ class ChatViewModel: ViewModel(){
         messageState = messageState.copy(
             messages = listOf(
                 Message(
-                    message = "message",
+                    message = "message1",
                     time = "2025-01-24",
                     user = User(
                         id = 4,
-                        profile = 1
+                        name = "닉네임",
+                        profile = R.drawable.ic_launcher_background
                     ),
                 ),
                 Message(
-                    message = "message",
+                    message = "message2",
                     time = "2025-01-24",
                     user = User(
                         id = 4,
-                        profile = 1
+                        name = "닉네임",
+                        profile = R.drawable.ic_launcher_background
                     ),
                 ),
                 Message(
-                    message = "message",
+                    message = "message3",
                     time = "2025-01-24",
                     user = User(
                         id = 1,
-                        profile = 1
+                        name = "닉네임",
+                        profile = R.drawable.ic_launcher_background
                     ),
                 ),
                 Message(
-                    message = "message",
+                    message = "message4",
                     time = "2025-01-24",
                     user = User(
                         id = 1,
-                        profile = 1
+                        name = "닉네임",
+                        profile = R.drawable.ic_launcher_background
                     ),
                 ),
             )

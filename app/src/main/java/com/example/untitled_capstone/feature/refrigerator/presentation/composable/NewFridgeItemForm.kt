@@ -1,6 +1,14 @@
 package com.example.untitled_capstone.feature.refrigerator.presentation.composable
 
+import android.Manifest
+import android.app.Activity
+import android.content.Intent
 import android.net.Uri
+import android.os.Build
+import android.provider.MediaStore
+import android.provider.Settings
+import android.util.Log
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
@@ -12,12 +20,18 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.AlertDialogDefaults
+import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DatePicker
@@ -27,6 +41,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -43,13 +58,17 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.core.app.ActivityCompat
+import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
+import com.example.untitled_capstone.MainActivity
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.ui.theme.CustomTheme
@@ -61,11 +80,72 @@ import java.util.Locale
 @Composable
 fun NewFridgeItemForm(navController: NavHostController){
     var image by remember { mutableStateOf<Uri?>(null) }
-    val launcher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
-    ) { uri: Uri? ->
-        image = uri
+    val context = LocalContext.current
+    val packageName = context.packageName
+    val showDialog = remember { mutableStateOf(false) }
+
+    val albumLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            when (result.resultCode) {
+                Activity.RESULT_OK -> {
+                    result.data?.data?.let { uri ->
+                        uri.let {
+                            image = uri
+                            Log.d("TargetSDK", "imageUri - selected : $uri")
+                        }
+                    }
+                }
+                Activity.RESULT_CANCELED -> Unit
+            }
+        }
+    val imageAlbumIntent =
+        Intent(Intent.ACTION_PICK).apply {
+            setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*")
+            type = "image/*"
+            putExtra(Intent.EXTRA_ALLOW_MULTIPLE, false)
+            putExtra(
+                Intent.EXTRA_MIME_TYPES,
+                arrayOf("image/jpeg", "image/png", "image/bmp", "image/webp")
+            )
+        }
+    val galleryPermissions = when {
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE -> arrayOf(
+            Manifest.permission.READ_MEDIA_IMAGES,
+            Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED
+        )
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU -> arrayOf(
+            Manifest.permission.READ_MEDIA_IMAGES
+        )
+        else -> arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
     }
+    val permissionToRequest = mutableListOf<String>()
+    var hasPermission: Boolean
+    val requestPermissionLauncher =
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.RequestMultiplePermissions(),
+            onResult = { permissions ->
+                hasPermission = false
+                galleryPermissions.forEach { permission ->
+                    if (permissions[permission] == true){
+                        hasPermission = true
+                    }else{
+                        permissionToRequest.add(permission)
+                        val rationaleRequired = shouldShowRequestPermissionRationale(
+                            context as MainActivity,
+                            permission
+                        )
+                        if(rationaleRequired){
+                            Toast.makeText(context, "Permission is required for this feature", Toast.LENGTH_LONG).show()
+                        } else {
+                            showDialog.value = true
+                        }
+                    }
+                }
+                if (hasPermission) {
+                    albumLauncher.launch(imageAlbumIntent)
+                }
+            }
+        )
     var name by remember { mutableStateOf("") }
     var quantity by remember { mutableStateOf("") }
     var showDatePicker by remember { mutableStateOf(false) }
@@ -76,6 +156,8 @@ fun NewFridgeItemForm(navController: NavHostController){
     val focusManager = LocalFocusManager.current
     var validator by remember { mutableStateOf(false) }
     validator = name.isNotBlank() && selectedDate.isNotBlank()
+
+
     Column(
         modifier = Modifier
             .fillMaxSize(),
@@ -101,7 +183,7 @@ fun NewFridgeItemForm(navController: NavHostController){
                         modifier = Modifier
                             .align(Alignment.BottomEnd),
                         onClick = {
-                            launcher.launch("image/*")
+                            requestPermissionLauncher.launch(galleryPermissions)
                         }
                     ){
                         Icon(
@@ -122,7 +204,7 @@ fun NewFridgeItemForm(navController: NavHostController){
                         modifier = Modifier
                             .align(Alignment.BottomEnd),
                         onClick = {
-                            launcher.launch("image/*")
+                            requestPermissionLauncher.launch(galleryPermissions)
                         }
                     ){
                         Icon(
@@ -316,6 +398,62 @@ fun NewFridgeItemForm(navController: NavHostController){
                 )
             }
         }
+        if (showDialog.value) {
+            BasicAlertDialog(
+                onDismissRequest = { showDialog.value = false }
+            ) {
+                Surface(
+                    modifier = Modifier.wrapContentWidth().wrapContentHeight(),
+                    shape = RoundedCornerShape(Dimens.cornerRadius),
+                    color = CustomTheme.colors.surface,
+                    tonalElevation = AlertDialogDefaults.TonalElevation
+                ) {
+                    Column(
+                        modifier = Modifier.padding(Dimens.largePadding),
+                    ) {
+                        Text(
+                            modifier = Modifier.padding(Dimens.largePadding),
+                            text = "이미지를 선택하려면 저장소 접근 권한이 필요합니다.",
+                            style = CustomTheme.typography.headline3,
+                            color = CustomTheme.colors.textPrimary,
+                        )
+                        HorizontalDivider()
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.End
+                        ) {
+                            TextButton(
+                                onClick = {
+                                    showDialog.value = false
+                                }
+                            ) {
+                                Text(
+                                    text = "취소",
+                                    style = CustomTheme.typography.button1,
+                                    color = CustomTheme.colors.textSecondary,
+                                )
+                            }
+                            TextButton(
+                                onClick = {
+                                    showDialog.value = false
+                                    context.startActivity(
+                                        Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                                            data = Uri.fromParts("package", packageName, null)
+                                        }
+                                    )
+                                }
+                            ) {
+                                Text(
+                                    text = "설정",
+                                    style = CustomTheme.typography.button1,
+                                    color = CustomTheme.colors.textPrimary,
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
         Button(
             modifier = Modifier
                 .fillMaxWidth()
@@ -347,3 +485,4 @@ fun convertMillisToDate(millis: Long): String {
     val formatter = SimpleDateFormat("yyyy년 MM월 dd일", Locale.getDefault())
     return formatter.format(Date(millis))
 }
+

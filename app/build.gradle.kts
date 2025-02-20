@@ -70,7 +70,7 @@ dependencies {
 
     // Room
     implementation (libs.androidx.room.ktx)
-    kapt (libs.androidx.room.compiler)
+    ksp (libs.androidx.room.compiler)
     implementation (libs.androidx.room.paging)
 
     implementation(libs.androidx.core.splashscreen)

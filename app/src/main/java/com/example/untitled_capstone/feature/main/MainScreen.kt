@@ -47,7 +47,7 @@ fun MainScreen(){
             when(currentDestination?.route){
                 BottomScreen.Home.route -> TopBar(1, navController)
                 BottomScreen.Shopping.route -> ShoppingTopBar(navController)
-                BottomScreen.Refrigerator.route -> FridgeTopBar(navController)
+                BottomScreen.Refrigerator.route -> FridgeTopBar(navController, viewModel)
                 BottomScreen.Chat.route -> TopBar(4, navController)
                 BottomScreen.My.route -> MyTopBar(navController)
             }
@@ -94,10 +94,10 @@ fun MainScreen(){
             Box(
                 modifier = Modifier.fillMaxSize().padding(innerPadding)
             ){
-                Navigation(navController = navController)
+                Navigation(navController = navController, viewModel)
             }
         }else{
-            Navigation(navController = navController)
+            Navigation(navController = navController, viewModel)
         }
     }
 }

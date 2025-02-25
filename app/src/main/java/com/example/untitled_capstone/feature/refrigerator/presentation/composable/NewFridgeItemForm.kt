@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -49,6 +48,7 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -67,12 +67,15 @@ import androidx.compose.ui.window.Dialog
 import androidx.core.app.ActivityCompat
 import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
 import androidx.navigation.NavHostController
+import androidx.work.Data
 import coil.compose.AsyncImage
 import com.example.untitled_capstone.MainActivity
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.ui.theme.CustomTheme
 import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.Date
 import java.util.Locale
 
@@ -150,13 +153,14 @@ fun NewFridgeItemForm(navController: NavHostController){
     var quantity by remember { mutableStateOf("") }
     var showDatePicker by remember { mutableStateOf(false) }
     val datePickerState = rememberDatePickerState()
+    var expirationDate by remember { mutableLongStateOf(0L) }
     val selectedDate = datePickerState.selectedDateMillis?.let {
+        expirationDate = it
         convertMillisToDate(it)
     } ?: ""
     val focusManager = LocalFocusManager.current
     var validator by remember { mutableStateOf(false) }
     validator = name.isNotBlank() && selectedDate.isNotBlank()
-
 
     Column(
         modifier = Modifier
@@ -383,7 +387,6 @@ fun NewFridgeItemForm(navController: NavHostController){
             }
             Button(
                 onClick = {
-                    TODO("scan expiration date")
                 },
                 shape = RoundedCornerShape(Dimens.cornerRadius),
                 colors = ButtonDefaults.buttonColors(
@@ -398,62 +401,19 @@ fun NewFridgeItemForm(navController: NavHostController){
                 )
             }
         }
-        if (showDialog.value) {
-            BasicAlertDialog(
-                onDismissRequest = { showDialog.value = false }
-            ) {
-                Surface(
-                    modifier = Modifier.wrapContentWidth().wrapContentHeight(),
-                    shape = RoundedCornerShape(Dimens.cornerRadius),
-                    color = CustomTheme.colors.surface,
-                    tonalElevation = AlertDialogDefaults.TonalElevation
-                ) {
-                    Column(
-                        modifier = Modifier.padding(Dimens.largePadding),
-                    ) {
-                        Text(
-                            modifier = Modifier.padding(Dimens.largePadding),
-                            text = "이미지를 선택하려면 저장소 접근 권한이 필요합니다.",
-                            style = CustomTheme.typography.headline3,
-                            color = CustomTheme.colors.textPrimary,
-                        )
-                        HorizontalDivider()
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.End
-                        ) {
-                            TextButton(
-                                onClick = {
-                                    showDialog.value = false
-                                }
-                            ) {
-                                Text(
-                                    text = "취소",
-                                    style = CustomTheme.typography.button1,
-                                    color = CustomTheme.colors.textSecondary,
-                                )
-                            }
-                            TextButton(
-                                onClick = {
-                                    showDialog.value = false
-                                    context.startActivity(
-                                        Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                                            data = Uri.fromParts("package", packageName, null)
-                                        }
-                                    )
-                                }
-                            ) {
-                                Text(
-                                    text = "설정",
-                                    style = CustomTheme.typography.button1,
-                                    color = CustomTheme.colors.textPrimary,
-                                )
-                            }
-                        }
+        PermissionDialog(
+            showDialog = showDialog,
+            message = "이미지를 선택하려면 저장소 접근 권한이 필요합니다.",
+            onDismiss = { showDialog.value = false },
+            onConfirm = {
+                showDialog.value = false
+                context.startActivity(
+                    Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                        data = Uri.fromParts("package", packageName, null)
                     }
-                }
+                )
             }
-        }
+        )
         Button(
             modifier = Modifier
                 .fillMaxWidth()

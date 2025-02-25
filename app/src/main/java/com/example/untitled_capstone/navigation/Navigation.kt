@@ -24,6 +24,7 @@ import com.example.untitled_capstone.feature.home.presentation.HomeViewModel
 import com.example.untitled_capstone.feature.home.presentation.screen.RecipeNav
 import com.example.untitled_capstone.feature.home.presentation.screen.RecipeScreen
 import com.example.untitled_capstone.feature.main.BottomScreen
+import com.example.untitled_capstone.feature.main.MainViewModel
 import com.example.untitled_capstone.feature.my.presentation.screen.MyScreen
 import com.example.untitled_capstone.feature.notification.presentation.screen.NotificationNav
 import com.example.untitled_capstone.feature.notification.presentation.screen.NotificationScreen
@@ -44,7 +45,7 @@ import kotlin.reflect.typeOf
 
 
 @Composable
-fun Navigation(navController: NavHostController) {
+fun Navigation(navController: NavHostController, mainViewModel: MainViewModel) {
      NavHost(navController = navController, startDestination = BottomScreen.Home.route){
          composable(BottomScreen.Home.route) {
              val viewModel = it.sharedViewModel<HomeViewModel>(navController)
@@ -56,7 +57,7 @@ fun Navigation(navController: NavHostController) {
          }
          composable(BottomScreen.Refrigerator.route){
              val viewModel = FridgeViewModel()
-             RefrigeratorScreen(viewModel.state)
+             RefrigeratorScreen(viewModel, mainViewModel)
          }
          composable(BottomScreen.Chat.route){
              val viewModel = it.sharedViewModel<ChatViewModel>(navController)

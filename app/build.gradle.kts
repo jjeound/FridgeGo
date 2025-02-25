@@ -14,7 +14,7 @@ plugins {
 
         defaultConfig {
             applicationId = "com.example.untitled_capstone"
-            minSdk = 23
+            minSdk = 26
             targetSdk = 35
             versionCode = 1
             versionName = "1.0"
@@ -40,6 +40,10 @@ plugins {
         }
         buildFeatures {
             compose = true
+        }
+        packaging {
+            resources.excludes.add("META-INF/DEPENDENCIES")
+            resources.excludes.add("META-INF/INDEX.LIST")
         }
     }
 
@@ -76,6 +80,7 @@ dependencies {
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.coil.compose)
 
+    implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)

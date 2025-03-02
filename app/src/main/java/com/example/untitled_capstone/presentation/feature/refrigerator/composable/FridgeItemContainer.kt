@@ -1,15 +1,9 @@
-package com.example.untitled_capstone.feature.refrigerator.presentation.composable
+package com.example.untitled_capstone.presentation.feature.refrigerator.composable
 
 import android.Manifest
-import android.app.AlarmManager
-import android.app.PendingIntent
-import android.content.Context
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
-import android.os.SystemClock
 import android.util.Log
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -46,17 +40,14 @@ import androidx.core.content.ContextCompat
 import com.example.untitled_capstone.MainActivity
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
-import com.example.untitled_capstone.core.util.cancelExpirationAlarm
-import com.example.untitled_capstone.core.util.scheduleExpirationAlarms
-import com.example.untitled_capstone.feature.refrigerator.domain.model.FridgeItem
-import com.example.untitled_capstone.feature.refrigerator.presentation.FridgeViewModel
+import com.example.untitled_capstone.presentation.util.cancelExpirationAlarm
+import com.example.untitled_capstone.presentation.util.scheduleExpirationAlarms
+import com.example.untitled_capstone.domain.model.FridgeItem
+import com.example.untitled_capstone.presentation.feature.refrigerator.event.FridgeAction
 import com.example.untitled_capstone.ui.theme.CustomTheme
-import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Locale
 
 @Composable
-fun FridgeItemContainer(item: FridgeItem, viewModel: FridgeViewModel, onShowDialog: () -> Unit) {
+fun FridgeItemContainer(item: FridgeItem, onAction: (FridgeAction) -> Unit, onShowDialog: () -> Unit) {
     val context = LocalContext.current
     val isNotification = remember { mutableStateOf(item.notification) }
     val expirationDate = convertMillisToDate(item.expirationDate)
@@ -64,7 +55,7 @@ fun FridgeItemContainer(item: FridgeItem, viewModel: FridgeViewModel, onShowDial
         contract = ActivityResultContracts.RequestPermission(),
         onResult = { isGranted ->
             if (isGranted) {
-                viewModel.toggleNotification(item) // 알림 토글
+                onAction(FridgeAction.ToggleNotification(item.name)) // 알림 토글
                 isNotification.value = !isNotification.value
                 Log.d("Alarm", "알람 등록")
             }
@@ -142,7 +133,7 @@ fun FridgeItemContainer(item: FridgeItem, viewModel: FridgeViewModel, onShowDial
                                 context,
                                 Manifest.permission.POST_NOTIFICATIONS
                             ) == PackageManager.PERMISSION_GRANTED -> {
-                                viewModel.toggleNotification(item) // 알림 토글
+                                onAction(FridgeAction.ToggleNotification(item.name)) // 알림 토글
                                 isNotification.value = !isNotification.value
                                 if(isNotification.value){
                                     scheduleExpirationAlarms(context, item.name, item.expirationDate)
@@ -168,7 +159,7 @@ fun FridgeItemContainer(item: FridgeItem, viewModel: FridgeViewModel, onShowDial
                     if(isNotification.value){
                         Icon(
                             imageVector = ImageVector.vectorResource(R.drawable.bell_selected),
-                            contentDescription = "notification is off",
+                            contentDescription = "notification is on",
                             tint = CustomTheme.colors.iconSelected,
                         )
                     } else {

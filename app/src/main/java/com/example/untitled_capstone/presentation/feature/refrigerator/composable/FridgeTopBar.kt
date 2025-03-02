@@ -1,4 +1,4 @@
-package com.example.untitled_capstone.feature.refrigerator.presentation.composable
+package com.example.untitled_capstone.presentation.feature.refrigerator.composable
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
@@ -12,9 +12,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarColors
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -24,8 +21,8 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
-import com.example.untitled_capstone.feature.main.MainViewModel
-import com.example.untitled_capstone.feature.notification.presentation.screen.NotificationNav
+import com.example.untitled_capstone.navigation.Screen
+import com.example.untitled_capstone.presentation.feature.main.MainViewModel
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -72,7 +69,7 @@ fun FridgeTopBar(navController: NavHostController, viewModel: MainViewModel){
                 )
             }
             IconButton(
-                onClick = {navController.navigate(NotificationNav)}
+                onClick = {navController.navigate(Screen.NotificationNav)}
             ) {
                 Icon(
                     tint = CustomTheme.colors.iconDefault,

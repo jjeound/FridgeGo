@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -20,6 +22,16 @@ plugins {
             versionName = "1.0"
 
             testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+            val localProperties = Properties()
+            val localPropertiesFile = rootProject.file("local.properties")
+            if (localPropertiesFile.exists()) {
+                localProperties.load(localPropertiesFile.inputStream())
+            }
+
+            val kakaoAppKey = localProperties.getProperty("KAKAO_APP_KEY") ?: ""
+            buildConfigField("String", "KAKAO_APP_KEY", kakaoAppKey)
+            manifestPlaceholders["KAKAO_APP_KEY"] = kakaoAppKey
         }
 
         buildTypes {
@@ -40,6 +52,7 @@ plugins {
         }
         buildFeatures {
             compose = true
+            buildConfig = true
         }
         packaging {
             resources.excludes.add("META-INF/DEPENDENCIES")
@@ -76,6 +89,9 @@ dependencies {
     implementation (libs.androidx.room.ktx)
     ksp (libs.androidx.room.compiler)
     implementation (libs.androidx.room.paging)
+
+    // Kakao login
+    implementation (libs.v2.user)
 
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.coil.compose)

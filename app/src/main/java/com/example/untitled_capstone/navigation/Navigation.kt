@@ -1,47 +1,33 @@
 package com.example.untitled_capstone.navigation
 
-import android.net.Uri
-import android.os.Bundle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
-import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
-import com.example.untitled_capstone.feature.notification.presentation.NotificationViewModel
-import com.example.untitled_capstone.feature.chatting.domain.model.ChattingRoom
-import com.example.untitled_capstone.feature.chatting.presentation.ChatViewModel
-import com.example.untitled_capstone.feature.chatting.presentation.screen.ChattingRoomNav
-import com.example.untitled_capstone.feature.chatting.presentation.screen.ChattingRoomScreen
-import com.example.untitled_capstone.feature.chatting.presentation.screen.ChattingScreen
-import com.example.untitled_capstone.feature.home.domain.model.Recipe
-import com.example.untitled_capstone.feature.home.presentation.screen.HomeScreen
-import com.example.untitled_capstone.feature.home.presentation.HomeViewModel
-import com.example.untitled_capstone.feature.home.presentation.screen.RecipeNav
-import com.example.untitled_capstone.feature.home.presentation.screen.RecipeScreen
-import com.example.untitled_capstone.feature.main.BottomScreen
-import com.example.untitled_capstone.feature.main.MainViewModel
-import com.example.untitled_capstone.feature.my.presentation.screen.MyScreen
-import com.example.untitled_capstone.feature.notification.presentation.screen.NotificationNav
-import com.example.untitled_capstone.feature.notification.presentation.screen.NotificationScreen
-import com.example.untitled_capstone.feature.refrigerator.presentation.FridgeViewModel
-import com.example.untitled_capstone.feature.refrigerator.presentation.screen.AddFridgeItemNav
-import com.example.untitled_capstone.feature.refrigerator.presentation.screen.AddFridgeItemScreen
-import com.example.untitled_capstone.feature.refrigerator.presentation.screen.RefrigeratorScreen
-import com.example.untitled_capstone.feature.shopping.domain.model.Post
-import com.example.untitled_capstone.feature.shopping.presentation.PostViewModel
-import com.example.untitled_capstone.feature.shopping.presentation.screen.PostNav
-import com.example.untitled_capstone.feature.shopping.presentation.screen.PostScreen
-import com.example.untitled_capstone.feature.shopping.presentation.screen.ShoppingScreen
-import com.example.untitled_capstone.feature.shopping.presentation.screen.WritingNav
-import com.example.untitled_capstone.feature.shopping.presentation.screen.WritingNewPostScreen
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
-import kotlin.reflect.typeOf
+import com.example.untitled_capstone.presentation.feature.notification.NotificationViewModel
+import com.example.untitled_capstone.presentation.feature.chat.ChatViewModel
+import com.example.untitled_capstone.presentation.feature.chat.screen.ChattingRoomScreen
+import com.example.untitled_capstone.presentation.feature.chat.screen.ChattingScreen
+import com.example.untitled_capstone.presentation.feature.home.screen.HomeScreen
+import com.example.untitled_capstone.presentation.feature.home.HomeViewModel
+import com.example.untitled_capstone.presentation.feature.home.screen.RecipeScreen
+import com.example.untitled_capstone.presentation.feature.login.LoginScreen
+import com.example.untitled_capstone.presentation.feature.main.BottomScreen
+import com.example.untitled_capstone.presentation.feature.main.MainViewModel
+import com.example.untitled_capstone.presentation.feature.my.screen.MyScreen
+import com.example.untitled_capstone.presentation.feature.notification.screen.NotificationScreen
+import com.example.untitled_capstone.presentation.feature.refrigerator.FridgeViewModel
+import com.example.untitled_capstone.presentation.feature.refrigerator.screen.AddFridgeItemScreen
+import com.example.untitled_capstone.presentation.feature.refrigerator.screen.RefrigeratorScreen
+import com.example.untitled_capstone.presentation.feature.shopping.PostViewModel
+import com.example.untitled_capstone.presentation.feature.shopping.screen.PostScreen
+import com.example.untitled_capstone.presentation.feature.shopping.screen.ShoppingScreen
+import com.example.untitled_capstone.presentation.feature.shopping.screen.WritingNewPostScreen
 
 
 @Composable
@@ -56,7 +42,7 @@ fun Navigation(navController: NavHostController, mainViewModel: MainViewModel) {
              ShoppingScreen(navController = navController, viewModel.state)
          }
          composable(BottomScreen.Refrigerator.route){
-             val viewModel = FridgeViewModel()
+             val viewModel = it.sharedViewModel<FridgeViewModel>(navController)
              RefrigeratorScreen(viewModel, mainViewModel)
          }
          composable(BottomScreen.Chat.route){
@@ -64,46 +50,44 @@ fun Navigation(navController: NavHostController, mainViewModel: MainViewModel) {
              ChattingScreen(viewModel.chatState, navController)
          }
          composable(BottomScreen.My.route){
-             MyScreen()
+             MyScreen(navController)
          }
-         composable<RecipeNav>(
-            typeMap = mapOf(
-                typeOf<Recipe>() to CustomNavType.RecipeType
-            )
+         composable<Screen.RecipeNav>(
+            typeMap = Screen.RecipeNav.typeMap
          ) {
-            val args = it.toRoute<RecipeNav>()
+            val args = it.toRoute<Screen.RecipeNav>()
             RecipeScreen(
                 args.recipe, navController
             )
          }
-         composable<PostNav>(
-             typeMap = mapOf(
-                 typeOf<Post>() to CustomNavType.PostType
-             )
+         composable<Screen.PostNav>(
+             typeMap = Screen.PostNav.typeMap
          ) {
-             val args = it.toRoute<PostNav>()
+             val args = it.toRoute<Screen.PostNav>()
              PostScreen(
                  args.post, navController
              )
          }
-         composable<WritingNav> {
+         composable<Screen.WritingNav> {
              WritingNewPostScreen(navController)
          }
-         composable<AddFridgeItemNav> {
-             AddFridgeItemScreen(navController)
+         composable<Screen.AddFridgeItemNav> {
+             val viewModel = it.sharedViewModel<FridgeViewModel>(navController)
+             AddFridgeItemScreen(navController, viewModel)
          }
-         composable<ChattingRoomNav>(
-             typeMap = mapOf(
-                 typeOf<ChattingRoom>() to CustomNavType.ChatType
-             )
+         composable<Screen.ChattingRoomNav>(
+             typeMap = Screen.ChattingRoomNav.typeMap
          ) {
              val viewModel = it.sharedViewModel<ChatViewModel>(navController)
-             val args = it.toRoute<ChattingRoomNav>()
+             val args = it.toRoute<Screen.ChattingRoomNav>()
              ChattingRoomScreen(viewModel.messageState, args.chattingRoom , navController)
          }
-         composable<NotificationNav> {
+         composable<Screen.NotificationNav> {
              val viewModel = NotificationViewModel()
              NotificationScreen(navController, viewModel.state)
+         }
+         composable<Screen.LoginNav> {
+                LoginScreen(navController)
          }
      }
 
@@ -116,67 +100,4 @@ inline fun <reified T: ViewModel> NavBackStackEntry.sharedViewModel(navControlle
         navController.getBackStackEntry(navGraphRoute)
     }
     return viewModel(parentEntry)
-}
-
-object CustomNavType{
-    val RecipeType = object: NavType<Recipe>(
-        isNullableAllowed = false
-    ){
-        override fun get(bundle: Bundle, key: String): Recipe? {
-            return Json.decodeFromString(bundle.getString(key) ?: return null)
-        }
-
-        override fun parseValue(value: String): Recipe {
-            return Json.decodeFromString(Uri.decode(value))
-        }
-
-        override fun serializeAsValue(value: Recipe): String {
-            return Uri.encode(Json.encodeToString(value))
-        }
-
-        override fun put(bundle: Bundle, key: String, value: Recipe) {
-            bundle.putString(key, Json.encodeToString(value))
-        }
-
-    }
-    val PostType = object: NavType<Post>(
-        isNullableAllowed = false
-    ){
-        override fun get(bundle: Bundle, key: String): Post? {
-            return Json.decodeFromString(bundle.getString(key) ?: return null)
-        }
-
-        override fun parseValue(value: String): Post {
-            return Json.decodeFromString(Uri.decode(value))
-        }
-
-        override fun serializeAsValue(value: Post): String {
-            return Uri.encode(Json.encodeToString(value))
-        }
-
-        override fun put(bundle: Bundle, key: String, value: Post) {
-            bundle.putString(key, Json.encodeToString(value))
-        }
-
-    }
-    val ChatType = object: NavType<ChattingRoom>(
-        isNullableAllowed = false
-    ){
-        override fun get(bundle: Bundle, key: String): ChattingRoom? {
-            return Json.decodeFromString(bundle.getString(key) ?: return null)
-        }
-
-        override fun parseValue(value: String): ChattingRoom {
-            return Json.decodeFromString(Uri.decode(value))
-        }
-
-        override fun serializeAsValue(value: ChattingRoom): String {
-            return Uri.encode(Json.encodeToString(value))
-        }
-
-        override fun put(bundle: Bundle, key: String, value: ChattingRoom) {
-            bundle.putString(key, Json.encodeToString(value))
-        }
-
-    }
 }

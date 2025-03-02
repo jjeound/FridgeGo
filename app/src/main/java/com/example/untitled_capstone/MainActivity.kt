@@ -5,7 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import com.example.untitled_capstone.feature.main.MainScreen
+import com.example.untitled_capstone.presentation.feature.main.MainScreen
 import com.example.untitled_capstone.ui.theme.Untitled_CapstoneTheme
 import dagger.hilt.android.AndroidEntryPoint
 

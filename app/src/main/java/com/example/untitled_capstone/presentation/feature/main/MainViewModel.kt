@@ -1,4 +1,4 @@
-package com.example.untitled_capstone.feature.main
+package com.example.untitled_capstone.presentation.feature.main
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf

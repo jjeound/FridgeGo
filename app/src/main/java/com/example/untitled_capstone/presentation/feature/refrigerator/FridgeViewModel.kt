@@ -6,6 +6,7 @@ import com.example.untitled_capstone.R
 import com.example.untitled_capstone.domain.model.FridgeItem
 import com.example.untitled_capstone.presentation.feature.refrigerator.event.FridgeAction
 import com.example.untitled_capstone.presentation.feature.refrigerator.state.FridgeState
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -30,6 +31,10 @@ class FridgeViewModel: ViewModel() {
 
     private fun loadItems() {
         viewModelScope.launch {
+//            _state.update {
+//                it.copy(loading = true)
+//            }
+//            delay(1000)
             _state.update {
                 it.copy(
                     fridgeItems =  listOf(

@@ -4,6 +4,7 @@ import android.content.Intent
 import android.provider.Settings
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -59,11 +60,6 @@ fun RefrigeratorScreen(fridgeViewModel: FridgeViewModel, viewModel: MainViewMode
         horizontalAlignment = Alignment.End
     ) {
         Column {
-            if (state.loading){
-                CircularProgressIndicator(
-                    modifier = Modifier.fillMaxSize()
-                )
-            }
             Row(
                 modifier = Modifier.clickable {
                     expanded = !expanded
@@ -105,10 +101,6 @@ fun RefrigeratorScreen(fridgeViewModel: FridgeViewModel, viewModel: MainViewMode
                             alignMenu = option
                         },
                     )
-                    HorizontalDivider(
-                        thickness = 1.dp,
-                        color = CustomTheme.colors.border
-                    )
                 }
             }
         }
@@ -117,11 +109,23 @@ fun RefrigeratorScreen(fridgeViewModel: FridgeViewModel, viewModel: MainViewMode
             color = CustomTheme.colors.border
         )
         Spacer(modifier = Modifier.height(Dimens.mediumPadding))
-        LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding)
-        ) {
-            items(state.fridgeItems.filter { it.isFridge == viewModel.topSelector }) { item ->
-                FridgeItemContainer(item, fridgeViewModel::onAction, onShowDialog = { showDialog.value = true })
+        if (state.loading){
+            Box(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                CircularProgressIndicator(
+                    modifier = Modifier
+                        .height(30.dp)
+                        .align(Alignment.Center)
+                )
+            }
+        }else {
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding)
+            ) {
+                items(state.fridgeItems.filter { it.isFridge == viewModel.topSelector }) { item ->
+                    FridgeItemContainer(item, fridgeViewModel::onAction, onShowDialog = { showDialog.value = true })
+                }
             }
         }
     }

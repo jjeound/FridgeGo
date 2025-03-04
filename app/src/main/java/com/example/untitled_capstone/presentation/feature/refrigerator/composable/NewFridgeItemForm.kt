@@ -99,16 +99,11 @@ fun NewFridgeItemForm(navController: NavHostController, onAction: (FridgeAction)
                 Activity.RESULT_CANCELED -> Unit
             }
         }
-    val imageAlbumIntent =
-        Intent(Intent.ACTION_PICK).apply {
-            setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*")
-            type = "image/*"
-            putExtra(Intent.EXTRA_ALLOW_MULTIPLE, false)
-            putExtra(
-                Intent.EXTRA_MIME_TYPES,
-                arrayOf("image/jpeg", "image/png", "image/bmp", "image/webp")
-            )
-        }
+    val imageAlbumIntent = Intent(Intent.ACTION_GET_CONTENT).apply {
+        type = "image/*"
+        putExtra(Intent.EXTRA_ALLOW_MULTIPLE, false)
+        addCategory(Intent.CATEGORY_OPENABLE)
+    }
     val galleryPermissions = when {
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE -> arrayOf(
             Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED,

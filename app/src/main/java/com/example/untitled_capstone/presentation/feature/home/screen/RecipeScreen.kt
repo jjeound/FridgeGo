@@ -1,6 +1,7 @@
 package com.example.untitled_capstone.presentation.feature.home.screen
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -85,8 +86,9 @@ fun RecipeScreen(recipe: Recipe, navController: NavHostController){
         ) {
             Box(
                 modifier = Modifier.size(300.dp)
-                    .clip(shape = RoundedCornerShape(Dimens.cornerRadius)),
-                contentAlignment = Alignment.BottomEnd
+                    .clip(shape = RoundedCornerShape(Dimens.cornerRadius))
+                    .background(CustomTheme.colors.surface),
+                contentAlignment = Alignment.BottomEnd,
             ){
                 if (recipe.image != null) {
                     Image(

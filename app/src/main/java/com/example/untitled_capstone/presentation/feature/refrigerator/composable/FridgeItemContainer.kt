@@ -12,11 +12,14 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -72,52 +75,58 @@ fun FridgeItemContainer(item: FridgeItem, onAction: (FridgeAction) -> Unit, onSh
             modifier = Modifier
                 .fillMaxSize()
                 .padding(Dimens.mediumPadding),
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.spacedBy(Dimens.mediumPadding)
         ){
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(Dimens.mediumPadding)
-            ) {
-                if (item.image != null) {
-                    Image(
-                        painter = painterResource(item.image),
-                        contentDescription = item.name,
-                        alignment = Alignment.Center,
-                        contentScale = ContentScale.Fit,
-                        modifier = Modifier
-                            .size(80.dp)
-                            .clip(shape = RoundedCornerShape(Dimens.cornerRadius))
-                    )
-                } else {
-                    Box(
-                        modifier = Modifier
-                            .size(80.dp)
-                            .clip(shape = RoundedCornerShape(Dimens.mediumPadding))
-                            .background(CustomTheme.colors.surface)
-                    )
-                }
-                Column(
-                    verticalArrangement = Arrangement.Top,
-                    horizontalAlignment = Alignment.Start
-                ){
-                    Text(
-                        text = item.name,
-                        style = CustomTheme.typography.title1,
-                        color = CustomTheme.colors.textPrimary,
-                        maxLines = 1,
-                    )
-                    Text(
-                        text = expirationDate,
-                        style = CustomTheme.typography.body3,
-                        color = CustomTheme.colors.textPrimary,
-                        maxLines = 1,
-                    )
-                }
+            if (item.image != null) {
+                Image(
+                    painter = painterResource(item.image),
+                    contentDescription = item.name,
+                    alignment = Alignment.Center,
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier
+                        .size(80.dp)
+                        .clip(shape = RoundedCornerShape(Dimens.cornerRadius))
+                )
+            } else {
+                Box(
+                    modifier = Modifier
+                        .size(80.dp)
+                        .clip(shape = RoundedCornerShape(Dimens.mediumPadding))
+                        .background(CustomTheme.colors.surface)
+                )
+            }
+            Column(
+                modifier = Modifier.weight(1f).height(80.dp),
+                horizontalAlignment = Alignment.Start
+            ){
+                Text(
+                    text = item.name,
+                    style = CustomTheme.typography.title1,
+                    color = CustomTheme.colors.textPrimary,
+                    maxLines = 2,
+                )
+                Text(
+                    text = expirationDate,
+                    style = CustomTheme.typography.body1,
+                    color = CustomTheme.colors.textPrimary,
+                    maxLines = 1,
+                )
+                Spacer(
+                    modifier = Modifier.weight(1f)
+                )
+                Text(
+                    text = "수량: ${item.quantity}",
+                    style = CustomTheme.typography.body2,
+                    color = CustomTheme.colors.textPrimary,
+                    maxLines = 1,
+                )
             }
             Column(
                 modifier = Modifier.height(80.dp),
                 verticalArrangement = Arrangement.SpaceBetween,
             ){
                 IconButton(
+                    modifier = Modifier.then(Modifier.size(24.dp)),
                     onClick = {}
                 ) {
                     Icon(
@@ -127,6 +136,7 @@ fun FridgeItemContainer(item: FridgeItem, onAction: (FridgeAction) -> Unit, onSh
                     )
                 }
                 IconButton(
+                    modifier = Modifier.then(Modifier.size(24.dp)),
                     onClick = {
                         when {
                             ContextCompat.checkSelfPermission(

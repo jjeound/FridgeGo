@@ -13,14 +13,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavDestination
+import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavHostController
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.navigation.Screen
 import com.example.untitled_capstone.ui.theme.CustomTheme
+import androidx.navigation.NavDestination.Companion.hasRoute
 
 @Composable
-fun BottomNavBar(navController: NavHostController, viewModel: MainViewModel){
+fun BottomNavBar(currentDestination: NavDestination?, navController: NavHostController){
     val items = listOf(
         BottomNavItem(
             title = "홈",
@@ -53,23 +55,24 @@ fun BottomNavBar(navController: NavHostController, viewModel: MainViewModel){
         modifier = Modifier.height(80.dp),
         containerColor = CustomTheme.colors.onSurface
     ) {
-        items.forEachIndexed() { index, item ->
+        items.forEach { destination ->
             NavigationBarItem(
                 modifier = Modifier.padding(3.dp).padding(top = 10.dp),
-                selected = viewModel.selectedIndex == index,
+                selected = currentDestination?.hierarchy?.any {
+                    it.hasRoute(destination.route::class)
+                } ?: false,
                 onClick = {
-                    viewModel.updateSelectedIndex(index)
-                    navController.navigate(item.route)
+                    navController.navigate(destination.route)
                 },
                 icon = {
                     Icon(
-                        imageVector = item.icon,
-                        contentDescription = item.title
+                        imageVector = destination.icon,
+                        contentDescription = destination.title
                     )
                 },
                 label = {
                     Text(
-                        text = item.title,
+                        text = destination.title,
                         fontWeight = CustomTheme.typography.button2.fontWeight,
                         fontSize = CustomTheme.typography.button2.fontSize,
                         fontFamily = CustomTheme.typography.button2.fontFamily,

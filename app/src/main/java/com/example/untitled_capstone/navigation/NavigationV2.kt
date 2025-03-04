@@ -110,5 +110,13 @@ fun NavigationV2(navController: NavHostController, mainViewModel: MainViewModel)
             LoginScreen(navController)
         }
     }
+}
 
+@Composable
+inline fun <reified T: ViewModel> NavBackStackEntry.sharedViewModel(navController: NavHostController): T{
+    val navGraphRoute = destination.parent?.route ?: return viewModel()
+    val parentEntry = remember(this){
+        navController.getBackStackEntry(navGraphRoute)
+    }
+    return viewModel(parentEntry)
 }

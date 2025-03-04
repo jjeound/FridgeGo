@@ -29,7 +29,7 @@ fun MyScreen(navController: NavHostController) {
         )
         MyContainer(
             title = "설정",
-            content = listOf("내 동네 설정", "얍 설정"),
+            content = listOf("내 동네 설정", "앱 설정"),
             icons = listOf(
                 R.drawable.location,
                 R.drawable.info,

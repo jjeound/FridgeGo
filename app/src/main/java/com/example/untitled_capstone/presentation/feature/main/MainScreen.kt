@@ -18,7 +18,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.untitled_capstone.navigation.Navigation
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.navigation.NavigationV2
 import com.example.untitled_capstone.navigation.Screen
@@ -39,8 +38,9 @@ fun MainScreen(){
         Screen.My.toString()
     )
     val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentDestination = navBackStackEntry?.destination?.route
-    val bottomRoute = currentDestination?.split(".")?.lastOrNull()
+    val currentDestination = navBackStackEntry?.destination
+    val route = navBackStackEntry?.destination?.route
+    val bottomRoute = route?.split(".")?.lastOrNull()
     val bottomBarDestination = screens.any { bottomRoute.equals(it) }
 
     Scaffold(
@@ -57,37 +57,40 @@ fun MainScreen(){
         },
         bottomBar = {
             if(bottomBarDestination){
-                BottomNavBar(navController = navController, viewModel = viewModel)
+                BottomNavBar(currentDestination = currentDestination, navController = navController)
             }
         },
         floatingActionButton = {
             if(bottomBarDestination){
-                if(viewModel.selectedIndex == 0){
-                    FloatingActionButton(
-                        onClick = { /*TODO*/ },
-                        elevation = FloatingActionButtonDefaults.elevation(0.dp),
-                        containerColor = Color.Unspecified,
-                        contentColor = Color.Unspecified,
-                    ) {
-                        Icon(
-                            imageVector = ImageVector.vectorResource(id = R.drawable.ai_big),
-                            contentDescription = "ai"
-                        )
+                when (bottomRoute) {
+                    screens[0] -> {
+                        FloatingActionButton(
+                            onClick = { /*TODO*/ },
+                            elevation = FloatingActionButtonDefaults.elevation(0.dp),
+                            containerColor = Color.Unspecified,
+                            contentColor = Color.Unspecified,
+                        ) {
+                            Icon(
+                                imageVector = ImageVector.vectorResource(id = R.drawable.ai_big),
+                                contentDescription = "ai"
+                            )
+                        }
                     }
-                }else if(viewModel.selectedIndex == 1 || viewModel.selectedIndex == 2){
-                    FloatingActionButton(
-                        onClick = {
-                            if(viewModel.selectedIndex == 1) navController.navigate(Screen.WritingNav)
-                            else navController.navigate(Screen.AddFridgeItemNav)
-                        },
-                        elevation = FloatingActionButtonDefaults.elevation(0.dp),
-                        containerColor = Color.Unspecified,
-                        contentColor = Color.Unspecified,
-                    ) {
-                        Icon(
-                            imageVector = ImageVector.vectorResource(id = R.drawable.writing),
-                            contentDescription = "write new post"
-                        )
+                    screens[1], screens[2] -> {
+                        FloatingActionButton(
+                            onClick = {
+                                if (bottomRoute == screens[1]) navController.navigate(Screen.WritingNav)
+                                else navController.navigate(Screen.AddFridgeItemNav)
+                            },
+                            elevation = FloatingActionButtonDefaults.elevation(0.dp),
+                            containerColor = Color.Unspecified,
+                            contentColor = Color.Unspecified,
+                        ) {
+                            Icon(
+                                imageVector = ImageVector.vectorResource(id = R.drawable.writing),
+                                contentDescription = "write new post"
+                            )
+                        }
                     }
                 }
             }

@@ -30,74 +30,65 @@ import com.example.untitled_capstone.presentation.feature.shopping.screen.Shoppi
 import com.example.untitled_capstone.presentation.feature.shopping.screen.WritingNewPostScreen
 
 
-@Composable
-fun Navigation(navController: NavHostController, mainViewModel: MainViewModel) {
-     NavHost(navController = navController, startDestination = BottomScreen.Home.route){
-         composable(BottomScreen.Home.route) {
-             val viewModel = it.sharedViewModel<HomeViewModel>(navController)
-             HomeScreen(viewModel.state, navController)
-         }
-         composable(BottomScreen.Shopping.route){
-             val viewModel = PostViewModel()
-             ShoppingScreen(navController = navController, viewModel.state)
-         }
-         composable(BottomScreen.Refrigerator.route){
-             val viewModel = it.sharedViewModel<FridgeViewModel>(navController)
-             RefrigeratorScreen(viewModel, mainViewModel)
-         }
-         composable(BottomScreen.Chat.route){
-             val viewModel = it.sharedViewModel<ChatViewModel>(navController)
-             ChattingScreen(viewModel.chatState, navController)
-         }
-         composable(BottomScreen.My.route){
-             MyScreen(navController)
-         }
-         composable<Screen.RecipeNav>(
-            typeMap = Screen.RecipeNav.typeMap
-         ) {
-            val args = it.toRoute<Screen.RecipeNav>()
-            RecipeScreen(
-                args.recipe, navController
-            )
-         }
-         composable<Screen.PostNav>(
-             typeMap = Screen.PostNav.typeMap
-         ) {
-             val args = it.toRoute<Screen.PostNav>()
-             PostScreen(
-                 args.post, navController
-             )
-         }
-         composable<Screen.WritingNav> {
-             WritingNewPostScreen(navController)
-         }
-         composable<Screen.AddFridgeItemNav> {
-             val viewModel = it.sharedViewModel<FridgeViewModel>(navController)
-             AddFridgeItemScreen(navController, viewModel)
-         }
-         composable<Screen.ChattingRoomNav>(
-             typeMap = Screen.ChattingRoomNav.typeMap
-         ) {
-             val viewModel = it.sharedViewModel<ChatViewModel>(navController)
-             val args = it.toRoute<Screen.ChattingRoomNav>()
-             ChattingRoomScreen(viewModel.messageState, args.chattingRoom , navController)
-         }
-         composable<Screen.NotificationNav> {
-             val viewModel = NotificationViewModel()
-             NotificationScreen(navController, viewModel.state)
-         }
-         composable<Screen.LoginNav> {
-                LoginScreen(navController)
-         }
-     }
-
-}
-
-@Composable
-inline fun <reified T: ViewModel> NavBackStackEntry.sharedViewModel(navController: NavHostController): T{
-    val navGraphRoute = destination.parent?.route ?: return viewModel()
-    val parentEntry = remember(this){
-        navController.getBackStackEntry(navGraphRoute)
-    }
-    return viewModel(parentEntry)
-}
+//@Composable
+//fun Navigation(navController: NavHostController, mainViewModel: MainViewModel) {
+//     NavHost(navController = navController, startDestination = BottomScreen.Home.route){
+//         composable(BottomScreen.Home.route) {
+//             val viewModel = it.sharedViewModel<HomeViewModel>(navController)
+//             HomeScreen(viewModel.state, navController)
+//         }
+//         composable(BottomScreen.Shopping.route){
+//             val viewModel = PostViewModel()
+//             ShoppingScreen(navController = navController, viewModel.state)
+//         }
+//         composable(BottomScreen.Refrigerator.route){
+//             val viewModel = it.sharedViewModel<FridgeViewModel>(navController)
+//             RefrigeratorScreen(viewModel, mainViewModel)
+//         }
+//         composable(BottomScreen.Chat.route){
+//             val viewModel = it.sharedViewModel<ChatViewModel>(navController)
+//             ChattingScreen(viewModel.chatState, navController)
+//         }
+//         composable(BottomScreen.My.route){
+//             MyScreen(navController)
+//         }
+//         composable<Screen.RecipeNav>(
+//            typeMap = Screen.RecipeNav.typeMap
+//         ) {
+//            val args = it.toRoute<Screen.RecipeNav>()
+//            RecipeScreen(
+//                args.recipe, navController
+//            )
+//         }
+//         composable<Screen.PostNav>(
+//             typeMap = Screen.PostNav.typeMap
+//         ) {
+//             val args = it.toRoute<Screen.PostNav>()
+//             PostScreen(
+//                 args.post, navController
+//             )
+//         }
+//         composable<Screen.WritingNav> {
+//             WritingNewPostScreen(navController)
+//         }
+//         composable<Screen.AddFridgeItemNav> {
+//             val viewModel = it.sharedViewModel<FridgeViewModel>(navController)
+//             AddFridgeItemScreen(navController, viewModel)
+//         }
+//         composable<Screen.ChattingRoomNav>(
+//             typeMap = Screen.ChattingRoomNav.typeMap
+//         ) {
+//             val viewModel = it.sharedViewModel<ChatViewModel>(navController)
+//             val args = it.toRoute<Screen.ChattingRoomNav>()
+//             ChattingRoomScreen(viewModel.messageState, args.chattingRoom , navController)
+//         }
+//         composable<Screen.NotificationNav> {
+//             val viewModel = NotificationViewModel()
+//             NotificationScreen(navController, viewModel.state)
+//         }
+//         composable<Screen.LoginNav> {
+//                LoginScreen(navController)
+//         }
+//     }
+//
+//}

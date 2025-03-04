@@ -7,13 +7,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 
 class MainViewModel:ViewModel() {
-    var selectedIndex by mutableIntStateOf(0)
-        private set
-
-    fun updateSelectedIndex(index: Int){
-        selectedIndex = index
-    }
-
     var topSelector by mutableStateOf(true)
         private set
 

@@ -46,7 +46,6 @@ fun MainScreen(){
     Scaffold(
         containerColor = CustomTheme.colors.surface,
         topBar = {
-            Log.d("MainScreen", "currentDestination: $currentDestination")
             when{
                 bottomRoute.equals(screens[0]) -> TopBar(1, navController)
                 bottomRoute.equals(screens[1]) -> ShoppingTopBar(navController)

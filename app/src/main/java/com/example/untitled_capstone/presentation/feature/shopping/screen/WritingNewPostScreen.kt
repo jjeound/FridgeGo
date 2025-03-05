@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
+import com.example.untitled_capstone.presentation.feature.shopping.PostViewModel
 import com.example.untitled_capstone.presentation.feature.shopping.composable.NewPostForm
 import com.example.untitled_capstone.ui.theme.CustomTheme
 import kotlinx.serialization.Serializable
@@ -28,7 +29,7 @@ import kotlinx.serialization.Serializable
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WritingNewPostScreen(navController: NavHostController){
+fun WritingNewPostScreen(navController: NavHostController, viewModel: PostViewModel){
     Scaffold(
         containerColor = CustomTheme.colors.onSurface,
         topBar = {
@@ -67,7 +68,7 @@ fun WritingNewPostScreen(navController: NavHostController){
                 .padding(horizontal = Dimens.surfaceHorizontalPadding,
                 vertical = Dimens.surfaceVerticalPadding),
         ){
-            NewPostForm(navController = navController)
+            NewPostForm(navController = navController, onAction = viewModel::onAction)
         }
     }
 }

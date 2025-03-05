@@ -1,5 +1,6 @@
 package com.example.untitled_capstone.presentation.feature.shopping.composable
 
+import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -17,6 +18,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -28,13 +30,15 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.domain.model.Post
+import com.example.untitled_capstone.presentation.feature.shopping.event.PostAction
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @Composable
-fun PostListContainer(post: Post){
+fun PostListContainer(post: Post, onAction: (PostAction) -> Unit){
     Card(
         colors = CardDefaults.cardColors(
             containerColor = CustomTheme.colors.onSurface,
@@ -46,9 +50,9 @@ fun PostListContainer(post: Post){
         Row(
             modifier = Modifier.fillMaxSize().padding(Dimens.mediumPadding)
         ){
-            if (post.image != null) {
-                Image(
-                    painter = painterResource(post.image),
+            if (post.image.isNotEmpty()){
+                AsyncImage(
+                    model = Uri.parse(post.image[0]),
                     contentDescription = post.title,
                     alignment = Alignment.Center,
                     contentScale = ContentScale.Fit,
@@ -113,11 +117,26 @@ fun PostListContainer(post: Post){
                     style = CustomTheme.typography.caption2,
                     color = CustomTheme.colors.textSecondary,
                 )
-                Icon(
-                    imageVector = ImageVector.vectorResource(R.drawable.heart),
-                    contentDescription = "like",
-                    tint = CustomTheme.colors.iconDefault,
-                )
+                IconButton(
+                    modifier = Modifier.then(Modifier.size(24.dp)),
+                    onClick = {
+                        onAction(PostAction.ToggleLike(post.id))
+                    }
+                ) {
+                    if(post.isLiked){
+                        Icon(
+                            imageVector = ImageVector.vectorResource(R.drawable.heart_filled),
+                            contentDescription = "like",
+                            tint = CustomTheme.colors.iconRed,
+                        )
+                    }else {
+                        Icon(
+                            imageVector = ImageVector.vectorResource(R.drawable.heart),
+                            contentDescription = "like",
+                            tint = CustomTheme.colors.iconDefault,
+                        )
+                    }
+                }
                 Text(
                     text = "${post.likes}",
                     style = CustomTheme.typography.caption2,
@@ -133,9 +152,10 @@ fun PostListContainer(post: Post){
 fun PostListContainerPreview(){
     PostListContainer(
         post = Post(
+            id = 1,
             title = "title",
             content = "caption",
-            image = R.drawable.ic_launcher_background,
+            image = emptyList(),
             location = "무거동",
             time = "2시간 전",
             totalNumbOfPeople = 5,
@@ -145,6 +165,7 @@ fun PostListContainerPreview(){
             price = 2000,
             views = 0,
             category = "식료품"
-        )
+        ),
+        onAction = {}
     )
 }

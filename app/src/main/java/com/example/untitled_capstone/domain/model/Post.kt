@@ -1,12 +1,14 @@
 package com.example.untitled_capstone.domain.model
 
+import android.net.Uri
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class Post(
+    val id: Int,
     val title: String,
     val content: String,
-    val image: Int?,
+    val image: List<String?>,
     val location: String,
     val time: String,
     val totalNumbOfPeople: Int,

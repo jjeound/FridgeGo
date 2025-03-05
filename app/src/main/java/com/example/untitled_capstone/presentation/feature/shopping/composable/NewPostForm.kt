@@ -6,7 +6,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
-import android.provider.MediaStore
 import android.provider.Settings
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -71,16 +70,20 @@ import coil.compose.AsyncImage
 import com.example.untitled_capstone.MainActivity
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
+import com.example.untitled_capstone.domain.model.Post
 import com.example.untitled_capstone.presentation.feature.refrigerator.composable.PermissionDialog
+import com.example.untitled_capstone.presentation.feature.shopping.event.PostAction
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @Composable
-fun NewPostForm(navController: NavHostController) {
+fun NewPostForm(navController: NavHostController, onAction: (PostAction) -> Unit) {
     val context = LocalContext.current
     var isExpandedPeopleMenu by remember { mutableStateOf(false) }
     var isExpandedCategoryMenu by remember { mutableStateOf(false) }
     val menuItemDataInPeople = List(10) { "${it + 1}" }
     val menuItemDataInCategory = listOf("식료품", "생활용품", "의류", "기타")
+    var quantity by remember { mutableStateOf("2") }
+    var category by remember { mutableStateOf("식료품") }
     var price by remember { mutableStateOf("") }
     var title by remember { mutableStateOf("") }
     var content by remember { mutableStateOf("") }
@@ -254,7 +257,7 @@ fun NewPostForm(navController: NavHostController) {
                         horizontalArrangement = Arrangement.SpaceBetween,
                     ) {
                         Text(
-                            text = "2",
+                            text = quantity,
                             style = CustomTheme.typography.caption2,
                             color = CustomTheme.colors.textPrimary,
                         )
@@ -272,17 +275,23 @@ fun NewPostForm(navController: NavHostController) {
                     expanded = isExpandedPeopleMenu,
                     onDismissRequest = { isExpandedPeopleMenu = false },
                     containerColor = CustomTheme.colors.textTertiary,
+                    shadowElevation = 0.dp,
+                    tonalElevation = 0.dp,
                     shape = RoundedCornerShape(Dimens.cornerRadius),
                 ) {
                     menuItemDataInPeople.forEach { option ->
                         DropdownMenuItem(
+                            modifier = Modifier.height(30.dp),
                             text = {
                                 Text(
                                     text = option,
                                     style = CustomTheme.typography.caption2,
                                     color = CustomTheme.colors.textPrimary,
                                 )},
-                            onClick = { /* Do something... */ },
+                            onClick = {
+                                isExpandedPeopleMenu = false
+                                quantity = option
+                            },
                         )
                     }
                 }
@@ -309,7 +318,7 @@ fun NewPostForm(navController: NavHostController) {
                         horizontalArrangement = Arrangement.SpaceBetween,
                     ) {
                         Text(
-                            text = "식료품",
+                            text = category,
                             style = CustomTheme.typography.caption2,
                             color = CustomTheme.colors.textPrimary,
                         )
@@ -327,17 +336,23 @@ fun NewPostForm(navController: NavHostController) {
                     expanded = isExpandedCategoryMenu,
                     onDismissRequest = { isExpandedCategoryMenu = false },
                     containerColor = CustomTheme.colors.textTertiary,
+                    shadowElevation = 0.dp,
+                    tonalElevation = 0.dp,
                     shape = RoundedCornerShape(Dimens.cornerRadius),
                 ) {
                     menuItemDataInCategory.forEach { option ->
                         DropdownMenuItem(
+                            modifier = Modifier.height(30.dp),
                             text = {
                                 Text(
                                     text = option,
                                     style = CustomTheme.typography.caption2,
                                     color = CustomTheme.colors.textPrimary,
                                 )},
-                            onClick = { /* Do something... */ },
+                            onClick = {
+                                isExpandedCategoryMenu = false
+                                category = option
+                            },
                         )
                     }
                 }
@@ -464,7 +479,28 @@ fun NewPostForm(navController: NavHostController) {
                 color = CustomTheme.colors.border
             ),
             enabled = validator,
-            onClick = { navController.popBackStack() }
+            onClick = {
+                navController.popBackStack()
+                onAction(
+                    PostAction.AddNewPost(
+                        Post(
+                            id = 0,
+                            title = title,
+                            content = content,
+                            image = images.map{it.toString()},
+                            location = "무거동",
+                            time = System.currentTimeMillis().toString(),
+                            totalNumbOfPeople = quantity.toInt(),
+                            currentNumOfPeople = 1,
+                            likes = 0,
+                            isLiked = false,
+                            price = price.toInt(),
+                            views = 0,
+                            category = category
+                        )
+                    )
+                )
+            }
         ) {
             Text(
                 text = "등록하기",

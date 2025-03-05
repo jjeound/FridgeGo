@@ -53,8 +53,8 @@ fun NavigationV2(navController: NavHostController, mainViewModel: MainViewModel)
             startDestination = Screen.Shopping
         ){
             composable<Screen.Shopping>{
-                val viewModel = PostViewModel()
-                ShoppingScreen(navController = navController, viewModel.state)
+                val viewModel = it.sharedViewModel<PostViewModel>(navController)
+                ShoppingScreen(navController = navController, viewModel)
             }
             composable<Screen.PostNav>(
                 typeMap = Screen.PostNav.typeMap
@@ -65,7 +65,8 @@ fun NavigationV2(navController: NavHostController, mainViewModel: MainViewModel)
                 )
             }
             composable<Screen.WritingNav> {
-                WritingNewPostScreen(navController)
+                val viewModel = it.sharedViewModel<PostViewModel>(navController)
+                WritingNewPostScreen(navController, viewModel)
             }
         }
         navigation<Graph.FridgeGraph>(

@@ -1,5 +1,6 @@
 package com.example.untitled_capstone.presentation.feature.home.screen
 
+import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -18,6 +19,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -26,16 +28,22 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import coil.compose.AsyncImage
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.domain.model.Recipe
+import com.example.untitled_capstone.presentation.feature.home.HomeViewModel
+import com.example.untitled_capstone.presentation.feature.home.event.HomeAction
 import com.example.untitled_capstone.ui.theme.CustomTheme
 import kotlinx.serialization.Serializable
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RecipeScreen(recipe: Recipe, navController: NavHostController){
+fun RecipeScreen(recipeId: Int, viewModel: HomeViewModel, navController: NavHostController){
+    val state by viewModel.state.collectAsStateWithLifecycle()
+    val recipe = state.recipeItems.find { it.id == recipeId } ?: return
     Scaffold(
         containerColor = CustomTheme.colors.onSurface,
         topBar = {
@@ -91,8 +99,8 @@ fun RecipeScreen(recipe: Recipe, navController: NavHostController){
                 contentAlignment = Alignment.BottomEnd,
             ){
                 if (recipe.image != null) {
-                    Image(
-                        painter = painterResource(recipe.image),
+                    AsyncImage(
+                        model = Uri.parse(recipe.image),
                         contentDescription = recipe.title,
                         alignment = Alignment.Center,
                         contentScale = ContentScale.Fit,
@@ -111,13 +119,23 @@ fun RecipeScreen(recipe: Recipe, navController: NavHostController){
                         )
                     }
                     IconButton(
-                        onClick = { }
+                        onClick = {
+                            viewModel.onAction(HomeAction.ToggleLike(recipe.id))
+                        }
                     ) {
-                        Icon(
-                            imageVector = ImageVector.vectorResource(R.drawable.heart),
-                            contentDescription = "like",
-                            tint = CustomTheme.colors.iconDefault,
-                        )
+                        if(recipe.isLiked){
+                            Icon(
+                                imageVector = ImageVector.vectorResource(R.drawable.heart_filled),
+                                contentDescription = "like",
+                                tint = CustomTheme.colors.iconRed,
+                            )
+                        }else{
+                            Icon(
+                                imageVector = ImageVector.vectorResource(R.drawable.heart),
+                                contentDescription = "like",
+                                tint = CustomTheme.colors.iconDefault,
+                            )
+                        }
                     }
                 }
             }

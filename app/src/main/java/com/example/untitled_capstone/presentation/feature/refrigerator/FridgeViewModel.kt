@@ -31,10 +31,10 @@ class FridgeViewModel: ViewModel() {
 
     private fun loadItems() {
         viewModelScope.launch {
-            _state.update {
-                it.copy(loading = true)
-            }
-            delay(1000)
+//            _state.update {
+//                it.copy(loading = true)
+//            }
+//            delay(1000)
             _state.update {
                 it.copy(
                     fridgeItems =  listOf(

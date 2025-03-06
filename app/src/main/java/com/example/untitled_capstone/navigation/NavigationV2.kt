@@ -38,14 +38,13 @@ fun NavigationV2(navController: NavHostController, mainViewModel: MainViewModel)
         ){
             composable<Screen.Home> {
                 val viewModel = it.sharedViewModel<HomeViewModel>(navController)
-                HomeScreen(viewModel.state, navController)
+                HomeScreen(viewModel, navController)
             }
-            composable<Screen.RecipeNav>(
-                typeMap = Screen.RecipeNav.typeMap
-            ) {
+            composable<Screen.RecipeNav>{
+                val viewModel = it.sharedViewModel<HomeViewModel>(navController)
                 val args = it.toRoute<Screen.RecipeNav>()
                 RecipeScreen(
-                    args.recipe, navController
+                    args.id, viewModel , navController
                 )
             }
         }

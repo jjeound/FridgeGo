@@ -1,8 +1,10 @@
 package com.example.untitled_capstone.presentation.feature.home.screen
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -13,26 +15,30 @@ import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
-import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
-import com.example.untitled_capstone.domain.model.Recipe
 import com.example.untitled_capstone.navigation.Screen
+import com.example.untitled_capstone.presentation.feature.home.HomeViewModel
 import com.example.untitled_capstone.presentation.feature.home.composable.MyRecipe
 import com.example.untitled_capstone.presentation.feature.home.composable.SetTaste
-import com.example.untitled_capstone.presentation.feature.home.state.MyRecipeState
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @Composable
-fun HomeScreen(state: MyRecipeState, navController: NavHostController) {
+fun HomeScreen(viewModel: HomeViewModel, navController: NavHostController) {
+    val state by viewModel.state.collectAsStateWithLifecycle()
     Column(
-        modifier = Modifier.padding(horizontal = Dimens.surfaceHorizontalPadding, vertical = Dimens.surfaceVerticalPadding)
+        modifier = Modifier.padding(
+            horizontal = Dimens.surfaceHorizontalPadding)
+            .padding(top = Dimens.surfaceVerticalPadding)
     ) {
         SetTaste()
         Spacer(modifier = Modifier.height(Dimens.largePadding))
@@ -40,7 +46,8 @@ fun HomeScreen(state: MyRecipeState, navController: NavHostController) {
             colors = CardDefaults.cardColors(
                 containerColor = CustomTheme.colors.onSurface,
             ),
-            shape = RoundedCornerShape(Dimens.cornerRadius),
+            shape = RoundedCornerShape(topStart = Dimens.cornerRadius,
+                topEnd = Dimens.cornerRadius),
             modifier = Modifier.fillMaxWidth()
         ){
             Column(
@@ -53,18 +60,29 @@ fun HomeScreen(state: MyRecipeState, navController: NavHostController) {
                     color = CustomTheme.colors.textPrimary,
                     modifier = Modifier.fillMaxWidth()
                 )
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(2),
-                    state = rememberLazyGridState(),
-                    verticalArrangement = Arrangement.spacedBy(20.dp),
-                    horizontalArrangement = Arrangement.spacedBy(20.dp),
-                ) {
-                    if(!state.isLoading){
+                if(state.isLoading){
+                    Box(
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        CircularProgressIndicator(
+                            modifier = Modifier
+                                .height(30.dp)
+                                .align(Alignment.Center)
+                        )
+                    }
+                }else{
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(2),
+                        state = rememberLazyGridState(),
+                        verticalArrangement = Arrangement.spacedBy(20.dp),
+                        horizontalArrangement = Arrangement.spacedBy(20.dp),
+                    ) {
                         items( state.recipeItems,){ item ->
-                            MyRecipe(item, onClick = {
+                            MyRecipe(item, onAction = viewModel::onAction,
+                                onClick = {
                                 navController.navigate(
                                     Screen.RecipeNav(
-                                        recipe = item
+                                        id = item.id
                                     )
                                 )
                             })
@@ -74,43 +92,4 @@ fun HomeScreen(state: MyRecipeState, navController: NavHostController) {
             }
         }
     }
-}
-
-
-@Preview(showBackground = true)
-@Composable
-fun HomeScreenPreview() {
-    HomeScreen(state = MyRecipeState(
-        recipeItems = listOf(
-            Recipe(
-                title = "title1",
-                image = R.drawable.ic_launcher_background,
-                ingredients = emptyList(),
-                steps = emptyList(),
-                isLiked = false
-            ),
-            Recipe(
-                title = "title1",
-                image = R.drawable.ic_launcher_background,
-                ingredients = emptyList(),
-                steps = emptyList(),
-                isLiked = false
-            ),
-            Recipe(
-                title = "title1",
-                image = null,
-                ingredients = emptyList(),
-                steps = emptyList(),
-                isLiked = false
-            ),
-            Recipe(
-                title = "title1",
-                image = null,
-                ingredients = emptyList(),
-                steps = emptyList(),
-                isLiked = false
-            )
-        )
-    ), navController = rememberNavController()
-    )
 }

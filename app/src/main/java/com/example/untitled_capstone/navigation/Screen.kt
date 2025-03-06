@@ -15,10 +15,10 @@ sealed interface Screen {
     }
 
     @Serializable
-    data class RecipeNav(val recipe: Recipe) : Screen{
-        companion object {
-            val typeMap = mapOf(typeOf<Recipe>() to CustomNavType.RecipeType)
-        }
+    data class RecipeNav(val id: Int) : Screen{
+//        companion object {
+//            val typeMap = mapOf(typeOf<Recipe>() to CustomNavType.RecipeType)
+//        }
     }
 
     @Serializable

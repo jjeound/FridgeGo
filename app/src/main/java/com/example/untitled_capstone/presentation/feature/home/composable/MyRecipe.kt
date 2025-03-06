@@ -1,5 +1,6 @@
 package com.example.untitled_capstone.presentation.feature.home.composable
 
+import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -24,13 +25,15 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.domain.model.Recipe
+import com.example.untitled_capstone.presentation.feature.home.event.HomeAction
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @Composable
-fun MyRecipe(recipe: Recipe, onClick : () -> Unit){
+fun MyRecipe(recipe: Recipe, onAction: (HomeAction) -> Unit,  onClick : () -> Unit){
     Column(
         modifier = Modifier.wrapContentSize().clickable {
             onClick()
@@ -38,8 +41,8 @@ fun MyRecipe(recipe: Recipe, onClick : () -> Unit){
     ) {
         if(recipe.image != null){
             Box{
-                Image(
-                    painter = painterResource(recipe.image),
+                AsyncImage(
+                    model = Uri.parse(recipe.image),
                     contentDescription = recipe.title,
                     alignment = Alignment.Center,
                     contentScale = ContentScale.Fit,
@@ -66,13 +69,23 @@ fun MyRecipe(recipe: Recipe, onClick : () -> Unit){
             ){
                 IconButton(
                     modifier = Modifier.align(Alignment.BottomEnd),
-                    onClick = {  }
+                    onClick = {
+                        onAction(HomeAction.ToggleLike(recipe.id))
+                    }
                 ) {
-                    Icon(
-                        imageVector = ImageVector.vectorResource(R.drawable.heart),
-                        contentDescription = "like",
-                        tint = Color.Unspecified,
-                    )
+                    if(recipe.isLiked){
+                        Icon(
+                            imageVector = ImageVector.vectorResource(R.drawable.heart_filled),
+                            contentDescription = "like",
+                            tint = CustomTheme.colors.iconRed,
+                        )
+                    }else{
+                        Icon(
+                            imageVector = ImageVector.vectorResource(R.drawable.heart),
+                            contentDescription = "like",
+                            tint = CustomTheme.colors.iconDefault,
+                        )
+                    }
                 }
             }
         }

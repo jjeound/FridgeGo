@@ -35,7 +35,7 @@ class PostViewModel: ViewModel() {
 //            _state.update {
 //                it.copy(loading = true)
 //            }
-            delay(1000)
+//            delay(1000)
             _state.update {
                 it.copy(
                     posts = listOf(
@@ -107,12 +107,10 @@ class PostViewModel: ViewModel() {
     }
 
     private fun addNewPost(post: Post){
-        viewModelScope.launch {
-            _state.update {
-                it.copy(
-                    posts = it.posts + post
-                )
-            }
+        _state.update {
+            it.copy(
+                posts = it.posts + post
+            )
         }
     }
 

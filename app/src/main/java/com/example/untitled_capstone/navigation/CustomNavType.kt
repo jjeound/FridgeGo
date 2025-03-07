@@ -5,7 +5,6 @@ import android.os.Bundle
 import androidx.navigation.NavType
 import com.example.untitled_capstone.domain.model.ChattingRoom
 import com.example.untitled_capstone.domain.model.Post
-import com.example.untitled_capstone.domain.model.Recipe
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
@@ -28,7 +27,6 @@ inline fun <reified T : Any> createNavType(): NavType<T> = object : NavType<T>(i
 }
 
 object CustomNavType {
-    val RecipeType = createNavType<Recipe>()
     val PostType = createNavType<Post>()
     val ChatType = createNavType<ChattingRoom>()
 }

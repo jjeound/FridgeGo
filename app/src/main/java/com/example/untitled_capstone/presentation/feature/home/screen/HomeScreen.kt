@@ -18,23 +18,20 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.navigation.Screen
-import com.example.untitled_capstone.presentation.feature.home.HomeViewModel
 import com.example.untitled_capstone.presentation.feature.home.composable.MyRecipe
 import com.example.untitled_capstone.presentation.feature.home.composable.SetTaste
+import com.example.untitled_capstone.presentation.feature.home.event.HomeAction
+import com.example.untitled_capstone.presentation.feature.home.state.MyRecipeState
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @Composable
-fun HomeScreen(viewModel: HomeViewModel, navController: NavHostController) {
-    val state by viewModel.state.collectAsStateWithLifecycle()
+fun HomeScreen(state: MyRecipeState, onAction: (HomeAction) -> Unit, navigate: (Int) -> Unit) {
     Column(
         modifier = Modifier.padding(
             horizontal = Dimens.surfaceHorizontalPadding)
@@ -78,14 +75,11 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavHostController) {
                         horizontalArrangement = Arrangement.spacedBy(20.dp),
                     ) {
                         items( state.recipeItems,){ item ->
-                            MyRecipe(item, onAction = viewModel::onAction,
+                            MyRecipe(item, onAction = onAction,
                                 onClick = {
-                                navController.navigate(
-                                    Screen.RecipeNav(
-                                        id = item.id
-                                    )
-                                )
-                            })
+                                    navigate(item.id)
+                                }
+                            )
                         }
                     }
                 }

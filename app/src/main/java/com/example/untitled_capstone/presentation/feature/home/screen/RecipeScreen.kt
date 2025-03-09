@@ -36,13 +36,13 @@ import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.domain.model.Recipe
 import com.example.untitled_capstone.presentation.feature.home.HomeViewModel
 import com.example.untitled_capstone.presentation.feature.home.event.HomeAction
+import com.example.untitled_capstone.presentation.feature.home.state.MyRecipeState
 import com.example.untitled_capstone.ui.theme.CustomTheme
 import kotlinx.serialization.Serializable
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RecipeScreen(recipeId: Int, viewModel: HomeViewModel, navController: NavHostController){
-    val state by viewModel.state.collectAsStateWithLifecycle()
+fun RecipeScreen(recipeId: Int, state: MyRecipeState, onAction: (HomeAction) -> Unit, navigate: () -> Unit){
     val recipe = state.recipeItems.find { it.id == recipeId } ?: return
     Scaffold(
         containerColor = CustomTheme.colors.onSurface,
@@ -51,7 +51,7 @@ fun RecipeScreen(recipeId: Int, viewModel: HomeViewModel, navController: NavHost
                 modifier = Modifier.padding(Dimens.topBarPadding),
                 navigationIcon = {
                     IconButton(
-                        onClick = {navController.popBackStack()}
+                        onClick = {navigate()}
                     ) {
                         Icon(
                             imageVector = ImageVector.vectorResource(R.drawable.chevron_left),
@@ -120,7 +120,7 @@ fun RecipeScreen(recipeId: Int, viewModel: HomeViewModel, navController: NavHost
                     }
                     IconButton(
                         onClick = {
-                            viewModel.onAction(HomeAction.ToggleLike(recipe.id))
+                            onAction(HomeAction.ToggleLike(recipe.id))
                         }
                     ) {
                         if(recipe.isLiked){

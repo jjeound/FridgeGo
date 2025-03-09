@@ -39,17 +39,18 @@ import com.example.untitled_capstone.presentation.feature.main.MainViewModel
 import com.example.untitled_capstone.presentation.feature.refrigerator.FridgeViewModel
 import com.example.untitled_capstone.presentation.feature.refrigerator.composable.FridgeItemContainer
 import com.example.untitled_capstone.presentation.feature.refrigerator.composable.PermissionDialog
+import com.example.untitled_capstone.presentation.feature.refrigerator.event.FridgeAction
+import com.example.untitled_capstone.presentation.feature.refrigerator.state.FridgeState
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
 
 @Composable
-fun RefrigeratorScreen(fridgeViewModel: FridgeViewModel, viewModel: MainViewModel) {
+fun RefrigeratorScreen(state: FridgeState, viewModel: MainViewModel, onAction: (FridgeAction) -> Unit) {
     var expanded by remember { mutableStateOf(false) }
-    val menuItemData = listOf("최신 순", "오래된 순")
-    var alignMenu by remember { mutableStateOf("최신 순") }
+    val menuItemData = listOf("등록 순", "유통기한 순")
+    var alignMenu by remember { mutableStateOf("등록 순") }
     val showDialog = remember { mutableStateOf(false) }
     val context = LocalContext.current
-    val state by fridgeViewModel.state.collectAsState()
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -124,7 +125,7 @@ fun RefrigeratorScreen(fridgeViewModel: FridgeViewModel, viewModel: MainViewMode
                 verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding)
             ) {
                 items(state.fridgeItems.filter { it.isFridge == viewModel.topSelector }) { item ->
-                    FridgeItemContainer(item, fridgeViewModel::onAction, onShowDialog = { showDialog.value = true })
+                    FridgeItemContainer(item, onAction, onShowDialog = { showDialog.value = true })
                 }
             }
         }

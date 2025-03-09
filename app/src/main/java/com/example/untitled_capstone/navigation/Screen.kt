@@ -22,10 +22,10 @@ sealed interface Screen {
     }
 
     @Serializable
-    data class PostNav(val post: Post) : Screen {
-        companion object {
-            val typeMap = mapOf(typeOf<Post>() to CustomNavType.PostType)
-        }
+    data class PostNav(val id: Int) : Screen {
+//        companion object {
+//            val typeMap = mapOf(typeOf<Post>() to CustomNavType.PostType)
+//        }
     }
 
     @Serializable

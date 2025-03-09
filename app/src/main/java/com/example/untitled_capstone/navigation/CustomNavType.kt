@@ -27,6 +27,5 @@ inline fun <reified T : Any> createNavType(): NavType<T> = object : NavType<T>(i
 }
 
 object CustomNavType {
-    val PostType = createNavType<Post>()
     val ChatType = createNavType<ChattingRoom>()
 }

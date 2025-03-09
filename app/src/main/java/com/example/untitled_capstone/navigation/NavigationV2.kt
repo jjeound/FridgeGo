@@ -1,8 +1,10 @@
 package com.example.untitled_capstone.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
@@ -38,14 +40,23 @@ fun NavigationV2(navController: NavHostController, mainViewModel: MainViewModel)
         ){
             composable<Screen.Home> {
                 val viewModel = it.sharedViewModel<HomeViewModel>(navController)
-                HomeScreen(viewModel, navController)
+                val state by viewModel.state.collectAsStateWithLifecycle()
+                HomeScreen(state, viewModel::onAction) { id ->
+                    navController.navigate(
+                        Screen.RecipeNav(
+                            id = id
+                        )
+                    )
+                }
             }
             composable<Screen.RecipeNav>{
                 val viewModel = it.sharedViewModel<HomeViewModel>(navController)
+                val state by viewModel.state.collectAsStateWithLifecycle()
                 val args = it.toRoute<Screen.RecipeNav>()
                 RecipeScreen(
-                    args.id, viewModel , navController
-                )
+                    args.id, state, viewModel::onAction){
+                    navController.popBackStack()
+                }
             }
         }
         navigation<Graph.ShoppingGraph>(
@@ -53,14 +64,21 @@ fun NavigationV2(navController: NavHostController, mainViewModel: MainViewModel)
         ){
             composable<Screen.Shopping>{
                 val viewModel = it.sharedViewModel<PostViewModel>(navController)
-                ShoppingScreen(navController = navController, viewModel)
+                val state by viewModel.state.collectAsStateWithLifecycle()
+                ShoppingScreen(navigate = { id ->
+                    navController.navigate(
+                        Screen.PostNav(
+                            id = id
+                        )
+                    )
+                }, state = state, onAction = viewModel::onAction)
             }
-            composable<Screen.PostNav>(
-                typeMap = Screen.PostNav.typeMap
-            ) {
+            composable<Screen.PostNav>{
+                val viewModel = it.sharedViewModel<PostViewModel>(navController)
+                val state by viewModel.state.collectAsStateWithLifecycle()
                 val args = it.toRoute<Screen.PostNav>()
                 PostScreen(
-                    args.post, navController
+                    args.id, state, viewModel::onAction, navController
                 )
             }
             composable<Screen.WritingNav> {
@@ -73,11 +91,12 @@ fun NavigationV2(navController: NavHostController, mainViewModel: MainViewModel)
         ){
             composable<Screen.Fridge>{
                 val viewModel = it.sharedViewModel<FridgeViewModel>(navController)
-                RefrigeratorScreen(viewModel, mainViewModel)
+                val state by viewModel.state.collectAsStateWithLifecycle()
+                RefrigeratorScreen(state, mainViewModel, viewModel::onAction)
             }
             composable<Screen.AddFridgeItemNav> {
                 val viewModel = it.sharedViewModel<FridgeViewModel>(navController)
-                AddFridgeItemScreen(navController, viewModel)
+                AddFridgeItemScreen({navController.popBackStack()}, viewModel::onAction)
             }
         }
         navigation<Graph.ChatGraph>(

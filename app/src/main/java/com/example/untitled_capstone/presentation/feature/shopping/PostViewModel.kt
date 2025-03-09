@@ -41,7 +41,7 @@ class PostViewModel: ViewModel() {
                     posts = listOf(
                         Post(
                             id = 1,
-                            title = "title",
+                            title = "title1",
                             content = "caption",
                             image = emptyList(),
                             location = "무거동",
@@ -56,7 +56,7 @@ class PostViewModel: ViewModel() {
                         ),
                         Post(
                             id = 2,
-                            title = "title",
+                            title = "title2",
                             content = "caption",
                             image = emptyList(),
                             location = "무거동",
@@ -71,7 +71,7 @@ class PostViewModel: ViewModel() {
                         ),
                         Post(
                             id = 3,
-                            title = "title",
+                            title = "title3",
                             content = "caption",
                             image = emptyList(),
                             location = "무거동",
@@ -86,7 +86,7 @@ class PostViewModel: ViewModel() {
                         ),
                         Post(
                             id = 4,
-                            title = "title",
+                            title = "title4",
                             content = "caption",
                             image = emptyList(),
                             location = "무거동",

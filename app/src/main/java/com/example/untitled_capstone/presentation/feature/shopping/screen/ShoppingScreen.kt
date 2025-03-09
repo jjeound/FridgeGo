@@ -15,15 +15,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
 import com.example.untitled_capstone.core.util.Dimens
-import com.example.untitled_capstone.navigation.Screen
-import com.example.untitled_capstone.presentation.feature.shopping.PostViewModel
+import com.example.untitled_capstone.domain.model.Post
 import com.example.untitled_capstone.presentation.feature.shopping.composable.PostListContainer
+import com.example.untitled_capstone.presentation.feature.shopping.event.PostAction
+import com.example.untitled_capstone.presentation.feature.shopping.state.PostState
 
 @Composable
-fun ShoppingScreen(navController: NavHostController, viewModel: PostViewModel) {
-    val state by viewModel.state.collectAsState()
+fun ShoppingScreen(navigate: (Int) -> Unit, state: PostState, onAction: (PostAction) -> Unit) {
     if (state.loading){
         Box(
             modifier = Modifier.fillMaxSize()
@@ -43,14 +42,10 @@ fun ShoppingScreen(navController: NavHostController, viewModel: PostViewModel) {
             items(state.posts) { post ->
                 Box(
                     modifier = Modifier.clickable {
-                        navController.navigate(
-                            Screen.PostNav(
-                                post = post
-                            )
-                        )
+                        navigate(post.id)
                     }
                 ){
-                    PostListContainer(post, onAction = viewModel::onAction)
+                    PostListContainer(post, onAction = onAction)
                 }
             }
         }

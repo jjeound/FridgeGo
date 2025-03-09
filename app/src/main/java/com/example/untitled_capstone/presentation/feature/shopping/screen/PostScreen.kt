@@ -25,17 +25,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.domain.model.Post
 import com.example.untitled_capstone.navigation.Screen
 import com.example.untitled_capstone.presentation.feature.shopping.composable.PostContainer
+import com.example.untitled_capstone.presentation.feature.shopping.event.PostAction
+import com.example.untitled_capstone.presentation.feature.shopping.state.PostState
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PostScreen(post: Post, navController: NavHostController){
+fun PostScreen(id: Int, state: PostState, onAction: (PostAction) -> Unit, navController: NavHostController){
+    val post = state.posts.find { it.id == id } ?: return
     Scaffold(
         containerColor = CustomTheme.colors.onSurface,
         topBar = {
@@ -93,13 +97,23 @@ fun PostScreen(post: Post, navController: NavHostController){
                             verticalAlignment = Alignment.CenterVertically
                         ){
                             IconButton(
-                                onClick = { }
+                                onClick = {
+                                    onAction(PostAction.ToggleLike(post.id))
+                                }
                             ) {
-                                Icon(
-                                    imageVector = ImageVector.vectorResource(R.drawable.heart),
-                                    contentDescription = "like",
-                                    tint = CustomTheme.colors.iconDefault,
-                                )
+                                if(post.isLiked){
+                                    Icon(
+                                        imageVector = ImageVector.vectorResource(R.drawable.heart_filled),
+                                        contentDescription = "like",
+                                        tint = CustomTheme.colors.iconRed,
+                                    )
+                                }else{
+                                    Icon(
+                                        imageVector = ImageVector.vectorResource(R.drawable.heart),
+                                        contentDescription = "like",
+                                        tint = CustomTheme.colors.iconDefault,
+                                    )
+                                }
                             }
                             VerticalDivider(
                                 modifier = Modifier.padding(horizontal = 6.dp),

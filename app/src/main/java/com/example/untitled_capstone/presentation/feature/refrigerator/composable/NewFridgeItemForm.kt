@@ -79,7 +79,7 @@ import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NewFridgeItemForm(navController: NavHostController, onAction: (FridgeAction) -> Unit){
+fun NewFridgeItemForm(navigate: () -> Unit, onAction: (FridgeAction) -> Unit){
     var image by remember { mutableStateOf<Uri?>(null) }
     val context = LocalContext.current
     val packageName = context.packageName
@@ -309,7 +309,10 @@ fun NewFridgeItemForm(navController: NavHostController, onAction: (FridgeAction)
                     textStyle = CustomTheme.typography.button2,
                     readOnly = true,
                     trailingIcon = {
-                        IconButton(onClick = { showDatePicker = !showDatePicker }) {
+                        IconButton(onClick = {
+                            showDatePicker = !showDatePicker
+                            focusManager.clearFocus()
+                        }) {
                             Icon(
                                 imageVector = ImageVector.vectorResource(R.drawable.calendar),
                                 contentDescription = "Select date",
@@ -423,12 +426,12 @@ fun NewFridgeItemForm(navController: NavHostController, onAction: (FridgeAction)
             ),
             enabled = validator,
             onClick = {
-                navController.popBackStack()
+                navigate()
                 onAction(FridgeAction.AddItem(
                     FridgeItem(
                         id = System.currentTimeMillis().toInt(),
                         name = name,
-                        image = null,
+                        image = image?.toString(),
                         quantity = quantity,
                         expirationDate = expirationDate,
                         notification = false,

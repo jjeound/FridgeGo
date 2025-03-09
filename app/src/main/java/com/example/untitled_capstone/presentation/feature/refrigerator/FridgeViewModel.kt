@@ -41,7 +41,7 @@ class FridgeViewModel: ViewModel() {
                         FridgeItem(
                             id = 1,
                             name = "name1",
-                            image = R.drawable.ic_launcher_background,
+                            image = null,
                             quantity = "1",
                             expirationDate = 1739404800000,
                             notification = true,
@@ -50,7 +50,7 @@ class FridgeViewModel: ViewModel() {
                         FridgeItem(
                             id = 2,
                             name = "name2",
-                            image = R.drawable.ic_launcher_background,
+                            image = null,
                             quantity = "2",
                             expirationDate = 1739404800000,
                             notification = true,
@@ -77,7 +77,7 @@ class FridgeViewModel: ViewModel() {
                         FridgeItem(
                             id = 5,
                             name = "냉동1",
-                            image = R.drawable.ic_launcher_background,
+                            image = null,
                             quantity = "1",
                             expirationDate = 1739404800000,
                             notification = true,
@@ -86,7 +86,7 @@ class FridgeViewModel: ViewModel() {
                         FridgeItem(
                             id = 6,
                             name = "냉동2",
-                            image = R.drawable.ic_launcher_background,
+                            image = null,
                             quantity = "2",
                             expirationDate = 1739404800000,
                             notification = true,

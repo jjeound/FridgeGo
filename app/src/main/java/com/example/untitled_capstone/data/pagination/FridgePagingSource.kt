@@ -1,0 +1,64 @@
+package com.example.untitled_capstone.data.pagination
+
+import androidx.paging.ExperimentalPagingApi
+import androidx.paging.LoadType
+import androidx.paging.PagingState
+import androidx.paging.RemoteMediator
+import androidx.room.withTransaction
+import com.example.untitled_capstone.data.local.db.FridgeItemDatabase
+import com.example.untitled_capstone.data.local.entity.FridgeItemEntity
+import com.example.untitled_capstone.data.remote.Api
+import retrofit2.HttpException
+import java.io.IOException
+
+@OptIn(ExperimentalPagingApi::class)
+class FridgePagingSource(
+    private val api: Api,
+    private val db: FridgeItemDatabase,
+): RemoteMediator<Int, FridgeItemEntity>() {
+
+    override suspend fun load(
+        loadType: LoadType,
+        state: PagingState<Int, FridgeItemEntity>
+    ): MediatorResult {
+        return try {
+            val loadKey = when(loadType) {
+                LoadType.REFRESH -> 0
+                LoadType.PREPEND -> return MediatorResult.Success(
+                    endOfPaginationReached = true
+                )
+                LoadType.APPEND -> {
+                    val lastItem = state.lastItemOrNull()
+                    if(lastItem == null) {
+                        0
+                    } else {
+                        (lastItem.id / state.config.pageSize) + 1
+                    }
+                }
+            }
+
+            val response = api.getFridgeItems(
+                page = loadKey,
+                size = state.config.pageSize
+            )
+
+            db.withTransaction {
+                if(loadType == LoadType.REFRESH) {
+                    db.dao.clearAll()
+                }
+                val fridgeEntities = response.result.content.map { it.toFridgeItemEntity() }
+                db.dao.upsertAll(fridgeEntities)
+            }
+
+            MediatorResult.Success(
+                endOfPaginationReached = response.result.content.isEmpty()
+            )
+        } catch(e: IOException) {
+            MediatorResult.Error(e)
+        } catch(e: HttpException) {
+            MediatorResult.Error(e)
+        }
+    }
+}
+
+

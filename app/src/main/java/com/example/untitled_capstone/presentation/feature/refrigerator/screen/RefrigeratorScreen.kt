@@ -33,8 +33,12 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
+import androidx.paging.LoadState
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
+import com.example.untitled_capstone.navigation.Screen
 import com.example.untitled_capstone.presentation.feature.main.MainViewModel
 import com.example.untitled_capstone.presentation.feature.refrigerator.FridgeViewModel
 import com.example.untitled_capstone.presentation.feature.refrigerator.composable.FridgeItemContainer
@@ -45,7 +49,7 @@ import com.example.untitled_capstone.ui.theme.CustomTheme
 
 
 @Composable
-fun RefrigeratorScreen(state: FridgeState, viewModel: MainViewModel, onAction: (FridgeAction) -> Unit) {
+fun RefrigeratorScreen(state: FridgeState, viewModel: MainViewModel, onAction: (FridgeAction) -> Unit, navController: NavHostController) {
     var expanded by remember { mutableStateOf(false) }
     val menuItemData = listOf("등록 순", "유통기한 순")
     var alignMenu by remember { mutableStateOf("등록 순") }
@@ -70,7 +74,7 @@ fun RefrigeratorScreen(state: FridgeState, viewModel: MainViewModel, onAction: (
             ) {
                 Text(
                     text = alignMenu,
-                    style = CustomTheme.typography.caption2,
+                    style = CustomTheme.typography.button2,
                     color = CustomTheme.colors.textPrimary,
                 )
                 Icon(
@@ -83,8 +87,6 @@ fun RefrigeratorScreen(state: FridgeState, viewModel: MainViewModel, onAction: (
                 expanded = expanded,
                 onDismissRequest = { expanded = false },
                 containerColor = CustomTheme.colors.textTertiary,
-                shadowElevation = 0.dp,
-                tonalElevation = 0.dp,
                 shape = RoundedCornerShape(Dimens.cornerRadius),
             ) {
                 menuItemData.forEach { option ->
@@ -93,7 +95,7 @@ fun RefrigeratorScreen(state: FridgeState, viewModel: MainViewModel, onAction: (
                         text = {
                             Text(
                                 text = option,
-                                style = CustomTheme.typography.caption2,
+                                style = CustomTheme.typography.caption1,
                                 color = CustomTheme.colors.textPrimary,
                             )
                         },
@@ -110,22 +112,34 @@ fun RefrigeratorScreen(state: FridgeState, viewModel: MainViewModel, onAction: (
             color = CustomTheme.colors.border
         )
         Spacer(modifier = Modifier.height(Dimens.mediumPadding))
-        if (state.loading){
-            Box(
-                modifier = Modifier.fillMaxSize()
-            ) {
-                CircularProgressIndicator(
-                    modifier = Modifier
-                        .height(30.dp)
-                        .align(Alignment.Center)
-                )
-            }
-        }else {
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding)
-            ) {
-                items(state.fridgeItems.filter { it.isFridge == viewModel.topSelector }) { item ->
-                    FridgeItemContainer(item, onAction, onShowDialog = { showDialog.value = true })
+        Box(modifier = Modifier.fillMaxSize()) {
+            state.fridgeItems?.let {
+                val fridgeItems = it.collectAsLazyPagingItems()
+                if(fridgeItems.loadState.refresh is LoadState.Loading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+                } else {
+                    LazyColumn(
+                        verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding)
+                    ) {
+                        items(fridgeItems.itemSnapshotList.filter { it?.isFridge == viewModel.topSelector }) { item ->
+                            if(item != null){
+                                FridgeItemContainer(item, onAction, onShowDialog = { showDialog.value = true },
+                                    {
+                                        navController.navigate(Screen.AddFridgeItemNav(
+                                            id = item.id
+                                        ))
+                                    }
+                                )
+                            }
+                        }
+                        item {
+                            if(fridgeItems.loadState.append is LoadState.Loading) {
+                                CircularProgressIndicator()
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -137,7 +151,7 @@ fun RefrigeratorScreen(state: FridgeState, viewModel: MainViewModel, onAction: (
         onConfirm = {
             showDialog.value = false
             val intent = Intent()
-            intent.setAction(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
+            intent.action = Settings.ACTION_APP_NOTIFICATION_SETTINGS
             intent.putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
             context.startActivity(intent)
         }

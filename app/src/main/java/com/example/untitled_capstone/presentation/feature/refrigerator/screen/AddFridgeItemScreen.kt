@@ -16,15 +16,17 @@ import androidx.compose.ui.res.vectorResource
 import androidx.navigation.NavHostController
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
+import com.example.untitled_capstone.domain.model.FridgeItem
 import com.example.untitled_capstone.presentation.feature.refrigerator.FridgeViewModel
 import com.example.untitled_capstone.presentation.feature.refrigerator.composable.NewFridgeItemForm
 import com.example.untitled_capstone.presentation.feature.refrigerator.event.FridgeAction
+import com.example.untitled_capstone.presentation.feature.refrigerator.state.FridgeState
 import com.example.untitled_capstone.ui.theme.CustomTheme
 import kotlinx.serialization.Serializable
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddFridgeItemScreen(navigate: () -> Unit, onAction: (FridgeAction) -> Unit ){
+fun AddFridgeItemScreen(id: Int?, navigate: () -> Unit, onAction: (FridgeAction) -> Unit ){
     Scaffold(
         containerColor = CustomTheme.colors.onSurface,
         topBar = {
@@ -59,7 +61,7 @@ fun AddFridgeItemScreen(navigate: () -> Unit, onAction: (FridgeAction) -> Unit )
                 .padding(horizontal = Dimens.surfaceHorizontalPadding,
                 vertical = Dimens.surfaceVerticalPadding),
         ){
-           NewFridgeItemForm({navigate()}, onAction)
+           NewFridgeItemForm(id, {navigate()}, onAction)
         }
     }
 }

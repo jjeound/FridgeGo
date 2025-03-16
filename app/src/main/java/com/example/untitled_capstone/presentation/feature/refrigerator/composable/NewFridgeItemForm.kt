@@ -6,10 +6,8 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
-import android.provider.MediaStore
 import android.provider.Settings
 import android.util.Log
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
@@ -43,7 +41,6 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -61,29 +58,34 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
 import androidx.core.content.ContextCompat
-import androidx.navigation.NavHostController
+import androidx.core.net.toUri
 import coil.compose.AsyncImage
 import com.example.untitled_capstone.MainActivity
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.domain.model.FridgeItem
-import com.example.untitled_capstone.presentation.feature.refrigerator.FridgeViewModel
 import com.example.untitled_capstone.presentation.feature.refrigerator.event.FridgeAction
-import com.example.untitled_capstone.presentation.util.cancelExpirationAlarm
-import com.example.untitled_capstone.presentation.util.scheduleExpirationAlarms
 import com.example.untitled_capstone.ui.theme.CustomTheme
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NewFridgeItemForm(navigate: () -> Unit, onAction: (FridgeAction) -> Unit){
-    var image by remember { mutableStateOf<Uri?>(null) }
+fun NewFridgeItemForm(id: Int?, navigate: () -> Unit, onAction: (FridgeAction) -> Unit){
     val context = LocalContext.current
     val packageName = context.packageName
     val showDialog = remember { mutableStateOf(false) }
+    val fridgeItem = FridgeItem(
+        id = id ?: System.currentTimeMillis().toInt(),
+        name = "",
+        image = null,
+        quantity = "",
+        expirationDate = 0L,
+        notification = false,
+        isFridge = true
+    ) // get fridgeItemById by FridgeAction
+    var image by remember { mutableStateOf(fridgeItem?.image?.toUri()) }
 
     val albumLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -125,15 +127,17 @@ fun NewFridgeItemForm(navigate: () -> Unit, onAction: (FridgeAction) -> Unit){
                 }
             }
         )
-    var name by remember { mutableStateOf("") }
-    var quantity by remember { mutableStateOf("1") }
+    var name by remember { mutableStateOf(fridgeItem?.name ?: "") }
+    var quantity by remember { mutableStateOf(fridgeItem?.quantity ?: "") }
     var showDatePicker by remember { mutableStateOf(false) }
     val datePickerState = rememberDatePickerState()
-    var expirationDate by remember { mutableLongStateOf(0L) }
+    var expirationDate by remember { mutableLongStateOf(fridgeItem?.expirationDate ?: 0L) }
     val selectedDate = datePickerState.selectedDateMillis?.let {
         expirationDate = it
         convertMillisToDate(it)
-    } ?: ""
+    } ?: if(id != null){
+        convertMillisToDate(expirationDate)
+    }else ""
     val focusManager = LocalFocusManager.current
     var validator by remember { mutableStateOf(false) }
     validator = name.isNotBlank() && selectedDate.isNotBlank()
@@ -427,21 +431,35 @@ fun NewFridgeItemForm(navigate: () -> Unit, onAction: (FridgeAction) -> Unit){
             enabled = validator,
             onClick = {
                 navigate()
-                onAction(FridgeAction.AddItem(
-                    FridgeItem(
-                        id = System.currentTimeMillis().toInt(),
-                        name = name,
-                        image = image?.toString(),
-                        quantity = quantity,
-                        expirationDate = expirationDate,
-                        notification = false,
-                        isFridge = true
-                    )
-                ))
+                if(id != null){
+                    onAction(FridgeAction.ModifyItem(
+                        FridgeItem(
+                            id = id,
+                            name = name,
+                            image = image?.toString(),
+                            quantity = quantity,
+                            expirationDate = expirationDate,
+                            notification = fridgeItem!!.notification,
+                            isFridge = fridgeItem.isFridge
+                        )
+                    ))
+                }else{
+                    onAction(FridgeAction.AddItem(
+                        FridgeItem(
+                            id = System.currentTimeMillis().toInt(),
+                            name = name,
+                            image = image?.toString(),
+                            quantity = quantity,
+                            expirationDate = expirationDate,
+                            notification = false,
+                            isFridge = true
+                        )
+                    ))
+                }
             }
         ) {
             Text(
-                text = "등록하기",
+                text = if(id != null) "수정하기" else "등록하기",
                 style = CustomTheme.typography.button1,
             )
         }

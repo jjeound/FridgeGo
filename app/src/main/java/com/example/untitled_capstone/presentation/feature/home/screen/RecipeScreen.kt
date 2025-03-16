@@ -39,6 +39,7 @@ import com.example.untitled_capstone.presentation.feature.home.event.HomeAction
 import com.example.untitled_capstone.presentation.feature.home.state.MyRecipeState
 import com.example.untitled_capstone.ui.theme.CustomTheme
 import kotlinx.serialization.Serializable
+import androidx.core.net.toUri
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -100,7 +101,7 @@ fun RecipeScreen(recipeId: Int, state: MyRecipeState, onAction: (HomeAction) -> 
             ){
                 if (recipe.image != null) {
                     AsyncImage(
-                        model = Uri.parse(recipe.image),
+                        model = recipe.image.toUri(),
                         contentDescription = recipe.title,
                         alignment = Alignment.Center,
                         contentScale = ContentScale.Fit,

@@ -92,11 +92,12 @@ fun NavigationV2(navController: NavHostController, mainViewModel: MainViewModel)
             composable<Screen.Fridge>{
                 val viewModel = it.sharedViewModel<FridgeViewModel>(navController)
                 val state by viewModel.state.collectAsStateWithLifecycle()
-                RefrigeratorScreen(state, mainViewModel, viewModel::onAction)
+                RefrigeratorScreen(state, mainViewModel, viewModel::onAction, navController)
             }
-            composable<Screen.AddFridgeItemNav> {
+            composable<Screen.AddFridgeItemNav>{
                 val viewModel = it.sharedViewModel<FridgeViewModel>(navController)
-                AddFridgeItemScreen({navController.popBackStack()}, viewModel::onAction)
+                val args = it.toRoute<Screen.AddFridgeItemNav>()
+                AddFridgeItemScreen(args.id, {navController.popBackStack()}, viewModel::onAction)
             }
         }
         navigation<Graph.ChatGraph>(

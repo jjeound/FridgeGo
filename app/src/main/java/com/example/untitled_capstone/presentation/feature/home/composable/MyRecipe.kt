@@ -31,6 +31,7 @@ import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.domain.model.Recipe
 import com.example.untitled_capstone.presentation.feature.home.event.HomeAction
 import com.example.untitled_capstone.ui.theme.CustomTheme
+import androidx.core.net.toUri
 
 @Composable
 fun MyRecipe(recipe: Recipe, onAction: (HomeAction) -> Unit,  onClick : () -> Unit){
@@ -42,7 +43,7 @@ fun MyRecipe(recipe: Recipe, onAction: (HomeAction) -> Unit,  onClick : () -> Un
         if(recipe.image != null){
             Box{
                 AsyncImage(
-                    model = Uri.parse(recipe.image),
+                    model = recipe.image.toUri(),
                     contentDescription = recipe.title,
                     alignment = Alignment.Center,
                     contentScale = ContentScale.Fit,

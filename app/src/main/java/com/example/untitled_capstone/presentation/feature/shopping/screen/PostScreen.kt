@@ -4,9 +4,19 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.windowInsetsBottomHeight
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
@@ -84,16 +94,17 @@ fun PostScreen(id: Int, state: PostState, onAction: (PostAction) -> Unit, navCon
         },
         bottomBar = {
             BottomAppBar(
-                modifier = Modifier.height(80.dp)
-                    .padding(horizontal = Dimens.largePadding,
-                        vertical = Dimens.mediumPadding),
+                modifier = Modifier.wrapContentHeight(),
                 containerColor = CustomTheme.colors.onSurface,
                 content = {
                     Row(
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier.fillMaxWidth()
+                        .padding(horizontal = Dimens.largePadding),
                         horizontalArrangement = Arrangement.SpaceBetween,
                     ) {
                         Row(
+                            modifier = Modifier.height(80.dp)
+                                .padding(vertical = Dimens.largePadding),
                             verticalAlignment = Alignment.CenterVertically
                         ){
                             IconButton(
@@ -116,7 +127,7 @@ fun PostScreen(id: Int, state: PostState, onAction: (PostAction) -> Unit, navCon
                                 }
                             }
                             VerticalDivider(
-                                modifier = Modifier.padding(horizontal = 6.dp),
+                                modifier = Modifier.padding(horizontal = 6.dp).height(80.dp),
                                 thickness = 1.dp,
                                 color = CustomTheme.colors.textTertiary
                             )
@@ -134,6 +145,7 @@ fun PostScreen(id: Int, state: PostState, onAction: (PostAction) -> Unit, navCon
                             )
                         }
                         Row(
+                            modifier = Modifier.height(80.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Button(

@@ -1,9 +1,12 @@
 package com.example.untitled_capstone.presentation.feature.main
 
-import android.util.Log
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
@@ -55,22 +58,23 @@ fun MainScreen(){
             }
         },
         bottomBar = {
-            if(bottomBarDestination){
+            AnimatedVisibility(visible = bottomBarDestination, enter = fadeIn(), exit = fadeOut()) {
                 BottomNavBar(currentDestination = currentDestination, navController = navController)
             }
         },
         floatingActionButton = {
-            if(bottomBarDestination){
+            AnimatedVisibility(visible = bottomBarDestination, enter = fadeIn(), exit = fadeOut()) {
                 when (bottomRoute) {
                     screens[0] -> {
                         FloatingActionButton(
                             onClick = { /*TODO*/ },
                             elevation = FloatingActionButtonDefaults.elevation(0.dp),
                             containerColor = Color.Unspecified,
-                            contentColor = Color.Unspecified,
+                            contentColor = CustomTheme.colors.iconPrimary,
                         ) {
                             Icon(
                                 imageVector = ImageVector.vectorResource(id = R.drawable.ai_big),
+                                tint = CustomTheme.colors.iconPrimary,
                                 contentDescription = "ai"
                             )
                         }
@@ -79,21 +83,25 @@ fun MainScreen(){
                         FloatingActionButton(
                             onClick = {
                                 if (bottomRoute == screens[1]) navController.navigate(Screen.WritingNav)
-                                else navController.navigate(Screen.AddFridgeItemNav)
+                                else navController.navigate(Screen.AddFridgeItemNav(
+                                    id = null
+                                ))
                             },
                             elevation = FloatingActionButtonDefaults.elevation(0.dp),
                             containerColor = Color.Unspecified,
-                            contentColor = Color.Unspecified,
+                            contentColor = CustomTheme.colors.iconPrimary,
                         ) {
                             Icon(
                                 imageVector = ImageVector.vectorResource(id = R.drawable.writing),
+                                tint = CustomTheme.colors.iconPrimary,
                                 contentDescription = "write new post"
                             )
                         }
                     }
                 }
             }
-        }
+        },
+        floatingActionButtonPosition = FabPosition.End
     ){  innerPadding ->
         if(bottomBarDestination) {
             Box(

@@ -1,7 +1,13 @@
 package com.example.untitled_capstone.presentation.feature.main
 
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -16,48 +22,24 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavHostController
-import com.example.untitled_capstone.R
-import com.example.untitled_capstone.navigation.Screen
 import com.example.untitled_capstone.ui.theme.CustomTheme
 import androidx.navigation.NavDestination.Companion.hasRoute
 
 @Composable
 fun BottomNavBar(currentDestination: NavDestination?, navController: NavHostController){
-    val items = listOf(
-        BottomNavItem(
-            title = "홈",
-            route = Screen.Home,
-            icon = ImageVector.vectorResource(id = R.drawable.home)
-        ),
-        BottomNavItem(
-            title = "공동구매",
-            route = Screen.Shopping,
-            icon = ImageVector.vectorResource(id = R.drawable.shopping)
-        ),
-        BottomNavItem(
-            title = "냉장고",
-            route = Screen.Fridge,
-            icon = ImageVector.vectorResource(id = R.drawable.refrigerator)
-        ),
-        BottomNavItem(
-            title = "채팅",
-            route = Screen.Chat,
-            icon = ImageVector.vectorResource(id = R.drawable.chat)
-        ),
-        BottomNavItem(
-            title = "My",
-            route = Screen.My,
-            icon = ImageVector.vectorResource(id = R.drawable.my)
-        )
-    )
-
     NavigationBar(
-        modifier = Modifier.height(80.dp),
+        modifier = Modifier.wrapContentHeight(),
         containerColor = CustomTheme.colors.onSurface
     ) {
+        val items = listOf(
+            BottomNavItems.Home,
+            BottomNavItems.Shopping,
+            BottomNavItems.Fridge,
+            BottomNavItems.Chat,
+            BottomNavItems.My
+        )
         items.forEach { destination ->
             NavigationBarItem(
-                modifier = Modifier.padding(3.dp).padding(top = 10.dp),
                 selected = currentDestination?.hierarchy?.any {
                     it.hasRoute(destination.route::class)
                 } ?: false,
@@ -66,7 +48,7 @@ fun BottomNavBar(currentDestination: NavDestination?, navController: NavHostCont
                 },
                 icon = {
                     Icon(
-                        imageVector = destination.icon,
+                        imageVector = ImageVector.vectorResource(destination.icon),
                         contentDescription = destination.title
                     )
                 },
@@ -79,9 +61,9 @@ fun BottomNavBar(currentDestination: NavDestination?, navController: NavHostCont
                     )
                 },
                 colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = CustomTheme.colors.iconSelected,
+                    selectedIconColor = CustomTheme.colors.iconPrimary,
                     unselectedIconColor = CustomTheme.colors.iconDefault,
-                    selectedTextColor = CustomTheme.colors.textPrimary,
+                    selectedTextColor = CustomTheme.colors.iconPrimary,
                     unselectedTextColor = CustomTheme.colors.textSecondary,
                     indicatorColor = Color.Transparent
                 )

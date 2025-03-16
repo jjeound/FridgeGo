@@ -44,11 +44,12 @@ fun HomeScreen(state: MyRecipeState, onAction: (HomeAction) -> Unit, navigate: (
                 containerColor = CustomTheme.colors.onSurface,
             ),
             shape = RoundedCornerShape(topStart = Dimens.cornerRadius,
-                topEnd = Dimens.cornerRadius),
+            topEnd = Dimens.cornerRadius),
             modifier = Modifier.fillMaxWidth()
         ){
             Column(
-                modifier = Modifier.padding(Dimens.largePadding),
+                modifier = Modifier.padding(horizontal = Dimens.largePadding)
+                    .padding(top = Dimens.largePadding),
                 verticalArrangement = Arrangement.spacedBy(Dimens.largePadding)
             ) {
                 Text(

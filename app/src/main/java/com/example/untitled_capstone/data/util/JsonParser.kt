@@ -1,4 +1,4 @@
-package com.example.untitled_capstone.core.util
+package com.example.untitled_capstone.data.util
 
 import java.lang.reflect.Type
 

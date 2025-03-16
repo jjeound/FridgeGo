@@ -33,6 +33,7 @@ import com.example.untitled_capstone.domain.model.Post
 import com.example.untitled_capstone.presentation.feature.refrigerator.event.FridgeAction
 import com.example.untitled_capstone.presentation.feature.shopping.event.PostAction
 import com.example.untitled_capstone.ui.theme.CustomTheme
+import androidx.core.net.toUri
 
 @Composable
 fun PostContainer(post: Post){
@@ -42,7 +43,7 @@ fun PostContainer(post: Post){
     ){
         if (post.image.isNotEmpty()) {
             AsyncImage(
-                model = Uri.parse(post.image[0]), //수정 해야 함
+                model = post.image[0]!!.toUri(), //수정 해야 함
                 contentDescription = post.title,
                 alignment = Alignment.Center,
                 contentScale = ContentScale.Fit,

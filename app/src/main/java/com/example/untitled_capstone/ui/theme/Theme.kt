@@ -19,6 +19,7 @@ import com.example.untitled_capstone.R
 data class CustomColors(
     val iconSelected: Color,
     val iconDefault: Color,
+    val iconPrimary: Color,
     val iconRed: Color,
     val primary: Color,
     val onPrimary: Color,
@@ -40,6 +41,7 @@ data class CustomColors(
 val LightCustomColors = CustomColors(
     iconSelected = Black,
     iconDefault = Grey300,
+    iconPrimary = Blue100,
     iconRed = Red,
     primary = Blue100,
     onPrimary = White,
@@ -60,6 +62,7 @@ val LightCustomColors = CustomColors(
 val DarkCustomColors = CustomColors(
     iconSelected = White,
     iconDefault = Grey300,
+    iconPrimary = Blue100,
     iconRed = Red,
     primary = Blue100,
     onPrimary = White,

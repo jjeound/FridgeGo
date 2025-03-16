@@ -1,4 +1,4 @@
-package com.example.untitled_capstone.core.util
+package com.example.untitled_capstone.data.util
 
 import com.google.gson.Gson
 import java.lang.reflect.Type

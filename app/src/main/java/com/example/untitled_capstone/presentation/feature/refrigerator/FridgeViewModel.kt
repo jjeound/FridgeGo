@@ -1,30 +1,15 @@
 package com.example.untitled_capstone.presentation.feature.refrigerator
 
-import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import androidx.paging.compose.collectAsLazyPagingItems
-import androidx.paging.filter
-import androidx.paging.insertHeaderItem
-import androidx.paging.map
-import com.example.untitled_capstone.R
-import com.example.untitled_capstone.data.repository.FridgeRepositoryImpl
 import com.example.untitled_capstone.domain.model.FridgeItem
 import com.example.untitled_capstone.domain.use_case.fridge.FridgeUseCases
 import com.example.untitled_capstone.presentation.feature.refrigerator.event.FridgeAction
 import com.example.untitled_capstone.presentation.feature.refrigerator.state.FridgeState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 

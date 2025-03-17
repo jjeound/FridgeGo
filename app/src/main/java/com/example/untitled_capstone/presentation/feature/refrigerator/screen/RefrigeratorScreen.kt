@@ -24,7 +24,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,7 +41,6 @@ import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.navigation.Screen
 import com.example.untitled_capstone.presentation.feature.main.MainViewModel
-import com.example.untitled_capstone.presentation.feature.refrigerator.FridgeViewModel
 import com.example.untitled_capstone.presentation.feature.refrigerator.composable.FridgeItemContainer
 import com.example.untitled_capstone.presentation.feature.refrigerator.composable.PermissionDialog
 import com.example.untitled_capstone.presentation.feature.refrigerator.event.FridgeAction

@@ -5,9 +5,6 @@ import androidx.room.Room
 import com.example.untitled_capstone.data.local.db.FridgeItemDatabase
 import com.example.untitled_capstone.data.local.remote.FridgeItemDao
 import com.example.untitled_capstone.data.remote.Api
-import com.example.untitled_capstone.data.util.Converters
-import com.example.untitled_capstone.data.util.GsonParser
-import com.google.gson.Gson
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

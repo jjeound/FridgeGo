@@ -13,16 +13,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
-import androidx.navigation.NavHostController
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
-import com.example.untitled_capstone.domain.model.FridgeItem
-import com.example.untitled_capstone.presentation.feature.refrigerator.FridgeViewModel
 import com.example.untitled_capstone.presentation.feature.refrigerator.composable.NewFridgeItemForm
 import com.example.untitled_capstone.presentation.feature.refrigerator.event.FridgeAction
 import com.example.untitled_capstone.presentation.feature.refrigerator.state.FridgeState
 import com.example.untitled_capstone.ui.theme.CustomTheme
-import kotlinx.serialization.Serializable
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

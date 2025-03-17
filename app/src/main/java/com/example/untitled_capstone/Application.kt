@@ -3,7 +3,6 @@ package com.example.untitled_capstone
 import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.content.Context
 import com.example.untitled_capstone.core.util.Constants.NOTIFICATION_CHANNEL_ID
 import com.kakao.sdk.common.KakaoSdk
 import dagger.hilt.android.HiltAndroidApp

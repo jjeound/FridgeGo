@@ -10,7 +10,6 @@ import com.example.untitled_capstone.data.local.entity.FridgeItemEntity
 import com.example.untitled_capstone.data.remote.Api
 import retrofit2.HttpException
 import java.io.IOException
-import java.util.concurrent.TimeUnit
 
 @OptIn(ExperimentalPagingApi::class)
 class FridgePagingSource(

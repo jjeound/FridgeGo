@@ -1,7 +1,6 @@
 package com.example.untitled_capstone.domain.model
 
 import com.example.untitled_capstone.data.remote.dto.ContentDto
-import kotlinx.serialization.Serializable
 
 data class FridgeItem(
     val id: Int,

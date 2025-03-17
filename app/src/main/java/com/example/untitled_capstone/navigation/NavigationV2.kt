@@ -13,7 +13,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.toRoute
-import androidx.paging.compose.collectAsLazyPagingItems
 import com.example.untitled_capstone.presentation.feature.notification.NotificationViewModel
 import com.example.untitled_capstone.presentation.feature.chat.ChatViewModel
 import com.example.untitled_capstone.presentation.feature.chat.screen.ChattingRoomScreen

@@ -6,19 +6,13 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
+import androidx.room.Upsert
 import com.example.untitled_capstone.data.local.entity.FridgeItemEntity
 
 @Dao
 interface FridgeItemDao {
-
-    @Insert(onConflict = OnConflictStrategy.Companion.REPLACE)
-    suspend fun insertFridgeItem(item: FridgeItemEntity)
-
-    @Query("DELETE FROM fridgeitementity WHERE id = :id")
-    suspend fun deleteFridgeItem(id: Int)
-
-    @Update
-    suspend fun upsertAll(fridgeItems: List<FridgeItemEntity>)
+    @Upsert
+    suspend fun upsertAll(items: List<FridgeItemEntity>)
 
     @Query("DELETE FROM fridgeitementity")
     suspend fun clearAll()

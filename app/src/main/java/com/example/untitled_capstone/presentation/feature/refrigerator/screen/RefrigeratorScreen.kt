@@ -2,6 +2,7 @@ package com.example.untitled_capstone.presentation.feature.refrigerator.screen
 
 import android.content.Intent
 import android.provider.Settings
+import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -22,6 +23,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -113,8 +115,20 @@ fun RefrigeratorScreen(state: FridgeState, viewModel: MainViewModel, onAction: (
         )
         Spacer(modifier = Modifier.height(Dimens.mediumPadding))
         Box(modifier = Modifier.fillMaxSize()) {
+            if (state.loading) {
+                CircularProgressIndicator()
+            }
             state.fridgeItems?.let {
                 val fridgeItems = it.collectAsLazyPagingItems()
+                LaunchedEffect(key1 = fridgeItems.loadState) {
+                    if(fridgeItems.loadState.refresh is LoadState.Error) {
+                        Toast.makeText(
+                            context,
+                            "Error: " + (fridgeItems.loadState.refresh as LoadState.Error).error.message,
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                }
                 if(fridgeItems.loadState.refresh is LoadState.Loading) {
                     CircularProgressIndicator(
                         modifier = Modifier.align(Alignment.Center)

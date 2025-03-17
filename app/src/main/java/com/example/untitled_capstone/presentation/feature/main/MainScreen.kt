@@ -4,7 +4,10 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FloatingActionButton
@@ -58,7 +61,9 @@ fun MainScreen(){
             }
         },
         bottomBar = {
-            AnimatedVisibility(visible = bottomBarDestination, enter = fadeIn(), exit = fadeOut()) {
+            AnimatedVisibility(
+                modifier = Modifier.padding(bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() * 0.7f),
+                visible = bottomBarDestination, enter = fadeIn(), exit = fadeOut()) {
                 BottomNavBar(currentDestination = currentDestination, navController = navController)
             }
         },

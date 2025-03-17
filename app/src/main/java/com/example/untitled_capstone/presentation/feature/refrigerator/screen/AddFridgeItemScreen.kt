@@ -26,7 +26,7 @@ import kotlinx.serialization.Serializable
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddFridgeItemScreen(id: Int?, navigate: () -> Unit, onAction: (FridgeAction) -> Unit ){
+fun AddFridgeItemScreen(id: Int?, state: FridgeState, navigate: () -> Unit, onAction: (FridgeAction) -> Unit ){
     Scaffold(
         containerColor = CustomTheme.colors.onSurface,
         topBar = {
@@ -61,7 +61,7 @@ fun AddFridgeItemScreen(id: Int?, navigate: () -> Unit, onAction: (FridgeAction)
                 .padding(horizontal = Dimens.surfaceHorizontalPadding,
                 vertical = Dimens.surfaceVerticalPadding),
         ){
-           NewFridgeItemForm(id, {navigate()}, onAction)
+           NewFridgeItemForm(id, state, {navigate()}, onAction)
         }
     }
 }

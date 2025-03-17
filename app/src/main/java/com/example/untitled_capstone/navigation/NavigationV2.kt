@@ -3,6 +3,7 @@ package com.example.untitled_capstone.navigation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -12,6 +13,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.toRoute
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.example.untitled_capstone.presentation.feature.notification.NotificationViewModel
 import com.example.untitled_capstone.presentation.feature.chat.ChatViewModel
 import com.example.untitled_capstone.presentation.feature.chat.screen.ChattingRoomScreen
@@ -90,14 +92,15 @@ fun NavigationV2(navController: NavHostController, mainViewModel: MainViewModel)
             startDestination = Screen.Fridge
         ){
             composable<Screen.Fridge>{
-                val viewModel = it.sharedViewModel<FridgeViewModel>(navController)
-                val state by viewModel.state.collectAsStateWithLifecycle()
+                val viewModel: FridgeViewModel = hiltViewModel(it)
+                val state by viewModel.state
                 RefrigeratorScreen(state, mainViewModel, viewModel::onAction, navController)
             }
             composable<Screen.AddFridgeItemNav>{
-                val viewModel = it.sharedViewModel<FridgeViewModel>(navController)
+                val viewModel: FridgeViewModel = hiltViewModel(it)
+                val state by viewModel.state
                 val args = it.toRoute<Screen.AddFridgeItemNav>()
-                AddFridgeItemScreen(args.id, {navController.popBackStack()}, viewModel::onAction)
+                AddFridgeItemScreen(args.id, state, {navController.popBackStack()}, viewModel::onAction)
             }
         }
         navigation<Graph.ChatGraph>(

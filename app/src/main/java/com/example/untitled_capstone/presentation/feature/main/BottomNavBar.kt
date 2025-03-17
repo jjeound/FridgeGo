@@ -2,10 +2,15 @@ package com.example.untitled_capstone.presentation.feature.main
 
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.windowInsetsBottomHeight
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Icon
@@ -28,7 +33,9 @@ import androidx.navigation.NavDestination.Companion.hasRoute
 @Composable
 fun BottomNavBar(currentDestination: NavDestination?, navController: NavHostController){
     NavigationBar(
-        modifier = Modifier.wrapContentHeight(),
+        modifier = Modifier.height(80.dp).consumeWindowInsets(
+            WindowInsets.navigationBars.asPaddingValues()
+        ),
         containerColor = CustomTheme.colors.onSurface
     ) {
         val items = listOf(
@@ -42,7 +49,7 @@ fun BottomNavBar(currentDestination: NavDestination?, navController: NavHostCont
             NavigationBarItem(
                 selected = currentDestination?.hierarchy?.any {
                     it.hasRoute(destination.route::class)
-                } ?: false,
+                } == true,
                 onClick = {
                     navController.navigate(destination.route)
                 },
@@ -55,9 +62,7 @@ fun BottomNavBar(currentDestination: NavDestination?, navController: NavHostCont
                 label = {
                     Text(
                         text = destination.title,
-                        fontWeight = CustomTheme.typography.button2.fontWeight,
-                        fontSize = CustomTheme.typography.button2.fontSize,
-                        fontFamily = CustomTheme.typography.button2.fontFamily,
+                        style = CustomTheme.typography.caption1
                     )
                 },
                 colors = NavigationBarItemDefaults.colors(

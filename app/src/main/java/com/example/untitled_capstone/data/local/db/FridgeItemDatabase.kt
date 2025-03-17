@@ -12,7 +12,6 @@ import com.example.untitled_capstone.data.local.entity.FridgeItemEntity
     version = 1,
     exportSchema = false
 )
-@TypeConverters(Converters::class)
 abstract class FridgeItemDatabase: RoomDatabase() {
     abstract val dao: FridgeItemDao
 }

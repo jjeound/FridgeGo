@@ -10,6 +10,7 @@ import com.example.untitled_capstone.data.local.entity.FridgeItemEntity
 import com.example.untitled_capstone.data.remote.Api
 import retrofit2.HttpException
 import java.io.IOException
+import java.util.concurrent.TimeUnit
 
 @OptIn(ExperimentalPagingApi::class)
 class FridgePagingSource(
@@ -23,14 +24,14 @@ class FridgePagingSource(
     ): MediatorResult {
         return try {
             val loadKey = when(loadType) {
-                LoadType.REFRESH -> 0
+                LoadType.REFRESH -> 1
                 LoadType.PREPEND -> return MediatorResult.Success(
                     endOfPaginationReached = true
                 )
                 LoadType.APPEND -> {
                     val lastItem = state.lastItemOrNull()
                     if(lastItem == null) {
-                        0
+                        return MediatorResult.Success(endOfPaginationReached = true)
                     } else {
                         (lastItem.id / state.config.pageSize) + 1
                     }

@@ -59,12 +59,14 @@ import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
+import androidx.paging.compose.collectAsLazyPagingItems
 import coil.compose.AsyncImage
 import com.example.untitled_capstone.MainActivity
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.domain.model.FridgeItem
 import com.example.untitled_capstone.presentation.feature.refrigerator.event.FridgeAction
+import com.example.untitled_capstone.presentation.feature.refrigerator.state.FridgeState
 import com.example.untitled_capstone.ui.theme.CustomTheme
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -72,19 +74,13 @@ import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NewFridgeItemForm(id: Int?, navigate: () -> Unit, onAction: (FridgeAction) -> Unit){
+fun NewFridgeItemForm(id: Int?, state: FridgeState, navigate: () -> Unit, onAction: (FridgeAction) -> Unit){
     val context = LocalContext.current
     val packageName = context.packageName
     val showDialog = remember { mutableStateOf(false) }
-    val fridgeItem = FridgeItem(
-        id = id ?: System.currentTimeMillis().toInt(),
-        name = "",
-        image = null,
-        quantity = "",
-        expirationDate = 0L,
-        notification = false,
-        isFridge = true
-    ) // get fridgeItemById by FridgeAction
+    val fridgeItem = state.fridgeItems?.collectAsLazyPagingItems()?.itemSnapshotList?.find {
+        it?.id == id
+    }
     var image by remember { mutableStateOf(fridgeItem?.image?.toUri()) }
 
     val albumLauncher =

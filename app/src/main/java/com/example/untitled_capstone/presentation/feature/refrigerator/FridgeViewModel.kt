@@ -1,29 +1,39 @@
 package com.example.untitled_capstone.presentation.feature.refrigerator
 
+import android.util.Log
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
+import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.filter
+import androidx.paging.insertHeaderItem
+import androidx.paging.map
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.data.repository.FridgeRepositoryImpl
 import com.example.untitled_capstone.domain.model.FridgeItem
 import com.example.untitled_capstone.domain.use_case.fridge.FridgeUseCases
 import com.example.untitled_capstone.presentation.feature.refrigerator.event.FridgeAction
 import com.example.untitled_capstone.presentation.feature.refrigerator.state.FridgeState
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@HiltViewModel
 class FridgeViewModel @Inject constructor(
     private val fridgeUseCases: FridgeUseCases
 ): ViewModel() {
-    private val _state = MutableStateFlow(FridgeState(loading = true))
-    val state: StateFlow<FridgeState> = _state.asStateFlow()
+    private val _state = mutableStateOf(FridgeState(loading = true))
+    val state: State<FridgeState> = _state
 
     init {
         onAction(FridgeAction.GetItems)
@@ -42,58 +52,40 @@ class FridgeViewModel @Inject constructor(
     private fun addItem(item: FridgeItem){
         viewModelScope.launch {
             fridgeUseCases.addFridgeItem(item)
+            fridgeUseCases.invalidatePagingSource()
         }
-//        _state.update { currentState ->
-//            currentState.copy(fridgeItems = currentState.fridgeItems + item)
-//        }
-        //call usecase or repository function to add data
     }
 
     private fun toggleNotification(id: Int) {
         viewModelScope.launch {
             fridgeUseCases.toggleNotification(id)
+            fridgeUseCases.invalidatePagingSource()
         }
-//        _state.update { currentState ->
-//            val updatedItems = currentState.fridgeItems.map { item ->
-//                if (item.id == id) {
-//                    item.copy(notification = !item.notification) // isFavorite 변경
-//                } else item
-//            }
-//            currentState.copy(fridgeItems = updatedItems)
-//        }
-        //call usecase or repository function to add data
     }
 
     private fun modifyItem(updatedItem: FridgeItem) {
         viewModelScope.launch {
             fridgeUseCases.modifyFridgeItems(updatedItem)
+            fridgeUseCases.invalidatePagingSource()
         }
-//        _state.update { currentState ->
-//            currentState.copy(
-//                fridgeItems = currentState.fridgeItems.map { item ->
-//                    if (item.id == updatedItem.id) updatedItem else item
-//                }
-//            )
-//        }
     }
 
     private fun deleteItem(id: Int) {
         viewModelScope.launch {
             fridgeUseCases.deleteFridgeItem(id)
+            fridgeUseCases.invalidatePagingSource()
         }
-//        _state.update { currentState ->
-//            currentState.copy(fridgeItems = currentState.fridgeItems.filterNot { it.id == id })
-//        }
     }
 
     private fun getItems() {
-        _state.update {
-            it.copy(loading = true)
+        viewModelScope.launch {
+            val fridgeItems = fridgeUseCases.getFridgeItems()
+                .cachedIn(viewModelScope)
+            _state.value =  _state.value.copy(fridgeItems = fridgeItems, loading = false)
         }
-        val fridgeItems = fridgeUseCases.getFridgeItem().cachedIn(viewModelScope)
-        _state.update {
-            it.copy(fridgeItems = fridgeItems, loading = false)
-        }
+    }
+}
+
 //        viewModelScope.launch {
 //            _state.update {
 //                it.copy(loading = false)
@@ -176,5 +168,3 @@ class FridgeViewModel @Inject constructor(
 //                )
 //            }
 //        }
-    }
-}

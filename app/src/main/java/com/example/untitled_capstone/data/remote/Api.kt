@@ -47,6 +47,6 @@ interface Api {
 //    ): FridgeDto
 
     companion object{
-        const val BASE_URL = "https://api/"
+        const val BASE_URL = "https://api"
     }
 }

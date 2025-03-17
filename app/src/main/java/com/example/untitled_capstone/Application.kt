@@ -17,7 +17,7 @@ class Application: Application(){
         val importance = NotificationManager.IMPORTANCE_HIGH
         val channel = NotificationChannel(NOTIFICATION_CHANNEL_ID, name, importance)
         val notificationManager: NotificationManager =
-            getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.createNotificationChannel(channel)
     }
 }

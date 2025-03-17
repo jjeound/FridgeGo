@@ -4,18 +4,19 @@ import com.example.untitled_capstone.domain.repository.FridgeRepository
 import com.example.untitled_capstone.domain.use_case.fridge.AddFridgeItem
 import com.example.untitled_capstone.domain.use_case.fridge.DeleteFridgeItem
 import com.example.untitled_capstone.domain.use_case.fridge.FridgeUseCases
-import com.example.untitled_capstone.domain.use_case.fridge.GetFridgeItem
+import com.example.untitled_capstone.domain.use_case.fridge.GetFridgeItems
+import com.example.untitled_capstone.domain.use_case.fridge.InvalidatePagingSource
 import com.example.untitled_capstone.domain.use_case.fridge.ModifyFridgeItems
 import com.example.untitled_capstone.domain.use_case.fridge.ToggleNotification
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ViewModelComponent
+import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
 
 @Module
-@InstallIn(ViewModelComponent::class)
+@InstallIn(SingletonComponent::class)
 object UseCaseModule {
 
     @Provides
@@ -26,7 +27,8 @@ object UseCaseModule {
             deleteFridgeItem = DeleteFridgeItem(repository),
             toggleNotification = ToggleNotification(repository),
             modifyFridgeItems = ModifyFridgeItems(repository),
-            getFridgeItem = GetFridgeItem(repository)
+            getFridgeItems = GetFridgeItems(repository),
+            invalidatePagingSource = InvalidatePagingSource(repository)
         )
     }
 }

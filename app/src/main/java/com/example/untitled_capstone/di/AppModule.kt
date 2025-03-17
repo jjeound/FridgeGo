@@ -3,6 +3,7 @@ package com.example.untitled_capstone.di
 import android.content.Context
 import androidx.room.Room
 import com.example.untitled_capstone.data.local.db.FridgeItemDatabase
+import com.example.untitled_capstone.data.local.remote.FridgeItemDao
 import com.example.untitled_capstone.data.remote.Api
 import com.example.untitled_capstone.data.util.Converters
 import com.example.untitled_capstone.data.util.GsonParser
@@ -25,8 +26,7 @@ object AppModule {
     fun provideFridgeItemDatabase(@ApplicationContext context: Context): FridgeItemDatabase{
         return Room.databaseBuilder(
             context, FridgeItemDatabase::class.java, "fridge_item_database"
-        ).addTypeConverter(Converters(GsonParser(Gson())))
-            .build()
+        ).build()
     }
 
     @Provides
@@ -38,5 +38,9 @@ object AppModule {
             .build()
             .create(Api::class.java)
     }
+
+    @Provides
+    @Singleton
+    fun provideDao(db: FridgeItemDatabase): FridgeItemDao = db.dao
 
 }

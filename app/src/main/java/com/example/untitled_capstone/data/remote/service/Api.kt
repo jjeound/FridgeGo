@@ -1,12 +1,12 @@
-package com.example.untitled_capstone.data.remote
-
+package com.example.untitled_capstone.data.remote.service
 
 import com.example.untitled_capstone.data.remote.dto.ContentDto
 import com.example.untitled_capstone.data.remote.dto.FridgeDto
-import com.example.untitled_capstone.data.remote.dto.FridgeResponse
+import com.example.untitled_capstone.data.remote.dto.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.Header
 import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.Path
@@ -23,30 +23,27 @@ interface Api {
     @POST("/api/ingredient")
     suspend fun addFridgeItem(
         @Body fridgeItem: ContentDto
-    ): FridgeResponse
+    ): Response
 
     @PATCH("/api/ingredient/{ingredientId}")
     suspend fun modifyItem(
         @Path("ingredientId") ingredientId: Int,
         @Body fridgeItem: ContentDto
-    ): FridgeResponse
+    ): Response
 
     @DELETE("/api/ingredient/{ingredientId}")
     suspend fun deleteItem(
         @Path("ingredientId") ingredientId: Int
-    ): FridgeResponse
+    ): Response
 
     @PATCH("/api/ingredient/{ingredientId}/alarm")
     suspend fun toggleNotification(
         @Path("ingredientId") ingredientId: Int
-    ): FridgeResponse
+    ): Response
 
 //    @GET("/api/ingredient/{ingredientId}")
 //    suspend fun getItemById(
 //        @Path("ingredientId") ingredientId: Int
 //    ): FridgeDto
 
-    companion object{
-        const val BASE_URL = "https://api"
-    }
 }

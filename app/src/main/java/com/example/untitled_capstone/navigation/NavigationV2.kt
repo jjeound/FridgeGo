@@ -13,6 +13,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.toRoute
+import com.example.untitled_capstone.data.remote.dto.KakaoLoginResponse
 import com.example.untitled_capstone.presentation.feature.notification.NotificationViewModel
 import com.example.untitled_capstone.presentation.feature.chat.ChatViewModel
 import com.example.untitled_capstone.presentation.feature.chat.screen.ChattingRoomScreen
@@ -20,7 +21,8 @@ import com.example.untitled_capstone.presentation.feature.chat.screen.ChattingSc
 import com.example.untitled_capstone.presentation.feature.home.screen.HomeScreen
 import com.example.untitled_capstone.presentation.feature.home.HomeViewModel
 import com.example.untitled_capstone.presentation.feature.home.screen.RecipeScreen
-import com.example.untitled_capstone.presentation.feature.login.LoginScreen
+import com.example.untitled_capstone.presentation.feature.login.KakaoLoginViewModel
+import com.example.untitled_capstone.presentation.feature.login.screen.LoginScreen
 import com.example.untitled_capstone.presentation.feature.main.MainViewModel
 import com.example.untitled_capstone.presentation.feature.my.screen.MyScreen
 import com.example.untitled_capstone.presentation.feature.notification.screen.NotificationScreen
@@ -129,7 +131,8 @@ fun NavigationV2(navController: NavHostController, mainViewModel: MainViewModel)
             NotificationScreen(navController, viewModel.state)
         }
         composable<Screen.LoginNav> {
-            LoginScreen(navController)
+            val viewModel: KakaoLoginViewModel = hiltViewModel()
+            LoginScreen(navController, viewModel)
         }
     }
 }

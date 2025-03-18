@@ -2,6 +2,7 @@ package com.example.untitled_capstone.presentation.feature.login.composable
 
 import android.content.Context
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -22,15 +23,18 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.paging.LoadState
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
+import com.example.untitled_capstone.presentation.feature.login.KakaoLoginViewModel
 import com.kakao.sdk.auth.model.OAuthToken
 import com.kakao.sdk.common.model.ClientError
 import com.kakao.sdk.common.model.ClientErrorCause
 import com.kakao.sdk.user.UserApiClient
 
 @Composable
-fun KakaoLogin() {
+fun KakaoLogin(viewModel: KakaoLoginViewModel) {
     val context = LocalContext.current
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -45,7 +49,14 @@ fun KakaoLogin() {
             modifier = Modifier.width(600.dp).height(90.dp).padding(
                 Dimens.largePadding
             ).clickable {
-                kakaoLogin(context)
+                kakaoLogin(context, onResult = { token ->
+                    viewModel.login(token)
+                    Toast.makeText(
+                        context,
+                        viewModel.state.value.response.toString(),
+                        Toast.LENGTH_LONG
+                    ).show()
+                })
             },
             painter = painterResource(id = R.drawable.kakao_login_large_wide),
             contentDescription = "kakao_login"
@@ -53,15 +64,15 @@ fun KakaoLogin() {
     }
 }
 
-private fun kakaoLogin(context: Context){
+private fun kakaoLogin(context: Context, onResult: (String) -> Unit){
     val callback: (OAuthToken?, Throwable?) -> Unit = { token, error ->
         if (error != null) {
             Log.e("Login", "카카오계정으로 로그인 실패", error)
         } else if (token != null) {
+            onResult(token.accessToken)
             Log.i("Login", "카카오계정으로 로그인 성공 ${token.accessToken}")
         }
     }
-
 // 카카오톡이 설치되어 있으면 카카오톡으로 로그인, 아니면 카카오계정으로 로그인
     if (UserApiClient.instance.isKakaoTalkLoginAvailable(context)) {
         UserApiClient.instance.loginWithKakaoTalk(context) { token, error ->
@@ -77,6 +88,7 @@ private fun kakaoLogin(context: Context){
                 // 카카오톡에 연결된 카카오계정이 없는 경우, 카카오계정으로 로그인 시도
                 UserApiClient.instance.loginWithKakaoAccount(context, callback = callback)
             } else if (token != null) {
+                onResult(token.accessToken)
                 Log.i("Login", "카카오톡으로 로그인 성공 ${token.accessToken}")
             }
         }
@@ -84,3 +96,4 @@ private fun kakaoLogin(context: Context){
         UserApiClient.instance.loginWithKakaoAccount(context, callback = callback)
     }
 }
+

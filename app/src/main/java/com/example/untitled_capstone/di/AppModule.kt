@@ -2,9 +2,11 @@ package com.example.untitled_capstone.di
 
 import android.content.Context
 import androidx.room.Room
+import com.example.untitled_capstone.core.util.Constants.BASE_URL
 import com.example.untitled_capstone.data.local.db.FridgeItemDatabase
 import com.example.untitled_capstone.data.local.remote.FridgeItemDao
-import com.example.untitled_capstone.data.remote.Api
+import com.example.untitled_capstone.data.remote.service.Api
+import com.example.untitled_capstone.data.remote.service.LoginApi
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -30,10 +32,20 @@ object AppModule {
     @Singleton
     fun provideApi(): Api {
         return Retrofit.Builder()
-            .baseUrl(Api.BASE_URL)
+            .baseUrl(BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(Api::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideLoginApi(): LoginApi {
+        return Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(LoginApi::class.java)
     }
 
     @Provides

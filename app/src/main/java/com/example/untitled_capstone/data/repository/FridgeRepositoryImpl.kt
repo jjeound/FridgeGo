@@ -4,20 +4,15 @@ import androidx.paging.ExperimentalPagingApi
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
-import androidx.paging.map
 import com.example.untitled_capstone.core.util.Resource
 import com.example.untitled_capstone.data.local.db.FridgeItemDatabase
 import com.example.untitled_capstone.data.local.entity.FridgeItemEntity
-import com.example.untitled_capstone.data.local.remote.FridgeItemDao
 import com.example.untitled_capstone.data.pagination.FridgePagingSource
-import com.example.untitled_capstone.data.remote.Api
+import com.example.untitled_capstone.data.remote.service.Api
 import com.example.untitled_capstone.data.remote.dto.ContentDto
-import com.example.untitled_capstone.data.remote.dto.FridgeResponse
-import com.example.untitled_capstone.domain.model.FridgeItem
+import com.example.untitled_capstone.data.remote.dto.Response
 import com.example.untitled_capstone.domain.repository.FridgeRepository
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
 import okio.IOException
 import retrofit2.HttpException
 
@@ -36,7 +31,7 @@ class FridgeRepositoryImpl(
     }
 
 
-    override suspend fun addItem(item: ContentDto): Resource<FridgeResponse> {
+    override suspend fun addItem(item: ContentDto): Resource<Response> {
         return try {
             val response = api.addFridgeItem(item)
             Resource.Success(response)
@@ -47,7 +42,7 @@ class FridgeRepositoryImpl(
         }
     }
 
-    override suspend fun toggleNotification(id: Int): Resource<FridgeResponse> {
+    override suspend fun toggleNotification(id: Int): Resource<Response> {
         return try {
             val response = api.toggleNotification(id)
             Resource.Success(response)
@@ -58,7 +53,7 @@ class FridgeRepositoryImpl(
         }
     }
 
-    override suspend fun modifyItem(updatedItem: ContentDto): Resource<FridgeResponse> {
+    override suspend fun modifyItem(updatedItem: ContentDto): Resource<Response> {
         return try {
             val response = api.modifyItem(updatedItem.id, updatedItem)
             Resource.Success(response)
@@ -69,7 +64,7 @@ class FridgeRepositoryImpl(
         }
     }
 
-    override suspend fun deleteItem(id: Int): Resource<FridgeResponse> {
+    override suspend fun deleteItem(id: Int): Resource<Response> {
         return try {
             val response = api.deleteItem(id)
             Resource.Success(response)

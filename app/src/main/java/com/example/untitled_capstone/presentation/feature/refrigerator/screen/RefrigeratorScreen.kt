@@ -2,6 +2,7 @@ package com.example.untitled_capstone.presentation.feature.refrigerator.screen
 
 import android.content.Intent
 import android.provider.Settings
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -125,6 +126,7 @@ fun RefrigeratorScreen(state: FridgeState, viewModel: MainViewModel, onAction: (
                             "Error: " + (fridgeItems.loadState.refresh as LoadState.Error).error.message,
                             Toast.LENGTH_LONG
                         ).show()
+                        Log.d("RefrigeratorScreen", "Error: " + (fridgeItems.loadState.refresh as LoadState.Error).error.message)
                     }
                 }
                 if(fridgeItems.loadState.refresh is LoadState.Loading) {

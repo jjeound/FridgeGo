@@ -7,7 +7,7 @@ import androidx.paging.RemoteMediator
 import androidx.room.withTransaction
 import com.example.untitled_capstone.data.local.db.FridgeItemDatabase
 import com.example.untitled_capstone.data.local.entity.FridgeItemEntity
-import com.example.untitled_capstone.data.remote.Api
+import com.example.untitled_capstone.data.remote.service.Api
 import retrofit2.HttpException
 import java.io.IOException
 

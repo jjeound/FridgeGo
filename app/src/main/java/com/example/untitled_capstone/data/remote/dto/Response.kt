@@ -1,6 +1,6 @@
 package com.example.untitled_capstone.data.remote.dto
 
-data class FridgeResponse(
+data class Response(
     val isSuccess: Int,
     val code: String,
     val message: String,

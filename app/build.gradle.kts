@@ -30,7 +30,7 @@ plugins {
             }
 
             val kakaoAppKey = localProperties.getProperty("KAKAO_APP_KEY") ?: ""
-            buildConfigField("String", "KAKAO_APP_KEY", kakaoAppKey)
+            buildConfigField("String", "KAKAO_APP_KEY", "${localProperties["KAKAO_APP_KEY"]}")
             manifestPlaceholders["KAKAO_APP_KEY"] = kakaoAppKey
         }
 
@@ -92,6 +92,7 @@ dependencies {
     implementation (libs.androidx.room.paging)
 
     // Kakao login
+    implementation(libs.v2.all)
     implementation (libs.v2.user)
 
     implementation(libs.androidx.core.splashscreen)

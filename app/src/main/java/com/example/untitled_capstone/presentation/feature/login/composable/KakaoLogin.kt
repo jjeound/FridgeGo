@@ -2,19 +2,14 @@ package com.example.untitled_capstone.presentation.feature.login.composable
 
 import android.content.Context
 import android.util.Log
-import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -23,10 +18,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.paging.LoadState
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
+import com.example.untitled_capstone.data.remote.dto.KakaoAccessTokenRequest
 import com.example.untitled_capstone.presentation.feature.login.KakaoLoginViewModel
 import com.kakao.sdk.auth.model.OAuthToken
 import com.kakao.sdk.common.model.ClientError
@@ -49,14 +43,10 @@ fun KakaoLogin(viewModel: KakaoLoginViewModel) {
             modifier = Modifier.width(600.dp).height(90.dp).padding(
                 Dimens.largePadding
             ).clickable {
-                kakaoLogin(context, onResult = { token ->
-                    viewModel.login(token)
-                    Toast.makeText(
-                        context,
-                        viewModel.state.value.response.toString(),
-                        Toast.LENGTH_LONG
-                    ).show()
-                })
+                kakaoLogin(context){ code ->
+                    viewModel.login(KakaoAccessTokenRequest(accessToken = code))
+                }
+                Log.d("ling", viewModel.state.value.response?.code.toString())
             },
             painter = painterResource(id = R.drawable.kakao_login_large_wide),
             contentDescription = "kakao_login"

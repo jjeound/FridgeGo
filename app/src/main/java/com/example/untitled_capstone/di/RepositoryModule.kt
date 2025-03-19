@@ -4,9 +4,9 @@ import com.example.untitled_capstone.data.local.db.FridgeItemDatabase
 import com.example.untitled_capstone.data.remote.service.Api
 import com.example.untitled_capstone.data.remote.service.LoginApi
 import com.example.untitled_capstone.data.repository.FridgeRepositoryImpl
-import com.example.untitled_capstone.data.repository.KakaoLoginRepositoryImpl
+import com.example.untitled_capstone.data.repository.LoginRepositoryImpl
 import com.example.untitled_capstone.domain.repository.FridgeRepository
-import com.example.untitled_capstone.domain.repository.KakaoLoginRepository
+import com.example.untitled_capstone.domain.repository.LoginRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -26,7 +26,7 @@ object RepositoryModule {
 
     @Provides
     @Singleton
-    fun provideKakaoLoginRepository(api: LoginApi): KakaoLoginRepository{
-        return KakaoLoginRepositoryImpl(api)
+    fun provideLoginRepository(api: LoginApi): LoginRepository{
+        return LoginRepositoryImpl(api)
     }
 }

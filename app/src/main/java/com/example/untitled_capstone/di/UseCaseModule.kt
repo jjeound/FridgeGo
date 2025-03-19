@@ -1,7 +1,7 @@
 package com.example.untitled_capstone.di
 
 import com.example.untitled_capstone.domain.repository.FridgeRepository
-import com.example.untitled_capstone.domain.repository.KakaoLoginRepository
+import com.example.untitled_capstone.domain.repository.LoginRepository
 import com.example.untitled_capstone.domain.use_case.fridge.AddFridgeItem
 import com.example.untitled_capstone.domain.use_case.fridge.DeleteFridgeItem
 import com.example.untitled_capstone.domain.use_case.fridge.FridgeUseCases
@@ -9,12 +9,11 @@ import com.example.untitled_capstone.domain.use_case.fridge.GetFridgeItems
 import com.example.untitled_capstone.domain.use_case.fridge.InvalidatePagingSource
 import com.example.untitled_capstone.domain.use_case.fridge.ModifyFridgeItems
 import com.example.untitled_capstone.domain.use_case.fridge.ToggleNotification
-import com.example.untitled_capstone.domain.use_case.kakao.KakaoLoginCallback
+import com.example.untitled_capstone.domain.use_case.kakao.LoginCallback
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import javax.inject.Singleton
 
 
 @Module
@@ -22,7 +21,6 @@ import javax.inject.Singleton
 object UseCaseModule {
 
     @Provides
-    @Singleton
     fun provideFridgeUseCases(repository: FridgeRepository): FridgeUseCases {
         return FridgeUseCases(
             addFridgeItem = AddFridgeItem(repository),
@@ -35,8 +33,7 @@ object UseCaseModule {
     }
 
     @Provides
-    @Singleton
-    fun provideKakaoLoginCallback(repository: KakaoLoginRepository): KakaoLoginCallback {
-        return KakaoLoginCallback(repository)
+    fun provideLoginCallback(repository: LoginRepository): LoginCallback {
+        return LoginCallback(repository)
     }
 }

@@ -91,9 +91,9 @@ dependencies {
     ksp (libs.androidx.room.compiler)
     implementation (libs.androidx.room.paging)
 
-    // Kakao login
-    implementation(libs.v2.all)
+    // login
     implementation (libs.v2.user)
+    implementation (libs.androidx.datastore.preferences)
 
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.coil.compose)

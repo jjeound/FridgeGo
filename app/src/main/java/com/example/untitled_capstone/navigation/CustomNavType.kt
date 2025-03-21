@@ -6,6 +6,7 @@ import androidx.navigation.NavType
 import com.example.untitled_capstone.domain.model.ChattingRoom
 import com.example.untitled_capstone.domain.model.FridgeItem
 import com.example.untitled_capstone.domain.model.Post
+import com.example.untitled_capstone.domain.model.Profile
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -31,4 +32,5 @@ inline fun <reified T : Any> createNavType(): NavType<T> = object : NavType<T>(i
 
 object CustomNavType {
     val ChatType by lazy { createNavType<ChattingRoom>() }
+    val ProfileType by lazy { createNavType<Profile>() }
 }

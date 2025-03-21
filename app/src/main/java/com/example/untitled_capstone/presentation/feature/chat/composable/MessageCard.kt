@@ -24,6 +24,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
+import coil.compose.AsyncImage
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.domain.model.Message
@@ -71,9 +73,9 @@ fun MessageCard(message: Message) {
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Start,
         ) {
-            if(message.user.profile != null){
-                Image(
-                    painter = painterResource(message.user.profile),
+            if(message.user.profileImage != null){
+                AsyncImage(
+                    model = message.user.profileImage.toUri(),
                     contentDescription = "get image",
                     modifier = Modifier
                         .size(36.dp)

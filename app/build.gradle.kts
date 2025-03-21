@@ -30,7 +30,7 @@ plugins {
             }
 
             val kakaoAppKey = localProperties.getProperty("KAKAO_APP_KEY") ?: ""
-            buildConfigField("String", "KAKAO_APP_KEY", "${localProperties["KAKAO_APP_KEY"]}")
+            buildConfigField("String", "KAKAO_APP_KEY", "\"${localProperties["KAKAO_APP_KEY"]}\"")
             manifestPlaceholders["KAKAO_APP_KEY"] = kakaoAppKey
         }
 
@@ -97,6 +97,8 @@ dependencies {
 
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.coil.compose)
+
+    implementation (libs.timber)
 
     implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.androidx.core.ktx)

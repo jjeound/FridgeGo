@@ -16,18 +16,10 @@ sealed interface Screen {
     }
 
     @Serializable
-    data class RecipeNav(val id: Int) : Screen{
-//        companion object {
-//            val typeMap = mapOf(typeOf<Recipe>() to CustomNavType.RecipeType)
-//        }
-    }
+    data class RecipeNav(val id: Int) : Screen
 
     @Serializable
-    data class PostNav(val id: Int) : Screen {
-//        companion object {
-//            val typeMap = mapOf(typeOf<Post>() to CustomNavType.PostType)
-//        }
-    }
+    data class PostNav(val id: Int) : Screen
 
     @Serializable
     data object WritingNav: Screen
@@ -58,6 +50,12 @@ sealed interface Screen {
 
     @Serializable
     data object My: Screen
+
+    @Serializable
+    data object Profile: Screen
+
+    @Serializable
+    data object NicknameNav: Screen
 }
 
 sealed interface Graph {
@@ -75,4 +73,10 @@ sealed interface Graph {
 
     @Serializable
     data object MyGraph: Graph
+
+    @Serializable
+    data object LoginGraph: Graph
+
+    @Serializable
+    data object  OnBoardingGraph: Graph
 }

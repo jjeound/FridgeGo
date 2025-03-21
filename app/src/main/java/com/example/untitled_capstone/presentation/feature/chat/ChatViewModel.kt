@@ -19,99 +19,99 @@ class ChatViewModel: ViewModel(){
     var messageState by mutableStateOf(MessageState())
         private set
 
-    init {
-        chatState = chatState.copy(
-            chats = listOf(
-                ChattingRoom(
-                    message = "message1",
-                    lastSentMessageTime = "2021-12-31",
-                    user = User(
-                        id = 1,
-                        name = "닉네임",
-                        profile = R.drawable.ic_launcher_background
-                    ),
-                    title = "title1",
-                    numberOfPeople = 1,
-                    messagesNotReadYet = 1
-                ),
-                ChattingRoom(
-                    message = "message1",
-                    lastSentMessageTime = "2021-12-31",
-                    user = User(
-                        id = 2,
-                        name = "닉네임",
-                        profile = R.drawable.ic_launcher_background
-                    ),
-                    title = "title2",
-                    numberOfPeople = 2,
-                    messagesNotReadYet = 2
-                ),
-                ChattingRoom(
-                    message = "message3",
-                    lastSentMessageTime = "2021-12-31",
-                    user = User(
-                        id = 3,
-                        name = "닉네임",
-                        profile = R.drawable.ic_launcher_background
-                    ),
-                    title = "title3",
-                    numberOfPeople = 3
-                ),
-                ChattingRoom(
-                    message = "message1",
-                    lastSentMessageTime = "2021-12-31",
-                    user = User(
-                        id = 4,
-                        name = "닉네임",
-                        profile = R.drawable.ic_launcher_background
-                    ),
-                    title = "title1",
-                    numberOfPeople = 4
-                ),
-            ),
-            isLoading = false
-        )
-        messageState = messageState.copy(
-            messages = listOf(
-                Message(
-                    message = "message1",
-                    time = "2025-01-24",
-                    user = User(
-                        id = 4,
-                        name = "닉네임",
-                        profile = R.drawable.ic_launcher_background
-                    ),
-                ),
-                Message(
-                    message = "message2",
-                    time = "2025-01-24",
-                    user = User(
-                        id = 4,
-                        name = "닉네임",
-                        profile = R.drawable.ic_launcher_background
-                    ),
-                ),
-                Message(
-                    message = "message3",
-                    time = "2025-01-24",
-                    user = User(
-                        id = 1,
-                        name = "닉네임",
-                        profile = R.drawable.ic_launcher_background
-                    ),
-                ),
-                Message(
-                    message = "message4",
-                    time = "2025-01-24",
-                    user = User(
-                        id = 1,
-                        name = "닉네임",
-                        profile = R.drawable.ic_launcher_background
-                    ),
-                ),
-            )
-        )
-    }
+//    init {
+//        chatState = chatState.copy(
+//            chats = listOf(
+//                ChattingRoom(
+//                    message = "message1",
+//                    lastSentMessageTime = "2021-12-31",
+//                    user = User(
+//                        id = 1,
+//                        name = "닉네임",
+//                        profile = R.drawable.ic_launcher_background
+//                    ),
+//                    title = "title1",
+//                    numberOfPeople = 1,
+//                    messagesNotReadYet = 1
+//                ),
+//                ChattingRoom(
+//                    message = "message1",
+//                    lastSentMessageTime = "2021-12-31",
+//                    user = User(
+//                        id = 2,
+//                        name = "닉네임",
+//                        profile = R.drawable.ic_launcher_background
+//                    ),
+//                    title = "title2",
+//                    numberOfPeople = 2,
+//                    messagesNotReadYet = 2
+//                ),
+//                ChattingRoom(
+//                    message = "message3",
+//                    lastSentMessageTime = "2021-12-31",
+//                    user = User(
+//                        id = 3,
+//                        name = "닉네임",
+//                        profile = R.drawable.ic_launcher_background
+//                    ),
+//                    title = "title3",
+//                    numberOfPeople = 3
+//                ),
+//                ChattingRoom(
+//                    message = "message1",
+//                    lastSentMessageTime = "2021-12-31",
+//                    user = User(
+//                        id = 4,
+//                        name = "닉네임",
+//                        profile = R.drawable.ic_launcher_background
+//                    ),
+//                    title = "title1",
+//                    numberOfPeople = 4
+//                ),
+//            ),
+//            isLoading = false
+//        )
+//        messageState = messageState.copy(
+//            messages = listOf(
+//                Message(
+//                    message = "message1",
+//                    time = "2025-01-24",
+//                    user = User(
+//                        id = 4,
+//                        name = "닉네임",
+//                        profile = R.drawable.ic_launcher_background
+//                    ),
+//                ),
+//                Message(
+//                    message = "message2",
+//                    time = "2025-01-24",
+//                    user = User(
+//                        id = 4,
+//                        name = "닉네임",
+//                        profile = R.drawable.ic_launcher_background
+//                    ),
+//                ),
+//                Message(
+//                    message = "message3",
+//                    time = "2025-01-24",
+//                    user = User(
+//                        id = 1,
+//                        name = "닉네임",
+//                        profile = R.drawable.ic_launcher_background
+//                    ),
+//                ),
+//                Message(
+//                    message = "message4",
+//                    time = "2025-01-24",
+//                    user = User(
+//                        id = 1,
+//                        name = "닉네임",
+//                        profile = R.drawable.ic_launcher_background
+//                    ),
+//                ),
+//            )
+//        )
+//    }
 
     fun onAction(action: ChattingAction){
         when(action){

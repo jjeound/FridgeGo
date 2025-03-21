@@ -2,7 +2,7 @@ package com.example.untitled_capstone.data.remote.service
 
 import com.example.untitled_capstone.data.remote.dto.ContentDto
 import com.example.untitled_capstone.data.remote.dto.FridgeDto
-import com.example.untitled_capstone.data.remote.dto.Response
+import com.example.untitled_capstone.data.remote.dto.ApiResponse
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
@@ -22,27 +22,22 @@ interface Api {
     @POST("/api/ingredient")
     suspend fun addFridgeItem(
         @Body fridgeItem: ContentDto
-    ): Response
+    ): ApiResponse
 
     @PATCH("/api/ingredient/{ingredientId}")
     suspend fun modifyItem(
         @Path("ingredientId") ingredientId: Int,
         @Body fridgeItem: ContentDto
-    ): Response
+    ): ApiResponse
 
     @DELETE("/api/ingredient/{ingredientId}")
     suspend fun deleteItem(
         @Path("ingredientId") ingredientId: Int
-    ): Response
+    ): ApiResponse
 
     @PATCH("/api/ingredient/{ingredientId}/alarm")
     suspend fun toggleNotification(
         @Path("ingredientId") ingredientId: Int
-    ): Response
-
-//    @GET("/api/ingredient/{ingredientId}")
-//    suspend fun getItemById(
-//        @Path("ingredientId") ingredientId: Int
-//    ): FridgeDto
+    ): ApiResponse
 
 }

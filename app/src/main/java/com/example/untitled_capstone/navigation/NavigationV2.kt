@@ -11,7 +11,7 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.navigation
+import androidx.navigation.navigation
 import androidx.navigation.toRoute
 import com.example.untitled_capstone.presentation.feature.notification.NotificationViewModel
 import com.example.untitled_capstone.presentation.feature.chat.ChatViewModel
@@ -20,11 +20,16 @@ import com.example.untitled_capstone.presentation.feature.chat.screen.ChattingSc
 import com.example.untitled_capstone.presentation.feature.home.screen.HomeScreen
 import com.example.untitled_capstone.presentation.feature.home.HomeViewModel
 import com.example.untitled_capstone.presentation.feature.home.screen.RecipeScreen
-import com.example.untitled_capstone.presentation.feature.login.KakaoLoginViewModel
-import com.example.untitled_capstone.presentation.feature.login.screen.LoginScreen
+import com.example.untitled_capstone.presentation.feature.login.LoginViewModel
+import com.example.untitled_capstone.presentation.feature.login.LoginScreen
+import com.example.untitled_capstone.presentation.feature.login.SetNickNameScreen
 import com.example.untitled_capstone.presentation.feature.main.MainViewModel
-import com.example.untitled_capstone.presentation.feature.my.screen.MyScreen
+import com.example.untitled_capstone.presentation.feature.my.MyScreen
+import com.example.untitled_capstone.presentation.feature.my.MyViewModel
+import com.example.untitled_capstone.presentation.feature.my.ProfileScreen
 import com.example.untitled_capstone.presentation.feature.notification.screen.NotificationScreen
+import com.example.untitled_capstone.presentation.feature.onBoardiing.OnBoarding
+import com.example.untitled_capstone.presentation.feature.onBoardiing.OnBoardingViewModel
 import com.example.untitled_capstone.presentation.feature.refrigerator.FridgeViewModel
 import com.example.untitled_capstone.presentation.feature.refrigerator.screen.AddFridgeItemScreen
 import com.example.untitled_capstone.presentation.feature.refrigerator.screen.RefrigeratorScreen
@@ -36,7 +41,7 @@ import com.example.untitled_capstone.presentation.feature.shopping.screen.Writin
 
 @Composable
 fun NavigationV2(navController: NavHostController, mainViewModel: MainViewModel) {
-    NavHost(navController = navController, startDestination = Graph.HomeGraph){
+    NavHost(navController = navController, startDestination = mainViewModel.startDestination.value){
         navigation<Graph.HomeGraph>(
             startDestination = Screen.Home
         ){
@@ -122,16 +127,54 @@ fun NavigationV2(navController: NavHostController, mainViewModel: MainViewModel)
             startDestination = Screen.My
         ){
             composable<Screen.My>{
-                MyScreen(navController)
+                val viewModel: MyViewModel = hiltViewModel()
+                val state by viewModel.state.collectAsStateWithLifecycle()
+                MyScreen(navController, viewModel::onEvent, state)
+            }
+            composable<Screen.Profile>{
+                val viewModel: MyViewModel = hiltViewModel()
+                val state by viewModel.state.collectAsStateWithLifecycle()
+                ProfileScreen(state, {navController.popBackStack()})
             }
         }
         composable<Screen.NotificationNav> {
             val viewModel = NotificationViewModel()
             NotificationScreen(navController, viewModel.state)
         }
-        composable<Screen.LoginNav> {
-            val viewModel: KakaoLoginViewModel = hiltViewModel()
-            LoginScreen(navController, viewModel)
+        navigation<Graph.LoginGraph>(startDestination = Screen.LoginNav){
+            composable<Screen.LoginNav> {
+                val viewModel: LoginViewModel = hiltViewModel()
+                val state by viewModel.state.collectAsStateWithLifecycle()
+                LoginScreen(navController, state, viewModel::onEvent)
+            }
+            composable<Screen.NicknameNav>{
+                val viewModel: LoginViewModel = hiltViewModel()
+                val state by viewModel.state.collectAsStateWithLifecycle()
+                SetNickNameScreen(
+                    navigateToHome = {
+                        navController.navigate(Screen.Home)
+                    },
+                    popBackStack = {
+                        navController.popBackStack()
+                    },
+                    onEvent = viewModel::onEvent,
+                    state = state
+                )
+            }
+        }
+        navigation<Graph.OnBoardingGraph>(startDestination = Screen.OnBoarding) {
+            composable<Screen.OnBoarding>{
+                val viewModel: OnBoardingViewModel = hiltViewModel()
+                OnBoarding(
+                    navigateToHome = {
+                        navController.navigate(Screen.Home)
+                    },
+                    navigateToLogin = {
+                        navController.navigate(Screen.LoginNav)
+                    },
+                    onEvent = viewModel::onEvent
+                )
+            }
         }
     }
 }

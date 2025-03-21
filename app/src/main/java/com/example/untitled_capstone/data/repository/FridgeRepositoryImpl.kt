@@ -10,7 +10,7 @@ import com.example.untitled_capstone.data.local.entity.FridgeItemEntity
 import com.example.untitled_capstone.data.pagination.FridgePagingSource
 import com.example.untitled_capstone.data.remote.service.Api
 import com.example.untitled_capstone.data.remote.dto.ContentDto
-import com.example.untitled_capstone.data.remote.dto.Response
+import com.example.untitled_capstone.data.remote.dto.ApiResponse
 import com.example.untitled_capstone.domain.repository.FridgeRepository
 import kotlinx.coroutines.flow.Flow
 import okio.IOException
@@ -31,10 +31,15 @@ class FridgeRepositoryImpl(
     }
 
 
-    override suspend fun addItem(item: ContentDto): Resource<Response> {
+    override suspend fun addItem(item: ContentDto): Resource<ApiResponse> {
         return try {
+            Resource.Loading(data = null)
             val response = api.addFridgeItem(item)
-            Resource.Success(response)
+            if(response.isSuccess){
+                Resource.Success(response)
+            }else{
+                Resource.Error(response.message)
+            }
         } catch (e: IOException) {
             Resource.Error(e.toString())
         } catch (e: HttpException) {
@@ -42,10 +47,15 @@ class FridgeRepositoryImpl(
         }
     }
 
-    override suspend fun toggleNotification(id: Int): Resource<Response> {
+    override suspend fun toggleNotification(id: Int): Resource<ApiResponse> {
         return try {
+            Resource.Loading(data = null)
             val response = api.toggleNotification(id)
-            Resource.Success(response)
+            if(response.isSuccess){
+                Resource.Success(response)
+            }else{
+                Resource.Error(response.message)
+            }
         } catch (e: IOException) {
             Resource.Error(e.toString())
         } catch (e: HttpException) {
@@ -53,10 +63,15 @@ class FridgeRepositoryImpl(
         }
     }
 
-    override suspend fun modifyItem(updatedItem: ContentDto): Resource<Response> {
+    override suspend fun modifyItem(updatedItem: ContentDto): Resource<ApiResponse> {
         return try {
+            Resource.Loading(data = null)
             val response = api.modifyItem(updatedItem.id, updatedItem)
-            Resource.Success(response)
+            if(response.isSuccess){
+                Resource.Success(response)
+            }else{
+                Resource.Error(response.message)
+            }
         } catch (e: IOException) {
             Resource.Error(e.toString())
         } catch (e: HttpException) {
@@ -64,10 +79,15 @@ class FridgeRepositoryImpl(
         }
     }
 
-    override suspend fun deleteItem(id: Int): Resource<Response> {
+    override suspend fun deleteItem(id: Int): Resource<ApiResponse> {
         return try {
+            Resource.Loading(data = null)
             val response = api.deleteItem(id)
-            Resource.Success(response)
+            if(response.isSuccess){
+                Resource.Success(response)
+            }else{
+                Resource.Error(response.message)
+            }
         } catch (e: IOException) {
             Resource.Error(e.toString())
         } catch (e: HttpException) {

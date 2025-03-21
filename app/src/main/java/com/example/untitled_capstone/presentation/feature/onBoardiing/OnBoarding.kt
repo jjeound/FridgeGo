@@ -22,44 +22,49 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.example.untitled_capstone.R
+import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.ui.theme.CustomTheme
 import kotlinx.serialization.Serializable
 
 
 @Composable
-fun OnBoarding(){
+fun OnBoarding(navigateToHome: () -> Unit, navigateToLogin: () -> Unit, onEvent: (OnBoardingEvent) -> Unit){
     Column(
         modifier = Modifier.fillMaxSize().background(color = CustomTheme.colors.onSurface),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Image(imageVector = ImageVector.vectorResource(R.drawable.splash_logo_temp),
+        Image(imageVector = ImageVector.vectorResource(R.drawable.logo),
            contentDescription = "Logo")
-        Spacer(modifier = Modifier.height(200.dp))
         Button(
-            onClick = { /* TODO: Handle start click */ },
+            onClick = { navigateToLogin() },
             colors = ButtonDefaults.buttonColors(containerColor = CustomTheme.colors.primary),
-            modifier = Modifier
-                .fillMaxWidth(0.8f)
-                .height(50.dp)
+            modifier = Modifier.width(600.dp).height(90.dp).padding(
+                Dimens.largePadding
+            )
         ) {
             Text(
-                text = "시작하기",
+                text = "로그인하기",
                 color = CustomTheme.colors.onPrimary,
                 style = CustomTheme.typography.button1
             )
         }
-        Row (modifier = Modifier.padding(vertical = 6.dp), verticalAlignment = Alignment.CenterVertically){
+        Row (verticalAlignment = Alignment.CenterVertically){
             Text(
-                text = "이미 계정이 있나요?",
+                text = "로그인 다음에 할래요",
                 color = CustomTheme.colors.textSecondary,
                 style = CustomTheme.typography.caption2
             )
-            Spacer(modifier = Modifier.width(6.dp))
+            Spacer(modifier = Modifier.width(4.dp))
             Text(
-                modifier = Modifier.clickable {  },
-                text = "로그인",
+                modifier = Modifier.clickable {
+                    navigateToHome()
+                    onEvent(OnBoardingEvent.SaveAppEntry)
+                },
+                text = "시작하기",
                 color = CustomTheme.colors.textPrimary,
                 style = CustomTheme.typography.caption1
             )
@@ -70,5 +75,7 @@ fun OnBoarding(){
 @Preview
 @Composable
 fun OnBoardingPreview(){
-    OnBoarding()
+    OnBoarding(
+        {}, {}, {}
+    )
 }

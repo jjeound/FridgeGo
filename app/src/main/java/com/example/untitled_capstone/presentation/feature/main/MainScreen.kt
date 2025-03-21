@@ -15,12 +15,15 @@ import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
@@ -33,9 +36,8 @@ import com.example.untitled_capstone.presentation.feature.shopping.composable.Sh
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @Composable
-fun MainScreen(){
+fun MainScreen(viewModel: MainViewModel){
     val navController = rememberNavController()
-    val viewModel = viewModel<MainViewModel>()
     val screens = listOf(
         Screen.Home.toString(),
         Screen.Shopping.toString(),

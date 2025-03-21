@@ -1,4 +1,4 @@
-package com.example.untitled_capstone.presentation.feature.login.screen
+package com.example.untitled_capstone.presentation.feature.login
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,13 +17,12 @@ import androidx.compose.ui.res.vectorResource
 import androidx.navigation.NavHostController
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
-import com.example.untitled_capstone.presentation.feature.login.KakaoLoginViewModel
 import com.example.untitled_capstone.presentation.feature.login.composable.KakaoLogin
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoginScreen(navController: NavHostController, viewModel: KakaoLoginViewModel){
+fun LoginScreen(navController: NavHostController, state: LoginState, onAction: (LoginEvent) -> Unit){
     Scaffold(
         containerColor = CustomTheme.colors.onSurface,
         topBar = {
@@ -54,9 +53,11 @@ fun LoginScreen(navController: NavHostController, viewModel: KakaoLoginViewModel
         }
     ){ innerPadding ->
         Box(
-            modifier = Modifier.fillMaxSize().padding(innerPadding),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding),
         ){
-            KakaoLogin(viewModel)
+            KakaoLogin(state, onAction, navController)
         }
     }
 }

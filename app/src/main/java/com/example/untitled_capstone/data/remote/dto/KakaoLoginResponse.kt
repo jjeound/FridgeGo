@@ -1,8 +1,9 @@
 package com.example.untitled_capstone.data.remote.dto
 
-data class LoginCallbackResponse(
-    val code: String,
+
+data class KakaoLoginResponse(
     val isSuccess: Boolean,
+    val code: String,
     val message: String,
-    val result: CallbackDto
+    val result: CallbackDto?
 )

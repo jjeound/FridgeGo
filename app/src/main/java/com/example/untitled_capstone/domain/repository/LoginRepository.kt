@@ -1,9 +1,13 @@
 package com.example.untitled_capstone.domain.repository
 
 import com.example.untitled_capstone.core.util.Resource
+import com.example.untitled_capstone.data.remote.dto.ApiResponse
 import com.example.untitled_capstone.data.remote.dto.KakaoAccessTokenRequest
-import com.example.untitled_capstone.data.remote.dto.LoginCallbackResponse
+import com.example.untitled_capstone.domain.model.AccountInfo
 
-interface LoginRepository{
-    suspend fun loginCallback(accessToken: KakaoAccessTokenRequest): Resource<LoginCallbackResponse>
+interface LoginRepository {
+
+    suspend fun kakaoLogin(accessToken: KakaoAccessTokenRequest): Resource<AccountInfo>
+
+    suspend fun validateNickname(nickname: String): Resource<ApiResponse>
 }

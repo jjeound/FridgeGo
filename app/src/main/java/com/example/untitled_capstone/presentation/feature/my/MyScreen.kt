@@ -1,4 +1,4 @@
-package com.example.untitled_capstone.presentation.feature.my.screen
+package com.example.untitled_capstone.presentation.feature.my
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -8,17 +8,29 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
+import com.example.untitled_capstone.navigation.Graph
+import com.example.untitled_capstone.navigation.Screen
 import com.example.untitled_capstone.presentation.feature.my.composable.MyAccountContainer
 import com.example.untitled_capstone.presentation.feature.my.composable.MyContainer
 
 @Composable
-fun MyScreen(navController: NavHostController) {
+fun MyScreen(navController: NavHostController, onEvent: (MyEvent) -> Unit, state: MyState) {
     Column(
         modifier = Modifier.padding(horizontal = Dimens.surfaceHorizontalPadding,
             vertical = Dimens.surfaceVerticalPadding),
         verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding),
     ) {
-        MyAccountContainer(navController)
+        if(state.isLoggedIn){
+            MyAccountContainer({
+                navController.navigate(route = Screen.Profile)
+            }, state, onEvent)
+        }else{
+            MyAccountContainer({
+                navController.navigate(route = Graph.LoginGraph) {
+                    popUpTo(route = Graph.LoginGraph) { inclusive = true }
+                }
+            }, state, onEvent)
+        }
         MyContainer(
             title = "나의 활동",
             content = listOf("좋아요 한 글", "나의 게시물"),

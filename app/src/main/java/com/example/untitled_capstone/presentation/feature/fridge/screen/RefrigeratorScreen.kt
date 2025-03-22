@@ -1,4 +1,4 @@
-package com.example.untitled_capstone.presentation.feature.refrigerator.screen
+package com.example.untitled_capstone.presentation.feature.fridge.screen
 
 import android.content.Intent
 import android.provider.Settings
@@ -42,10 +42,10 @@ import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.navigation.Screen
 import com.example.untitled_capstone.presentation.feature.main.MainViewModel
-import com.example.untitled_capstone.presentation.feature.refrigerator.composable.FridgeItemContainer
-import com.example.untitled_capstone.presentation.feature.refrigerator.composable.PermissionDialog
-import com.example.untitled_capstone.presentation.feature.refrigerator.event.FridgeAction
-import com.example.untitled_capstone.presentation.feature.refrigerator.state.FridgeState
+import com.example.untitled_capstone.presentation.feature.fridge.composable.FridgeItemContainer
+import com.example.untitled_capstone.presentation.feature.fridge.composable.PermissionDialog
+import com.example.untitled_capstone.presentation.feature.fridge.FridgeAction
+import com.example.untitled_capstone.presentation.feature.fridge.FridgeState
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
 
@@ -126,7 +126,6 @@ fun RefrigeratorScreen(state: FridgeState, viewModel: MainViewModel, onAction: (
                             "Error: " + (fridgeItems.loadState.refresh as LoadState.Error).error.message,
                             Toast.LENGTH_LONG
                         ).show()
-                        Log.d("RefrigeratorScreen", "Error: " + (fridgeItems.loadState.refresh as LoadState.Error).error.message)
                     }
                 }
                 if(fridgeItems.loadState.refresh is LoadState.Loading) {

@@ -1,4 +1,4 @@
-package com.example.untitled_capstone.presentation.feature.refrigerator.screen
+package com.example.untitled_capstone.presentation.feature.fridge.screen
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
@@ -15,14 +15,14 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
-import com.example.untitled_capstone.presentation.feature.refrigerator.composable.NewFridgeItemForm
-import com.example.untitled_capstone.presentation.feature.refrigerator.event.FridgeAction
-import com.example.untitled_capstone.presentation.feature.refrigerator.state.FridgeState
+import com.example.untitled_capstone.presentation.feature.fridge.composable.NewFridgeItemForm
+import com.example.untitled_capstone.presentation.feature.fridge.FridgeAction
+import com.example.untitled_capstone.presentation.feature.fridge.FridgeState
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddFridgeItemScreen(id: Int?, state: FridgeState, navigate: () -> Unit, onAction: (FridgeAction) -> Unit ){
+fun AddFridgeItemScreen(id: Long?, state: FridgeState, navigate: () -> Unit, onAction: (FridgeAction) -> Unit ){
     Scaffold(
         containerColor = CustomTheme.colors.onSurface,
         topBar = {

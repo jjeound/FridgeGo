@@ -1,13 +1,11 @@
-package com.example.untitled_capstone.presentation.feature.refrigerator.composable
+package com.example.untitled_capstone.presentation.feature.fridge.composable
 
 import android.Manifest
 import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Build
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -25,7 +23,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -51,7 +48,7 @@ import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.presentation.util.cancelExpirationAlarm
 import com.example.untitled_capstone.presentation.util.scheduleExpirationAlarms
 import com.example.untitled_capstone.domain.model.FridgeItem
-import com.example.untitled_capstone.presentation.feature.refrigerator.event.FridgeAction
+import com.example.untitled_capstone.presentation.feature.fridge.FridgeAction
 import com.example.untitled_capstone.ui.theme.CustomTheme
 import androidx.core.net.toUri
 
@@ -67,7 +64,7 @@ navigateTo: () -> Unit) {
         contract = ActivityResultContracts.RequestPermission(),
         onResult = { isGranted ->
             if (isGranted) {
-                onAction(FridgeAction.ToggleNotification(item.id)) // 알림 토글
+                onAction(FridgeAction.ToggleNotification(item.id, item.notification)) // 알림 토글
                 isNotification.value = !isNotification.value
                 Log.d("Alarm", "알람 등록")
             }
@@ -180,7 +177,7 @@ navigateTo: () -> Unit) {
                                 context,
                                 Manifest.permission.POST_NOTIFICATIONS
                             ) == PackageManager.PERMISSION_GRANTED -> {
-                                onAction(FridgeAction.ToggleNotification(item.id)) // 알림 토글
+                                onAction(FridgeAction.ToggleNotification(item.id, item.notification)) // 알림 토글
                                 isNotification.value = !isNotification.value
                                 if(isNotification.value){
                                     scheduleExpirationAlarms(context, item.name, item.expirationDate)

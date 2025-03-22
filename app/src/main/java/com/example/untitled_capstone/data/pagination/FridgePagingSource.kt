@@ -1,5 +1,6 @@
 package com.example.untitled_capstone.data.pagination
 
+import android.util.Log
 import androidx.paging.ExperimentalPagingApi
 import androidx.paging.LoadType
 import androidx.paging.PagingState
@@ -7,14 +8,15 @@ import androidx.paging.RemoteMediator
 import androidx.room.withTransaction
 import com.example.untitled_capstone.data.local.db.FridgeItemDatabase
 import com.example.untitled_capstone.data.local.entity.FridgeItemEntity
-import com.example.untitled_capstone.data.remote.service.Api
+import com.example.untitled_capstone.data.remote.service.FridgeApi
 import retrofit2.HttpException
 import java.io.IOException
 
 @OptIn(ExperimentalPagingApi::class)
 class FridgePagingSource(
-    private val api: Api,
+    private val api: FridgeApi,
     private val db: FridgeItemDatabase,
+    private val sort: String
 ): RemoteMediator<Int, FridgeItemEntity>() {
 
     override suspend fun load(
@@ -37,10 +39,17 @@ class FridgePagingSource(
                 }
             }
 
-            val response = api.getFridgeItems(
-                page = loadKey,
-                size = state.config.pageSize
-            )
+            val response = if(sort == "id"){
+                api.getFridgeItems(
+                    page = loadKey.toInt(),
+                    size = state.config.pageSize
+                )
+            } else {
+                api.getFridgeItemsByDate(
+                    page = loadKey.toInt(),
+                    size = state.config.pageSize
+                )
+            }
 
             db.withTransaction {
                 if(loadType == LoadType.REFRESH) {

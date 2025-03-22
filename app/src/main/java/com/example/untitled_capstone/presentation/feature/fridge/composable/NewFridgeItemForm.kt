@@ -1,4 +1,4 @@
-package com.example.untitled_capstone.presentation.feature.refrigerator.composable
+package com.example.untitled_capstone.presentation.feature.fridge.composable
 
 import android.Manifest
 import android.app.Activity
@@ -8,6 +8,7 @@ import android.net.Uri
 import android.os.Build
 import android.provider.Settings
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
@@ -40,6 +41,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -65,8 +67,8 @@ import com.example.untitled_capstone.MainActivity
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.domain.model.FridgeItem
-import com.example.untitled_capstone.presentation.feature.refrigerator.event.FridgeAction
-import com.example.untitled_capstone.presentation.feature.refrigerator.state.FridgeState
+import com.example.untitled_capstone.presentation.feature.fridge.FridgeAction
+import com.example.untitled_capstone.presentation.feature.fridge.FridgeState
 import com.example.untitled_capstone.ui.theme.CustomTheme
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -74,7 +76,7 @@ import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NewFridgeItemForm(id: Int?, state: FridgeState, navigate: () -> Unit, onAction: (FridgeAction) -> Unit){
+fun NewFridgeItemForm(id: Long?, state: FridgeState, navigate: () -> Unit, onAction: (FridgeAction) -> Unit){
     val context = LocalContext.current
     val packageName = context.packageName
     val showDialog = remember { mutableStateOf(false) }
@@ -442,7 +444,7 @@ fun NewFridgeItemForm(id: Int?, state: FridgeState, navigate: () -> Unit, onActi
                 }else{
                     onAction(FridgeAction.AddItem(
                         FridgeItem(
-                            id = System.currentTimeMillis().toInt(),
+                            id = 0L,
                             name = name,
                             image = image?.toString(),
                             quantity = quantity,

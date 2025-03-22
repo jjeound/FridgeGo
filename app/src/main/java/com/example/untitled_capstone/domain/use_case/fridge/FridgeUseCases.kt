@@ -6,5 +6,7 @@ data class FridgeUseCases(
     val toggleNotification: ToggleNotification,
     val modifyFridgeItems: ModifyFridgeItems,
     val getFridgeItems: GetFridgeItems,
+    val getFridgeItemById: GetFridgeItemById,
+    val getFridgeItemsByDate: GetFridgeItemsByDate,
     val invalidatePagingSource: InvalidatePagingSource
 )

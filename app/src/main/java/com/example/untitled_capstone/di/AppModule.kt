@@ -1,11 +1,16 @@
 package com.example.untitled_capstone.di
 
 import android.content.Context
+import androidx.paging.ExperimentalPagingApi
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
 import androidx.room.Room
 import com.example.untitled_capstone.core.util.Constants.BASE_URL
 import com.example.untitled_capstone.data.local.db.FridgeItemDatabase
+import com.example.untitled_capstone.data.local.entity.FridgeItemEntity
 import com.example.untitled_capstone.data.local.remote.FridgeItemDao
-import com.example.untitled_capstone.data.remote.service.Api
+import com.example.untitled_capstone.data.pagination.FridgePagingSource
+import com.example.untitled_capstone.data.remote.service.FridgeApi
 import com.example.untitled_capstone.data.remote.service.LoginApi
 import com.example.untitled_capstone.data.remote.service.MyApi
 import com.example.untitled_capstone.data.remote.service.TokenApi
@@ -49,13 +54,13 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideApi(okHttpClient: OkHttpClient): Api {
+    fun provideFridgeApi(okHttpClient: OkHttpClient): FridgeApi {
         return Retrofit.Builder()
             .baseUrl(BASE_URL)
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
-            .create(Api::class.java)
+            .create(FridgeApi::class.java)
     }
 
     @Provides
@@ -88,5 +93,22 @@ object AppModule {
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(TokenApi::class.java)
+    }
+
+    @OptIn(ExperimentalPagingApi::class)
+    @Provides
+    @Singleton
+    fun provideFridgePager(db: FridgeItemDatabase, api: FridgeApi, sort: String): Pager<Int, FridgeItemEntity> {
+        return Pager(
+            config = PagingConfig(pageSize = 10),
+            remoteMediator = FridgePagingSource(
+                db = db,
+                api = api,
+                sort = sort
+            ),
+            pagingSourceFactory = {
+                db.dao.getFridgeItems()
+            }
+        )
     }
 }

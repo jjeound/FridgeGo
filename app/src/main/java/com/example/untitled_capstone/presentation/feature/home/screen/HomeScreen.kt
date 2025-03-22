@@ -31,7 +31,7 @@ import com.example.untitled_capstone.presentation.feature.home.state.MyRecipeSta
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @Composable
-fun HomeScreen(state: MyRecipeState, onAction: (HomeAction) -> Unit, navigate: (Int) -> Unit) {
+fun HomeScreen(state: MyRecipeState, onAction: (HomeAction) -> Unit, navigate: (Long) -> Unit) {
     Column(
         modifier = Modifier.padding(
             horizontal = Dimens.surfaceHorizontalPadding)

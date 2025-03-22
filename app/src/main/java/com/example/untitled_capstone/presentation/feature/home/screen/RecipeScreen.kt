@@ -43,7 +43,7 @@ import androidx.core.net.toUri
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RecipeScreen(recipeId: Int, state: MyRecipeState, onAction: (HomeAction) -> Unit, navigate: () -> Unit){
+fun RecipeScreen(recipeId: Long, state: MyRecipeState, onAction: (HomeAction) -> Unit, navigate: () -> Unit){
     val recipe = state.recipeItems.find { it.id == recipeId } ?: return
     Scaffold(
         containerColor = CustomTheme.colors.onSurface,

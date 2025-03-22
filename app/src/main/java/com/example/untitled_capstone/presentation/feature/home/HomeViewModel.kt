@@ -117,7 +117,7 @@ class HomeViewModel: ViewModel(){
         }
     }
 
-    private fun toggleLike(id: Int){
+    private fun toggleLike(id: Long){
         _state.update { currentState ->
             val updatedPosts = currentState.recipeItems.map { recipe ->
                 if (recipe.id == id) {

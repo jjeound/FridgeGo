@@ -23,13 +23,9 @@ class LoginRepositoryImpl @Inject constructor(
             Resource.Loading(data = null)
             val response = api.kakaoLogin(accessToken)
             if(response.isSuccess){
-                if(response.result != null){
-                    tokenRepository.saveAccessToken(response.result.accessToken)
-                    tokenRepository.saveRefreshToken(response.result.refreshToken)
-                    Resource.Success(response.result.toAccountInfo())
-                } else {
-                    Resource.Error(response.message)
-                }
+                tokenRepository.saveAccessToken(response.result.accessToken)
+                tokenRepository.saveRefreshToken(response.result.refreshToken)
+                Resource.Success(response.result.toAccountInfo())
             }else{
                 Resource.Error(response.message)
             }

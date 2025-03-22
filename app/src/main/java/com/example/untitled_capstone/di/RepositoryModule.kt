@@ -2,7 +2,7 @@ package com.example.untitled_capstone.di
 
 import android.app.Application
 import com.example.untitled_capstone.data.local.db.FridgeItemDatabase
-import com.example.untitled_capstone.data.remote.service.Api
+import com.example.untitled_capstone.data.remote.service.FridgeApi
 import com.example.untitled_capstone.data.remote.service.LoginApi
 import com.example.untitled_capstone.data.remote.service.MyApi
 import com.example.untitled_capstone.data.repository.FridgeRepositoryImpl
@@ -27,7 +27,7 @@ object RepositoryModule {
 
     @Provides
     @Singleton
-    fun provideFridgeRepository(db: FridgeItemDatabase, api: Api): FridgeRepository{
+    fun provideFridgeRepository(db: FridgeItemDatabase, api: FridgeApi): FridgeRepository{
         return FridgeRepositoryImpl(api, db)
     }
 

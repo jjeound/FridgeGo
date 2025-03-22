@@ -23,13 +23,13 @@ fun MyScreen(navController: NavHostController, onEvent: (MyEvent) -> Unit, state
         if(state.isLoggedIn){
             MyAccountContainer({
                 navController.navigate(route = Screen.Profile)
-            }, state, onEvent)
+            }, state)
         }else{
             MyAccountContainer({
                 navController.navigate(route = Graph.LoginGraph) {
                     popUpTo(route = Graph.LoginGraph) { inclusive = true }
                 }
-            }, state, onEvent)
+            }, state)
         }
         MyContainer(
             title = "나의 활동",

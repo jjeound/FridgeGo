@@ -29,7 +29,7 @@ import com.example.untitled_capstone.presentation.feature.my.MyState
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @Composable
-fun MyAccountContainer(navigateTo: () -> Unit, state: MyState, onEvent: (MyEvent) -> Unit) {
+fun MyAccountContainer(navigateTo: () -> Unit, state: MyState) {
     Card(
         modifier = Modifier.clickable { navigateTo()},
         shape = RoundedCornerShape(Dimens.cornerRadius),
@@ -52,7 +52,7 @@ fun MyAccountContainer(navigateTo: () -> Unit, state: MyState, onEvent: (MyEvent
                 )
                 if(state.isLoggedIn){
                     Text(
-                        text = state.profile?.nickname ?: "User",
+                        text = state.profile?.nickname ?: "USER",
                         style = CustomTheme.typography.title1,
                         color = CustomTheme.colors.textPrimary,
                     )
@@ -64,18 +64,11 @@ fun MyAccountContainer(navigateTo: () -> Unit, state: MyState, onEvent: (MyEvent
                     )
                 }
             }
-            IconButton(
-                onClick = {
-
-                }
-            ) {
-                Icon(
-                    modifier = Modifier.then(Modifier.size(24.dp)),
-                    imageVector = ImageVector.vectorResource(R.drawable.chevron_right),
-                    contentDescription = "navigate",
-                    tint = CustomTheme.colors.iconDefault
-                )
-            }
+            Icon(
+                imageVector = ImageVector.vectorResource(R.drawable.chevron_right),
+                contentDescription = "navigate",
+                tint = CustomTheme.colors.iconDefault
+            )
         }
     }
 }

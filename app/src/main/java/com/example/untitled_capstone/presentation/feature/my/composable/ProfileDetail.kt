@@ -17,7 +17,7 @@ fun ProfileDetail(profile: Profile){
         verticalArrangement = Arrangement.Center
     ){
         Text(
-            text = "이름: ${profile.nickname}"
+            text = "이름: ${profile.nickname?: "USER"}"
         )
         Text(
             text = "이메일: ${profile.email}"

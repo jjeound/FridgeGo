@@ -1,8 +1,5 @@
 package com.example.untitled_capstone.domain.model
 
-import kotlinx.serialization.Serializable
-
-@Serializable
 data class ProfileImage(
     val contentType: String,
     val createdAt: String,

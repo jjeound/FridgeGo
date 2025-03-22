@@ -22,7 +22,7 @@ import com.example.untitled_capstone.presentation.feature.shopping.event.PostAct
 import com.example.untitled_capstone.presentation.feature.shopping.state.PostState
 
 @Composable
-fun ShoppingScreen(navigate: (Int) -> Unit, state: PostState, onAction: (PostAction) -> Unit) {
+fun ShoppingScreen(navigate: (Long) -> Unit, state: PostState, onAction: (PostAction) -> Unit) {
     if (state.loading){
         Box(
             modifier = Modifier.fillMaxSize()

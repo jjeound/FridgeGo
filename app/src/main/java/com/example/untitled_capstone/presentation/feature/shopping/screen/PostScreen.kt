@@ -48,7 +48,7 @@ import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PostScreen(id: Int, state: PostState, onAction: (PostAction) -> Unit, navController: NavHostController){
+fun PostScreen(id: Long, state: PostState, onAction: (PostAction) -> Unit, navController: NavHostController){
     val post = state.posts.find { it.id == id } ?: return
     Scaffold(
         containerColor = CustomTheme.colors.onSurface,

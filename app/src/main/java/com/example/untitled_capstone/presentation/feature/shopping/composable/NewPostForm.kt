@@ -71,7 +71,7 @@ import com.example.untitled_capstone.MainActivity
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.domain.model.Post
-import com.example.untitled_capstone.presentation.feature.refrigerator.composable.PermissionDialog
+import com.example.untitled_capstone.presentation.feature.fridge.composable.PermissionDialog
 import com.example.untitled_capstone.presentation.feature.shopping.event.PostAction
 import com.example.untitled_capstone.ui.theme.CustomTheme
 

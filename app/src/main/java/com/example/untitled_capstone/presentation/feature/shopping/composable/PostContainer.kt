@@ -1,7 +1,5 @@
 package com.example.untitled_capstone.presentation.feature.shopping.composable
 
-import android.net.Uri
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -23,15 +21,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.domain.model.Post
-import com.example.untitled_capstone.presentation.feature.refrigerator.event.FridgeAction
-import com.example.untitled_capstone.presentation.feature.shopping.event.PostAction
 import com.example.untitled_capstone.ui.theme.CustomTheme
 import androidx.core.net.toUri
 

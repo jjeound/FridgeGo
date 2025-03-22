@@ -114,7 +114,7 @@ class PostViewModel: ViewModel() {
         }
     }
 
-    private fun toggleLike(id: Int){
+    private fun toggleLike(id: Long){
         _state.update { currentState ->
             val updatedPosts = currentState.posts.map { post ->
                 if (post.id == id) {

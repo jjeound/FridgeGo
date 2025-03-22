@@ -10,6 +10,6 @@ data class ResultDto(
     val pageable: PageableDto,
     val size: Int,
     val sort: SortDto,
-    val totalElements: Int,
+    val totalElements: Long,
     val totalPages: Int
 )

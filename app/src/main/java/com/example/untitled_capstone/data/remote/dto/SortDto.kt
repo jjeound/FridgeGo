@@ -1,7 +1,9 @@
 package com.example.untitled_capstone.data.remote.dto
 
 data class SortDto(
-    val empty: Boolean,
-    val sorted: Boolean,
-    val unsorted: Boolean
+    val direction: String,
+    val nullHandling: String,
+    val ascending: Boolean,
+    val property: String,
+    val ignoreCase: Boolean
 )

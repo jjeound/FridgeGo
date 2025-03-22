@@ -15,23 +15,19 @@ import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.navigation.NavigationV2
 import com.example.untitled_capstone.navigation.Screen
 import com.example.untitled_capstone.presentation.feature.my.composable.MyTopBar
-import com.example.untitled_capstone.presentation.feature.refrigerator.composable.FridgeTopBar
+import com.example.untitled_capstone.presentation.feature.fridge.composable.FridgeTopBar
 import com.example.untitled_capstone.presentation.feature.shopping.composable.ShoppingTopBar
 import com.example.untitled_capstone.ui.theme.CustomTheme
 

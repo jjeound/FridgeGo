@@ -1,4 +1,4 @@
-package com.example.untitled_capstone.presentation.feature.refrigerator.composable
+package com.example.untitled_capstone.presentation.feature.fridge.composable
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

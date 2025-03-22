@@ -16,10 +16,10 @@ sealed interface Screen {
     }
 
     @Serializable
-    data class RecipeNav(val id: Int) : Screen
+    data class RecipeNav(val id: Long) : Screen
 
     @Serializable
-    data class PostNav(val id: Int) : Screen
+    data class PostNav(val id: Long) : Screen
 
     @Serializable
     data object WritingNav: Screen
@@ -31,7 +31,7 @@ sealed interface Screen {
     data object OnBoarding: Screen
 
     @Serializable
-    data class AddFridgeItemNav(val id: Int?): Screen
+    data class AddFridgeItemNav(val id: Long?): Screen
 
     @Serializable
     data object  LoginNav: Screen

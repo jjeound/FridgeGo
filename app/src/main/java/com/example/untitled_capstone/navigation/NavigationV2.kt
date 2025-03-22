@@ -30,9 +30,9 @@ import com.example.untitled_capstone.presentation.feature.my.ProfileScreen
 import com.example.untitled_capstone.presentation.feature.notification.screen.NotificationScreen
 import com.example.untitled_capstone.presentation.feature.onBoardiing.OnBoarding
 import com.example.untitled_capstone.presentation.feature.onBoardiing.OnBoardingViewModel
-import com.example.untitled_capstone.presentation.feature.refrigerator.FridgeViewModel
-import com.example.untitled_capstone.presentation.feature.refrigerator.screen.AddFridgeItemScreen
-import com.example.untitled_capstone.presentation.feature.refrigerator.screen.RefrigeratorScreen
+import com.example.untitled_capstone.presentation.feature.fridge.FridgeViewModel
+import com.example.untitled_capstone.presentation.feature.fridge.screen.AddFridgeItemScreen
+import com.example.untitled_capstone.presentation.feature.fridge.screen.RefrigeratorScreen
 import com.example.untitled_capstone.presentation.feature.shopping.PostViewModel
 import com.example.untitled_capstone.presentation.feature.shopping.screen.PostScreen
 import com.example.untitled_capstone.presentation.feature.shopping.screen.ShoppingScreen
@@ -98,12 +98,12 @@ fun NavigationV2(navController: NavHostController, mainViewModel: MainViewModel)
         ){
             composable<Screen.Fridge>{
                 val viewModel: FridgeViewModel = hiltViewModel(it)
-                val state by viewModel.state
+                val state by viewModel.state.collectAsStateWithLifecycle()
                 RefrigeratorScreen(state, mainViewModel, viewModel::onAction, navController)
             }
             composable<Screen.AddFridgeItemNav>{
                 val viewModel: FridgeViewModel = hiltViewModel(it)
-                val state by viewModel.state
+                val state by viewModel.state.collectAsStateWithLifecycle()
                 val args = it.toRoute<Screen.AddFridgeItemNav>()
                 AddFridgeItemScreen(args.id, state, {navController.popBackStack()}, viewModel::onAction)
             }

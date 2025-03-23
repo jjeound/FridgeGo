@@ -2,7 +2,6 @@ package com.example.untitled_capstone.presentation.feature.fridge.screen
 
 import android.content.Intent
 import android.provider.Settings
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -14,8 +13,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
@@ -37,9 +36,11 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.paging.LoadState
+import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
+import com.example.untitled_capstone.domain.model.FridgeItem
 import com.example.untitled_capstone.navigation.Screen
 import com.example.untitled_capstone.presentation.feature.main.MainViewModel
 import com.example.untitled_capstone.presentation.feature.fridge.composable.FridgeItemContainer
@@ -50,7 +51,7 @@ import com.example.untitled_capstone.ui.theme.CustomTheme
 
 
 @Composable
-fun RefrigeratorScreen(state: FridgeState, viewModel: MainViewModel, onAction: (FridgeAction) -> Unit, navController: NavHostController) {
+fun RefrigeratorScreen(fridgeItems: LazyPagingItems<FridgeItem>, state: FridgeState, viewModel: MainViewModel, onAction: (FridgeAction) -> Unit, navController: NavHostController) {
     var expanded by remember { mutableStateOf(false) }
     val menuItemData = listOf("등록 순", "유통기한 순")
     var alignMenu by remember { mutableStateOf("등록 순") }
@@ -103,6 +104,11 @@ fun RefrigeratorScreen(state: FridgeState, viewModel: MainViewModel, onAction: (
                         onClick = {
                             expanded = false
                             alignMenu = option
+                            if(option == menuItemData[0]){
+                                onAction(FridgeAction.GetItems)
+                            } else {
+                                onAction(FridgeAction.GetItemsByDate)
+                            }
                         },
                     )
                 }
@@ -113,44 +119,41 @@ fun RefrigeratorScreen(state: FridgeState, viewModel: MainViewModel, onAction: (
             color = CustomTheme.colors.border
         )
         Spacer(modifier = Modifier.height(Dimens.mediumPadding))
-        Box(modifier = Modifier.fillMaxSize()) {
-            if (state.loading) {
-                CircularProgressIndicator()
+        LaunchedEffect(key1 = fridgeItems.loadState) {
+            if(fridgeItems.loadState.refresh is LoadState.Error) {
+                Toast.makeText(
+                    context,
+                    "Error: " + (fridgeItems.loadState.refresh as LoadState.Error).error.message,
+                    Toast.LENGTH_LONG
+                ).show()
             }
-            state.fridgeItems?.let {
-                val fridgeItems = it.collectAsLazyPagingItems()
-                LaunchedEffect(key1 = fridgeItems.loadState) {
-                    if(fridgeItems.loadState.refresh is LoadState.Error) {
-                        Toast.makeText(
-                            context,
-                            "Error: " + (fridgeItems.loadState.refresh as LoadState.Error).error.message,
-                            Toast.LENGTH_LONG
-                        ).show()
-                    }
-                }
-                if(fridgeItems.loadState.refresh is LoadState.Loading) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.align(Alignment.Center)
-                    )
-                } else {
-                    LazyColumn(
-                        verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding)
-                    ) {
-                        items(fridgeItems.itemSnapshotList.filter { it?.isFridge == viewModel.topSelector }) { item ->
-                            if(item != null){
-                                FridgeItemContainer(item, onAction, onShowDialog = { showDialog.value = true },
-                                    {
-                                        navController.navigate(Screen.AddFridgeItemNav(
-                                            id = item.id
-                                        ))
-                                    }
-                                )
-                            }
+        }
+        Box(modifier = Modifier.fillMaxSize()) {
+            if(fridgeItems.loadState.refresh is LoadState.Loading) {
+                CircularProgressIndicator(
+                    modifier = Modifier.align(Alignment.Center)
+                )
+            } else {
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding)
+                ) {
+
+                    items(fridgeItems.itemCount) { index ->
+                        val item = fridgeItems[index]
+                        if (item != null && item.isFridge == viewModel.topSelector) {
+                            FridgeItemContainer(
+                                item,
+                                onAction,
+                                onShowDialog = { showDialog.value = true },
+                                navigateToModifyItemScreen = {
+                                    navController.navigate(
+                                        Screen.AddFridgeItemNav(id = item.id)) },
+                            )
                         }
-                        item {
-                            if(fridgeItems.loadState.append is LoadState.Loading) {
-                                CircularProgressIndicator()
-                            }
+                    }
+                    item {
+                        if (fridgeItems.loadState.append is LoadState.Loading && fridgeItems.itemCount > 10) {
+                            CircularProgressIndicator(modifier = Modifier.fillMaxWidth().wrapContentWidth(Alignment.CenterHorizontally))
                         }
                     }
                 }

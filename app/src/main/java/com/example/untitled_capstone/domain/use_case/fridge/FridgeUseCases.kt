@@ -8,5 +8,4 @@ data class FridgeUseCases(
     val getFridgeItems: GetFridgeItems,
     val getFridgeItemById: GetFridgeItemById,
     val getFridgeItemsByDate: GetFridgeItemsByDate,
-    val invalidatePagingSource: InvalidatePagingSource
 )

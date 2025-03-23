@@ -108,10 +108,6 @@ class FridgeRepositoryImpl(
         }
     }
 
-    override fun invalidatePagingSource() {
-        db.dao.getFridgeItems().invalidate()
-    }
-
     override suspend fun getFridgeItemById(id: Long): Resource<FridgeItem> {
         return try {
             Resource.Loading(data = null)

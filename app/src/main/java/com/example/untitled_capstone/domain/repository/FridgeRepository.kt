@@ -17,6 +17,5 @@ interface FridgeRepository{
     suspend fun toggleNotification(id: Long, alarmStatus: Boolean): Resource<ApiResponse>
     suspend fun modifyItem(updatedItem: ContentDto): Resource<ApiResponse>
     suspend fun deleteItem(id: Long): Resource<ApiResponse>
-    fun invalidatePagingSource()
     suspend fun getFridgeItemById(id: Long): Resource<FridgeItem>
 }

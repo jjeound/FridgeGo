@@ -54,7 +54,7 @@ import androidx.core.net.toUri
 
 @Composable
 fun FridgeItemContainer(item: FridgeItem, onAction: (FridgeAction) -> Unit, onShowDialog: () -> Unit,
-navigateTo: () -> Unit) {
+                        navigateToModifyItemScreen: () -> Unit) {
     val context = LocalContext.current
     val isNotification = remember { mutableStateOf(item.notification) }
     val expirationDate = convertMillisToDate(item.expirationDate)
@@ -161,7 +161,7 @@ navigateTo: () -> Unit) {
                                 onClick = {
                                     expanded = false
                                     when(option){
-                                        menuItem[0] -> navigateTo()
+                                        menuItem[0] -> navigateToModifyItemScreen()
                                         menuItem[1] -> onAction(FridgeAction.DeleteItem(item.id))
                                     }
                                 },

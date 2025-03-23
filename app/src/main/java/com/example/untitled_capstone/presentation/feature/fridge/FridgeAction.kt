@@ -9,4 +9,5 @@ sealed interface FridgeAction{
     data class ToggleNotification(val id: Long, val alarmStatus: Boolean): FridgeAction
     data class ModifyItem(val item: FridgeItem): FridgeAction
     data class DeleteItem(val id: Long): FridgeAction
+    data class GetItemById(val id: Long): FridgeAction
 }

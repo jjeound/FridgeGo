@@ -1,19 +1,16 @@
 package com.example.untitled_capstone.presentation.feature.fridge
 
-import android.util.Log
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.viewModelScope
+import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.example.untitled_capstone.core.util.Resource
 import com.example.untitled_capstone.domain.model.FridgeItem
 import com.example.untitled_capstone.domain.use_case.fridge.FridgeUseCases
-import com.example.untitled_capstone.presentation.feature.fridge.FridgeAction
-import com.example.untitled_capstone.presentation.feature.fridge.FridgeState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -25,6 +22,9 @@ class FridgeViewModel @Inject constructor(
 ): ViewModel() {
     private val _state = MutableStateFlow(FridgeState())
     val state = _state.asStateFlow()
+
+    private val _pagingDataFlow = MutableStateFlow<PagingData<FridgeItem>>(PagingData.empty())
+    val pagingData: StateFlow<PagingData<FridgeItem>> = _pagingDataFlow.asStateFlow()
 
     init {
         onAction(FridgeAction.GetItems)
@@ -38,6 +38,7 @@ class FridgeViewModel @Inject constructor(
             is FridgeAction.ToggleNotification -> toggleNotification(action.id, action.alarmStatus)
             is FridgeAction.ModifyItem -> modifyItem(action.item)
             is FridgeAction.DeleteItem -> deleteItem(action.id)
+            is FridgeAction.GetItemById -> getItemById(action.id)
         }
     }
 
@@ -51,8 +52,6 @@ class FridgeViewModel @Inject constructor(
                             loading = false,
                             error = null) }
                     }
-                    Log.d("result", result.data.toString())
-                    fridgeUseCases.invalidatePagingSource()
                 }
                 is Resource.Error -> {
                     _state.update { it.copy(loading = false, error = result.message ?: "An unexpected error occurred") }
@@ -73,8 +72,10 @@ class FridgeViewModel @Inject constructor(
                         _state.update { it.copy(
                             loading = false,
                             error = null) }
+                        _state.update { it.copy(
+                            loading = false,
+                            error = null) }
                     }
-                    fridgeUseCases.invalidatePagingSource()
                 }
                 is Resource.Error -> {
                     _state.update { it.copy(loading = false, error = result.message ?: "An unexpected error occurred") }
@@ -96,7 +97,6 @@ class FridgeViewModel @Inject constructor(
                             loading = false,
                             error = null) }
                     }
-                    fridgeUseCases.invalidatePagingSource()
                 }
                 is Resource.Error -> {
                     _state.update { it.copy(loading = false, error = result.message ?: "An unexpected error occurred") }
@@ -118,7 +118,28 @@ class FridgeViewModel @Inject constructor(
                             loading = false,
                             error = null) }
                     }
-                    fridgeUseCases.invalidatePagingSource()
+                }
+                is Resource.Error -> {
+                    _state.update { it.copy(loading = false, error = result.message ?: "An unexpected error occurred") }
+                }
+                is Resource.Loading -> {
+                    _state.update { it.copy(loading = true) }
+                }
+            }
+        }
+    }
+
+    private fun getItemById(id: Long) {
+        viewModelScope.launch {
+            val result = fridgeUseCases.getFridgeItemById(id)
+            when(result){
+                is Resource.Success -> {
+                    result.data?.let{
+                        _state.update { it.copy(
+                            item = result.data,
+                            loading = false,
+                            error = null) }
+                    }
                 }
                 is Resource.Error -> {
                     _state.update { it.copy(loading = false, error = result.message ?: "An unexpected error occurred") }
@@ -132,17 +153,17 @@ class FridgeViewModel @Inject constructor(
 
     private fun getItems() {
         viewModelScope.launch {
-            val fridgeItems = fridgeUseCases.getFridgeItems()
-                .cachedIn(viewModelScope)
-            _state.value =  _state.value.copy(fridgeItems = fridgeItems, loading = false)
+            fridgeUseCases.getFridgeItems()
+                .cachedIn(viewModelScope).collect {
+                    _pagingDataFlow.value = it
+                }
         }
     }
 
     private fun getItemsByDate() {
         viewModelScope.launch {
-            val fridgeItems = fridgeUseCases.getFridgeItemsByDate()
+            fridgeUseCases.getFridgeItemsByDate()
                 .cachedIn(viewModelScope)
-            _state.value =  _state.value.copy(fridgeItems = fridgeItems, loading = false)
         }
     }
 }

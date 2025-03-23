@@ -28,6 +28,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DatePickerDialog
@@ -42,6 +43,7 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -70,6 +72,7 @@ import com.example.untitled_capstone.domain.model.FridgeItem
 import com.example.untitled_capstone.presentation.feature.fridge.FridgeAction
 import com.example.untitled_capstone.presentation.feature.fridge.FridgeState
 import com.example.untitled_capstone.ui.theme.CustomTheme
+import kotlinx.coroutines.runBlocking
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -80,10 +83,36 @@ fun NewFridgeItemForm(id: Long?, state: FridgeState, navigate: () -> Unit, onAct
     val context = LocalContext.current
     val packageName = context.packageName
     val showDialog = remember { mutableStateOf(false) }
-    val fridgeItem = state.fridgeItems?.collectAsLazyPagingItems()?.itemSnapshotList?.find {
-        it?.id == id
+    var image by remember { mutableStateOf(state.item?.image?.toUri()) }
+    var name by remember { mutableStateOf("") }
+    var quantity by remember { mutableStateOf("") }
+    var showDatePicker by remember { mutableStateOf(false) }
+    val datePickerState = rememberDatePickerState()
+    var expirationDate by remember { mutableLongStateOf(0L) }
+    val selectedDate = datePickerState.selectedDateMillis?.let {
+        expirationDate = it
+        convertMillisToDate(it)
+    } ?: if(state.item != null) {
+        state.item.expirationDate.let {
+            convertMillisToDate(it)
+        }
+    } else {
+        ""
     }
-    var image by remember { mutableStateOf(fridgeItem?.image?.toUri()) }
+    val focusManager = LocalFocusManager.current
+    var validator by remember { mutableStateOf(false) }
+    validator = name.isNotBlank() && selectedDate.isNotBlank()
+    LaunchedEffect(id) {
+        id?.let { onAction(FridgeAction.GetItemById(it)) }
+    }
+    LaunchedEffect(state.item) {
+        state.item?.let {
+            name = it.name
+            image = it.image?.toUri()
+            quantity = it.quantity
+            expirationDate = it.expirationDate
+        }
+    }
 
     val albumLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -125,26 +154,19 @@ fun NewFridgeItemForm(id: Long?, state: FridgeState, navigate: () -> Unit, onAct
                 }
             }
         )
-    var name by remember { mutableStateOf(fridgeItem?.name ?: "") }
-    var quantity by remember { mutableStateOf(fridgeItem?.quantity ?: "") }
-    var showDatePicker by remember { mutableStateOf(false) }
-    val datePickerState = rememberDatePickerState()
-    var expirationDate by remember { mutableLongStateOf(fridgeItem?.expirationDate ?: 0L) }
-    val selectedDate = datePickerState.selectedDateMillis?.let {
-        expirationDate = it
-        convertMillisToDate(it)
-    } ?: if(id != null){
-        convertMillisToDate(expirationDate)
-    }else ""
-    val focusManager = LocalFocusManager.current
-    var validator by remember { mutableStateOf(false) }
-    validator = name.isNotBlank() && selectedDate.isNotBlank()
-
     Column(
         modifier = Modifier
             .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        if(state.loading){
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ){
+                CircularProgressIndicator()
+            }
+        }
         Column(
             modifier = Modifier.weight(1f),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -429,24 +451,24 @@ fun NewFridgeItemForm(id: Long?, state: FridgeState, navigate: () -> Unit, onAct
             enabled = validator,
             onClick = {
                 navigate()
-                if(id != null){
+                state.item?.let {
                     onAction(FridgeAction.ModifyItem(
                         FridgeItem(
-                            id = id,
+                            id = it.id,
                             name = name,
-                            image = image?.toString(),
+                            image = image.toString(),
                             quantity = quantity,
                             expirationDate = expirationDate,
-                            notification = fridgeItem!!.notification,
-                            isFridge = fridgeItem.isFridge
+                            notification = it.notification,
+                            isFridge = it.isFridge
                         )
                     ))
-                }else{
+                } ?: run {
                     onAction(FridgeAction.AddItem(
                         FridgeItem(
                             id = 0L,
                             name = name,
-                            image = image?.toString(),
+                            image = image.toString(),
                             quantity = quantity,
                             expirationDate = expirationDate,
                             notification = false,
@@ -457,7 +479,7 @@ fun NewFridgeItemForm(id: Long?, state: FridgeState, navigate: () -> Unit, onAct
             }
         ) {
             Text(
-                text = if(id != null) "수정하기" else "등록하기",
+                text = if(state.item != null) "수정하기" else "등록하기",
                 style = CustomTheme.typography.button1,
             )
         }

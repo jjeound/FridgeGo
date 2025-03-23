@@ -19,14 +19,12 @@ interface FridgeApi {
     suspend fun getFridgeItems(
         @Query("page") page: Int = 1,
         @Query("size") size: Int = 10,
-        @Query("string") string: List<String> = emptyList()
     ): FridgeDto
 
     @GET("/api/ingredient/useByDate")
     suspend fun getFridgeItemsByDate(
         @Query("page") page: Int = 1,
         @Query("size") size: Int = 10,
-        @Query("string") string: List<String> = emptyList()
     ): FridgeDto
 
     @POST("/api/ingredient")
@@ -52,7 +50,7 @@ interface FridgeApi {
     ): ApiResponse
 
     @GET("/api/ingredient/{ingredientId}")
-    fun getFridgeItemById(
+    suspend fun getFridgeItemById(
         @Path("ingredientId") ingredientId: Long
     ): FridgeResponse
 

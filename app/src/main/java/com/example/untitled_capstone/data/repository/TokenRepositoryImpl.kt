@@ -33,7 +33,8 @@ class TokenRepositoryImpl @Inject constructor(
 
     override fun getAccessToken(): Flow<String?> {
         return dataStore.data.map { prefs ->
-            prefs[ACCESS_TOKEN_KEY]
+            val token = prefs[ACCESS_TOKEN_KEY]
+            if (token.isNullOrEmpty()) null else token
         }
     }
 
@@ -67,6 +68,9 @@ class TokenRepositoryImpl @Inject constructor(
             Resource.Loading(data = null)
             val response = api.refreshToken(refreshToken)
             if(response.isSuccess){
+                response.result.accessToken.let { newToken ->
+                    saveAccessToken(newToken) // 새 토큰 저장
+                }
                 Resource.Success(response)
             }else{
                 Resource.Error(response.message)

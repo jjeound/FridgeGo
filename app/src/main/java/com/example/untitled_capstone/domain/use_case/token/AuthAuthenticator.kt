@@ -8,10 +8,12 @@ import com.example.untitled_capstone.presentation.util.AuthEvent
 import com.example.untitled_capstone.presentation.util.AuthEventBus.authEventChannel
 import com.kakao.sdk.common.Constants.AUTHORIZATION
 import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import okhttp3.Authenticator
 import okhttp3.Request
 import okhttp3.Response
@@ -30,11 +32,22 @@ class AuthAuthenticator @Inject constructor(
             tokenManager.getRefreshToken().firstOrNull()
         }?: return null
 
-        val newToken = runBlocking { refreshAndSaveToken(refreshToken) } ?: return null
+        val newToken = runBlocking {
+            withContext(Dispatchers.IO) { refreshAndSaveToken(refreshToken) }
+        } ?: return null
 
         return response.request.newBuilder()
             .header(AUTHORIZATION, "Bearer ${newToken.accessToken}")
             .build()
+    }
+
+    private suspend fun refreshAndSaveToken(refreshToken: String): TokenDto? {
+        val newToken = requestNewToken(refreshToken)
+        newToken?.let {
+            tokenManager.saveAccessToken(it.accessToken)
+            tokenManager.saveRefreshToken(it.refreshToken)
+        }
+        return newToken
     }
 
     private suspend fun requestNewToken(refreshToken: String): TokenDto? {
@@ -46,15 +59,6 @@ class AuthAuthenticator @Inject constructor(
         }
 
         return response.data?.result
-    }
-
-    private suspend fun refreshAndSaveToken(refreshToken: String): TokenDto? {
-        val newToken = requestNewToken(refreshToken)
-        newToken?.let {
-            tokenManager.saveAccessToken(it.accessToken)
-            tokenManager.saveRefreshToken(it.refreshToken)
-        }
-        return newToken
     }
 
     private fun responseCount(response: Response): Int {

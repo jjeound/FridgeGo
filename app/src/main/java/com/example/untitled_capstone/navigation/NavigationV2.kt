@@ -13,6 +13,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import androidx.navigation.toRoute
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.example.untitled_capstone.presentation.feature.notification.NotificationViewModel
 import com.example.untitled_capstone.presentation.feature.chat.ChatViewModel
 import com.example.untitled_capstone.presentation.feature.chat.screen.ChattingRoomScreen
@@ -97,12 +98,13 @@ fun NavigationV2(navController: NavHostController, mainViewModel: MainViewModel)
             startDestination = Screen.Fridge
         ){
             composable<Screen.Fridge>{
-                val viewModel: FridgeViewModel = hiltViewModel(it)
+                val viewModel: FridgeViewModel = hiltViewModel()
                 val state by viewModel.state.collectAsStateWithLifecycle()
-                RefrigeratorScreen(state, mainViewModel, viewModel::onAction, navController)
+                val fridgeItems = viewModel.pagingData.collectAsLazyPagingItems()
+                RefrigeratorScreen(fridgeItems, state, mainViewModel, viewModel::onAction, navController)
             }
             composable<Screen.AddFridgeItemNav>{
-                val viewModel: FridgeViewModel = hiltViewModel(it)
+                val viewModel: FridgeViewModel = hiltViewModel()
                 val state by viewModel.state.collectAsStateWithLifecycle()
                 val args = it.toRoute<Screen.AddFridgeItemNav>()
                 AddFridgeItemScreen(args.id, state, {navController.popBackStack()}, viewModel::onAction)

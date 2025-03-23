@@ -1,9 +1,13 @@
 package com.example.untitled_capstone.presentation.feature.my
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import com.example.untitled_capstone.R
@@ -55,5 +59,17 @@ fun MyScreen(navController: NavHostController, onEvent: (MyEvent) -> Unit, state
                 R.drawable.setting
             )
         )
+        Button(
+            onClick = {
+                onEvent(MyEvent.Logout)
+            }
+        ) {
+            Text(
+                text = "로그아웃"
+            )
+        }
+        LaunchedEffect(state.error) {
+            Log.d("error", state.error.toString())
+        }
     }
 }

@@ -34,7 +34,8 @@ class MyViewModel @Inject constructor(
     private fun isLoggedIn(){
         viewModelScope.launch {
             myUseCases.getAccessToken().collect{ token->
-                if(token != null){
+                Log.d("현재 저장된 AccessToken", token.toString()) // 로그 추가
+                if(!token.isNullOrEmpty()){ // null뿐만 아니라 빈 값도 확인
                     _state.update { it.copy(isLoggedIn = true) }
                     getMyProfile()
                 } else {

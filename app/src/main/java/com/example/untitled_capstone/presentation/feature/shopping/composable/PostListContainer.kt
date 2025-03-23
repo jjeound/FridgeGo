@@ -39,6 +39,7 @@ import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.domain.model.Post
 import com.example.untitled_capstone.presentation.feature.shopping.event.PostAction
 import com.example.untitled_capstone.ui.theme.CustomTheme
+import androidx.core.net.toUri
 
 @Composable
 fun PostListContainer(post: Post, onAction: (PostAction) -> Unit){
@@ -55,7 +56,7 @@ fun PostListContainer(post: Post, onAction: (PostAction) -> Unit){
         ){
             if (post.image.isNotEmpty()){
                 AsyncImage(
-                    model = Uri.parse(post.image[0]),
+                    model = post.image[0]!!.toUri(),
                     contentDescription = post.title,
                     alignment = Alignment.Center,
                     contentScale = ContentScale.Fit,

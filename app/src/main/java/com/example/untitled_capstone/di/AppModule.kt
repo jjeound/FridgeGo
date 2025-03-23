@@ -65,10 +65,9 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideLoginApi(okHttpClient: OkHttpClient): LoginApi {
+    fun provideLoginApi(): LoginApi {
         return Retrofit.Builder()
             .baseUrl(BASE_URL)
-            .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(LoginApi::class.java)

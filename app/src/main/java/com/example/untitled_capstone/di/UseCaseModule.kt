@@ -13,7 +13,6 @@ import com.example.untitled_capstone.domain.use_case.fridge.FridgeUseCases
 import com.example.untitled_capstone.domain.use_case.fridge.GetFridgeItemById
 import com.example.untitled_capstone.domain.use_case.fridge.GetFridgeItems
 import com.example.untitled_capstone.domain.use_case.fridge.GetFridgeItemsByDate
-import com.example.untitled_capstone.domain.use_case.fridge.InvalidatePagingSource
 import com.example.untitled_capstone.domain.use_case.fridge.ModifyFridgeItems
 import com.example.untitled_capstone.domain.use_case.fridge.ToggleNotification
 import com.example.untitled_capstone.domain.use_case.my.GetAccessToken
@@ -44,7 +43,6 @@ object UseCaseModule {
             getFridgeItems = GetFridgeItems(repository),
             getFridgeItemById = GetFridgeItemById(repository),
             getFridgeItemsByDate = GetFridgeItemsByDate(repository),
-            invalidatePagingSource = InvalidatePagingSource(repository)
         )
     }
 

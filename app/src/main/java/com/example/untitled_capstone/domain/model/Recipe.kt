@@ -9,5 +9,5 @@ data class Recipe(
     val image: String?,
     val ingredients: List<String>,
     val steps: List<String>,
-    val isLiked: Boolean
+    val isLiked: Boolean,
 )

@@ -68,7 +68,7 @@ fun MyScreen(navController: NavHostController, onEvent: (MyEvent) -> Unit, state
                 text = "로그아웃"
             )
         }
-        LaunchedEffect(state.error) {
+        LaunchedEffect(state) {
             Log.d("error", state.error.toString())
         }
     }

@@ -142,7 +142,7 @@ fun SetNickNameScreen(navigateToHome: () -> Unit, popBackStack: () -> Unit, onEv
                         color = CustomTheme.colors.border
                     ),
                     onClick = {
-                        onEvent(LoginEvent.ValidateNickname(nickname))
+                        onEvent(LoginEvent.SetNickname(nickname))
                         if(state.error != null){
                             Toast.makeText(context, state.error, Toast.LENGTH_LONG).show()
                         }

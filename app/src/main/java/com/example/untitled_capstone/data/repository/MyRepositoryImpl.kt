@@ -21,8 +21,8 @@ class MyRepositoryImpl @Inject constructor(
             if(response.isSuccess){
                 tokenRepository.deleteTokens()
                 Resource.Success(response)
-            }else{
-                Resource.Error(response.message)
+            }else {
+                Resource.Error(message = response.toString())
             }
         } catch (e: IOException) {
             Resource.Error(e.toString())

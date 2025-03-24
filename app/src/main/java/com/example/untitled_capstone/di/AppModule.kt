@@ -7,16 +7,22 @@ import androidx.paging.PagingConfig
 import androidx.room.Room
 import com.example.untitled_capstone.core.util.Constants.BASE_URL
 import com.example.untitled_capstone.data.local.db.FridgeItemDatabase
+import com.example.untitled_capstone.data.local.db.RecipeItemDatabase
 import com.example.untitled_capstone.data.local.entity.FridgeItemEntity
+import com.example.untitled_capstone.data.local.entity.RecipeItemEntity
 import com.example.untitled_capstone.data.local.remote.FridgeItemDao
 import com.example.untitled_capstone.data.pagination.FridgePagingSource
+import com.example.untitled_capstone.data.pagination.RecipePagingSource
 import com.example.untitled_capstone.data.remote.service.FridgeApi
+import com.example.untitled_capstone.data.remote.service.HomeApi
 import com.example.untitled_capstone.data.remote.service.LoginApi
 import com.example.untitled_capstone.data.remote.service.MyApi
+import com.example.untitled_capstone.data.remote.service.ShoppingApi
 import com.example.untitled_capstone.data.remote.service.TokenApi
 import com.example.untitled_capstone.domain.repository.TokenRepository
 import com.example.untitled_capstone.domain.use_case.token.AuthAuthenticator
 import com.example.untitled_capstone.domain.use_case.token.AuthInterceptor
+import com.skydoves.sandwich.retrofit.adapters.ApiResponseCallAdapterFactory
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -86,6 +92,28 @@ object AppModule {
 
     @Provides
     @Singleton
+    fun provideHomeApi(okHttpClient: OkHttpClient): HomeApi {
+        return Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .client(okHttpClient)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(HomeApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideShoppingApi(okHttpClient: OkHttpClient): ShoppingApi {
+        return Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .client(okHttpClient)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(ShoppingApi::class.java)
+    }
+
+    @Provides
+    @Singleton
     fun provideTokenApi(): TokenApi {
         return Retrofit.Builder()
             .baseUrl(BASE_URL)
@@ -107,6 +135,22 @@ object AppModule {
             ),
             pagingSourceFactory = {
                 db.dao.getFridgeItems()
+            }
+        )
+    }
+
+    @OptIn(ExperimentalPagingApi::class)
+    @Provides
+    @Singleton
+    fun provideRecipePager(db: RecipeItemDatabase, api: HomeApi): Pager<Int, RecipeItemEntity> {
+        return Pager(
+            config = PagingConfig(pageSize = 10),
+            remoteMediator = RecipePagingSource(
+                db = db,
+                api = api
+            ),
+            pagingSourceFactory = {
+                db.dao.getRecipeItems()
             }
         )
     }

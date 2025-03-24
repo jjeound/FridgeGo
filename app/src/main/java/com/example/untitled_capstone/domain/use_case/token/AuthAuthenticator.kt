@@ -24,9 +24,11 @@ class AuthAuthenticator @Inject constructor(
     private val tokenManager: TokenRepository
 ) : Authenticator {
     override fun authenticate(route: Route?, response: Response): Request? {
-        if (responseCount(response) >= MAX_AUTH_RETRY) {
-            return null // 무한 루프 방지
-        }
+//        if (responseCount(response) >= MAX_AUTH_RETRY) {
+//            return null // 무한 루프 방지
+//        }
+
+        if (response.code != 401) return null
 
         val refreshToken = runBlocking {
             tokenManager.getRefreshToken().firstOrNull()
@@ -61,15 +63,15 @@ class AuthAuthenticator @Inject constructor(
         return response.data?.result
     }
 
-    private fun responseCount(response: Response): Int {
-        var count = 1
-        var priorResponse = response.priorResponse
-        while (priorResponse != null) {
-            count++
-            priorResponse = priorResponse.priorResponse
-        }
-        return count
-    }
+//    private fun responseCount(response: Response): Int {
+//        var count = 1
+//        var priorResponse = response.priorResponse
+//        while (priorResponse != null) {
+//            count++
+//            priorResponse = priorResponse.priorResponse
+//        }
+//        return count
+//    }
 
     @OptIn(DelicateCoroutinesApi::class)
     private fun handleTokenExpired() {
@@ -83,7 +85,7 @@ class AuthAuthenticator @Inject constructor(
         }
     }
 
-    companion object {
-        private const val MAX_AUTH_RETRY = 3
-    }
+//    companion object {
+//        private const val MAX_AUTH_RETRY = 3
+//    }
 }

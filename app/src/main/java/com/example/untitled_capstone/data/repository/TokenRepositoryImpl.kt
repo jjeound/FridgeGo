@@ -1,7 +1,6 @@
 package com.example.untitled_capstone.data.repository
 
 import android.content.Context
-import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
@@ -33,8 +32,7 @@ class TokenRepositoryImpl @Inject constructor(
 
     override fun getAccessToken(): Flow<String?> {
         return dataStore.data.map { prefs ->
-            val token = prefs[ACCESS_TOKEN_KEY]
-            if (token.isNullOrEmpty()) null else token
+            prefs[ACCESS_TOKEN_KEY]
         }
     }
 
@@ -68,9 +66,6 @@ class TokenRepositoryImpl @Inject constructor(
             Resource.Loading(data = null)
             val response = api.refreshToken(refreshToken)
             if(response.isSuccess){
-                response.result.accessToken.let { newToken ->
-                    saveAccessToken(newToken) // 새 토큰 저장
-                }
                 Resource.Success(response)
             }else{
                 Resource.Error(response.message)

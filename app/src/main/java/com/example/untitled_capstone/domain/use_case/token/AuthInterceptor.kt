@@ -28,16 +28,13 @@ class AuthInterceptor @Inject constructor(
             return errorResponse(chain.request())
         }
 
-        val request = chain.request().newBuilder().header(AUTHORIZATION, "Bearer $token").build()
+        val request = chain.request().newBuilder().header(AUTHORIZATION, token).build()
 
         val response = chain.proceed(request)
-        if (response.code == HTTP_OK) {
-            val newAccessToken: String = response.header(AUTHORIZATION, null) ?: return response
-            Log.d("new Access Token" , newAccessToken)
-
-            runBlocking {
-                if (tokenManager.getAccessToken().first() != newAccessToken) {
-                    tokenManager.saveAccessToken(newAccessToken)
+        if (response.isSuccessful) {
+            response.header(AUTHORIZATION)?.let { newToken ->
+                runBlocking {
+                    tokenManager.saveAccessToken(newToken)
                 }
             }
         } else {

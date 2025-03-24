@@ -37,7 +37,7 @@ class FridgeRepositoryImpl(
         return Pager(
             config = PagingConfig(pageSize = NETWORK_PAGE_SIZE, enablePlaceholders = false),
             remoteMediator = FridgePagingSource(api, db, "date"),
-            pagingSourceFactory = { db.dao.getFridgeItems() }
+            pagingSourceFactory = { db.dao.getFridgeItemsByDate() }
         ).flow
     }
 

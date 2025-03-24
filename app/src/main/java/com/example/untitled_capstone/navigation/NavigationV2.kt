@@ -100,7 +100,7 @@ fun NavigationV2(navController: NavHostController, mainViewModel: MainViewModel)
             composable<Screen.Fridge>{
                 val viewModel: FridgeViewModel = hiltViewModel()
                 val state by viewModel.state.collectAsStateWithLifecycle()
-                val fridgeItems = viewModel.pagingData.collectAsLazyPagingItems()
+                val fridgeItems = viewModel.fridgeItemState.collectAsLazyPagingItems()
                 RefrigeratorScreen(fridgeItems, state, mainViewModel, viewModel::onAction, navController)
             }
             composable<Screen.AddFridgeItemNav>{

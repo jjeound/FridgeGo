@@ -24,7 +24,7 @@ class LoginViewModel @Inject constructor(
     fun onEvent(event: LoginEvent){
         when(event){
             is LoginEvent.KakaoLogin -> login(event.accessToken)
-            is LoginEvent.ValidateNickname -> validateNickname(event.nickname)
+            is LoginEvent.SetNickname -> setNickname(event.nickname)
         }
     }
 
@@ -50,9 +50,9 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-    private fun validateNickname(nickname: String){
+    private fun setNickname(nickname: String){
         viewModelScope.launch {
-            val result = loginUseCases.validateNickname(nickname)
+            val result = loginUseCases.setNickname(nickname)
             when(result){
                 is Resource.Success -> {
                     result.data?.let{

@@ -26,6 +26,7 @@ class LoginRepositoryImpl @Inject constructor(
             if(response.isSuccess){
                 tokenRepository.saveAccessToken(response.result.accessToken)
                 tokenRepository.saveRefreshToken(response.result.refreshToken)
+                Log.d("accessToken", response.result.accessToken)
                 Resource.Success(response.result.toAccountInfo())
             }else{
                 Resource.Error(response.message)
@@ -37,10 +38,10 @@ class LoginRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun validateNickname(nickname: String): Resource<ApiResponse> {
+    override suspend fun setNickname(nickname: String): Resource<ApiResponse> {
         return try {
             Resource.Loading(data = null)
-            val response = api.checkNickname(nickname)
+            val response = api.setNickname(nickname)
             if(response.isSuccess){
                 Resource.Success(response)
             } else {

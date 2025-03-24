@@ -9,5 +9,5 @@ interface LoginRepository {
 
     suspend fun kakaoLogin(accessToken: KakaoAccessTokenRequest): Resource<AccountInfo>
 
-    suspend fun validateNickname(nickname: String): Resource<ApiResponse>
+    suspend fun setNickname(nickname: String): Resource<ApiResponse>
 }

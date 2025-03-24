@@ -15,8 +15,10 @@ interface LoginApi {
         @Body accessToken: KakaoAccessTokenRequest
     ): KakaoLoginResponse
 
-    @GET("/api/user/nickname/check")
-    suspend fun checkNickname(
+    @GET("/api/user/nickname")
+    suspend fun setNickname(
         @Query("nickname") nickname: String
     ): ApiResponse
+
+
 }

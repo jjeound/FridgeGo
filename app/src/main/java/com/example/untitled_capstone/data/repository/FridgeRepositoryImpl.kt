@@ -65,6 +65,7 @@ class FridgeRepositoryImpl(
             Resource.Loading(data = null)
             val response = api.toggleNotification(id, alarmStatus)
             if(response.isSuccess){
+                db.dao.toggleNotification(id, alarmStatus)
                 Resource.Success(response)
             }else{
                 Resource.Error(response.message)
@@ -79,8 +80,9 @@ class FridgeRepositoryImpl(
     override suspend fun modifyItem(updatedItem: ContentDto): Resource<ApiResponse> {
         return try {
             Resource.Loading(data = null)
-            val response = api.modifyItem(updatedItem.id, updatedItem)
+            val response = api.modifyItem(updatedItem.id, updatedItem.toModifyFridgeReqDto())
             if(response.isSuccess){
+                db.dao.modifyItem(updatedItem.toFridgeItemEntity())
                 Resource.Success(response)
             }else{
                 Resource.Error(response.message)

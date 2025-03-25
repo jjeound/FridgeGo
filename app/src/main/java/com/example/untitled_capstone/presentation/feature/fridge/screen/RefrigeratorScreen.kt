@@ -131,7 +131,7 @@ fun RefrigeratorScreen(fridgeItems: LazyPagingItems<FridgeItem>, state: FridgeSt
             }
         }
         Box(modifier = Modifier.fillMaxSize()) {
-            if(fridgeItems.loadState.refresh is LoadState.Loading) {
+            if(fridgeItems.loadState.refresh is LoadState.Loading || state.loading) {
                 CircularProgressIndicator(
                     modifier = Modifier.align(Alignment.Center)
                 )
@@ -139,10 +139,7 @@ fun RefrigeratorScreen(fridgeItems: LazyPagingItems<FridgeItem>, state: FridgeSt
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding)
                 ) {
-
-                    items(count = fridgeItems.itemCount,
-                            key = {fridgeItems[it]!!.id}
-                    ) { index ->
+                    items(count = fridgeItems.itemCount) { index ->
                         val item = fridgeItems[index]
                         if (item != null && item.isFridge == viewModel.topSelector) {
                             FridgeItemContainer(

@@ -31,7 +31,7 @@ class ExpirationAlarmWorker(
         val notification = NotificationCompat.Builder(applicationContext, NOTIFICATION_CHANNEL_ID)
             .setContentTitle(title)
             .setContentText(message)
-            .setSmallIcon(R.drawable.splash_logo_temp)
+            .setSmallIcon(R.drawable.logo)
             .setAutoCancel(true)
             .build()
         notificationManager.notify(System.currentTimeMillis().toInt(), notification)

@@ -4,6 +4,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
+import androidx.paging.filter
+import androidx.paging.insertFooterItem
+import androidx.paging.map
 import com.example.untitled_capstone.core.util.Resource
 import com.example.untitled_capstone.domain.model.FridgeItem
 import com.example.untitled_capstone.domain.use_case.fridge.FridgeUseCases
@@ -24,7 +27,6 @@ class FridgeViewModel @Inject constructor(
 
     private val _fridgeItemState: MutableStateFlow<PagingData<FridgeItem>> = MutableStateFlow(PagingData.empty())
     val fridgeItemState = _fridgeItemState.asStateFlow()
-
 
     init {
         onAction(FridgeAction.GetItems)
@@ -63,11 +65,19 @@ class FridgeViewModel @Inject constructor(
 
     private fun toggleNotification(id: Long, alarmStatus: Boolean) {
         viewModelScope.launch {
-            val result = fridgeUseCases.toggleNotification(id, alarmStatus)
+            val result = fridgeUseCases.toggleNotification(id, !alarmStatus)
             when(result){
                 is Resource.Success -> {
                     result.data?.let{
-                        getItems()
+                        _fridgeItemState.update { pagingData ->
+                            pagingData.map {
+                                if(it.id == id){
+                                    it.copy(notification = !alarmStatus)
+                                }else{
+                                    it
+                                }
+                            }
+                        }
                     }
                 }
                 is Resource.Error -> {
@@ -85,7 +95,21 @@ class FridgeViewModel @Inject constructor(
             val result = fridgeUseCases.modifyFridgeItems(updatedItem)
             when(result){
                 is Resource.Success -> {
-                    getItems()
+                    _fridgeItemState.update { pagingData->
+                        pagingData.map {
+                            if(it.id == updatedItem.id){
+                                updatedItem
+                            }else{
+                                it
+                            }
+                        }
+                    }
+                    _state.update {
+                        it.copy(
+                            loading = false,
+                            error = null
+                        )
+                    }
                 }
                 is Resource.Error -> {
                     _state.update { it.copy(loading = false, error = result.message ?: "An unexpected error occurred") }

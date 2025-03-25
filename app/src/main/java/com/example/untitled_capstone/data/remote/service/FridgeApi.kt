@@ -4,6 +4,7 @@ import com.example.untitled_capstone.data.remote.dto.ContentDto
 import com.example.untitled_capstone.data.remote.dto.FridgeDto
 import com.example.untitled_capstone.data.remote.dto.ApiResponse
 import com.example.untitled_capstone.data.remote.dto.FridgeResponse
+import com.example.untitled_capstone.data.remote.dto.ModifyFridgeReqDto
 import com.example.untitled_capstone.data.remote.dto.NewFridgeItemDto
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -35,7 +36,7 @@ interface FridgeApi {
     @PATCH("/api/ingredient/{ingredientId}")
     suspend fun modifyItem(
         @Path("ingredientId") ingredientId: Long,
-        @Body fridgeItem: ContentDto
+        @Body fridgeItem: ModifyFridgeReqDto
     ): ApiResponse
 
     @DELETE("/api/ingredient/{ingredientId}")

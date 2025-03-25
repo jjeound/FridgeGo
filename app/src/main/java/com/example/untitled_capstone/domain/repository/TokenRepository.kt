@@ -2,6 +2,8 @@ package com.example.untitled_capstone.domain.repository
 
 import com.example.untitled_capstone.core.util.Resource
 import com.example.untitled_capstone.data.remote.dto.RefreshTokenResponse
+import com.example.untitled_capstone.data.remote.dto.TokenDto
+import com.skydoves.sandwich.ApiResponse
 import kotlinx.coroutines.flow.Flow
 
 interface TokenRepository {

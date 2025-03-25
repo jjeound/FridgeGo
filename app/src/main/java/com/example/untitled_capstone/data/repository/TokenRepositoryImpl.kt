@@ -1,6 +1,7 @@
 package com.example.untitled_capstone.data.repository
 
 import android.content.Context
+import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
@@ -11,6 +12,13 @@ import com.example.untitled_capstone.core.util.Resource
 import com.example.untitled_capstone.data.remote.dto.RefreshTokenResponse
 import com.example.untitled_capstone.data.remote.service.TokenApi
 import com.example.untitled_capstone.domain.repository.TokenRepository
+import com.skydoves.sandwich.ApiResponse
+import com.skydoves.sandwich.isSuccess
+import com.skydoves.sandwich.message
+import com.skydoves.sandwich.onError
+import com.skydoves.sandwich.onException
+import com.skydoves.sandwich.onSuccess
+import com.skydoves.sandwich.retrofit.errorBody
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -68,6 +76,7 @@ class TokenRepositoryImpl @Inject constructor(
             if(response.isSuccess){
                 Resource.Success(response)
             }else{
+                Log.d("response error", response.toString())
                 Resource.Error(response.message)
             }
         } catch (e: IOException) {

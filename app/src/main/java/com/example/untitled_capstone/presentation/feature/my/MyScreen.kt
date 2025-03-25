@@ -59,17 +59,5 @@ fun MyScreen(navController: NavHostController, onEvent: (MyEvent) -> Unit, state
                 R.drawable.setting
             )
         )
-        Button(
-            onClick = {
-                onEvent(MyEvent.Logout)
-            }
-        ) {
-            Text(
-                text = "로그아웃"
-            )
-        }
-        LaunchedEffect(state) {
-            Log.d("error", state.error.toString())
-        }
     }
 }

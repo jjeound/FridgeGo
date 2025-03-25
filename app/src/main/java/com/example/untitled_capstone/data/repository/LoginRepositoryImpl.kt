@@ -7,9 +7,9 @@ import com.example.untitled_capstone.data.remote.dto.ApiResponse
 import com.example.untitled_capstone.data.remote.dto.KakaoAccessTokenRequest
 import com.example.untitled_capstone.data.remote.service.LoginApi
 import com.example.untitled_capstone.domain.model.AccountInfo
-import com.example.untitled_capstone.domain.model.Profile
 import com.example.untitled_capstone.domain.repository.LoginRepository
 import com.example.untitled_capstone.domain.repository.TokenRepository
+import kotlinx.coroutines.flow.first
 import okio.IOException
 import retrofit2.HttpException
 import javax.inject.Inject
@@ -26,7 +26,8 @@ class LoginRepositoryImpl @Inject constructor(
             if(response.isSuccess){
                 tokenRepository.saveAccessToken(response.result.accessToken)
                 tokenRepository.saveRefreshToken(response.result.refreshToken)
-                Log.d("accessToken", response.result.accessToken)
+                Log.d("accessToken saved", response.result.accessToken)
+                Log.d("refreshToken saved", response.result.refreshToken)
                 Resource.Success(response.result.toAccountInfo())
             }else{
                 Resource.Error(response.message)
@@ -41,7 +42,8 @@ class LoginRepositoryImpl @Inject constructor(
     override suspend fun setNickname(nickname: String): Resource<ApiResponse> {
         return try {
             Resource.Loading(data = null)
-            val response = api.setNickname(nickname)
+            val token = tokenRepository.getAccessToken().first()
+            val response = api.setNickname(token = token!!, nickname = nickname)
             if(response.isSuccess){
                 Resource.Success(response)
             } else {

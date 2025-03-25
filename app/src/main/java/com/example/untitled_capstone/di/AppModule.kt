@@ -11,6 +11,7 @@ import com.example.untitled_capstone.data.local.db.RecipeItemDatabase
 import com.example.untitled_capstone.data.local.entity.FridgeItemEntity
 import com.example.untitled_capstone.data.local.entity.RecipeItemEntity
 import com.example.untitled_capstone.data.local.remote.FridgeItemDao
+import com.example.untitled_capstone.data.local.remote.RecipeItemDao
 import com.example.untitled_capstone.data.pagination.FridgePagingSource
 import com.example.untitled_capstone.data.pagination.RecipePagingSource
 import com.example.untitled_capstone.data.remote.service.FridgeApi
@@ -22,7 +23,6 @@ import com.example.untitled_capstone.data.remote.service.TokenApi
 import com.example.untitled_capstone.domain.repository.TokenRepository
 import com.example.untitled_capstone.domain.use_case.token.AuthAuthenticator
 import com.example.untitled_capstone.domain.use_case.token.AuthInterceptor
-import com.skydoves.sandwich.retrofit.adapters.ApiResponseCallAdapterFactory
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -39,6 +39,18 @@ object AppModule {
 
     @Provides
     @Singleton
+    fun provideRecipeItemDatabase(@ApplicationContext context: Context): RecipeItemDatabase{
+        return Room.databaseBuilder(
+            context, RecipeItemDatabase::class.java, "recipe_item_database"
+        ).build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideRecipeDao(db: RecipeItemDatabase): RecipeItemDao = db.dao
+
+    @Provides
+    @Singleton
     fun provideFridgeItemDatabase(@ApplicationContext context: Context): FridgeItemDatabase{
         return Room.databaseBuilder(
             context, FridgeItemDatabase::class.java, "fridge_item_database"
@@ -47,7 +59,7 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideDao(db: FridgeItemDatabase): FridgeItemDao = db.dao
+    fun provideFridgeDao(db: FridgeItemDatabase): FridgeItemDao = db.dao
 
     @Provides
     @Singleton

@@ -1,5 +1,6 @@
 package com.example.untitled_capstone.domain.use_case.token
 
+import android.util.Log
 import com.example.untitled_capstone.data.remote.dto.TokenDto
 import com.example.untitled_capstone.data.util.ErrorCode.JWT4004
 import com.example.untitled_capstone.domain.repository.LoginRepository
@@ -39,26 +40,28 @@ class AuthAuthenticator @Inject constructor(
         } ?: return null
 
         return response.request.newBuilder()
-            .header(AUTHORIZATION, "Bearer ${newToken.accessToken}")
+            .header(AUTHORIZATION, newToken.accessToken!!)
             .build()
     }
 
     private suspend fun refreshAndSaveToken(refreshToken: String): TokenDto? {
         val newToken = requestNewToken(refreshToken)
         newToken?.let {
-            tokenManager.saveAccessToken(it.accessToken)
-            tokenManager.saveRefreshToken(it.refreshToken)
+            tokenManager.saveAccessToken(it.accessToken!!)
+            tokenManager.saveRefreshToken(it.refreshToken!!)
         }
         return newToken
     }
 
     private suspend fun requestNewToken(refreshToken: String): TokenDto? {
+        Log.d("refreshToken requested", refreshToken)
         val response = tokenManager.refreshToken(refreshToken)
 
         if (response.data?.code == JWT4004) { // 리프레시 토큰도 만료됨
             handleTokenExpired()
             return null
         }
+        Log.d("newToken", "response: ${response.data.toString()}")
 
         return response.data?.result
     }

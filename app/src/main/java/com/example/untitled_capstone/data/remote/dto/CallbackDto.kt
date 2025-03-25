@@ -3,7 +3,7 @@ package com.example.untitled_capstone.data.remote.dto
 import com.example.untitled_capstone.domain.model.AccountInfo
 
 data class CallbackDto(
-    val id: Int,
+    val id: Long,
     val email: String,
     val accessToken: String,
     val refreshToken: String,

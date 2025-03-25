@@ -33,4 +33,13 @@ data class ContentDto(
             isFridge = storageType,
         )
     }
+    fun toModifyFridgeReqDto(): ModifyFridgeReqDto{
+        return ModifyFridgeReqDto(
+            alarmStatus = alarmStatus,
+            count = count,
+            foodName = foodName,
+            storageType = storageType,
+            useByDate = useByDate
+        )
+    }
 }

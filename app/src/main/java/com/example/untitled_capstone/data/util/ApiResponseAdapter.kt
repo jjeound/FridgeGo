@@ -13,7 +13,7 @@ import java.lang.reflect.Type
 //    override fun deserialize(json: JsonElement, typeOfT: Type?, context: JsonDeserializationContext?): ApiResponse<T> {
 //        val jsonObject = json.asJsonObject
 //
-//        val isSuccess = jsonObject.get("isSuccess").asInt
+//        val isSuccess = jsonObject.get("isSuccess").asBoolean
 //        val code = jsonObject.get("code").asString
 //        val message = jsonObject.get("message").asString
 //        val result: T = gson.fromJson(jsonObject.get("result"), type)

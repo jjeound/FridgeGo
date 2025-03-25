@@ -47,9 +47,12 @@ fun NavigationV2(navController: NavHostController, mainViewModel: MainViewModel)
             startDestination = Screen.Home
         ){
             composable<Screen.Home> {
-                val viewModel = it.sharedViewModel<HomeViewModel>(navController)
-                val state by viewModel.state.collectAsStateWithLifecycle()
-                HomeScreen(state, viewModel::onAction) { id ->
+                val viewModel: HomeViewModel = hiltViewModel()
+                val recipeState by viewModel.recipeState.collectAsStateWithLifecycle()
+                val recipeItems = viewModel.recipeItemsState.collectAsLazyPagingItems()
+                val tastePrefState by viewModel.tastePrefState.collectAsStateWithLifecycle()
+                val aiState by viewModel.aiState.collectAsStateWithLifecycle()
+                HomeScreen(recipeState, recipeItems, tastePrefState, aiState, viewModel::onAction) { id ->
                     navController.navigate(
                         Screen.RecipeNav(
                             id = id
@@ -58,11 +61,11 @@ fun NavigationV2(navController: NavHostController, mainViewModel: MainViewModel)
                 }
             }
             composable<Screen.RecipeNav>{
-                val viewModel = it.sharedViewModel<HomeViewModel>(navController)
-                val state by viewModel.state.collectAsStateWithLifecycle()
+                val viewModel: HomeViewModel = hiltViewModel()
+                val recipeState by viewModel.recipeState.collectAsStateWithLifecycle()
                 val args = it.toRoute<Screen.RecipeNav>()
                 RecipeScreen(
-                    args.id, state, viewModel::onAction){
+                    args.id, recipeState, viewModel::onAction){
                     navController.popBackStack()
                 }
             }

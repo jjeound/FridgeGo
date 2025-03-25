@@ -11,10 +11,10 @@ interface RecipeItemDao {
     @Upsert
     suspend fun upsertAll(items: List<RecipeItemEntity>)
 
-    @Query("DELETE FROM fridgeitementity")
+    @Query("DELETE FROM recipeitementity")
     suspend fun clearAll()
 
-    @Query("SELECT * FROM fridgeitementity")
+    @Query("SELECT * FROM recipeitementity")
     fun getRecipeItems(): PagingSource<Int, RecipeItemEntity>
 }
 

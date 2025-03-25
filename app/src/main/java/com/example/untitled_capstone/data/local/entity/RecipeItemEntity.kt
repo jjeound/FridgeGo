@@ -1,8 +1,10 @@
 package com.example.untitled_capstone.data.local.entity
 
+import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.example.untitled_capstone.domain.model.RecipeRaw
 
+@Entity
 data class RecipeItemEntity(
     @PrimaryKey val id: Long,
     val title: String,

@@ -15,6 +15,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -27,12 +28,17 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.vectorResource
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
+import com.example.untitled_capstone.presentation.feature.home.HomeEvent
+import com.example.untitled_capstone.presentation.feature.home.TastePrefState
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @Composable
-fun SetTaste() {
-    var text by remember { mutableStateOf("") }
+fun SetTaste(tastePrefState: TastePrefState, onEvent: (HomeEvent) -> Unit) {
+    var text by remember { mutableStateOf(tastePrefState.tastePref ?: "") }
     val focusManager = LocalFocusManager.current
+    LaunchedEffect(tastePrefState.tastePref) {
+        text = tastePrefState.tastePref ?: ""
+    }
     Card(
         colors = CardDefaults.cardColors(
             containerColor = CustomTheme.colors.onSurface,
@@ -67,7 +73,7 @@ fun SetTaste() {
                     )
                 },
                 trailingIcon = {
-                    if(text.isNotBlank()){
+                    if(text?.isNotBlank() == true){
                         IconButton(
                             onClick = { text = "" }
                         ) {
@@ -93,7 +99,12 @@ fun SetTaste() {
                 ),
                 shape = RoundedCornerShape(Dimens.cornerRadius),
                 singleLine = true,
-                keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() })
+                keyboardActions = KeyboardActions(onDone = {
+                    focusManager.clearFocus()
+                    if(text?.isNotBlank() == true){
+                        onEvent(HomeEvent.SetTastePreference(text!!))
+                    }
+                })
             )
         }
     }

@@ -9,8 +9,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -23,13 +21,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.res.vectorResource
-import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.presentation.feature.home.HomeEvent
-import com.example.untitled_capstone.presentation.feature.home.TastePrefState
+import com.example.untitled_capstone.presentation.feature.home.state.TastePrefState
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @Composable
@@ -72,19 +67,6 @@ fun SetTaste(tastePrefState: TastePrefState, onEvent: (HomeEvent) -> Unit) {
                         color = CustomTheme.colors.textSecondary
                     )
                 },
-                trailingIcon = {
-                    if(text?.isNotBlank() == true){
-                        IconButton(
-                            onClick = { text = "" }
-                        ) {
-                            Icon(
-                                imageVector = ImageVector.vectorResource(R.drawable.delete),
-                                contentDescription = "delete",
-                                tint = CustomTheme.colors.iconDefault,
-                            )
-                        }
-                    }
-                },
                 textStyle = CustomTheme.typography.button2,
                 colors = TextFieldDefaults.colors(
                     focusedTextColor = CustomTheme.colors.textPrimary,
@@ -101,9 +83,7 @@ fun SetTaste(tastePrefState: TastePrefState, onEvent: (HomeEvent) -> Unit) {
                 singleLine = true,
                 keyboardActions = KeyboardActions(onDone = {
                     focusManager.clearFocus()
-                    if(text?.isNotBlank() == true){
-                        onEvent(HomeEvent.SetTastePreference(text!!))
-                    }
+                    onEvent(HomeEvent.SetTastePreference(text))
                 })
             )
         }

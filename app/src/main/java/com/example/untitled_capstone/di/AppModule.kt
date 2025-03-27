@@ -7,18 +7,22 @@ import androidx.paging.PagingConfig
 import androidx.room.Room
 import com.example.untitled_capstone.core.util.Constants.BASE_URL
 import com.example.untitled_capstone.data.local.db.FridgeItemDatabase
+import com.example.untitled_capstone.data.local.db.PostItemDatabase
 import com.example.untitled_capstone.data.local.db.RecipeItemDatabase
 import com.example.untitled_capstone.data.local.entity.FridgeItemEntity
+import com.example.untitled_capstone.data.local.entity.PostItemEntity
 import com.example.untitled_capstone.data.local.entity.RecipeItemEntity
 import com.example.untitled_capstone.data.local.remote.FridgeItemDao
+import com.example.untitled_capstone.data.local.remote.PostItemDao
 import com.example.untitled_capstone.data.local.remote.RecipeItemDao
 import com.example.untitled_capstone.data.pagination.FridgePagingSource
+import com.example.untitled_capstone.data.pagination.PostPagingSource
 import com.example.untitled_capstone.data.pagination.RecipePagingSource
 import com.example.untitled_capstone.data.remote.service.FridgeApi
 import com.example.untitled_capstone.data.remote.service.HomeApi
 import com.example.untitled_capstone.data.remote.service.LoginApi
 import com.example.untitled_capstone.data.remote.service.MyApi
-import com.example.untitled_capstone.data.remote.service.ShoppingApi
+import com.example.untitled_capstone.data.remote.service.PostApi
 import com.example.untitled_capstone.data.remote.service.TokenApi
 import com.example.untitled_capstone.domain.repository.TokenRepository
 import com.example.untitled_capstone.domain.use_case.token.AuthAuthenticator
@@ -60,6 +64,18 @@ object AppModule {
     @Provides
     @Singleton
     fun provideFridgeDao(db: FridgeItemDatabase): FridgeItemDao = db.dao
+
+    @Provides
+    @Singleton
+    fun providePostItemDatabase(@ApplicationContext context: Context): PostItemDatabase{
+        return Room.databaseBuilder(
+            context, PostItemDatabase::class.java, "post_item_database"
+        ).build()
+    }
+
+    @Provides
+    @Singleton
+    fun providePostDao(db: PostItemDatabase): PostItemDao = db.dao
 
     @Provides
     @Singleton
@@ -115,13 +131,13 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideShoppingApi(okHttpClient: OkHttpClient): ShoppingApi {
+    fun providePostApi(okHttpClient: OkHttpClient): PostApi {
         return Retrofit.Builder()
             .baseUrl(BASE_URL)
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
-            .create(ShoppingApi::class.java)
+            .create(PostApi::class.java)
     }
 
     @Provides
@@ -163,6 +179,22 @@ object AppModule {
             ),
             pagingSourceFactory = {
                 db.dao.getRecipeItems()
+            }
+        )
+    }
+
+    @OptIn(ExperimentalPagingApi::class)
+    @Provides
+    @Singleton
+    fun providePostPager(db: PostItemDatabase, api: PostApi): Pager<Int, PostItemEntity> {
+        return Pager(
+            config = PagingConfig(pageSize = 10),
+            remoteMediator = PostPagingSource(
+                db = db,
+                api = api
+            ),
+            pagingSourceFactory = {
+                db.dao.getPostItems()
             }
         )
     }

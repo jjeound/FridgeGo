@@ -5,7 +5,7 @@ import com.example.untitled_capstone.domain.repository.HomeRepository
 import com.example.untitled_capstone.domain.repository.LocalUserManger
 import com.example.untitled_capstone.domain.repository.LoginRepository
 import com.example.untitled_capstone.domain.repository.MyRepository
-import com.example.untitled_capstone.domain.repository.ShoppingRepository
+import com.example.untitled_capstone.domain.repository.PostRepository
 import com.example.untitled_capstone.domain.repository.TokenRepository
 import com.example.untitled_capstone.domain.use_case.app_entry.ReadAppEntry
 import com.example.untitled_capstone.domain.use_case.app_entry.SaveAppEntry
@@ -20,9 +20,11 @@ import com.example.untitled_capstone.domain.use_case.fridge.ToggleNotification
 import com.example.untitled_capstone.domain.use_case.home.AddRecipe
 import com.example.untitled_capstone.domain.use_case.home.GetAnotherRecommendation
 import com.example.untitled_capstone.domain.use_case.home.GetFirstRecommendation
+import com.example.untitled_capstone.domain.use_case.home.GetIsFirstSelection
 import com.example.untitled_capstone.domain.use_case.home.GetRecipeItems
 import com.example.untitled_capstone.domain.use_case.home.GetTastePreference
 import com.example.untitled_capstone.domain.use_case.home.HomeUseCases
+import com.example.untitled_capstone.domain.use_case.home.SetIsFirstSelection
 import com.example.untitled_capstone.domain.use_case.home.SetTastePreference
 import com.example.untitled_capstone.domain.use_case.my.GetAccessToken
 import com.example.untitled_capstone.domain.use_case.my.GetMyProfile
@@ -32,8 +34,9 @@ import com.example.untitled_capstone.domain.use_case.login.LoginUseCases
 import com.example.untitled_capstone.domain.use_case.my.Logout
 import com.example.untitled_capstone.domain.use_case.login.SetNickname
 import com.example.untitled_capstone.domain.use_case.my.MyUseCases
-import com.example.untitled_capstone.domain.use_case.shopping.AddPost
-import com.example.untitled_capstone.domain.use_case.shopping.ShoppingUseCases
+import com.example.untitled_capstone.domain.use_case.post.AddPost
+import com.example.untitled_capstone.domain.use_case.post.GetPostItems
+import com.example.untitled_capstone.domain.use_case.post.PostUseCases
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -93,14 +96,17 @@ object UseCaseModule {
             getFirstRecommendation = GetFirstRecommendation(repository),
             getAnotherRecommendation = GetAnotherRecommendation(repository),
             getTastePreference = GetTastePreference(repository),
-            setTastePreference = SetTastePreference(repository)
+            setTastePreference = SetTastePreference(repository),
+            getIsFirstSelection = GetIsFirstSelection(repository),
+            setIsFirstSelection = SetIsFirstSelection(repository)
         )
     }
 
     @Provides
-    fun provideShoppingUseCases(repository: ShoppingRepository): ShoppingUseCases{
-        return ShoppingUseCases(
-            addPost = AddPost(repository)
+    fun providePostUseCases(repository: PostRepository): PostUseCases{
+        return PostUseCases(
+            addPost = AddPost(repository),
+            getPostItems = GetPostItems(repository)
         )
     }
 

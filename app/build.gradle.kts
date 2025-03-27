@@ -96,6 +96,8 @@ dependencies {
     // login
     implementation (libs.v2.user)
     implementation (libs.androidx.datastore.preferences)
+    implementation (libs.play.services.location)
+    implementation (libs.play.services.maps)
 
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.coil.compose)

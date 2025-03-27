@@ -41,7 +41,7 @@ import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SetNickNameScreen(navigateToHome: () -> Unit, popBackStack: () -> Unit, onEvent: (LoginEvent) -> Unit, state: LoginState) {
+fun SetNickNameScreen(navigateToLoc: () -> Unit, popBackStack: () -> Unit, onEvent: (LoginEvent) -> Unit, state: LoginState) {
     var nickname by remember { mutableStateOf("") }
     val focusManager = LocalFocusManager.current
     val context = LocalContext.current
@@ -124,7 +124,7 @@ fun SetNickNameScreen(navigateToHome: () -> Unit, popBackStack: () -> Unit, onEv
                 )
                 LaunchedEffect(state.validate) {
                     if (state.validate) {
-                        navigateToHome()
+                        navigateToLoc()
                     }
                 }
                 Button(
@@ -142,6 +142,7 @@ fun SetNickNameScreen(navigateToHome: () -> Unit, popBackStack: () -> Unit, onEv
                         color = CustomTheme.colors.border
                     ),
                     onClick = {
+                        navigateToLoc()
                         onEvent(LoginEvent.SetNickname(nickname))
                         if(state.error != null){
                             Toast.makeText(context, state.error, Toast.LENGTH_LONG).show()

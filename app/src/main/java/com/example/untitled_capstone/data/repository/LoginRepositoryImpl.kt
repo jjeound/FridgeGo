@@ -26,10 +26,9 @@ class LoginRepositoryImpl @Inject constructor(
             if(response.isSuccess){
                 tokenRepository.saveAccessToken(response.result.accessToken)
                 tokenRepository.saveRefreshToken(response.result.refreshToken)
-                Log.d("accessToken saved", response.result.accessToken)
-                Log.d("refreshToken saved", response.result.refreshToken)
                 Resource.Success(response.result.toAccountInfo())
             }else{
+                Log.d("login failed", response.toString())
                 Resource.Error(response.message)
             }
         } catch (e: IOException) {

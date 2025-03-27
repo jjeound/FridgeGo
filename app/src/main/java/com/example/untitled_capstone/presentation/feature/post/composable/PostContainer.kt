@@ -1,4 +1,4 @@
-package com.example.untitled_capstone.presentation.feature.shopping.composable
+package com.example.untitled_capstone.presentation.feature.post.composable
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement

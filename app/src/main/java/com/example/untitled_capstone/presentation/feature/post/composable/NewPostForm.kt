@@ -1,4 +1,4 @@
-package com.example.untitled_capstone.presentation.feature.shopping.composable
+package com.example.untitled_capstone.presentation.feature.post.composable
 
 import android.Manifest
 import android.app.Activity
@@ -70,13 +70,14 @@ import coil.compose.AsyncImage
 import com.example.untitled_capstone.MainActivity
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
+import com.example.untitled_capstone.domain.model.NewPost
 import com.example.untitled_capstone.domain.model.Post
 import com.example.untitled_capstone.presentation.feature.fridge.composable.PermissionDialog
-import com.example.untitled_capstone.presentation.feature.shopping.event.PostAction
+import com.example.untitled_capstone.presentation.feature.post.PostEvent
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @Composable
-fun NewPostForm(navController: NavHostController, onAction: (PostAction) -> Unit) {
+fun NewPostForm(navController: NavHostController, onEvent: (PostEvent) -> Unit) {
     val context = LocalContext.current
     var isExpandedPeopleMenu by remember { mutableStateOf(false) }
     var isExpandedCategoryMenu by remember { mutableStateOf(false) }
@@ -481,22 +482,14 @@ fun NewPostForm(navController: NavHostController, onAction: (PostAction) -> Unit
             enabled = validator,
             onClick = {
                 navController.popBackStack()
-                onAction(
-                    PostAction.AddNewPost(
-                        Post(
-                            id = 0,
+                onEvent(
+                    PostEvent.AddNewPost(
+                        NewPost(
                             title = title,
                             content = content,
-                            image = images.map{it.toString()},
-                            location = "무거동",
-                            time = System.currentTimeMillis().toString(),
-                            totalNumbOfPeople = quantity.toInt(),
-                            currentNumOfPeople = 1,
-                            likes = 0,
-                            isLiked = false,
+                            category = "VEGETABLE",
                             price = price.toInt(),
-                            views = 0,
-                            category = category
+                            like_count = 0
                         )
                     )
                 )

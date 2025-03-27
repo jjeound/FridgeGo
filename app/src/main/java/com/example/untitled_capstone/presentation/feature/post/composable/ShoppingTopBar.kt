@@ -1,4 +1,4 @@
-package com.example.untitled_capstone.presentation.feature.shopping.composable
+package com.example.untitled_capstone.presentation.feature.post.composable
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
@@ -31,13 +31,11 @@ fun ShoppingTopBar(navController: NavHostController){
         modifier = Modifier.padding(horizontal = Dimens.topBarPadding),
         title = {
             Row (
-                modifier = Modifier.clickable {
-                        TODO("change location")
-                    },
+                modifier = Modifier.clickable {},
                 verticalAlignment = Alignment.CenterVertically
             ){
                 Text(
-                    text = "무거동", //todo(state로 변경),
+                    text = "무거동", //state로 변경,
                     fontFamily = CustomTheme.typography.headline3.fontFamily,
                     fontWeight = CustomTheme.typography.headline3.fontWeight,
                     fontSize = CustomTheme.typography.headline3.fontSize,

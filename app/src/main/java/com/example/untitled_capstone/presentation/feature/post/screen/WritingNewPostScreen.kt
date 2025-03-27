@@ -1,4 +1,4 @@
-package com.example.untitled_capstone.presentation.feature.shopping.screen
+package com.example.untitled_capstone.presentation.feature.post.screen
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -20,16 +20,16 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
-import com.example.untitled_capstone.presentation.feature.shopping.PostViewModel
-import com.example.untitled_capstone.presentation.feature.shopping.composable.NewPostForm
+import com.example.untitled_capstone.presentation.feature.post.PostEvent
+import com.example.untitled_capstone.presentation.feature.post.PostState
+import com.example.untitled_capstone.presentation.feature.post.PostViewModel
+import com.example.untitled_capstone.presentation.feature.post.composable.NewPostForm
 import com.example.untitled_capstone.ui.theme.CustomTheme
-import kotlinx.serialization.Serializable
-
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WritingNewPostScreen(navController: NavHostController, viewModel: PostViewModel){
+fun WritingNewPostScreen(navController: NavHostController, state: PostState, onEvent: (PostEvent) -> Unit){
     Scaffold(
         containerColor = CustomTheme.colors.onSurface,
         topBar = {
@@ -68,7 +68,7 @@ fun WritingNewPostScreen(navController: NavHostController, viewModel: PostViewMo
                 .padding(horizontal = Dimens.surfaceHorizontalPadding,
                 vertical = Dimens.surfaceVerticalPadding),
         ){
-            NewPostForm(navController = navController, onAction = viewModel::onAction)
+            NewPostForm(navController = navController, onEvent = onEvent)
         }
     }
 }

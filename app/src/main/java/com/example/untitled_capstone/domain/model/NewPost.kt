@@ -1,6 +1,6 @@
 package com.example.untitled_capstone.domain.model
 
-import com.example.untitled_capstone.data.remote.dto.PostDto
+import com.example.untitled_capstone.data.remote.dto.NewPostDto
 
 data class NewPost(
     val category: String,
@@ -9,8 +9,8 @@ data class NewPost(
     val price: Int,
     val title: String
 ){
-    fun toPostDto(): PostDto{
-        return PostDto(
+    fun toNewPostDto(): NewPostDto{
+        return NewPostDto(
             category = category,
             content = content,
             like_count = like_count,

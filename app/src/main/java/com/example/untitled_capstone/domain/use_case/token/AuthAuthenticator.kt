@@ -54,15 +54,12 @@ class AuthAuthenticator @Inject constructor(
     }
 
     private suspend fun requestNewToken(refreshToken: String): TokenDto? {
-        Log.d("refreshToken requested", refreshToken)
         val response = tokenManager.refreshToken(refreshToken)
 
         if (response.data?.code == JWT4004) { // 리프레시 토큰도 만료됨
             handleTokenExpired()
             return null
         }
-        Log.d("newToken", "response: ${response.data.toString()}")
-
         return response.data?.result
     }
 

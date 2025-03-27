@@ -1,5 +1,6 @@
 package com.example.untitled_capstone.navigation
 
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -34,10 +35,11 @@ import com.example.untitled_capstone.presentation.feature.onBoardiing.OnBoarding
 import com.example.untitled_capstone.presentation.feature.fridge.FridgeViewModel
 import com.example.untitled_capstone.presentation.feature.fridge.screen.AddFridgeItemScreen
 import com.example.untitled_capstone.presentation.feature.fridge.screen.RefrigeratorScreen
-import com.example.untitled_capstone.presentation.feature.shopping.PostViewModel
-import com.example.untitled_capstone.presentation.feature.shopping.screen.PostScreen
-import com.example.untitled_capstone.presentation.feature.shopping.screen.ShoppingScreen
-import com.example.untitled_capstone.presentation.feature.shopping.screen.WritingNewPostScreen
+import com.example.untitled_capstone.presentation.feature.login.SetLocationScreen
+import com.example.untitled_capstone.presentation.feature.post.PostViewModel
+import com.example.untitled_capstone.presentation.feature.post.screen.PostDetailScreen
+import com.example.untitled_capstone.presentation.feature.post.screen.PostScreen
+import com.example.untitled_capstone.presentation.feature.post.screen.WritingNewPostScreen
 
 
 @Composable
@@ -51,8 +53,9 @@ fun NavigationV2(navController: NavHostController, mainViewModel: MainViewModel)
                 val recipeState by viewModel.recipeState.collectAsStateWithLifecycle()
                 val recipeItems = viewModel.recipeItemsState.collectAsLazyPagingItems()
                 val tastePrefState by viewModel.tastePrefState.collectAsStateWithLifecycle()
-                val aiState by viewModel.aiState.collectAsStateWithLifecycle()
-                HomeScreen(recipeState, recipeItems, tastePrefState, aiState, viewModel::onAction) { id ->
+                val aiState by remember { viewModel.aiState }
+                val snackBarHostState = remember { SnackbarHostState() }
+                HomeScreen(snackBarHostState, mainViewModel, recipeState, recipeItems, tastePrefState, aiState, viewModel::onAction) { id ->
                     navController.navigate(
                         Screen.RecipeNav(
                             id = id
@@ -70,31 +73,33 @@ fun NavigationV2(navController: NavHostController, mainViewModel: MainViewModel)
                 }
             }
         }
-        navigation<Graph.ShoppingGraph>(
-            startDestination = Screen.Shopping
+        navigation<Graph.PostGraph>(
+            startDestination = Screen.Post
         ){
-            composable<Screen.Shopping>{
-                val viewModel = it.sharedViewModel<PostViewModel>(navController)
+            composable<Screen.Post>{
+                val viewModel: PostViewModel = hiltViewModel()
                 val state by viewModel.state.collectAsStateWithLifecycle()
-                ShoppingScreen(navigate = { id ->
+                val postItems = viewModel.postItemState.collectAsLazyPagingItems()
+                PostScreen(navigate = { id ->
                     navController.navigate(
-                        Screen.PostNav(
+                        Screen.PostDetailNav(
                             id = id
                         )
                     )
-                }, state = state, onAction = viewModel::onAction)
+                }, postItems = postItems, state = state, onEvent = viewModel::onEvent)
             }
-            composable<Screen.PostNav>{
-                val viewModel = it.sharedViewModel<PostViewModel>(navController)
+            composable<Screen.PostDetailNav>{
+                val viewModel: PostViewModel = hiltViewModel()
                 val state by viewModel.state.collectAsStateWithLifecycle()
-                val args = it.toRoute<Screen.PostNav>()
-                PostScreen(
-                    args.id, state, viewModel::onAction, navController
+                val args = it.toRoute<Screen.PostDetailNav>()
+                PostDetailScreen(
+                    args.id, state, viewModel::onEvent, navController
                 )
             }
             composable<Screen.WritingNav> {
-                val viewModel = it.sharedViewModel<PostViewModel>(navController)
-                WritingNewPostScreen(navController, viewModel)
+                val viewModel: PostViewModel = hiltViewModel()
+                val state by viewModel.state.collectAsStateWithLifecycle()
+                WritingNewPostScreen(navController, state, viewModel::onEvent)
             }
         }
         navigation<Graph.FridgeGraph>(
@@ -156,8 +161,8 @@ fun NavigationV2(navController: NavHostController, mainViewModel: MainViewModel)
                 val viewModel: LoginViewModel = hiltViewModel()
                 val state by viewModel.state.collectAsStateWithLifecycle()
                 SetNickNameScreen(
-                    navigateToHome = {
-                        navController.navigate(Screen.Home)
+                    navigateToLoc = {
+                        navController.navigate(Screen.LocationNav)
                     },
                     popBackStack = {
                         navController.popBackStack()
@@ -165,6 +170,13 @@ fun NavigationV2(navController: NavHostController, mainViewModel: MainViewModel)
                     onEvent = viewModel::onEvent,
                     state = state
                 )
+            }
+            composable<Screen.LocationNav> {
+                val viewModel: LoginViewModel = hiltViewModel()
+                val state by viewModel.state.collectAsStateWithLifecycle()
+                SetLocationScreen(state, viewModel::onEvent){
+                    navController.navigate(Screen.Home)
+                }
             }
         }
         navigation<Graph.OnBoardingGraph>(startDestination = Screen.OnBoarding) {

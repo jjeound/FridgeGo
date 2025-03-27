@@ -19,7 +19,7 @@ sealed interface Screen {
     data class RecipeNav(val id: Long) : Screen
 
     @Serializable
-    data class PostNav(val id: Long) : Screen
+    data class PostDetailNav(val id: Long) : Screen
 
     @Serializable
     data object WritingNav: Screen
@@ -40,7 +40,7 @@ sealed interface Screen {
     data object Home: Screen
 
     @Serializable
-    data object Shopping: Screen
+    data object Post: Screen
 
     @Serializable
     data object Fridge: Screen
@@ -56,6 +56,9 @@ sealed interface Screen {
 
     @Serializable
     data object NicknameNav: Screen
+
+    @Serializable
+    data object LocationNav: Screen
 }
 
 sealed interface Graph {
@@ -63,7 +66,7 @@ sealed interface Graph {
     data object HomeGraph: Graph
 
     @Serializable
-    data object ShoppingGraph: Graph
+    data object PostGraph: Graph
 
     @Serializable
     data object FridgeGraph: Graph

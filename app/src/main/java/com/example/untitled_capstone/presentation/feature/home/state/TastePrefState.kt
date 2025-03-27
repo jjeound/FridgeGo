@@ -1,4 +1,4 @@
-package com.example.untitled_capstone.presentation.feature.home
+package com.example.untitled_capstone.presentation.feature.home.state
 
 data class TastePrefState(
     val tastePref: String? = null,

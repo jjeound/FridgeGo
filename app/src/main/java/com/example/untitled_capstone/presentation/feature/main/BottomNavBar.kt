@@ -32,7 +32,7 @@ fun BottomNavBar(currentDestination: NavDestination?, navController: NavHostCont
     ) {
         val items = listOf(
             BottomNavItems.Home,
-            BottomNavItems.Shopping,
+            BottomNavItems.Post,
             BottomNavItems.Fridge,
             BottomNavItems.Chat,
             BottomNavItems.My

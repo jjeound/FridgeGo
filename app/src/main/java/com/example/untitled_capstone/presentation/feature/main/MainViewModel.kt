@@ -35,6 +35,8 @@ class MainViewModel @Inject constructor(
     private val _splashCondition = mutableStateOf(true)
     val splashCondition: State<Boolean> = _splashCondition
 
+    var showBottomSheet = mutableStateOf(false)
+
     init {
         appEntry()
     }

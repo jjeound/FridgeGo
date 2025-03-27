@@ -28,7 +28,7 @@ import com.example.untitled_capstone.navigation.NavigationV2
 import com.example.untitled_capstone.navigation.Screen
 import com.example.untitled_capstone.presentation.feature.my.composable.MyTopBar
 import com.example.untitled_capstone.presentation.feature.fridge.composable.FridgeTopBar
-import com.example.untitled_capstone.presentation.feature.shopping.composable.ShoppingTopBar
+import com.example.untitled_capstone.presentation.feature.post.composable.ShoppingTopBar
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @Composable
@@ -36,7 +36,7 @@ fun MainScreen(viewModel: MainViewModel){
     val navController = rememberNavController()
     val screens = listOf(
         Screen.Home.toString(),
-        Screen.Shopping.toString(),
+        Screen.Post.toString(),
         Screen.Fridge.toString(),
         Screen.Chat.toString(),
         Screen.My.toString()
@@ -70,7 +70,9 @@ fun MainScreen(viewModel: MainViewModel){
                 when (bottomRoute) {
                     screens[0] -> {
                         FloatingActionButton(
-                            onClick = { /*TODO*/ },
+                            onClick = {
+                                viewModel.showBottomSheet.value = true
+                            },
                             elevation = FloatingActionButtonDefaults.elevation(0.dp),
                             containerColor = Color.Unspecified,
                             contentColor = CustomTheme.colors.iconPrimary,

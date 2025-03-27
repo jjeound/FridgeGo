@@ -1,6 +1,8 @@
 package com.example.untitled_capstone.presentation.feature.home
 
 import android.util.Log
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
@@ -9,6 +11,9 @@ import com.example.untitled_capstone.core.util.Resource
 import com.example.untitled_capstone.domain.model.RecipeRaw
 import com.example.untitled_capstone.domain.model.TastePreference
 import com.example.untitled_capstone.domain.use_case.home.HomeUseCases
+import com.example.untitled_capstone.presentation.feature.home.state.AiState
+import com.example.untitled_capstone.presentation.feature.home.state.RecipeState
+import com.example.untitled_capstone.presentation.feature.home.state.TastePrefState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -28,23 +33,22 @@ class HomeViewModel @Inject constructor(
     private val _recipeState = MutableStateFlow(RecipeState())
     val recipeState: StateFlow<RecipeState> = _recipeState.asStateFlow()
 
-    private val _aiState = MutableStateFlow("")
-    val aiState: StateFlow<String> = _aiState.asStateFlow()
+    private val _aiState = mutableStateOf(AiState())
+    val aiState: State<AiState> = _aiState
 
     private val _recipeItemsState: MutableStateFlow<PagingData<RecipeRaw>> = MutableStateFlow(PagingData.empty())
     val recipeItemsState = _recipeItemsState.asStateFlow()
 
     init {
-        getTastePreference()
-        getRecipes()
+        //getTastePreference()
+        //getRecipes()
     }
 
     fun onAction(action: HomeEvent){
         when(action){
             is HomeEvent.ToggleLike -> toggleLike(action.id)
             is HomeEvent.GetRecipes -> getRecipes()
-            is HomeEvent.GetFirstRecipeByAI -> getFirstRecipeByAI()
-            is HomeEvent.GetAnotherRecipeByAI -> getAnotherRecipeByAI()
+            is HomeEvent.GetRecipeByAI -> getRecipeByAI()
             is HomeEvent.AddRecipe -> addRecipe(action.title, action.instructions)
             is HomeEvent.SetTastePreference -> setTastePreference(action.tastePreference)
             is HomeEvent.GetTastePreference -> getTastePreference()
@@ -121,45 +125,34 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private fun getAnotherRecipeByAI() {
+    private fun getRecipeByAI() {
         viewModelScope.launch {
-            val result = homeUseCases.getAnotherRecommendation()
-            when(result){
-                is Resource.Success -> {
-                    result.data?.let{
-                        _aiState.update {
-                            it
-                        }
-                    }
-                }
-                is Resource.Error -> {
-                    _aiState.update { "" }
-                    Log.d("error", result.message.toString())
-                }
-                is Resource.Loading -> {
-                    _aiState.update { "" }
-                }
+            aiState.value.isLoading.value = true
+            val isFirstSelection = homeUseCases.getIsFirstSelection()
+            val result = if (isFirstSelection) {
+                homeUseCases.getFirstRecommendation()
+            } else {
+                homeUseCases.getAnotherRecommendation()
             }
-        }
-    }
 
-    private fun getFirstRecipeByAI() {
-        viewModelScope.launch {
-            val result = homeUseCases.getFirstRecommendation()
-            when(result){
+            when (result) {
                 is Resource.Success -> {
-                    result.data?.let{
-                        _aiState.update {
-                            it
-                        }
+                    result.data?.let {
+                        aiState.value.response.value = aiState.value.response.value + it
+                        aiState.value.error.value = ""
+                        aiState.value.isLoading.value = false
+                        homeUseCases.setIsFirstSelection(false) // 첫 선택 완료 처리
                     }
+                    Log.d("success", result.data.toString())
                 }
                 is Resource.Error -> {
-                    _aiState.update { "" }
+                    aiState.value.error.value = result.message.toString()
+                    aiState.value.isLoading.value = false
                     Log.d("error", result.message.toString())
                 }
                 is Resource.Loading -> {
-                    _aiState.update { "" }
+                    aiState.value.error.value = ""
+                    aiState.value.isLoading.value = true
                 }
             }
         }

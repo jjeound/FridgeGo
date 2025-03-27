@@ -1,5 +1,6 @@
 package com.example.untitled_capstone.data.repository
 
+import android.content.Context
 import androidx.paging.ExperimentalPagingApi
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
@@ -15,15 +16,21 @@ import com.example.untitled_capstone.data.remote.service.HomeApi
 import com.example.untitled_capstone.data.repository.FridgeRepositoryImpl.Companion.NETWORK_PAGE_SIZE
 import com.example.untitled_capstone.domain.model.TastePreference
 import com.example.untitled_capstone.domain.repository.HomeRepository
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import okio.IOException
 import retrofit2.HttpException
 import javax.inject.Inject
+import androidx.core.content.edit
 
 class HomeRepositoryImpl @Inject constructor(
     private val api: HomeApi,
-    private val db: RecipeItemDatabase
+    private val db: RecipeItemDatabase,
+    context: Context
 ): HomeRepository {
+
+    private val prefs = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+
     override suspend fun getTastePreference(): Resource<TastePreference> {
         return try {
             Resource.Loading(data = null)
@@ -115,5 +122,13 @@ class HomeRepositoryImpl @Inject constructor(
         } catch (e: HttpException) {
             Resource.Error(e.toString())
         }
+    }
+
+    override fun isFirstSelection(): Boolean {
+        return prefs.getBoolean("isFirstSelection", true)
+    }
+
+    override fun setFirstSelection(isFirst: Boolean) {
+        prefs.edit { putBoolean("isFirstSelection", isFirst) }
     }
 }

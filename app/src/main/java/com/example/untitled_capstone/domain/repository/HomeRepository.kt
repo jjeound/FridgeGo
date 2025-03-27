@@ -15,4 +15,6 @@ interface HomeRepository {
     suspend fun addRecipe(title: String, instructions: String): Resource<ApiResponse>
     suspend fun getFirstRecommendation(): Resource<String>
     suspend fun getAnotherRecommendation(): Resource<String>
+    fun isFirstSelection(): Boolean
+    fun setFirstSelection(isFirst: Boolean)
 }

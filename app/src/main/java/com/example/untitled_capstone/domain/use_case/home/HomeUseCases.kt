@@ -6,5 +6,7 @@ data class HomeUseCases(
     val setTastePreference: SetTastePreference,
     val addRecipe: AddRecipe,
     val getFirstRecommendation: GetFirstRecommendation,
-    val getAnotherRecommendation: GetAnotherRecommendation
+    val getAnotherRecommendation: GetAnotherRecommendation,
+    val getIsFirstSelection: GetIsFirstSelection,
+    val setIsFirstSelection: SetIsFirstSelection
 )

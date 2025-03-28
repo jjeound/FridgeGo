@@ -5,7 +5,7 @@ import com.example.untitled_capstone.data.remote.dto.NewPostDto
 data class NewPost(
     val category: String,
     val content: String,
-    val like_count: Int,
+    val memberCount: Int,
     val price: Int,
     val title: String
 ){
@@ -13,7 +13,7 @@ data class NewPost(
         return NewPostDto(
             category = category,
             content = content,
-            like_count = like_count,
+            memberCount = memberCount,
             price = price,
             title = title
         )

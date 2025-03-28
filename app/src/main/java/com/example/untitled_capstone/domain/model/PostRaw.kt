@@ -4,7 +4,8 @@ data class PostRaw(
     val id: Long,
     val category: String,
     val content: String,
-    val like_count: Int,
+    val likeCount: Int,
+    val memberCount: Int,
     val price: Int,
     val title: String
 )

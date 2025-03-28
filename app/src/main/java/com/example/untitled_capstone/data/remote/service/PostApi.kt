@@ -10,12 +10,12 @@ import retrofit2.http.Query
 
 interface PostApi {
 
-    @POST("/api/post")
+    @POST("/api/post/")
     suspend fun post(
         @Body newPostDto: NewPostDto
     ): ApiResponse
 
-    @GET("/api/post")
+    @GET("/api/post/")
     suspend fun getPosts(
         @Query("page") page: Int = 1,
         @Query("size") size: Int = 10,

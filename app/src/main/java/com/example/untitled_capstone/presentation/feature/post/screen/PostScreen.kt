@@ -1,5 +1,6 @@
 package com.example.untitled_capstone.presentation.feature.post.screen
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -34,6 +35,9 @@ fun PostScreen(navigate: (Long) -> Unit, postItems: LazyPagingItems<PostRaw>, st
                 Toast.LENGTH_LONG
             ).show()
         }
+    }
+    LaunchedEffect(state.error) {
+        Log.d("error", state.error ?: "null")
     }
     Box(modifier = Modifier.fillMaxSize()) {
         if(postItems.loadState.refresh is LoadState.Loading || state.isLoading) {

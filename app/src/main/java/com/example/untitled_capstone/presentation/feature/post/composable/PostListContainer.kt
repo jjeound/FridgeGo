@@ -118,7 +118,7 @@ fun PostListContainer(post: PostRaw, onEvent: (PostEvent) -> Unit){
                     tint = CustomTheme.colors.iconDefault,
                 )
                 Text(
-                    text = "1/5", //"${post.currentNumOfPeople}/${post.totalNumbOfPeople}",
+                    text = "1/${post.memberCount}",
                     style = CustomTheme.typography.caption2,
                     color = CustomTheme.colors.textSecondary,
                 )
@@ -148,7 +148,7 @@ fun PostListContainer(post: PostRaw, onEvent: (PostEvent) -> Unit){
                     )
                 }
                 Text(
-                    text = "${post.like_count}",
+                    text = "${post.likeCount}",
                     style = CustomTheme.typography.caption2,
                     color = CustomTheme.colors.textSecondary,
                 )
@@ -164,7 +164,8 @@ fun PostListContainerPreview(){
         post = PostRaw(
           title = "title",
             content = "content",
-            like_count = 1,
+            likeCount = 1,
+            memberCount = 1,
             id = 1,
             price = 3000,
             category = "식료품"

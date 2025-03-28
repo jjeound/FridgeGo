@@ -1,9 +1,7 @@
 package com.example.untitled_capstone.domain.use_case.token
 
-import android.util.Log
 import com.example.untitled_capstone.data.remote.dto.TokenDto
 import com.example.untitled_capstone.data.util.ErrorCode.JWT4004
-import com.example.untitled_capstone.domain.repository.LoginRepository
 import com.example.untitled_capstone.domain.repository.TokenRepository
 import com.example.untitled_capstone.presentation.util.AuthEvent
 import com.example.untitled_capstone.presentation.util.AuthEventBus.authEventChannel
@@ -40,15 +38,15 @@ class AuthAuthenticator @Inject constructor(
         } ?: return null
 
         return response.request.newBuilder()
-            .header(AUTHORIZATION, newToken.accessToken!!)
+            .header(AUTHORIZATION, newToken.accessToken)
             .build()
     }
 
     private suspend fun refreshAndSaveToken(refreshToken: String): TokenDto? {
         val newToken = requestNewToken(refreshToken)
         newToken?.let {
-            tokenManager.saveAccessToken(it.accessToken!!)
-            tokenManager.saveRefreshToken(it.refreshToken!!)
+            tokenManager.saveAccessToken(it.accessToken)
+            tokenManager.saveRefreshToken(it.refreshToken)
         }
         return newToken
     }

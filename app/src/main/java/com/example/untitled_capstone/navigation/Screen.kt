@@ -59,6 +59,12 @@ sealed interface Screen {
 
     @Serializable
     data object LocationNav: Screen
+
+    @Serializable
+    data object MyPostNav: Screen
+
+    @Serializable
+    data object MyLikedPostNav: Screen
 }
 
 sealed interface Graph {

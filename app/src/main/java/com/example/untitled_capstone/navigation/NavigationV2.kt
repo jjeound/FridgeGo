@@ -36,6 +36,8 @@ import com.example.untitled_capstone.presentation.feature.fridge.FridgeViewModel
 import com.example.untitled_capstone.presentation.feature.fridge.screen.AddFridgeItemScreen
 import com.example.untitled_capstone.presentation.feature.fridge.screen.RefrigeratorScreen
 import com.example.untitled_capstone.presentation.feature.login.SetLocationScreen
+import com.example.untitled_capstone.presentation.feature.my.MyLikedPostScreen
+import com.example.untitled_capstone.presentation.feature.my.MyPostScreen
 import com.example.untitled_capstone.presentation.feature.post.PostViewModel
 import com.example.untitled_capstone.presentation.feature.post.screen.PostDetailScreen
 import com.example.untitled_capstone.presentation.feature.post.screen.PostScreen
@@ -49,7 +51,8 @@ fun NavigationV2(navController: NavHostController, mainViewModel: MainViewModel)
             startDestination = Screen.Home
         ){
             composable<Screen.Home> {
-                val viewModel: HomeViewModel = hiltViewModel()
+                val parentEntry = navController.getBackStackEntry(Graph.HomeGraph)
+                val viewModel: HomeViewModel = hiltViewModel(parentEntry)
                 val recipeState by viewModel.recipeState.collectAsStateWithLifecycle()
                 val recipeItems = viewModel.recipeItemsState.collectAsLazyPagingItems()
                 val tastePrefState by viewModel.tastePrefState.collectAsStateWithLifecycle()
@@ -64,11 +67,10 @@ fun NavigationV2(navController: NavHostController, mainViewModel: MainViewModel)
                 }
             }
             composable<Screen.RecipeNav>{
-                val viewModel: HomeViewModel = hiltViewModel()
+                val parentEntry = navController.getBackStackEntry(Graph.HomeGraph)
+                val viewModel: HomeViewModel = hiltViewModel(parentEntry)
                 val recipeState by viewModel.recipeState.collectAsStateWithLifecycle()
-                val args = it.toRoute<Screen.RecipeNav>()
-                RecipeScreen(
-                    args.id, recipeState, viewModel::onAction){
+                RecipeScreen(recipeState, viewModel::onAction){
                     navController.popBackStack()
                 }
             }
@@ -77,7 +79,8 @@ fun NavigationV2(navController: NavHostController, mainViewModel: MainViewModel)
             startDestination = Screen.Post
         ){
             composable<Screen.Post>{
-                val viewModel: PostViewModel = hiltViewModel()
+                val parentEntry = navController.getBackStackEntry(Graph.PostGraph)
+                val viewModel: PostViewModel = hiltViewModel(parentEntry)
                 val state by viewModel.state.collectAsStateWithLifecycle()
                 val postItems = viewModel.postItemState.collectAsLazyPagingItems()
                 PostScreen(navigate = { id ->
@@ -89,7 +92,8 @@ fun NavigationV2(navController: NavHostController, mainViewModel: MainViewModel)
                 }, postItems = postItems, state = state, onEvent = viewModel::onEvent)
             }
             composable<Screen.PostDetailNav>{
-                val viewModel: PostViewModel = hiltViewModel()
+                val parentEntry = navController.getBackStackEntry(Graph.PostGraph)
+                val viewModel: PostViewModel = hiltViewModel(parentEntry)
                 val state by viewModel.state.collectAsStateWithLifecycle()
                 val args = it.toRoute<Screen.PostDetailNav>()
                 PostDetailScreen(
@@ -97,7 +101,8 @@ fun NavigationV2(navController: NavHostController, mainViewModel: MainViewModel)
                 )
             }
             composable<Screen.WritingNav> {
-                val viewModel: PostViewModel = hiltViewModel()
+                val parentEntry = navController.getBackStackEntry(Graph.PostGraph)
+                val viewModel: PostViewModel = hiltViewModel(parentEntry)
                 val state by viewModel.state.collectAsStateWithLifecycle()
                 WritingNewPostScreen(navController, state, viewModel::onEvent)
             }
@@ -106,13 +111,15 @@ fun NavigationV2(navController: NavHostController, mainViewModel: MainViewModel)
             startDestination = Screen.Fridge
         ){
             composable<Screen.Fridge>{
-                val viewModel: FridgeViewModel = hiltViewModel()
+                val parentEntry = navController.getBackStackEntry(Graph.FridgeGraph)
+                val viewModel: FridgeViewModel = hiltViewModel(parentEntry)
                 val state by viewModel.state.collectAsStateWithLifecycle()
                 val fridgeItems = viewModel.fridgeItemState.collectAsLazyPagingItems()
                 RefrigeratorScreen(fridgeItems, state, mainViewModel, viewModel::onAction, navController)
             }
             composable<Screen.AddFridgeItemNav>{
-                val viewModel: FridgeViewModel = hiltViewModel()
+                val parentEntry = navController.getBackStackEntry(Graph.FridgeGraph)
+                val viewModel: FridgeViewModel = hiltViewModel(parentEntry)
                 val state by viewModel.state.collectAsStateWithLifecycle()
                 val args = it.toRoute<Screen.AddFridgeItemNav>()
                 AddFridgeItemScreen(args.id, state, {navController.popBackStack()}, viewModel::onAction)
@@ -137,14 +144,42 @@ fun NavigationV2(navController: NavHostController, mainViewModel: MainViewModel)
             startDestination = Screen.My
         ){
             composable<Screen.My>{
-                val viewModel: MyViewModel = hiltViewModel()
+                val parentEntry = navController.getBackStackEntry(Graph.MyGraph)
+                val viewModel: MyViewModel = hiltViewModel(parentEntry)
                 val state by viewModel.state.collectAsStateWithLifecycle()
                 MyScreen(navController, viewModel::onEvent, state)
             }
             composable<Screen.Profile>{
-                val viewModel: MyViewModel = hiltViewModel()
+                val parentEntry = navController.getBackStackEntry(Graph.MyGraph)
+                val viewModel: MyViewModel = hiltViewModel(parentEntry)
                 val state by viewModel.state.collectAsStateWithLifecycle()
-                ProfileScreen(state, {navController.popBackStack()})
+                ProfileScreen(navController, state, viewModel::onEvent, {navController.popBackStack()})
+            }
+            composable<Screen.MyLikedPostNav> {
+                val viewModel: PostViewModel = hiltViewModel()
+                val state by viewModel.state.collectAsStateWithLifecycle()
+                val postItems = viewModel.postItemState.collectAsLazyPagingItems()
+                MyLikedPostScreen(navigate = { id ->
+                    navController.navigate(
+                        Screen.PostDetailNav(
+                            id = id
+                        )
+                    )
+                }, postItems = postItems, state = state, onEvent = viewModel::onEvent,
+                    navigateToBack = {navController.popBackStack()})
+            }
+            composable<Screen.MyPostNav> {
+                val viewModel: PostViewModel = hiltViewModel()
+                val state by viewModel.state.collectAsStateWithLifecycle()
+                val postItems = viewModel.postItemState.collectAsLazyPagingItems()
+                MyPostScreen(navigate = { id ->
+                    navController.navigate(
+                        Screen.PostDetailNav(
+                            id = id
+                        )
+                    )
+                }, postItems = postItems, state = state, onEvent = viewModel::onEvent,
+                    navigateToBack = {navController.popBackStack()})
             }
         }
         composable<Screen.NotificationNav> {
@@ -153,12 +188,14 @@ fun NavigationV2(navController: NavHostController, mainViewModel: MainViewModel)
         }
         navigation<Graph.LoginGraph>(startDestination = Screen.LoginNav){
             composable<Screen.LoginNav> {
-                val viewModel: LoginViewModel = hiltViewModel()
+                val parentEntry = navController.getBackStackEntry(Graph.LoginGraph)
+                val viewModel: LoginViewModel = hiltViewModel(parentEntry)
                 val state by viewModel.state.collectAsStateWithLifecycle()
                 LoginScreen(navController, state, viewModel::onEvent)
             }
             composable<Screen.NicknameNav>{
-                val viewModel: LoginViewModel = hiltViewModel()
+                val parentEntry = navController.getBackStackEntry(Graph.LoginGraph)
+                val viewModel: LoginViewModel = hiltViewModel(parentEntry)
                 val state by viewModel.state.collectAsStateWithLifecycle()
                 SetNickNameScreen(
                     navigateToLoc = {
@@ -172,7 +209,8 @@ fun NavigationV2(navController: NavHostController, mainViewModel: MainViewModel)
                 )
             }
             composable<Screen.LocationNav> {
-                val viewModel: LoginViewModel = hiltViewModel()
+                val parentEntry = navController.getBackStackEntry(Graph.LoginGraph)
+                val viewModel: LoginViewModel = hiltViewModel(parentEntry)
                 val state by viewModel.state.collectAsStateWithLifecycle()
                 SetLocationScreen(state, viewModel::onEvent){
                     navController.navigate(Screen.Home)

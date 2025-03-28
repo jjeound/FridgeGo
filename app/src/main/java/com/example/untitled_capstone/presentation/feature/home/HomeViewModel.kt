@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
+import androidx.paging.map
 import com.example.untitled_capstone.core.util.Resource
 import com.example.untitled_capstone.domain.model.RecipeRaw
 import com.example.untitled_capstone.domain.model.TastePreference
@@ -40,15 +41,16 @@ class HomeViewModel @Inject constructor(
     val recipeItemsState = _recipeItemsState.asStateFlow()
 
     init {
-        //getTastePreference()
+        getTastePreference()
         //getRecipes()
     }
 
     fun onAction(action: HomeEvent){
         when(action){
-            is HomeEvent.ToggleLike -> toggleLike(action.id)
+            is HomeEvent.ToggleLike -> toggleLike(action.id, action.liked)
             is HomeEvent.GetRecipes -> getRecipes()
-            is HomeEvent.GetRecipeByAI -> getRecipeByAI()
+            is HomeEvent.GetRecipeByAi -> getRecipeByAI()
+            is HomeEvent.GetRecipeById -> getRecipeById(action.id)
             is HomeEvent.AddRecipe -> addRecipe(action.title, action.instructions)
             is HomeEvent.SetTastePreference -> setTastePreference(action.tastePreference)
             is HomeEvent.GetTastePreference -> getTastePreference()
@@ -175,16 +177,53 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private fun toggleLike(id: Long){
-//        _state.update { currentState ->
-//            val updatedPosts = currentState.recipeItems.map { recipe ->
-//                if (recipe.id == id) {
-//                    recipe.copy(
-//                        isLiked = !recipe.isLiked,
-//                    )
-//                } else recipe
-//            }
-//            currentState.copy(recipeItems = updatedPosts)
-//        }
+    private fun getRecipeById(id: Long){
+        viewModelScope.launch {
+            val result = homeUseCases.getRecipeById(id)
+            when(result){
+                is Resource.Success -> {
+                    result.data?.let{
+                        _recipeState.update { it.copy(
+                            recipe = result.data,
+                            loading = false,
+                            error = null
+                        ) }
+                    }
+                }
+                is Resource.Error -> {
+                    _recipeState.update { it.copy(loading = false, error = result.message ?: "An unexpected error occurred") }
+                }
+                is Resource.Loading -> {
+                    _recipeState.update { it.copy(loading = true) }
+                }
+            }
+        }
+    }
+
+    private fun toggleLike(id: Long, liked: Boolean){
+        viewModelScope.launch {
+            val result = homeUseCases.toggleLike(id, liked)
+            when(result){
+                is Resource.Success -> {
+                    result.data?.let{
+                        _recipeItemsState.update { pagingData ->
+                            pagingData.map {
+                                if(it.id == id){
+                                    it.copy(liked = liked)
+                                }else{
+                                    it
+                                }
+                            }
+                        }
+                    }
+                }
+                is Resource.Error -> {
+                    _recipeState.update { it.copy(loading = false, error = result.message ?: "An unexpected error occurred") }
+                }
+                is Resource.Loading -> {
+                    _recipeState.update { it.copy(loading = true) }
+                }
+            }
+        }
     }
 }

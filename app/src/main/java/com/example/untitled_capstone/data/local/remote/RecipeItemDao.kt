@@ -16,6 +16,9 @@ interface RecipeItemDao {
 
     @Query("SELECT * FROM recipeitementity")
     fun getRecipeItems(): PagingSource<Int, RecipeItemEntity>
+
+    @Query("UPDATE recipeitementity SET liked = :liked WHERE id = :id")
+    suspend fun toggleLike(id: Long, liked: Boolean)
 }
 
 

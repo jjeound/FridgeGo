@@ -22,6 +22,8 @@ import okio.IOException
 import retrofit2.HttpException
 import javax.inject.Inject
 import androidx.core.content.edit
+import com.example.untitled_capstone.core.util.Constants.TASTE_PREFERENCE
+import com.example.untitled_capstone.domain.model.RecipeRaw
 
 class HomeRepositoryImpl @Inject constructor(
     private val api: HomeApi,
@@ -34,11 +36,15 @@ class HomeRepositoryImpl @Inject constructor(
     override suspend fun getTastePreference(): Resource<TastePreference> {
         return try {
             Resource.Loading(data = null)
-            val response = api.getTastePreference()
-            if(response.isSuccess){
-                Resource.Success(response.toDomainModel())
-            }else {
-                Resource.Error(message = response.toString())
+            if(prefs.getString(TASTE_PREFERENCE, null) != null){
+                return Resource.Success(TastePreference(prefs.getString(TASTE_PREFERENCE, null)!!))
+            } else{
+                val response = api.getTastePreference()
+                if(response.isSuccess){
+                    Resource.Success(response.toTastePreference())
+                }else {
+                    Resource.Error(message = response.toString())
+                }
             }
         } catch (e: IOException) {
             Resource.Error(e.toString())
@@ -52,6 +58,7 @@ class HomeRepositoryImpl @Inject constructor(
             Resource.Loading(data = null)
             val response = api.setTastePreference(tastePreference)
             if(response.isSuccess){
+                prefs.edit { putString(TASTE_PREFERENCE, tastePreference.tastePreference) }
                 Resource.Success(response)
             }else {
                 Resource.Error(message = response.toString())
@@ -70,6 +77,39 @@ class HomeRepositoryImpl @Inject constructor(
             remoteMediator = RecipePagingSource(api, db),
             pagingSourceFactory = { db.dao.getRecipeItems() }
         ).flow
+    }
+
+    override suspend fun getRecipeById(id: Long): Resource<RecipeRaw> {
+        return try {
+            Resource.Loading(data = null)
+            val response = api.getRecipeById(id)
+            if(response.isSuccess){
+                Resource.Success(response.result.toRecipe())
+            }else {
+                Resource.Error(message = response.toString())
+            }
+        } catch (e: IOException) {
+            Resource.Error(e.toString())
+        } catch (e: HttpException) {
+            Resource.Error(e.toString())
+        }
+    }
+
+    override suspend fun toggleLike(id: Long, liked: Boolean): Resource<ApiResponse> {
+        return try {
+            Resource.Loading(data = null)
+            val response = api.toggleLike(id)
+            if(response.isSuccess){
+                db.dao.toggleLike(id, liked)
+                Resource.Success(response)
+            }else {
+                Resource.Error(message = response.toString())
+            }
+        } catch (e: IOException) {
+            Resource.Error(e.toString())
+        } catch (e: HttpException) {
+            Resource.Error(e.toString())
+        }
     }
 
 

@@ -8,5 +8,7 @@ data class HomeUseCases(
     val getFirstRecommendation: GetFirstRecommendation,
     val getAnotherRecommendation: GetAnotherRecommendation,
     val getIsFirstSelection: GetIsFirstSelection,
-    val setIsFirstSelection: SetIsFirstSelection
+    val setIsFirstSelection: SetIsFirstSelection,
+    val getRecipeById: GetRecipeById,
+    val toggleLike: ToggleLike
 )

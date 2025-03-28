@@ -27,6 +27,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -91,22 +92,45 @@ fun ChatBot(aiState: AiState, onEvent: (HomeEvent) -> Unit) {
                         Column(
                             modifier = Modifier.padding(
                                 Dimens.mediumPadding
-                            )
+                            ),
+                            verticalArrangement = Arrangement.spacedBy(Dimens.smallPadding)
                         ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.End
+                            ) {
+                                IconButton(
+                                    onClick = {
+                                        onEvent(HomeEvent.AddRecipe(
+                                            title = matches[0],
+                                            instructions = r.replace("matches[0]", "")
+                                        ))
+                                    }
+                                ) {
+                                    Icon(
+                                        imageVector = ImageVector.vectorResource(R.drawable.flag),
+                                        tint = CustomTheme.colors.iconDefault,
+                                        contentDescription = "save"
+                                    )
+                                }
+                                Text(
+                                    text = "저장하기",
+                                    style = CustomTheme.typography.caption2,
+                                    color = CustomTheme.colors.textSecondary
+                                )
+                            }
                             parts.forEachIndexed { index, text ->
                                 if (index > 0) { // 첫 번째 항목은 [] 앞에 있는 내용이므로 제외
                                     Text(
                                         text = matches[index - 1].trim(), // [ ] 안의 텍스트
                                         style = CustomTheme.typography.title1,
                                         color = CustomTheme.colors.textPrimary,
-                                        modifier = Modifier.padding(bottom = 4.dp)
                                     )
                                 }
                                 Text(
                                     text = text.trim(),
                                     style = CustomTheme.typography.body1,
                                     color = CustomTheme.colors.textPrimary,
-                                    modifier = Modifier.padding(bottom = 4.dp)
                                 )
                             }
                         }
@@ -146,7 +170,7 @@ fun ChatBot(aiState: AiState, onEvent: (HomeEvent) -> Unit) {
                 alignment = Alignment.End
             ),
             onClick = {
-                onEvent(HomeEvent.GetRecipeByAI)
+                onEvent(HomeEvent.GetRecipeByAi)
             },
             enabled = !isLoading,
             shape = ButtonDefaults.elevatedShape,

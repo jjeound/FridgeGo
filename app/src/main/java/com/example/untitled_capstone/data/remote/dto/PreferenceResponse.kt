@@ -8,7 +8,7 @@ data class PreferenceResponse(
     val message: String,
     val result: PreferenceDto
 ){
-    fun toDomainModel(): TastePreference{
+    fun toTastePreference(): TastePreference{
         return TastePreference(
             tastePreference = result.tastePreference
         )

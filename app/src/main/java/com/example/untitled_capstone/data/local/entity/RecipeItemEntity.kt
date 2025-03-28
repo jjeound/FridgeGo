@@ -8,13 +8,15 @@ import com.example.untitled_capstone.domain.model.RecipeRaw
 data class RecipeItemEntity(
     @PrimaryKey val id: Long,
     val title: String,
-    val instructions: String
+    val instructions: String,
+    val liked: Boolean
 ){
     fun toRecipe(): RecipeRaw{
         return  RecipeRaw(
             id = id,
             title = title,
-            instructions = instructions
+            instructions = instructions,
+            liked = liked
         )
     }
 }

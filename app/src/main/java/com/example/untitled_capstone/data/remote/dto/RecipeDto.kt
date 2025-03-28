@@ -1,18 +1,29 @@
 package com.example.untitled_capstone.data.remote.dto
 
 import com.example.untitled_capstone.data.local.entity.RecipeItemEntity
+import com.example.untitled_capstone.domain.model.RecipeRaw
 
 
 data class RecipeDto(
     val id: Long,
     val title: String,
-    val instructions: String
+    val instructions: String,
+    val liked: Boolean
 ){
     fun toRecipeEntity(): RecipeItemEntity{
         return RecipeItemEntity(
             id = id,
             title = title,
-            instructions = instructions
+            instructions = instructions,
+            liked = liked
+        )
+    }
+    fun toRecipe(): RecipeRaw{
+        return RecipeRaw(
+            id = id,
+            title = title,
+            instructions = instructions,
+            liked = liked
         )
     }
 }

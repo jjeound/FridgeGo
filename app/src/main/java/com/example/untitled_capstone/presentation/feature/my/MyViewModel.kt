@@ -1,11 +1,9 @@
 package com.example.untitled_capstone.presentation.feature.my
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.untitled_capstone.core.util.Resource
 import com.example.untitled_capstone.domain.use_case.my.MyUseCases
-import com.example.untitled_capstone.presentation.util.AuthEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -36,7 +34,6 @@ class MyViewModel @Inject constructor(
         viewModelScope.launch {
             myUseCases.getAccessToken().collect{ token->
                 if(!token.isNullOrEmpty()){ // null뿐만 아니라 빈 값도 확인
-                    _state.update { it.copy(isLoggedIn = true) }
                     getMyProfile()
                 } else {
                     _state.update { it.copy(isLoggedIn = false) }
@@ -54,6 +51,7 @@ class MyViewModel @Inject constructor(
                     result.data?.let{
                         _state.update { it.copy(
                             isLoggedIn = false,
+                            profile = null,
                             loading = false,
                             error = null) }
                     }

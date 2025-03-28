@@ -22,51 +22,33 @@ import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @Composable
-fun MyContainer(title: String, content: List<String>, icons: List<Int>){
-    Card(
-        shape = RoundedCornerShape(Dimens.cornerRadius),
-        colors = CardDefaults.cardColors(
-            containerColor = CustomTheme.colors.onSurface
-        )
+fun MyContainer(content: String, icon: Int, navigateTo: () -> Unit){
+    Row(
+        modifier = Modifier.fillMaxWidth().clickable {
+            navigateTo()
+        },
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Column(
-            modifier = Modifier.padding(Dimens.mediumPadding),
-            horizontalAlignment = Alignment.Start,
-            verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding)
-        ) {
+        Row {
+            Icon(
+                imageVector = ImageVector.vectorResource(icon),
+                contentDescription = "icon",
+                tint = CustomTheme.colors.iconSelected
+            )
+            Spacer(
+                modifier = Modifier.padding(Dimens.smallPadding)
+            )
             Text(
-                text = title,
-                style = CustomTheme.typography.title2,
+                text = content,
+                style = CustomTheme.typography.body1,
                 color = CustomTheme.colors.textPrimary,
             )
-            for(i in content.indices){
-                Row(
-                    modifier = Modifier.fillMaxWidth().clickable {  },
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Row {
-                        Icon(
-                            imageVector = ImageVector.vectorResource(icons[i]),
-                            contentDescription = "icon",
-                            tint = CustomTheme.colors.iconSelected
-                        )
-                        Spacer(
-                            modifier = Modifier.padding(Dimens.smallPadding)
-                        )
-                        Text(
-                            text = content[i],
-                            style = CustomTheme.typography.body1,
-                            color = CustomTheme.colors.textPrimary,
-                        )
-                    }
-                    Icon(
-                        imageVector = ImageVector.vectorResource(R.drawable.chevron_right),
-                        contentDescription = "navigate",
-                        tint = CustomTheme.colors.iconDefault
-                    )
-                }
-            }
         }
+        Icon(
+            imageVector = ImageVector.vectorResource(R.drawable.chevron_right),
+            contentDescription = "navigate",
+            tint = CustomTheme.colors.iconDefault
+        )
     }
 }

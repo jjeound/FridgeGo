@@ -49,7 +49,7 @@ class MainViewModel @Inject constructor(
                 } else {
                     _startDestination.value = Graph.OnBoardingGraph
                 }
-                delay(500)
+                delay(800)
                 _splashCondition.value = false
             }
         }

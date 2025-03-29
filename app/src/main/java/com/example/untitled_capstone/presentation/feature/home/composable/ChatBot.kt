@@ -90,20 +90,19 @@ fun ChatBot(aiState: AiState, onEvent: (HomeEvent) -> Unit) {
                             .wrapContentSize()
                     ) {
                         Column(
-                            modifier = Modifier.padding(
-                                Dimens.mediumPadding
-                            ),
-                            verticalArrangement = Arrangement.spacedBy(Dimens.smallPadding)
+                            modifier = Modifier.padding(Dimens.mediumPadding)
                         ) {
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.End
+                                horizontalArrangement = Arrangement.End,
+                                verticalAlignment = Alignment.Top
                             ) {
                                 IconButton(
+                                    modifier = Modifier.then(Modifier.size(24.dp)),
                                     onClick = {
                                         onEvent(HomeEvent.AddRecipe(
                                             title = matches[0],
-                                            instructions = r.replace("matches[0]", "")
+                                            instructions = r.replace(matches[0], "")
                                         ))
                                     }
                                 ) {
@@ -114,7 +113,7 @@ fun ChatBot(aiState: AiState, onEvent: (HomeEvent) -> Unit) {
                                     )
                                 }
                                 Text(
-                                    text = "저장하기",
+                                    text = "저장",
                                     style = CustomTheme.typography.caption2,
                                     color = CustomTheme.colors.textSecondary
                                 )

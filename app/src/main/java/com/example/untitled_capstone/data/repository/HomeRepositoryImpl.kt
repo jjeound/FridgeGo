@@ -16,7 +16,6 @@ import com.example.untitled_capstone.data.remote.service.HomeApi
 import com.example.untitled_capstone.data.repository.FridgeRepositoryImpl.Companion.NETWORK_PAGE_SIZE
 import com.example.untitled_capstone.domain.model.TastePreference
 import com.example.untitled_capstone.domain.repository.HomeRepository
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import okio.IOException
 import retrofit2.HttpException

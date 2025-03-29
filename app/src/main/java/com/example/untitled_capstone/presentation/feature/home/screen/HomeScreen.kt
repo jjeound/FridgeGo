@@ -117,6 +117,7 @@ fun HomeScreen(snackBarHostState: SnackbarHostState, mainViewModel: MainViewMode
                             items( recipeItems.itemCount,){ index ->
                                 val item = recipeItems[index]
                                 if(item != null){
+                                    onEvent(HomeEvent.GetRecipeById(item.id))
                                     MyRecipe(item, onEvent = onEvent,
                                         onClick = {
                                             navigate(item.id)

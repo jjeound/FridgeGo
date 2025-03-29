@@ -42,7 +42,7 @@ class HomeViewModel @Inject constructor(
 
     init {
         getTastePreference()
-        //getRecipes()
+        getRecipes()
     }
 
     fun onAction(action: HomeEvent){
@@ -215,6 +215,13 @@ class HomeViewModel @Inject constructor(
                                 }
                             }
                         }
+                    }
+                    _recipeState.update {
+                        it.copy(
+                            recipe = it.recipe?.copy(liked = liked),
+                            loading = false,
+                            error = null
+                        )
                     }
                 }
                 is Resource.Error -> {

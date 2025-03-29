@@ -1,9 +1,6 @@
 package com.example.untitled_capstone.navigation
 
 import com.example.untitled_capstone.domain.model.ChattingRoom
-import com.example.untitled_capstone.domain.model.FridgeItem
-import com.example.untitled_capstone.domain.model.Post
-import com.example.untitled_capstone.domain.model.Recipe
 import kotlinx.serialization.Serializable
 import kotlin.reflect.typeOf
 

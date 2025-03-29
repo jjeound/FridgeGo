@@ -23,17 +23,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
-import com.example.untitled_capstone.domain.model.Post
 import com.example.untitled_capstone.presentation.feature.post.PostEvent
 import com.example.untitled_capstone.ui.theme.CustomTheme
-import androidx.core.net.toUri
 import com.example.untitled_capstone.domain.model.PostRaw
 
 @Composable

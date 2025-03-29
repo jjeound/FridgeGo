@@ -46,7 +46,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -72,10 +71,8 @@ import com.example.untitled_capstone.MainActivity
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.domain.model.NewPost
-import com.example.untitled_capstone.domain.model.Post
 import com.example.untitled_capstone.presentation.feature.fridge.composable.PermissionDialog
 import com.example.untitled_capstone.presentation.feature.post.PostEvent
-import com.example.untitled_capstone.presentation.feature.post.PostState
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @Composable

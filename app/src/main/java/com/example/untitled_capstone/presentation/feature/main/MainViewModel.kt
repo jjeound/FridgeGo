@@ -8,7 +8,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.untitled_capstone.domain.use_case.app_entry.ReadAppEntry
 import com.example.untitled_capstone.navigation.Graph
-import com.example.untitled_capstone.navigation.Screen
 import com.example.untitled_capstone.presentation.util.AuthEvent
 import com.example.untitled_capstone.presentation.util.AuthEventBus
 import dagger.hilt.android.lifecycle.HiltViewModel

@@ -94,11 +94,11 @@ fun MainScreen(viewModel: MainViewModel){
                             },
                             elevation = FloatingActionButtonDefaults.elevation(0.dp),
                             containerColor = Color.Unspecified,
-                            contentColor = CustomTheme.colors.iconPrimary,
+                            contentColor = Color.Unspecified
                         ) {
                             Icon(
                                 imageVector = ImageVector.vectorResource(id = R.drawable.writing),
-                                tint = CustomTheme.colors.iconPrimary,
+                                tint = Color.Unspecified,
                                 contentDescription = "write new post"
                             )
                         }

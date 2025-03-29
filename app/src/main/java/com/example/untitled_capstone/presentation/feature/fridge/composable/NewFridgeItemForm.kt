@@ -463,6 +463,7 @@ fun NewFridgeItemForm(id: Long?, state: FridgeState, navigate: () -> Unit, onAct
                             isFridge = it.isFridge
                         )
                     ))
+                    onAction(FridgeAction.InitState)
                 } ?: run {
                     onAction(FridgeAction.AddItem(
                         FridgeItem(

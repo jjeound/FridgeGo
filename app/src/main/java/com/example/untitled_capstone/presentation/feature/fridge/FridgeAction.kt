@@ -10,4 +10,5 @@ sealed interface FridgeAction{
     data class ModifyItem(val item: FridgeItem): FridgeAction
     data class DeleteItem(val id: Long): FridgeAction
     data class GetItemById(val id: Long): FridgeAction
+    data object InitState: FridgeAction
 }

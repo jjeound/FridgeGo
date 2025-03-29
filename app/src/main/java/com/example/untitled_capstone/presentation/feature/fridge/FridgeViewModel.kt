@@ -41,7 +41,12 @@ class FridgeViewModel @Inject constructor(
             is FridgeAction.ModifyItem -> modifyItem(action.item)
             is FridgeAction.DeleteItem -> deleteItem(action.id)
             is FridgeAction.GetItemById -> getItemById(action.id)
+            is FridgeAction.InitState -> initState()
         }
+    }
+
+    private fun initState(){
+        _state.update { FridgeState() }
     }
 
     private fun addItem(item: FridgeItem){

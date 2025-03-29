@@ -6,6 +6,7 @@ import android.os.Build
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -37,6 +38,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
@@ -94,7 +96,11 @@ fun FridgeItemContainer(item: FridgeItem, onAction: (FridgeAction) -> Unit, onSh
                         .clip(shape = RoundedCornerShape(Dimens.cornerRadius))
                 )
             } else {
-                Box(
+                Image(
+                    painter = painterResource(R.drawable.thumbnail),
+                    contentDescription = "thumbnail",
+                    alignment = Alignment.Center,
+                    contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .size(80.dp)
                         .clip(shape = RoundedCornerShape(Dimens.mediumPadding))

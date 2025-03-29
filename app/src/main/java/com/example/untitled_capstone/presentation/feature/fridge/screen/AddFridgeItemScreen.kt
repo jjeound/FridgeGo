@@ -38,7 +38,10 @@ fun AddFridgeItemScreen(id: Long?, state: FridgeState, navigate: () -> Unit, onA
                 },
                 navigationIcon = {
                     IconButton(
-                        onClick = { navigate() }
+                        onClick = {
+                            navigate()
+                            onAction(FridgeAction.InitState)
+                        }
                     ) {
                         Icon(
                             imageVector = ImageVector.vectorResource(R.drawable.close),

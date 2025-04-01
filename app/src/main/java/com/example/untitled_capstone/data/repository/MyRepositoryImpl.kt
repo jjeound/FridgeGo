@@ -36,7 +36,7 @@ class MyRepositoryImpl @Inject constructor(
             Resource.Loading(data = null)
             val response = api.getProfile()
             if(response.isSuccess){
-                Resource.Success(response.result.toProfile())
+                Resource.Success(response.result!!.toProfile())
             } else {
                 Resource.Error(response.message)
             }
@@ -52,9 +52,25 @@ class MyRepositoryImpl @Inject constructor(
             Resource.Loading(data = null)
             val response = api.getOtherProfile(nickname)
             if(response.isSuccess){
-                Resource.Success(response.result.toProfile())
+                Resource.Success(response.result!!.toProfile())
             } else {
                 Resource.Error(response.message)
+            }
+        } catch (e: IOException) {
+            Resource.Error(e.toString())
+        } catch (e: HttpException) {
+            Resource.Error(e.toString())
+        }
+    }
+
+    override suspend fun getLocation(): Resource<String> {
+        return try {
+            Resource.Loading(data = null)
+            val response = api.getLocation()
+            if(response.isSuccess){
+                Resource.Success(response.result!!.neighborhood)
+            }else {
+                Resource.Error(message = response.toString())
             }
         } catch (e: IOException) {
             Resource.Error(e.toString())

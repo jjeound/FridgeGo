@@ -10,4 +10,6 @@ interface MyRepository {
     suspend fun getMyProfile(): Resource<Profile>
 
     suspend fun getOtherProfile(nickname: String): Resource<Profile>
+
+    suspend fun getLocation(): Resource<String>
 }

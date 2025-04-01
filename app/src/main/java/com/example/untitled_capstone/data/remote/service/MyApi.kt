@@ -1,8 +1,11 @@
 package com.example.untitled_capstone.data.remote.service
 
+import com.example.untitled_capstone.data.remote.dto.AddressResponse
 import com.example.untitled_capstone.data.remote.dto.ApiResponse
 import com.example.untitled_capstone.data.remote.dto.ProfileResponse
 import retrofit2.http.GET
+import retrofit2.http.Header
+import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.Query
 
@@ -18,5 +21,6 @@ interface MyApi {
     @POST("/api/user/logout")
     suspend fun logout(): ApiResponse
 
-
+    @GET("/api/user/location")
+    suspend fun getLocation(): AddressResponse
 }

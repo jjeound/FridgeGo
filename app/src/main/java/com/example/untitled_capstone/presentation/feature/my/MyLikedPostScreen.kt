@@ -31,11 +31,12 @@ import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.domain.model.PostRaw
 import com.example.untitled_capstone.presentation.feature.post.PostEvent
 import com.example.untitled_capstone.presentation.feature.post.PostState
+import com.example.untitled_capstone.presentation.feature.post.composable.PostListContainer
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MyLikedPostScreen(navigate: (Long) -> Unit, postItems: LazyPagingItems<PostRaw>, state: PostState,
+fun MyLikedPostScreen(navigate: (Long) -> Unit, postItems: LazyPagingItems<PostRaw>,
                       onEvent: (PostEvent) -> Unit, navigateToBack: () -> Unit){
     Scaffold(
         containerColor = CustomTheme.colors.surface,
@@ -90,10 +91,10 @@ fun MyLikedPostScreen(navigate: (Long) -> Unit, postItems: LazyPagingItems<PostR
                         if(post != null){
                             Box(
                                 modifier = Modifier.clickable {
-
+                                    navigate(post.id)
                                 }
                             ){
-                                //PostListContainer(post, onEvent = onEvent)
+                                PostListContainer(post, onEvent = onEvent)
                             }
                         }
                     }

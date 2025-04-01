@@ -28,7 +28,7 @@ import com.example.untitled_capstone.data.remote.dto.KakaoAccessTokenRequest
 import com.example.untitled_capstone.navigation.Graph
 import com.example.untitled_capstone.navigation.Screen
 import com.example.untitled_capstone.presentation.feature.login.LoginEvent
-import com.example.untitled_capstone.presentation.feature.login.LoginState
+import com.example.untitled_capstone.presentation.feature.login.state.LoginState
 import com.kakao.sdk.auth.model.OAuthToken
 import com.kakao.sdk.common.model.ClientError
 import com.kakao.sdk.common.model.ClientErrorCause

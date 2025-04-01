@@ -1,4 +1,4 @@
-package com.example.untitled_capstone.presentation.feature.login
+package com.example.untitled_capstone.presentation.feature.login.screen
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,7 +17,9 @@ import androidx.compose.ui.res.vectorResource
 import androidx.navigation.NavHostController
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
+import com.example.untitled_capstone.presentation.feature.login.LoginEvent
 import com.example.untitled_capstone.presentation.feature.login.composable.KakaoLogin
+import com.example.untitled_capstone.presentation.feature.login.state.LoginState
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @OptIn(ExperimentalMaterial3Api::class)

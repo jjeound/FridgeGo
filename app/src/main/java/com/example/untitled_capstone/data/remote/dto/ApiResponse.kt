@@ -4,7 +4,7 @@ data class ApiResponse(
     val isSuccess: Boolean,
     val code: String,
     val message: String,
-    val result: String
+    val result: String? = null
 )
 
 

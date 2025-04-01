@@ -23,11 +23,12 @@ import javax.inject.Inject
 import androidx.core.content.edit
 import com.example.untitled_capstone.core.util.Constants.TASTE_PREFERENCE
 import com.example.untitled_capstone.domain.model.RecipeRaw
+import dagger.hilt.android.qualifiers.ApplicationContext
 
 class HomeRepositoryImpl @Inject constructor(
     private val api: HomeApi,
     private val db: RecipeItemDatabase,
-    context: Context
+    @ApplicationContext context: Context
 ): HomeRepository {
 
     private val prefs = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
@@ -83,7 +84,7 @@ class HomeRepositoryImpl @Inject constructor(
             Resource.Loading(data = null)
             val response = api.getRecipeById(id)
             if(response.isSuccess){
-                Resource.Success(response.result.toRecipe())
+                Resource.Success(response.result!!.toRecipe())
             }else {
                 Resource.Error(message = response.toString())
             }
@@ -136,7 +137,7 @@ class HomeRepositoryImpl @Inject constructor(
             Resource.Loading(data = null)
             val response = api.getFirstRecommendation()
             if(response.isSuccess){
-                Resource.Success(response.result.reply)
+                Resource.Success(response.result!!.reply)
             }else {
                 Resource.Error(message = response.toString())
             }
@@ -152,7 +153,7 @@ class HomeRepositoryImpl @Inject constructor(
             Resource.Loading(data = null)
             val response = api.getAnotherRecommendation()
             if(response.isSuccess){
-                Resource.Success(response.result.reply)
+                Resource.Success(response.result!!.reply)
             }else {
                 Resource.Error(message = response.toString())
             }

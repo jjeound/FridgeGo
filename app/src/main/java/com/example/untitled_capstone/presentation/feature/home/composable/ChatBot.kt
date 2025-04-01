@@ -102,7 +102,7 @@ fun ChatBot(aiState: AiState, onEvent: (HomeEvent) -> Unit) {
                                     onClick = {
                                         onEvent(HomeEvent.AddRecipe(
                                             title = matches[0],
-                                            instructions = r.replace(matches[0], "")
+                                            instructions = r
                                         ))
                                     }
                                 ) {
@@ -182,7 +182,7 @@ fun ChatBot(aiState: AiState, onEvent: (HomeEvent) -> Unit) {
             ),
             border = BorderStroke(
                 width = 1.dp,
-                color = CustomTheme.colors.border
+                color = CustomTheme.colors.borderLight
             )
         ) {
             Text(

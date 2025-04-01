@@ -6,11 +6,11 @@ data class PreferenceResponse(
     val isSuccess: Boolean,
     val code: String,
     val message: String,
-    val result: PreferenceDto
+    val result: PreferenceDto? = null
 ){
     fun toTastePreference(): TastePreference{
         return TastePreference(
-            tastePreference = result.tastePreference
+            tastePreference = result!!.tastePreference
         )
     }
 }

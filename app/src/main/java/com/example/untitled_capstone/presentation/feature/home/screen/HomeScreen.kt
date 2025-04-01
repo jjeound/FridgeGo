@@ -1,12 +1,11 @@
 package com.example.untitled_capstone.presentation.feature.home.screen
 
-import android.widget.Toast
+import android.util.Log
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -26,6 +25,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
@@ -50,13 +52,13 @@ import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(snackBarHostState: SnackbarHostState, mainViewModel: MainViewModel, state: RecipeState, recipeItems: LazyPagingItems<RecipeRaw>, tastePrefState: TastePrefState, aiState: AiState,
+fun HomeScreen(mainViewModel: MainViewModel, state: RecipeState, recipeItems: LazyPagingItems<RecipeRaw>, tastePrefState: TastePrefState, aiState: AiState,
                onEvent: (HomeEvent) -> Unit, navigate: (Long) -> Unit) {
-    val context = LocalContext.current
     val focusManager = LocalFocusManager.current
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = false
     )
+    val itemCount by remember { derivedStateOf { recipeItems.itemCount } }
     Column(
         modifier = Modifier.padding(
             horizontal = Dimens.surfaceHorizontalPadding)
@@ -88,20 +90,19 @@ fun HomeScreen(snackBarHostState: SnackbarHostState, mainViewModel: MainViewMode
                 )
                 LaunchedEffect(key1 = recipeItems.loadState) {
                     if(recipeItems.loadState.refresh is LoadState.Error) {
-                        Toast.makeText(
-                            context,
-                            "Error: " + (recipeItems.loadState.refresh as LoadState.Error).error.message,
-                            Toast.LENGTH_LONG
-                        ).show()
+                        Log.d("error", (recipeItems.loadState.refresh as LoadState.Error).error.message.toString())
                     }
                 }
-                Box(modifier = Modifier.fillMaxSize()) {
+                Box(
+                    modifier = Modifier.fillMaxSize()
+                ) {
                     if(recipeItems.loadState.refresh is LoadState.Loading || state.loading) {
                         CircularProgressIndicator(
-                            modifier = Modifier.align(Alignment.Center)
+                            modifier = Modifier.align(Alignment.Center),
+                            color = CustomTheme.colors.primary
                         )
                     } else {
-                        if(recipeItems.itemCount == 0){
+                        if(itemCount == 0){
                             AsyncImage(
                                 modifier = Modifier.fillMaxWidth(),
                                 model = R.drawable.home_banner,
@@ -114,10 +115,9 @@ fun HomeScreen(snackBarHostState: SnackbarHostState, mainViewModel: MainViewMode
                             verticalArrangement = Arrangement.spacedBy(20.dp),
                             horizontalArrangement = Arrangement.spacedBy(20.dp),
                         ) {
-                            items( recipeItems.itemCount,){ index ->
+                            items( recipeItems.itemCount){ index ->
                                 val item = recipeItems[index]
                                 if(item != null){
-                                    onEvent(HomeEvent.GetRecipeById(item.id))
                                     MyRecipe(item, onEvent = onEvent,
                                         onClick = {
                                             navigate(item.id)
@@ -137,7 +137,7 @@ fun HomeScreen(snackBarHostState: SnackbarHostState, mainViewModel: MainViewMode
         }
         if(mainViewModel.showBottomSheet.value){
             ModalBottomSheet(
-                modifier = Modifier.fillMaxHeight(),
+                modifier = Modifier.fillMaxSize(),
                 sheetState = sheetState,
                 onDismissRequest = { mainViewModel.showBottomSheet.value = false},
                 containerColor = CustomTheme.colors.onSurface

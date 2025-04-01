@@ -5,5 +5,5 @@ data class RecipeResponse(
     val code: String,
     val isSuccess: Boolean,
     val message: String,
-    val result: RecipeResultDto
+    val result: RecipeResultDto? = null
 )

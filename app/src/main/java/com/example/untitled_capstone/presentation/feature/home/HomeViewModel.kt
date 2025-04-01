@@ -54,6 +54,17 @@ class HomeViewModel @Inject constructor(
             is HomeEvent.AddRecipe -> addRecipe(action.title, action.instructions)
             is HomeEvent.SetTastePreference -> setTastePreference(action.tastePreference)
             is HomeEvent.GetTastePreference -> getTastePreference()
+            is HomeEvent.InitState -> initState()
+        }
+    }
+
+    private fun initState(){
+        _recipeState.update {
+            it.copy(
+                recipe = null,
+                loading = false,
+                error = null
+            )
         }
     }
 

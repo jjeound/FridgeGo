@@ -8,4 +8,5 @@ sealed interface HomeEvent {
     data object GetTastePreference: HomeEvent
     data object GetRecipeByAi: HomeEvent
     data class GetRecipeById(val id: Long): HomeEvent
+    data object InitState: HomeEvent
 }

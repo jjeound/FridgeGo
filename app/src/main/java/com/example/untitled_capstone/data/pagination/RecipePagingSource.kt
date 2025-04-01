@@ -47,12 +47,12 @@ class RecipePagingSource(
                 if(loadType == LoadType.REFRESH) {
                     db.dao.clearAll()
                 }
-                val recipeEntities = response.result.content.map { it.toRecipeEntity() }
+                val recipeEntities = response.result!!.content.map { it.toRecipeEntity() }
                 db.dao.upsertAll(recipeEntities)
             }
 
             MediatorResult.Success(
-                endOfPaginationReached = response.result.content.isEmpty()
+                endOfPaginationReached = response.result!!.content.isEmpty()
             )
         } catch(e: IOException) {
             MediatorResult.Error(e)

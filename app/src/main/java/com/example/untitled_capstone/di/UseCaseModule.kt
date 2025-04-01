@@ -28,25 +28,35 @@ import com.example.untitled_capstone.domain.use_case.home.HomeUseCases
 import com.example.untitled_capstone.domain.use_case.home.SetIsFirstSelection
 import com.example.untitled_capstone.domain.use_case.home.SetTastePreference
 import com.example.untitled_capstone.domain.use_case.home.ToggleLike
+import com.example.untitled_capstone.domain.use_case.login.GetAddressByCoord
 import com.example.untitled_capstone.domain.use_case.my.GetAccessToken
 import com.example.untitled_capstone.domain.use_case.my.GetMyProfile
 import com.example.untitled_capstone.domain.use_case.my.GetOtherProfile
 import com.example.untitled_capstone.domain.use_case.login.KakaoLogin
 import com.example.untitled_capstone.domain.use_case.login.LoginUseCases
+import com.example.untitled_capstone.domain.use_case.login.ModifyNickname
+import com.example.untitled_capstone.domain.use_case.login.SetLocation
 import com.example.untitled_capstone.domain.use_case.my.Logout
 import com.example.untitled_capstone.domain.use_case.login.SetNickname
 import com.example.untitled_capstone.domain.use_case.my.MyUseCases
 import com.example.untitled_capstone.domain.use_case.post.AddPost
-import com.example.untitled_capstone.domain.use_case.post.GetPostItems
+import com.example.untitled_capstone.domain.use_case.post.DeletePost
+import com.example.untitled_capstone.domain.use_case.post.GetLikedPosts
+import com.example.untitled_capstone.domain.use_case.post.GetMyPosts
+import com.example.untitled_capstone.domain.use_case.post.GetNickname
+import com.example.untitled_capstone.domain.use_case.post.GetPostById
+import com.example.untitled_capstone.domain.use_case.post.ModifyPost
 import com.example.untitled_capstone.domain.use_case.post.PostUseCases
+import com.example.untitled_capstone.domain.use_case.post.SearchPosts
+import com.example.untitled_capstone.domain.use_case.post.ToggleLikePost
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
+import dagger.hilt.android.components.ViewModelComponent
 
 
 @Module
-@InstallIn(SingletonComponent::class)
+@InstallIn(ViewModelComponent::class)
 object UseCaseModule {
 
     @Provides
@@ -66,7 +76,10 @@ object UseCaseModule {
     fun provideLoginUseCases(repository: LoginRepository): LoginUseCases {
         return LoginUseCases(
             kakaoLogin = KakaoLogin(repository),
-            setNickname = SetNickname(repository)
+            setNickname = SetNickname(repository),
+            getAddressByCoord = GetAddressByCoord(repository),
+            setLocation = SetLocation(repository),
+            modifyNickname = ModifyNickname(repository)
         )
     }
 
@@ -110,7 +123,14 @@ object UseCaseModule {
     fun providePostUseCases(repository: PostRepository): PostUseCases{
         return PostUseCases(
             addPost = AddPost(repository),
-            getPostItems = GetPostItems(repository)
+            getMyPosts = GetMyPosts(repository),
+            getPostById = GetPostById(repository),
+            getLikedPosts = GetLikedPosts(repository),
+            toggleLike = ToggleLikePost(repository),
+            deletePost = DeletePost(repository),
+            modifyPost = ModifyPost(repository),
+            searchPosts = SearchPosts(repository),
+            getNickname = GetNickname(repository),
         )
     }
 

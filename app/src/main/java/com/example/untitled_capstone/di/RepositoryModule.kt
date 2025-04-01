@@ -8,6 +8,7 @@ import com.example.untitled_capstone.data.local.db.RecipeItemDatabase
 import com.example.untitled_capstone.data.remote.service.FridgeApi
 import com.example.untitled_capstone.data.remote.service.HomeApi
 import com.example.untitled_capstone.data.remote.service.LoginApi
+import com.example.untitled_capstone.data.remote.service.MapApi
 import com.example.untitled_capstone.data.remote.service.MyApi
 import com.example.untitled_capstone.data.remote.service.PostApi
 import com.example.untitled_capstone.data.repository.FridgeRepositoryImpl
@@ -43,8 +44,8 @@ object RepositoryModule {
 
     @Provides
     @Singleton
-    fun providePostRepository(db: PostItemDatabase,api: PostApi): PostRepository{
-        return PostRepositoryImpl(api, db)
+    fun providePostRepository(db: PostItemDatabase,api: PostApi, @ApplicationContext context: Context): PostRepository{
+        return PostRepositoryImpl(api, db, context)
     }
 
     @Provides
@@ -55,8 +56,8 @@ object RepositoryModule {
 
     @Provides
     @Singleton
-    fun provideLoginRepository(api: LoginApi, tokenRepository: TokenRepository): LoginRepository{
-        return LoginRepositoryImpl(api, tokenRepository)
+    fun provideLoginRepository(api: LoginApi, mapApi: MapApi, tokenRepository: TokenRepository, @ApplicationContext context: Context): LoginRepository{
+        return LoginRepositoryImpl(api, mapApi, tokenRepository, context)
     }
 
     @Provides

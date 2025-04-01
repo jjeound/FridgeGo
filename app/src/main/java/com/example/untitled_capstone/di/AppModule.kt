@@ -6,6 +6,7 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.room.Room
 import com.example.untitled_capstone.core.util.Constants.BASE_URL
+import com.example.untitled_capstone.core.util.Constants.KAKAO_BASE_URL
 import com.example.untitled_capstone.data.local.db.FridgeItemDatabase
 import com.example.untitled_capstone.data.local.db.PostItemDatabase
 import com.example.untitled_capstone.data.local.db.RecipeItemDatabase
@@ -21,9 +22,11 @@ import com.example.untitled_capstone.data.pagination.RecipePagingSource
 import com.example.untitled_capstone.data.remote.service.FridgeApi
 import com.example.untitled_capstone.data.remote.service.HomeApi
 import com.example.untitled_capstone.data.remote.service.LoginApi
+import com.example.untitled_capstone.data.remote.service.MapApi
 import com.example.untitled_capstone.data.remote.service.MyApi
 import com.example.untitled_capstone.data.remote.service.PostApi
 import com.example.untitled_capstone.data.remote.service.TokenApi
+import com.example.untitled_capstone.data.util.PostFetchType
 import com.example.untitled_capstone.domain.repository.TokenRepository
 import com.example.untitled_capstone.domain.use_case.token.AuthAuthenticator
 import com.example.untitled_capstone.domain.use_case.token.AuthInterceptor
@@ -33,6 +36,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
@@ -142,6 +146,16 @@ object AppModule {
 
     @Provides
     @Singleton
+    fun provideMapApi(): MapApi {
+        return Retrofit.Builder()
+            .baseUrl(KAKAO_BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(MapApi::class.java)
+    }
+
+    @Provides
+    @Singleton
     fun provideTokenApi(): TokenApi {
         return Retrofit.Builder()
             .baseUrl(BASE_URL)
@@ -186,12 +200,13 @@ object AppModule {
     @OptIn(ExperimentalPagingApi::class)
     @Provides
     @Singleton
-    fun providePostPager(db: PostItemDatabase, api: PostApi): Pager<Int, PostItemEntity> {
+    fun providePostPager(db: PostItemDatabase, api: PostApi, fetchType: PostFetchType): Pager<Int, PostItemEntity> {
         return Pager(
             config = PagingConfig(pageSize = 10),
             remoteMediator = PostPagingSource(
                 db = db,
-                api = api
+                api = api,
+                fetchType = fetchType
             ),
             pagingSourceFactory = {
                 db.dao.getPostItems()

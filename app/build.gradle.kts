@@ -31,6 +31,7 @@ plugins {
 
             val kakaoAppKey = localProperties.getProperty("KAKAO_APP_KEY") ?: ""
             buildConfigField("String", "KAKAO_APP_KEY", "\"${localProperties["KAKAO_APP_KEY"]}\"")
+            buildConfigField("String", "KAKAO_REST_API_KEY", "\"${localProperties["KAKAO_REST_API_KEY"]}\"")
             manifestPlaceholders["KAKAO_APP_KEY"] = kakaoAppKey
         }
 
@@ -61,21 +62,20 @@ plugins {
     }
 
 dependencies {
-    //Hilt
+    // Hilt
     implementation (libs.hilt.android)
     kapt (libs.hilt.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
 
-    //ViewModel
+    // ViewModel
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.runtime.livedata)
 
-    //Navigation
+    // Navigation
     implementation(libs.androidx.navigation.compose)
     implementation(libs.kotlinx.serialization.json)
 
-
-    //Retrofit
+    // Retrofit
     implementation(libs.retrofit)
     implementation (libs.converter.gson)
     implementation (libs.okhttp)
@@ -83,7 +83,7 @@ dependencies {
     implementation (libs.sandwich)
     implementation(libs.sandwich.retrofit)
 
-    //Paging
+    // Paging
     implementation (libs.androidx.paging.runtime.ktx)
     implementation (libs.androidx.paging.compose)
     implementation (libs.androidx.paging.common)
@@ -96,8 +96,18 @@ dependencies {
     // login
     implementation (libs.v2.user)
     implementation (libs.androidx.datastore.preferences)
+    implementation (libs.android)
     implementation (libs.play.services.location)
     implementation (libs.play.services.maps)
+
+    // CameraX
+    implementation (libs.androidx.camera.core)
+    implementation (libs.androidx.camera.lifecycle)
+    implementation (libs.androidx.camera.view)
+    implementation (libs.androidx.camera.camera2)
+
+    // ML Kit - 텍스트 인식
+    implementation (libs.text.recognition)
 
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.coil.compose)

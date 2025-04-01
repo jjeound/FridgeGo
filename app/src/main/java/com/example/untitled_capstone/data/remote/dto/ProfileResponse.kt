@@ -4,5 +4,5 @@ data class ProfileResponse(
     val isSuccess: Boolean,
     val code: String,
     val message: String,
-    val result: ProfileDto
+    val result: ProfileDto? = null
 )

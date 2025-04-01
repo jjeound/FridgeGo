@@ -4,5 +4,5 @@ data class FridgeDto(
     val code: String,
     val isSuccess: Boolean,
     val message: String,
-    val result: FridgeResultDto
+    val result: FridgeResultDto? = null
 )

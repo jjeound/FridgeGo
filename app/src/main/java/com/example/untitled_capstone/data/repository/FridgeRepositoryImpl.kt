@@ -115,7 +115,7 @@ class FridgeRepositoryImpl(
             Resource.Loading(data = null)
             val response = api.getFridgeItemById(id)
             if(response.isSuccess){
-                Resource.Success(response.result.toFridgeItem())
+                Resource.Success(response.result!!.toFridgeItem())
             }else{
                 Resource.Error(response.message)
             }

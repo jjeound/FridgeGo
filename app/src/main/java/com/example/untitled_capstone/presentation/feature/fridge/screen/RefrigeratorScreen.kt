@@ -123,11 +123,7 @@ fun RefrigeratorScreen(fridgeItems: LazyPagingItems<FridgeItem>, state: FridgeSt
         Spacer(modifier = Modifier.height(Dimens.mediumPadding))
         LaunchedEffect(key1 = fridgeItems.loadState) {
             if(fridgeItems.loadState.refresh is LoadState.Error) {
-                Toast.makeText(
-                    context,
-                    "Error: " + (fridgeItems.loadState.refresh as LoadState.Error).error.message,
-                    Toast.LENGTH_LONG
-                ).show()
+                Log.d("error", (fridgeItems.loadState.refresh as LoadState.Error).error.message.toString())
             }
         }
         Box(modifier = Modifier.fillMaxSize()) {

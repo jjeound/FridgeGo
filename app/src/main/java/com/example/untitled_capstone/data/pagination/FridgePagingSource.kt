@@ -55,12 +55,12 @@ class FridgePagingSource(
                 if(loadType == LoadType.REFRESH) {
                     db.dao.clearAll()
                 }
-                val fridgeEntities = response.result.content.map { it.toFridgeItemEntity() }
+                val fridgeEntities = response.result!!.content.map { it.toFridgeItemEntity() }
                 db.dao.upsertAll(fridgeEntities)
             }
 
             MediatorResult.Success(
-                endOfPaginationReached = response.result.content.isEmpty()
+                endOfPaginationReached = response.result!!.content.isEmpty()
             )
         } catch(e: IOException) {
             MediatorResult.Error(e)

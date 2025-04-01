@@ -63,12 +63,14 @@ import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
+import androidx.navigation.NavHostController
 import androidx.paging.compose.collectAsLazyPagingItems
 import coil.compose.AsyncImage
 import com.example.untitled_capstone.MainActivity
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.domain.model.FridgeItem
+import com.example.untitled_capstone.navigation.Screen
 import com.example.untitled_capstone.presentation.feature.fridge.FridgeAction
 import com.example.untitled_capstone.presentation.feature.fridge.FridgeState
 import com.example.untitled_capstone.ui.theme.CustomTheme
@@ -79,7 +81,7 @@ import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NewFridgeItemForm(id: Long?, state: FridgeState, navigate: () -> Unit, onAction: (FridgeAction) -> Unit){
+fun NewFridgeItemForm(id: Long?, state: FridgeState, navController: NavHostController, onAction: (FridgeAction) -> Unit){
     val context = LocalContext.current
     val packageName = context.packageName
     val showDialog = remember { mutableStateOf(false) }
@@ -102,7 +104,7 @@ fun NewFridgeItemForm(id: Long?, state: FridgeState, navigate: () -> Unit, onAct
     val focusManager = LocalFocusManager.current
     var validator by remember { mutableStateOf(false) }
     validator = name.isNotBlank() && selectedDate.isNotBlank()
-    LaunchedEffect(id) {
+    LaunchedEffect(Unit) {
         id?.let { onAction(FridgeAction.GetItemById(it)) }
     }
     LaunchedEffect(state.item) {
@@ -154,6 +156,15 @@ fun NewFridgeItemForm(id: Long?, state: FridgeState, navigate: () -> Unit, onAct
                 }
             }
         )
+    val cameraLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            Log.d("camera", "camera permission granted")
+        } else {
+            Toast.makeText(context, "카메라 권한이 필요합니다.", Toast.LENGTH_SHORT).show()
+        }
+    }
     Column(
         modifier = Modifier
             .fillMaxSize(),
@@ -406,6 +417,25 @@ fun NewFridgeItemForm(id: Long?, state: FridgeState, navigate: () -> Unit, onAct
             }
             Button(
                 onClick = {
+                    when {
+                        ContextCompat.checkSelfPermission(
+                            context,
+                            Manifest.permission.CAMERA
+                        ) == PackageManager.PERMISSION_GRANTED ->  {
+                            navController.navigate(
+                                Screen.ScanNav
+                            )
+                        }
+                        shouldShowRequestPermissionRationale(
+                            context as MainActivity,
+                            Manifest.permission.CAMERA
+                        ) -> {
+                            showDialog.value = true
+                        }
+                        else -> {
+                            cameraLauncher.launch(Manifest.permission.CAMERA)
+                        }
+                    }
                 },
                 shape = RoundedCornerShape(Dimens.cornerRadius),
                 colors = ButtonDefaults.buttonColors(
@@ -422,7 +452,7 @@ fun NewFridgeItemForm(id: Long?, state: FridgeState, navigate: () -> Unit, onAct
         }
         PermissionDialog(
             showDialog = showDialog,
-            message = "이미지를 업로드하려면 저장소 접근 권한이 필요합니다.",
+            message = "접근 권한이 필요합니다.",
             onDismiss = { showDialog.value = false },
             onConfirm = {
                 showDialog.value = false
@@ -450,7 +480,7 @@ fun NewFridgeItemForm(id: Long?, state: FridgeState, navigate: () -> Unit, onAct
             ),
             enabled = validator,
             onClick = {
-                navigate()
+                navController.popBackStack()
                 state.item?.let {
                     onAction(FridgeAction.ModifyItem(
                         FridgeItem(

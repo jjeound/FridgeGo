@@ -36,24 +36,31 @@ fun PostContainer(post: Post){
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding)
     ){
-        if (post.image.isNotEmpty()) {
-            AsyncImage(
-                model = post.image[0]!!.toUri(), //수정 해야 함
-                contentDescription = post.title,
-                alignment = Alignment.Center,
-                contentScale = ContentScale.Fit,
-                modifier = Modifier.fillMaxWidth().aspectRatio(1f)
-                    .clip(shape = RoundedCornerShape(Dimens.cornerRadius))
-            )
-        } else {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .aspectRatio(1f)
-                    .clip(shape = RoundedCornerShape(Dimens.cornerRadius))
-                    .background(CustomTheme.colors.surface)
-            )
-        }
+//        if (post.image.isNotEmpty()) {
+//            AsyncImage(
+//                model = post.image[0]!!.toUri(), //수정 해야 함
+//                contentDescription = post.title,
+//                alignment = Alignment.Center,
+//                contentScale = ContentScale.Fit,
+//                modifier = Modifier.fillMaxWidth().aspectRatio(1f)
+//                    .clip(shape = RoundedCornerShape(Dimens.cornerRadius))
+//            )
+//        } else {
+//            Box(
+//                modifier = Modifier
+//                    .fillMaxWidth()
+//                    .aspectRatio(1f)
+//                    .clip(shape = RoundedCornerShape(Dimens.cornerRadius))
+//                    .background(CustomTheme.colors.surface)
+//            )
+//        }
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .aspectRatio(1f)
+                .clip(shape = RoundedCornerShape(Dimens.cornerRadius))
+                .background(CustomTheme.colors.surface)
+        )
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -75,7 +82,7 @@ fun PostContainer(post: Post){
                         color = CustomTheme.colors.textPrimary,
                     )
                     Text(
-                        text = post.location,
+                        text = post.neighborhood,
                         style = CustomTheme.typography.caption2,
                         color = CustomTheme.colors.textSecondary,
                     )
@@ -96,7 +103,7 @@ fun PostContainer(post: Post){
                 color = CustomTheme.colors.textPrimary,
             )
             Text(
-                text = "${post.category} ${post.time}",
+                text = "${post.category} ${post.timeAgo}",
                 style = CustomTheme.typography.caption1,
                 color = CustomTheme.colors.textSecondary,
             )
@@ -113,7 +120,7 @@ fun PostContainer(post: Post){
                 modifier = Modifier.height(Dimens.mediumPadding)
             )
             Text(
-                text = "조회 ${post.views}",
+                text = "조회 100",
                 style = CustomTheme.typography.caption1,
                 color = CustomTheme.colors.textSecondary,
             )

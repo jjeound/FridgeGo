@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -46,6 +47,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -73,17 +75,18 @@ import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.domain.model.NewPost
 import com.example.untitled_capstone.presentation.feature.fridge.composable.PermissionDialog
 import com.example.untitled_capstone.presentation.feature.post.PostEvent
+import com.example.untitled_capstone.presentation.feature.post.PostState
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @Composable
-fun NewPostForm(navController: NavHostController, onEvent: (PostEvent) -> Unit) {
+fun NewPostForm(state: PostState, navController: NavHostController, onEvent: (PostEvent) -> Unit) {
     val context = LocalContext.current
     var isExpandedPeopleMenu by remember { mutableStateOf(false) }
     var isExpandedCategoryMenu by remember { mutableStateOf(false) }
     val menuItemDataInPeople = List(10) { "${it + 1}" }
-    val menuItemDataInCategory = listOf("식료품", "생활용품", "의류", "기타")
+    val menuItemDataInCategory = listOf(Category.VEGETABLE, Category.FRUIT, Category.MEAT, Category.SEAFOOD, Category.DAIRY, Category.GRAIN, Category.BEVERAGE, Category.SNACK, Category.CONDIMENT, Category.FROZEN, Category.PROCESSED).map { it.kor }
     var quantity by remember { mutableStateOf("2") }
-    var category by remember { mutableStateOf("식료품") }
+    var category by remember { mutableStateOf(Category.VEGETABLE.kor) }
     var price by remember { mutableStateOf("") }
     var title by remember { mutableStateOf("") }
     var content by remember { mutableStateOf("") }
@@ -135,9 +138,19 @@ fun NewPostForm(navController: NavHostController, onEvent: (PostEvent) -> Unit) 
                 }
             }
         )
+
+    LaunchedEffect(Unit) {
+        if(state.post != null){
+            title = state.post.title
+            content = state.post.content
+            category = Category.entries.find { it.eng == state.post.category }?.kor ?: Category.VEGETABLE.kor
+            price = state.post.price.toString()
+            quantity = state.post.memberCount.toString()
+        }
+    }
     validator = price.isNotBlank() && title.isNotBlank() && content.isNotBlank()
     Column(
-        modifier = Modifier.pointerInput(Unit) {
+        modifier = Modifier.imePadding().pointerInput(Unit) {
             detectTapGestures(onTap = {
                 focusManager.clearFocus()
             })
@@ -480,17 +493,32 @@ fun NewPostForm(navController: NavHostController, onEvent: (PostEvent) -> Unit) 
             ),
             enabled = validator,
             onClick = {
-                onEvent(
-                    PostEvent.AddNewPost(
-                        NewPost(
-                            title = title,
-                            content = content,
-                            category = "VEGETABLE",
-                            price = price.toInt(),
-                            memberCount = 5
+                if(state.post != null){
+                    onEvent(
+                        PostEvent.ModifyPost(
+                            state.post.id,
+                            NewPost(
+                                title = title,
+                                content = content,
+                                category = Category.entries.find { it.kor == category }?.eng ?: Category.VEGETABLE.eng,
+                                price = price.toInt(),
+                                memberCount = quantity.toInt()
+                            )
                         )
                     )
-                )
+                }else{
+                    onEvent(
+                        PostEvent.AddNewPost(
+                            NewPost(
+                                title = title,
+                                content = content,
+                                category = Category.entries.find { it.kor == category }?.eng ?: Category.VEGETABLE.eng,
+                                price = price.toInt(),
+                                memberCount = quantity.toInt()
+                            )
+                        )
+                    )
+                }
                 navController.popBackStack()
             }
         ) {
@@ -513,4 +541,21 @@ fun NewPostForm(navController: NavHostController, onEvent: (PostEvent) -> Unit) 
             }
         )
     }
+}
+
+enum class Category(
+    val eng: String,
+    val kor: String
+) {
+    VEGETABLE("VEGETABLE", "채소"),
+    FRUIT("FRUIT", "과일"),
+    MEAT("MEAT", "육류"),
+    SEAFOOD("SEAFOOD", "수산물"),
+    DAIRY("DAIRY", "유제품"),
+    GRAIN("GRAIN", "곡물"),
+    BEVERAGE("BEVERAGE", "음료"),
+    SNACK("SNACK", "과자"),
+    CONDIMENT("CONDIMENT", "조미료"),
+    FROZEN("FROZEN", "냉동식품"),
+    PROCESSED("PROCESSED", "가공식품")
 }

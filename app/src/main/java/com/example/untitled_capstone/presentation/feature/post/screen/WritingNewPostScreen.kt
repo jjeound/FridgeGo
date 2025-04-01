@@ -68,7 +68,7 @@ fun WritingNewPostScreen(navController: NavHostController, state: PostState, onE
                 .padding(horizontal = Dimens.surfaceHorizontalPadding,
                 vertical = Dimens.surfaceVerticalPadding),
         ){
-            NewPostForm(navController = navController, onEvent = onEvent)
+            NewPostForm(state, navController, onEvent)
         }
     }
 }

@@ -1,7 +1,7 @@
 package com.example.untitled_capstone.data.remote.dto
 
 data class PostResultDto(
-    val content: List<PostDto>,
+    val content: List<PostRawDto>,
     val empty: Boolean,
     val first: Boolean,
     val last: Boolean,

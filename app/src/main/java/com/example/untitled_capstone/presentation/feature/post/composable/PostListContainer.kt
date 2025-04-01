@@ -83,7 +83,7 @@ fun PostListContainer(post: PostRaw, onEvent: (PostEvent) -> Unit){
                     maxLines = 1,
                 )
                 Text(
-                    text = post.content,
+                    text = post.price.toString() + "원",
                     style = CustomTheme.typography.body3,
                     color = CustomTheme.colors.textPrimary,
                     maxLines = 1,
@@ -151,21 +151,4 @@ fun PostListContainer(post: PostRaw, onEvent: (PostEvent) -> Unit){
             }
         }
     }
-}
-
-@Preview(showBackground = false)
-@Composable
-fun PostListContainerPreview(){
-    PostListContainer(
-        post = PostRaw(
-          title = "title",
-            content = "content",
-            likeCount = 1,
-            memberCount = 1,
-            id = 1,
-            price = 3000,
-            category = "식료품"
-        ),
-        {}
-    )
 }

@@ -1,9 +1,8 @@
 package com.example.untitled_capstone.data.remote.dto
 
-
-data class PostResponse(
-    val code: String,
+data class GetPostByIdResponse(
     val isSuccess: Boolean,
+    val code: String,
     val message: String,
-    val result: PostResultDto? = null
+    val result: PostDto? = null
 )

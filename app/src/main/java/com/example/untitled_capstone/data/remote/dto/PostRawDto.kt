@@ -1,12 +1,9 @@
-package com.example.untitled_capstone.data.local.entity
+package com.example.untitled_capstone.data.remote.dto
 
-import androidx.room.Entity
-import androidx.room.PrimaryKey
-import com.example.untitled_capstone.domain.model.PostRaw
+import com.example.untitled_capstone.data.local.entity.PostItemEntity
 
-@Entity
-data class PostItemEntity(
-    @PrimaryKey val id: Long,
+data class PostRawDto(
+    val id: Long,
     val timeAgo: String,
     val likeCount: Int,
     val memberCount: Int,
@@ -15,8 +12,8 @@ data class PostItemEntity(
     val district: String,
     val neighborhood: String
 ){
-    fun toPostRaw(): PostRaw{
-        return  PostRaw(
+    fun toPostEntity(): PostItemEntity{
+        return  PostItemEntity(
             id = id,
             timeAgo = timeAgo,
             district = district,

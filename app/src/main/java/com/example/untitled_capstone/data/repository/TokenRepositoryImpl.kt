@@ -8,6 +8,8 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.example.untitled_capstone.BuildConfig
+import com.example.untitled_capstone.core.util.PrefKeys.ACCESS_TOKEN_KEY
+import com.example.untitled_capstone.core.util.PrefKeys.REFRESH_TOKEN_KEY
 import com.example.untitled_capstone.core.util.Resource
 import com.example.untitled_capstone.data.remote.dto.RefreshTokenResponse
 import com.example.untitled_capstone.data.remote.service.TokenApi
@@ -25,10 +27,6 @@ class TokenRepositoryImpl @Inject constructor(
 ): TokenRepository {
 
     val dataStore = context.dataStore
-    companion object {
-        private val ACCESS_TOKEN_KEY = stringPreferencesKey("access_token")
-        private val REFRESH_TOKEN_KEY = stringPreferencesKey("refresh_token")
-    }
 
 
     override fun getAccessToken(): Flow<String?> {

@@ -62,8 +62,8 @@ object RepositoryModule {
 
     @Provides
     @Singleton
-    fun provideMyRepository(api: MyApi, tokenRepository: TokenRepository): MyRepository{
-        return MyRepositoryImpl(api, tokenRepository)
+    fun provideMyRepository(api: MyApi, tokenRepository: TokenRepository, @ApplicationContext context: Context): MyRepository{
+        return MyRepositoryImpl(api, tokenRepository, context)
     }
 
     @Provides

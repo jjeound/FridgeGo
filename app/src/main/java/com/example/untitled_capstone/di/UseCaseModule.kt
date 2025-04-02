@@ -39,6 +39,7 @@ import com.example.untitled_capstone.domain.use_case.login.SetLocation
 import com.example.untitled_capstone.domain.use_case.my.Logout
 import com.example.untitled_capstone.domain.use_case.login.SetNickname
 import com.example.untitled_capstone.domain.use_case.my.MyUseCases
+import com.example.untitled_capstone.domain.use_case.my.UploadProfileImage
 import com.example.untitled_capstone.domain.use_case.post.AddPost
 import com.example.untitled_capstone.domain.use_case.post.DeletePost
 import com.example.untitled_capstone.domain.use_case.post.GetLikedPosts
@@ -99,7 +100,8 @@ object UseCaseModule {
             getMyProfile = GetMyProfile(repository),
             getOtherProfile = GetOtherProfile(repository),
             logout = Logout(repository),
-            getAccessToken = GetAccessToken(tokenRepository)
+            getAccessToken = GetAccessToken(tokenRepository),
+            uploadProfileImage = UploadProfileImage(repository)
         )
     }
 

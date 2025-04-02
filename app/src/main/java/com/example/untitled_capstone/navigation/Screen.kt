@@ -65,6 +65,9 @@ sealed interface Screen {
 
     @Serializable
     data object ScanNav: Screen
+
+    @Serializable
+    data object PostSearchNav: Screen
 }
 
 sealed interface Graph {

@@ -1,6 +1,5 @@
 package com.example.untitled_capstone.navigation
 
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -31,7 +30,6 @@ import com.example.untitled_capstone.presentation.feature.my.MyViewModel
 import com.example.untitled_capstone.presentation.feature.my.ProfileScreen
 import com.example.untitled_capstone.presentation.feature.notification.screen.NotificationScreen
 import com.example.untitled_capstone.presentation.feature.onBoardiing.OnBoarding
-import com.example.untitled_capstone.presentation.feature.onBoardiing.OnBoardingViewModel
 import com.example.untitled_capstone.presentation.feature.fridge.FridgeViewModel
 import com.example.untitled_capstone.presentation.feature.fridge.composable.ScanExpirationDate
 import com.example.untitled_capstone.presentation.feature.fridge.screen.AddFridgeItemScreen
@@ -43,6 +41,7 @@ import com.example.untitled_capstone.presentation.feature.post.PostEvent
 import com.example.untitled_capstone.presentation.feature.post.PostViewModel
 import com.example.untitled_capstone.presentation.feature.post.screen.PostDetailScreen
 import com.example.untitled_capstone.presentation.feature.post.screen.PostScreen
+import com.example.untitled_capstone.presentation.feature.post.screen.PostSearchScreen
 import com.example.untitled_capstone.presentation.feature.post.screen.WritingNewPostScreen
 
 
@@ -110,6 +109,22 @@ fun NavigationV2(navController: NavHostController, mainViewModel: MainViewModel)
                 val state by viewModel.state.collectAsStateWithLifecycle()
                 WritingNewPostScreen(navController, state, viewModel::onEvent)
             }
+            composable<Screen.PostSearchNav> {
+                val viewModel: PostViewModel = hiltViewModel()
+                val searchState by viewModel.searchState
+                PostSearchScreen(
+                    searchState = searchState,
+                    navigateToBack = {navController.popBackStack()},
+                    onEvent = viewModel::onEvent,
+                    navigateToDetail = { id ->
+                        navController.navigate(
+                            Screen.PostDetailNav(
+                                id = id
+                            )
+                        )
+                    }
+                )
+            }
         }
         navigation<Graph.FridgeGraph>(
             startDestination = Screen.Fridge
@@ -175,7 +190,8 @@ fun NavigationV2(navController: NavHostController, mainViewModel: MainViewModel)
                         navController.popBackStack()
                     },
                     onEvent = viewModel::onEvent,
-                    state = state
+                    state = state,
+                    from = true
                 )
             }
             composable<Screen.LocationNav> {
@@ -185,7 +201,8 @@ fun NavigationV2(navController: NavHostController, mainViewModel: MainViewModel)
                     state = state,
                     onEvent = viewModel::onEvent,
                     popBackStack = {navController.popBackStack()},
-                    navigateToHome = {navController.navigate(Screen.Home)}
+                    navigateToHome = {navController.navigate(Screen.Home)},
+                    from = true
                 )
             }
             composable<Screen.MyLikedPostNav> {
@@ -238,7 +255,8 @@ fun NavigationV2(navController: NavHostController, mainViewModel: MainViewModel)
                         navController.popBackStack()
                     },
                     onEvent = viewModel::onEvent,
-                    state = state
+                    state = state,
+                    from = false
                 )
             }
             composable<Screen.LocationNav> {
@@ -249,23 +267,21 @@ fun NavigationV2(navController: NavHostController, mainViewModel: MainViewModel)
                     state = state,
                     onEvent = viewModel::onEvent,
                     popBackStack = {navController.popBackStack()},
-                    navigateToHome = {navController.navigate(Screen.Home)}
+                    navigateToHome = {
+                        navController.navigate(Graph.HomeGraph) {
+                            popUpTo(0) { inclusive = true }
+                        }
+                    },
+                    from = false
                 )
             }
         }
         navigation<Graph.OnBoardingGraph>(startDestination = Screen.OnBoarding) {
             composable<Screen.OnBoarding>{
-                val viewModel: OnBoardingViewModel = hiltViewModel()
                 OnBoarding(
-                    navigateToHome = {
-                        navController.navigate(Graph.HomeGraph) {
-                            popUpTo(Screen.OnBoarding) { inclusive = true }
-                        }
-                    },
                     navigateToLogin = {
                         navController.navigate(Screen.LoginNav)
                     },
-                    onEvent = viewModel::onEvent
                 )
             }
         }

@@ -1,5 +1,6 @@
 package com.example.untitled_capstone.presentation.feature.login.screen
 
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -32,7 +33,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -44,9 +47,12 @@ import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SetNickNameScreen(navigateToLoc: () -> Unit, popBackStack: () -> Unit, onEvent: (LoginEvent) -> Unit, state: ValidateState) {
+fun SetNickNameScreen(navigateToLoc: () -> Unit, popBackStack: () -> Unit, onEvent: (LoginEvent) -> Unit, state: ValidateState,
+from: Boolean) {
+    val context = LocalContext.current
     var nickname by remember { mutableStateOf("") }
     val focusManager = LocalFocusManager.current
+    val keyboardController = LocalSoftwareKeyboardController.current
     Scaffold(
         containerColor = CustomTheme.colors.onSurface,
         topBar = {
@@ -54,7 +60,7 @@ fun SetNickNameScreen(navigateToLoc: () -> Unit, popBackStack: () -> Unit, onEve
                 modifier = Modifier.padding(Dimens.topBarPadding),
                 title = {
                     Text(
-                        text = "로그인",
+                        text = if(from) "닉네임 변경" else "로그인",
                         style = CustomTheme.typography.title1,
                         color = CustomTheme.colors.textPrimary,
                     )
@@ -133,7 +139,7 @@ fun SetNickNameScreen(navigateToLoc: () -> Unit, popBackStack: () -> Unit, onEve
                             unfocusedTrailingIconColor = Color.Transparent,
                             errorBorderColor = CustomTheme.colors.error,
                         ),
-                        isError = state.validate,
+                        isError = state.error != null,
                         shape = RoundedCornerShape(Dimens.cornerRadius),
                         singleLine = true,
                         keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
@@ -144,11 +150,6 @@ fun SetNickNameScreen(navigateToLoc: () -> Unit, popBackStack: () -> Unit, onEve
                             style = CustomTheme.typography.caption2,
                             color = CustomTheme.colors.error,
                         )
-                    }
-                }
-                LaunchedEffect(state.validate) {
-                    if (state.validate) {
-                        navigateToLoc()
                     }
                 }
                 Button(
@@ -166,7 +167,11 @@ fun SetNickNameScreen(navigateToLoc: () -> Unit, popBackStack: () -> Unit, onEve
                         color = CustomTheme.colors.border
                     ),
                     onClick = {
-                        onEvent(LoginEvent.SetNickname(nickname))
+                        if(from){
+                            onEvent(LoginEvent.ModifyNickname(nickname))
+                        } else {
+                            onEvent(LoginEvent.SetNickname(nickname))
+                        }
                     }
                 ) {
                     Text(
@@ -174,9 +179,14 @@ fun SetNickNameScreen(navigateToLoc: () -> Unit, popBackStack: () -> Unit, onEve
                         style = CustomTheme.typography.button1,
                     )
                 }
-                LaunchedEffect(state.validate) {
+                LaunchedEffect(state) {
                     if(state.validate == true){
-                        navigateToLoc()
+                        if(from){
+                            keyboardController?.hide()
+                            Toast.makeText(context, "닉네임이 변경되었습니다.", Toast.LENGTH_SHORT).show()
+                        } else {
+                            navigateToLoc()
+                        }
                     }
                 }
             }
@@ -187,5 +197,5 @@ fun SetNickNameScreen(navigateToLoc: () -> Unit, popBackStack: () -> Unit, onEve
 @Composable
 @Preview
 fun SetNickNameScreenPreview(){
-    SetNickNameScreen({}, {}, {}, ValidateState())
+    SetNickNameScreen({}, {}, {}, ValidateState(), false)
 }

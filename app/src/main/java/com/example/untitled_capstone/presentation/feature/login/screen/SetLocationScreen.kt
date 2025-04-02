@@ -62,7 +62,8 @@ import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SetLocationScreen(state: AddressState, onEvent: (LoginEvent) -> Unit, popBackStack: ()-> Unit, navigateToHome: () -> Unit){
+fun SetLocationScreen(state: AddressState, onEvent: (LoginEvent) -> Unit, popBackStack: ()-> Unit, navigateToHome: () -> Unit
+, from : Boolean){
     val context = LocalContext.current
     val packageName = context.packageName
     val showDialog = remember { mutableStateOf(false)}
@@ -73,7 +74,6 @@ fun SetLocationScreen(state: AddressState, onEvent: (LoginEvent) -> Unit, popBac
             onResult = { permissions ->
                 locationPermissions.forEach { permission ->
                     if (permissions[permission] == true){
-                        //Toast.makeText(context, "위치 권한이 허용되었습니다.", Toast.LENGTH_SHORT).show()
                         Log.d(permission, "위치 권한이 허용되었습니다.")
                     }
                 }
@@ -182,6 +182,11 @@ fun SetLocationScreen(state: AddressState, onEvent: (LoginEvent) -> Unit, popBac
             }
             LaunchedEffect(state) {
                 if(state.address != null){
+//                    if(from){
+//                        popBackStack()
+//                    } else {
+//                        navigateToHome()
+//                    }
                     Log.d("address", state.address.toString())
                 }
                 if(state.error != null){
@@ -223,7 +228,7 @@ fun getCurrentLocation(context: Context, onLocationReceived: (x: String, y: Stri
 @Preview
 @Composable
 fun SetLocationScreenPreview(){
-    SetLocationScreen(AddressState(), {}, {}, {})
+    SetLocationScreen(AddressState(), {}, {}, {}, false)
 }
 
 

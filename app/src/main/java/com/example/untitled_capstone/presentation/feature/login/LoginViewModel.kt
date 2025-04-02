@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.untitled_capstone.core.util.Resource
 import com.example.untitled_capstone.data.remote.dto.KakaoAccessTokenRequest
 import com.example.untitled_capstone.domain.model.Address
+import com.example.untitled_capstone.domain.use_case.app_entry.SaveAppEntry
 import com.example.untitled_capstone.domain.use_case.login.LoginUseCases
 import com.example.untitled_capstone.presentation.feature.login.state.AddressState
 import com.example.untitled_capstone.presentation.feature.login.state.LoginState
@@ -19,6 +20,7 @@ import javax.inject.Inject
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val loginUseCases: LoginUseCases,
+    private val saveAppEntry: SaveAppEntry
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(LoginState())
@@ -71,6 +73,7 @@ class LoginViewModel @Inject constructor(
                             loading = false,
                             error = null) }
                     }
+                    saveAppEntry()
                 }
                 is Resource.Error -> {
                     _state.update { it.copy(loading = false, error = result.message ?: "An unexpected error occurred") }
@@ -153,6 +156,7 @@ class LoginViewModel @Inject constructor(
                                 error = null
                             )
                         }
+                        saveAppEntry()
                     }
                 }
                 is Resource.Error -> {

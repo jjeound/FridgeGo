@@ -2,8 +2,9 @@ package com.example.untitled_capstone.data.repository
 
 
 import android.content.Context
-import android.util.Log
-import androidx.core.content.edit
+import androidx.datastore.preferences.core.edit
+import com.example.untitled_capstone.core.util.PrefKeys.EMAIL
+import com.example.untitled_capstone.core.util.PrefKeys.NICKNAME
 import com.example.untitled_capstone.core.util.Resource
 import com.example.untitled_capstone.data.remote.dto.ApiResponse
 import com.example.untitled_capstone.data.remote.dto.KakaoAccessTokenRequest
@@ -27,8 +28,7 @@ class LoginRepositoryImpl @Inject constructor(
     private val tokenRepository: TokenRepository,
     @ApplicationContext context: Context
 ): LoginRepository {
-
-    private val prefs = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+    val dataStore = context.dataStore
 
     override suspend fun kakaoLogin(accessToken: KakaoAccessTokenRequest): Resource<AccountInfo> {
         return try {
@@ -37,9 +37,12 @@ class LoginRepositoryImpl @Inject constructor(
             if(response.isSuccess){
                 tokenRepository.saveAccessToken(response.result!!.accessToken)
                 tokenRepository.saveRefreshToken(response.result.refreshToken)
+                dataStore.edit { prefs ->
+                    prefs[NICKNAME] = response.result.nickname ?: ""
+                    prefs[EMAIL] = response.result.email
+                }
                 Resource.Success(response.result.toAccountInfo())
             }else{
-                Log.d("login failed", response.toString())
                 Resource.Error(response.message)
             }
         } catch (e: IOException) {
@@ -55,7 +58,9 @@ class LoginRepositoryImpl @Inject constructor(
             val token = tokenRepository.getAccessToken().first()
             val response = api.setNickname(token = token?: "", nickname = nickname)
             if(response.isSuccess){
-                prefs.edit { putString("nickname", nickname) }
+                dataStore.edit { prefs ->
+                    prefs[NICKNAME] = nickname
+                }
                 Resource.Success(response)
             } else {
                 Resource.Error(response.message)
@@ -73,7 +78,9 @@ class LoginRepositoryImpl @Inject constructor(
             val token = tokenRepository.getAccessToken().first()
             val response = api.modifyNickname(token?: "", nickname)
             if(response.isSuccess){
-                prefs.edit { putString("nickname", nickname) }
+                dataStore.edit { prefs ->
+                    prefs[NICKNAME] = nickname
+                }
                 Resource.Success(response)
             }else {
                 Resource.Error(message = response.toString())

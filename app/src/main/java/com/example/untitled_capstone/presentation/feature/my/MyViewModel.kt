@@ -10,6 +10,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import okhttp3.MultipartBody
+import java.io.File
 import javax.inject.Inject
 
 @HiltViewModel
@@ -28,6 +30,28 @@ class MyViewModel @Inject constructor(
         when(event){
             is MyEvent.Logout -> logout()
             is MyEvent.GetMyProfile -> getMyProfile()
+            is MyEvent.UploadProfileImage -> uploadProfileImage(event.file)
+        }
+    }
+
+    private fun uploadProfileImage(file: File) {
+        viewModelScope.launch {
+            val result = myUseCases.uploadProfileImage(file)
+            when(result){
+                is Resource.Success -> {
+                    result.data?.let{
+                        _state.update { it.copy(
+                            loading = false,
+                            error = null) }
+                    }
+                }
+                is Resource.Error -> {
+                    _state.update { it.copy(loading = false, error = result.message ?: "An unexpected error occurred") }
+                }
+                is Resource.Loading -> {
+                    _state.update { it.copy(loading = true) }
+                }
+            }
         }
     }
 

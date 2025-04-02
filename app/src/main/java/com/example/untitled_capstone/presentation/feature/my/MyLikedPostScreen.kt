@@ -82,8 +82,6 @@ fun MyLikedPostScreen(navigate: (Long) -> Unit, postItems: LazyPagingItems<PostR
                     vertical = Dimens.surfaceVerticalPadding)
             ){
                 LazyColumn(
-                    modifier = Modifier.padding(horizontal = Dimens.surfaceHorizontalPadding,
-                        vertical = Dimens.surfaceVerticalPadding),
                     verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding)
                 ) {
                     items(postItems.itemCount) { index ->

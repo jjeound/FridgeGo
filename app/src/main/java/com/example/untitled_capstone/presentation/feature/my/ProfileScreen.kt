@@ -74,11 +74,6 @@ fun ProfileScreen(navController: NavHostController,state: MyState, onEvent: (MyE
                 if(state.profile != null){
                     ProfileDetail(state.profile, onEvent, navController)
                 }
-                LaunchedEffect(state.profile) {
-                    if(!state.isLoggedIn){
-                        navigateToBack()
-                    }
-                }
             }
         }
     }

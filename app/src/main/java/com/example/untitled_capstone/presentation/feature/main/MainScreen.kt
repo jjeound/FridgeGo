@@ -28,7 +28,7 @@ import com.example.untitled_capstone.navigation.NavigationV2
 import com.example.untitled_capstone.navigation.Screen
 import com.example.untitled_capstone.presentation.feature.my.composable.MyTopBar
 import com.example.untitled_capstone.presentation.feature.fridge.composable.FridgeTopBar
-import com.example.untitled_capstone.presentation.feature.post.composable.ShoppingTopBar
+import com.example.untitled_capstone.presentation.feature.post.composable.PostTopBar
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @Composable
@@ -52,7 +52,7 @@ fun MainScreen(viewModel: MainViewModel){
         topBar = {
             when{
                 bottomRoute.equals(screens[0]) -> TopBar(1, navController)
-                bottomRoute.equals(screens[1]) -> ShoppingTopBar(navController)
+                bottomRoute.equals(screens[1]) -> PostTopBar(navController)
                 bottomRoute.equals(screens[2]) -> FridgeTopBar(navController, viewModel)
                 bottomRoute.equals(screens[3]) -> TopBar(4, navController)
                 bottomRoute.equals(screens[4]) -> MyTopBar(navController)

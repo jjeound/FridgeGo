@@ -31,7 +31,7 @@ import kotlinx.serialization.Serializable
 
 
 @Composable
-fun OnBoarding(navigateToHome: () -> Unit, navigateToLogin: () -> Unit, onEvent: (OnBoardingEvent) -> Unit){
+fun OnBoarding(navigateToLogin: () -> Unit){
     Column(
         modifier = Modifier.fillMaxSize().background(color = CustomTheme.colors.onSurface),
         verticalArrangement = Arrangement.Center,
@@ -47,26 +47,9 @@ fun OnBoarding(navigateToHome: () -> Unit, navigateToLogin: () -> Unit, onEvent:
             )
         ) {
             Text(
-                text = "로그인하기",
+                text = "시작하기",
                 color = CustomTheme.colors.onPrimary,
                 style = CustomTheme.typography.button1
-            )
-        }
-        Row (verticalAlignment = Alignment.CenterVertically){
-            Text(
-                text = "로그인 다음에 할래요",
-                color = CustomTheme.colors.textSecondary,
-                style = CustomTheme.typography.caption2
-            )
-            Spacer(modifier = Modifier.width(4.dp))
-            Text(
-                modifier = Modifier.clickable {
-                    navigateToHome()
-                    onEvent(OnBoardingEvent.SaveAppEntry)
-                },
-                text = "시작하기",
-                color = CustomTheme.colors.textPrimary,
-                style = CustomTheme.typography.caption1
             )
         }
     }
@@ -76,6 +59,6 @@ fun OnBoarding(navigateToHome: () -> Unit, navigateToLogin: () -> Unit, onEvent:
 @Composable
 fun OnBoardingPreview(){
     OnBoarding(
-        {}, {}, {}
+        {}
     )
 }

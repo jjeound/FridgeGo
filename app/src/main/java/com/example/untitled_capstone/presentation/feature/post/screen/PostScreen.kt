@@ -23,6 +23,7 @@ import com.example.untitled_capstone.domain.model.PostRaw
 import com.example.untitled_capstone.presentation.feature.post.composable.PostListContainer
 import com.example.untitled_capstone.presentation.feature.post.PostEvent
 import com.example.untitled_capstone.presentation.feature.post.PostState
+import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @Composable
 fun PostScreen(navigate: (Long) -> Unit, postItems: LazyPagingItems<PostRaw>, state: PostState, onEvent: (PostEvent) -> Unit) {
@@ -42,7 +43,8 @@ fun PostScreen(navigate: (Long) -> Unit, postItems: LazyPagingItems<PostRaw>, st
     Box(modifier = Modifier.fillMaxSize()) {
         if(postItems.loadState.refresh is LoadState.Loading || state.isLoading) {
             CircularProgressIndicator(
-                modifier = Modifier.align(Alignment.Center)
+                modifier = Modifier.align(Alignment.Center),
+                color = CustomTheme.colors.primary
             )
         } else {
             LazyColumn(

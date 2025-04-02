@@ -65,7 +65,8 @@ fun PostDetailScreen(id: Long, nickname: String, state: PostState, onEvent: (Pos
             modifier = Modifier.fillMaxSize(),
             color = CustomTheme.colors.primary
         )
-    }else if(state.post != null){
+    }
+    if(state.post != null){
         val post = state.post
         Scaffold(
             containerColor = CustomTheme.colors.onSurface,
@@ -74,7 +75,10 @@ fun PostDetailScreen(id: Long, nickname: String, state: PostState, onEvent: (Pos
                     modifier = Modifier.padding(horizontal = Dimens.topBarPadding),
                     navigationIcon = {
                         IconButton(
-                            onClick = { navController.popBackStack()}
+                            onClick = {
+                                navController.popBackStack()
+                                onEvent(PostEvent.InitState)
+                            }
                         ) {
                             Icon(
                                 imageVector = ImageVector.vectorResource(R.drawable.chevron_left),
@@ -128,7 +132,10 @@ fun PostDetailScreen(id: Long, nickname: String, state: PostState, onEvent: (Pos
                                         }else if(menuItem.size == 2){
                                             when(option){
                                                 menuItem[0] -> navController.navigate(Screen.WritingNav)
-                                                menuItem[1] -> onEvent(PostEvent.DeletePost(post.id))
+                                                menuItem[1] -> {
+                                                    onEvent(PostEvent.DeletePost(post.id))
+                                                    navController.popBackStack()
+                                                }
                                             }
                                         }
                                     },

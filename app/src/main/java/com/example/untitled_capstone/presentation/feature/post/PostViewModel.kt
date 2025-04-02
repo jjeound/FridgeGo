@@ -1,5 +1,7 @@
 package com.example.untitled_capstone.presentation.feature.post
 
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
@@ -9,7 +11,6 @@ import com.example.untitled_capstone.core.util.Resource
 import com.example.untitled_capstone.data.util.PostFetchType
 import com.example.untitled_capstone.domain.model.NewPost
 import com.example.untitled_capstone.domain.model.PostRaw
-import com.example.untitled_capstone.domain.use_case.post.GetPostById
 import com.example.untitled_capstone.domain.use_case.post.PostUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -31,6 +32,9 @@ class PostViewModel @Inject constructor(
     private val _postItemState: MutableStateFlow<PagingData<PostRaw>> = MutableStateFlow(PagingData.empty())
     val postItemState = _postItemState.asStateFlow()
 
+    private val _searchState = mutableStateOf(SearchState())
+    val searchState: State<SearchState> = _searchState
+
     val nickname = postUseCases.getNickname()
 
     fun onEvent(action: PostEvent){
@@ -44,6 +48,7 @@ class PostViewModel @Inject constructor(
             is PostEvent.GetPostById -> getPostById(action.id)
             is PostEvent.ModifyPost -> modifyPost(action.id, action.newPost)
             is PostEvent.SearchPost -> searchPost(action.keyword)
+            is PostEvent.InitState -> initState()
         }
     }
 
@@ -59,12 +64,7 @@ class PostViewModel @Inject constructor(
             when(result){
                 is Resource.Success -> {
                     result.data?.let{
-                        _state.update {
-                            it.copy(
-                                isLoading = false,
-                                error = null
-                            )
-                        }
+                        loadItems()
                     }
                 }
                 is Resource.Error -> {
@@ -107,12 +107,22 @@ class PostViewModel @Inject constructor(
             val result = postUseCases.modifyPost(id, newPost)
             when(result){
                 is Resource.Success -> {
-                    result.data?.let{
-                        _state.update {
-                            it.copy(
-                                isLoading = false,
-                                error = null
-                            )
+                    _postItemState.update { pagingData->
+                        pagingData.map {
+                            if(it.id == id){
+                                PostRaw(
+                                    id = it.id,
+                                    title = newPost.title,
+                                    timeAgo = it.timeAgo,
+                                    memberCount = newPost.memberCount,
+                                    price = newPost.price,
+                                    likeCount = it.likeCount,
+                                    district = it.district,
+                                    neighborhood = it.neighborhood,
+                                )
+                            }else{
+                                it
+                            }
                         }
                     }
                 }
@@ -162,18 +172,14 @@ class PostViewModel @Inject constructor(
 
     private fun searchPost(keyword: String){
         viewModelScope.launch {
+            _searchState.value.isLoading.value = true
             postUseCases.searchPosts(PostFetchType.Search(keyword))
                 .distinctUntilChanged()
                 .cachedIn(viewModelScope)
                 .collect { pagingData ->
-                    _postItemState.value = pagingData
-                    _state.update {
-                        it.copy(
-                            isLoading = false,
-                            error = null
-                        )
-                    }
+                    _searchState.value.searchResult.value = pagingData
                 }
+            _searchState.value.isLoading.value = false
         }
     }
 
@@ -199,9 +205,7 @@ class PostViewModel @Inject constructor(
             val result = postUseCases.addPost(post)
             when(result){
                 is Resource.Success -> {
-                    result.data?.let{
-                        loadItems()
-                    }
+                    loadItems()
                 }
                 is Resource.Error -> {
                     _state.update { it.copy(isLoading = false, error = result.message ?: "An unexpected error occurred") }
@@ -219,19 +223,18 @@ class PostViewModel @Inject constructor(
             when(result){
                 is Resource.Success -> {
                     result.data?.let{
-//                        _postItemState.update { pagingData ->
-//                            pagingData.map {
-//                                if(it.id == id){
-//                                    it.copy( liked = liked)
-//                                }else{
-//                                    it
-//                                }
-//                            }
-//                        }
+                        _postItemState.update { pagingData ->
+                            pagingData.map {
+                                if(it.id == id){
+                                    it.copy( likeCount = it.likeCount + 1)
+                                }else{
+                                    it
+                                }
+                            }
+                        }
                     }
                     _state.update {
                         it.copy(
-                            //post = it.post?.copy(liked = liked),
                             isLoading = false,
                             error = null
                         )
@@ -244,6 +247,16 @@ class PostViewModel @Inject constructor(
                     _state.update { it.copy(isLoading = true) }
                 }
             }
+        }
+    }
+
+    private fun initState(){
+        _state.update {
+            it.copy(
+                post = null,
+                isLoading = false,
+                error = null
+            )
         }
     }
 }

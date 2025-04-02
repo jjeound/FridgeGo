@@ -1,12 +1,11 @@
 package com.example.untitled_capstone.data.remote.dto
 
 import com.example.untitled_capstone.domain.model.Post
-import java.time.LocalDateTime
 
 data class PostDto(
     val category: String,
     val content: String,
-    val createdAt: LocalDateTime,
+    val createdAt: String? = null,
     val district: String,
     val id: Long,
     val likeCount: Int,

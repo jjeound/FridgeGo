@@ -12,4 +12,5 @@ sealed interface PostEvent{
     data class GetPostById(val id: Long): PostEvent
     data object GetMyPosts: PostEvent
     data object GetLikedPosts: PostEvent
+    data object InitState: PostEvent
 }

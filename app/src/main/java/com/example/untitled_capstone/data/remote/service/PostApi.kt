@@ -3,6 +3,7 @@ package com.example.untitled_capstone.data.remote.service
 import com.example.untitled_capstone.data.remote.dto.ApiResponse
 import com.example.untitled_capstone.data.remote.dto.GetPostByIdResponse
 import com.example.untitled_capstone.data.remote.dto.NewPostDto
+import com.example.untitled_capstone.data.remote.dto.PostLikedResponse
 import com.example.untitled_capstone.data.remote.dto.PostResponse
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -14,12 +15,12 @@ import retrofit2.http.Query
 
 interface PostApi {
 
-    @POST("/api/post/")
+    @POST("/api/post")
     suspend fun post(
         @Body newPostDto: NewPostDto
     ): ApiResponse
 
-    @GET("/api/post/")
+    @GET("/api/post")
     suspend fun getPosts(
         @Query("page") page: Int = 1,
         @Query("size") size: Int = 10,
@@ -51,7 +52,7 @@ interface PostApi {
     @PATCH("/api/like/post/{postId}")
     suspend fun toggleLike(
         @Path("postId") postId: Long,
-    ): ApiResponse
+    ): PostLikedResponse
 
     @GET("/api/like/post")
     suspend fun getLikedPosts(

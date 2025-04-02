@@ -32,6 +32,7 @@ import androidx.core.net.toUri
 
 @Composable
 fun PostContainer(post: Post){
+    val category = Category.entries.find { it.eng == post.category }?.kor ?: Category.VEGETABLE.kor
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding)
@@ -77,7 +78,7 @@ fun PostContainer(post: Post){
                 )
                 Column {
                     Text(
-                        text = "닉네임", //post.user.name
+                        text = post.nickname,
                         style = CustomTheme.typography.button2,
                         color = CustomTheme.colors.textPrimary,
                     )
@@ -103,7 +104,7 @@ fun PostContainer(post: Post){
                 color = CustomTheme.colors.textPrimary,
             )
             Text(
-                text = "${post.category} ${post.timeAgo}",
+                text = "$category ${post.timeAgo}",
                 style = CustomTheme.typography.caption1,
                 color = CustomTheme.colors.textSecondary,
             )

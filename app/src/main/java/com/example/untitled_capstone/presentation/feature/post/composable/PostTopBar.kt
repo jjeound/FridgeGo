@@ -26,7 +26,7 @@ import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ShoppingTopBar(navController: NavHostController){
+fun PostTopBar(navController: NavHostController){
     TopAppBar(
         modifier = Modifier.padding(horizontal = Dimens.topBarPadding),
         title = {
@@ -51,7 +51,11 @@ fun ShoppingTopBar(navController: NavHostController){
         },
         actions = {
             IconButton(
-                onClick = {}
+                onClick = {
+                    navController.navigate(
+                        Screen.PostSearchNav
+                    )
+                }
             ) {
                 Icon(
                     imageVector = ImageVector.vectorResource(R.drawable.search),

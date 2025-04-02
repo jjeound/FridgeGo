@@ -73,6 +73,7 @@ import com.example.untitled_capstone.MainActivity
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.domain.model.NewPost
+import com.example.untitled_capstone.navigation.Screen
 import com.example.untitled_capstone.presentation.feature.fridge.composable.PermissionDialog
 import com.example.untitled_capstone.presentation.feature.post.PostEvent
 import com.example.untitled_capstone.presentation.feature.post.PostState
@@ -519,7 +520,9 @@ fun NewPostForm(state: PostState, navController: NavHostController, onEvent: (Po
                         )
                     )
                 }
-                navController.popBackStack()
+                navController.navigate(Screen.Post){
+                    popUpTo(Screen.Post)
+                }
             }
         ) {
             Text(

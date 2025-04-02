@@ -11,6 +11,8 @@ import com.example.untitled_capstone.data.local.entity.PostItemEntity
 import com.example.untitled_capstone.data.pagination.PostPagingSource
 import com.example.untitled_capstone.data.remote.dto.ApiResponse
 import com.example.untitled_capstone.data.remote.dto.NewPostDto
+import com.example.untitled_capstone.data.remote.dto.PostLikedDto
+import com.example.untitled_capstone.data.remote.dto.PostLikedResponse
 import com.example.untitled_capstone.data.remote.service.PostApi
 import com.example.untitled_capstone.data.util.PostFetchType
 import com.example.untitled_capstone.domain.model.Post
@@ -114,12 +116,12 @@ class PostRepositoryImpl @Inject constructor(
         ).flow
     }
 
-    override suspend fun toggleLike(id: Long): Resource<ApiResponse> {
+    override suspend fun toggleLike(id: Long): Resource<PostLikedDto> {
         return try {
             Resource.Loading(data = null)
             val response = api.toggleLike(id)
             if(response.isSuccess){
-                Resource.Success(response)
+                Resource.Success(response.result)
             }else {
                 Resource.Error(message = response.toString())
             }

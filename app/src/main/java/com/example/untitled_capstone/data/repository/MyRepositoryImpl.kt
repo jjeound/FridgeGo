@@ -38,6 +38,7 @@ class MyRepositoryImpl @Inject constructor(
             val response = api.logout()
             if(response.isSuccess){
                 tokenRepository.deleteTokens()
+                deleteProfile()
                 Resource.Success(response)
             }else {
                 Resource.Error(message = response.toString())
@@ -144,6 +145,14 @@ class MyRepositoryImpl @Inject constructor(
         }
         dataStore.edit { prefs ->
             prefs[IMAGE_URL] = profile.imageUrl?: ""
+        }
+    }
+
+    private suspend fun deleteProfile(){
+        dataStore.edit { prefs ->
+            prefs.remove(NICKNAME)
+            prefs.remove(EMAIL)
+            prefs.remove(IMAGE_URL)
         }
     }
 }

@@ -10,12 +10,13 @@ data class RecipeDto(
     val instructions: String,
     val liked: Boolean
 ){
-    fun toRecipeEntity(): RecipeItemEntity{
+    fun toRecipeEntity(pagerNumber: Int): RecipeItemEntity{
         return RecipeItemEntity(
             id = id,
             title = title,
             instructions = instructions,
-            liked = liked
+            liked = liked,
+            pagerNumber = pagerNumber
         )
     }
     fun toRecipe(): RecipeRaw{

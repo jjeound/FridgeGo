@@ -33,7 +33,7 @@ class RecipePagingSource(
                     if(lastItem == null) {
                         return MediatorResult.Success(endOfPaginationReached = true)
                     } else {
-                        (lastItem.id / state.config.pageSize) + 1
+                        lastItem.pagerNumber + 1
                     }
                 }
             }
@@ -47,12 +47,12 @@ class RecipePagingSource(
                 if(loadType == LoadType.REFRESH) {
                     db.dao.clearAll()
                 }
-                val recipeEntities = response.result!!.content.map { it.toRecipeEntity() }
+                val recipeEntities = response.result!!.content.map { it.toRecipeEntity(response.result.number + 1) }
                 db.dao.upsertAll(recipeEntities)
             }
 
             MediatorResult.Success(
-                endOfPaginationReached = response.result!!.content.isEmpty()
+                endOfPaginationReached = response.result!!.last
             )
         } catch(e: IOException) {
             MediatorResult.Error(e)

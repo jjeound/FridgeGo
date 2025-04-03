@@ -9,7 +9,8 @@ data class RecipeItemEntity(
     @PrimaryKey val id: Long,
     val title: String,
     val instructions: String,
-    val liked: Boolean
+    val liked: Boolean,
+    val pagerNumber: Int
 ){
     fun toRecipe(): RecipeRaw{
         return  RecipeRaw(

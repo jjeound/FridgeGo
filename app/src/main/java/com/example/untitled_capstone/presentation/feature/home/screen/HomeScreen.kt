@@ -20,7 +20,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -31,7 +30,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
@@ -79,7 +77,7 @@ fun HomeScreen(mainViewModel: MainViewModel, state: RecipeState, recipeItems: La
         ){
             Column(
                 modifier = Modifier.padding(horizontal = Dimens.largePadding)
-                    .padding(top = Dimens.largePadding),
+                    .padding(vertical = Dimens.largePadding),
                 verticalArrangement = Arrangement.spacedBy(Dimens.largePadding)
             ) {
                 Text(

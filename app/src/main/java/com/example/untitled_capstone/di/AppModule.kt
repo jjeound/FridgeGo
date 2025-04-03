@@ -26,6 +26,7 @@ import com.example.untitled_capstone.data.remote.service.MapApi
 import com.example.untitled_capstone.data.remote.service.MyApi
 import com.example.untitled_capstone.data.remote.service.PostApi
 import com.example.untitled_capstone.data.remote.service.TokenApi
+import com.example.untitled_capstone.data.util.FridgeFetchType
 import com.example.untitled_capstone.data.util.PostFetchType
 import com.example.untitled_capstone.domain.repository.TokenRepository
 import com.example.untitled_capstone.domain.use_case.token.AuthAuthenticator
@@ -167,13 +168,13 @@ object AppModule {
     @OptIn(ExperimentalPagingApi::class)
     @Provides
     @Singleton
-    fun provideFridgePager(db: FridgeItemDatabase, api: FridgeApi, sort: String): Pager<Int, FridgeItemEntity> {
+    fun provideFridgePager(db: FridgeItemDatabase, api: FridgeApi, fetchType: FridgeFetchType): Pager<Int, FridgeItemEntity> {
         return Pager(
             config = PagingConfig(pageSize = 10),
             remoteMediator = FridgePagingSource(
                 db = db,
                 api = api,
-                sort = sort
+                fetchType = fetchType
             ),
             pagingSourceFactory = {
                 db.dao.getFridgeItems()

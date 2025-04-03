@@ -1,5 +1,6 @@
 package com.example.untitled_capstone.presentation.feature.login
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.untitled_capstone.core.util.Resource
@@ -44,7 +45,6 @@ class LoginViewModel @Inject constructor(
 
     private fun getAddressByCoord(x: String, y: String) {
         viewModelScope.launch {
-            setLocation("남구", "무거동")
             val result = loginUseCases.getAddressByCoord(x, y)
             when(result){
                 is Resource.Success -> {

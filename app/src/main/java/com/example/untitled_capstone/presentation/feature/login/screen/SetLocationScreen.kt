@@ -115,26 +115,6 @@ fun SetLocationScreen(state: AddressState, onEvent: (LoginEvent) -> Unit, popBac
             ).background(CustomTheme.colors.onSurface),
             verticalArrangement = Arrangement.Bottom
         ) {
-            if(state.address != null){
-                Box(
-                    modifier = Modifier.weight(1f)
-                ){
-                    Row(
-                        modifier = Modifier.align(Alignment.Center),
-                    ) {
-                        Text(
-                            text = state.address.regionGu,
-                            style = CustomTheme.typography.headline3,
-                            color = CustomTheme.colors.textPrimary,
-                        )
-                        Text(
-                            text = state.address.regionDong,
-                            style = CustomTheme.typography.headline3,
-                            color = CustomTheme.colors.textPrimary,
-                        )
-                    }
-                }
-            }
             Button(
                 modifier = Modifier
                     .fillMaxWidth(),
@@ -182,12 +162,12 @@ fun SetLocationScreen(state: AddressState, onEvent: (LoginEvent) -> Unit, popBac
             }
             LaunchedEffect(state) {
                 if(state.address != null){
+                    Toast.makeText(context, state.address.toString(), Toast.LENGTH_SHORT).show()
 //                    if(from){
 //                        popBackStack()
 //                    } else {
 //                        navigateToHome()
 //                    }
-                    Log.d("address", state.address.toString())
                 }
                 if(state.error != null){
                     Log.d("error", state.error.toString())
@@ -216,7 +196,7 @@ fun getCurrentLocation(context: Context, onLocationReceived: (x: String, y: Stri
 
     fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
         location?.let {
-            onLocationReceived(it.latitude.toString(), it.longitude.toString())
+            onLocationReceived(it.longitude.toString(), it.latitude.toString())
         } ?: Log.e("Location", "위치를 가져올 수 없음")
     }.addOnFailureListener {
         Log.e("Location", "위치 요청 실패: ${it.message}")

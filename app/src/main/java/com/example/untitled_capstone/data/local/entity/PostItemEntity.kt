@@ -13,7 +13,8 @@ data class PostItemEntity(
     val price: Int,
     val title: String,
     val district: String,
-    val neighborhood: String
+    val neighborhood: String,
+    val pagerNumber: Int
 ){
     fun toPostRaw(): PostRaw{
         return  PostRaw(

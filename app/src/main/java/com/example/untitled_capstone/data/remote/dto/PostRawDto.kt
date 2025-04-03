@@ -1,6 +1,7 @@
 package com.example.untitled_capstone.data.remote.dto
 
 import com.example.untitled_capstone.data.local.entity.PostItemEntity
+import kotlin.Int
 
 data class PostRawDto(
     val id: Long,
@@ -12,7 +13,7 @@ data class PostRawDto(
     val district: String,
     val neighborhood: String
 ){
-    fun toPostEntity(): PostItemEntity{
+    fun toPostEntity(pagerNumber: Int): PostItemEntity{
         return  PostItemEntity(
             id = id,
             timeAgo = timeAgo,
@@ -21,7 +22,8 @@ data class PostRawDto(
             likeCount = likeCount,
             memberCount = memberCount,
             price = price,
-            title = title
+            title = title,
+            pagerNumber = pagerNumber
         )
     }
 }

@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -27,8 +26,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -41,6 +38,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
@@ -61,81 +59,90 @@ fun PostSearchScreen(searchState: SearchState, navigateToBack: () -> Unit, onEve
     Scaffold(
         containerColor = CustomTheme.colors.surface,
         topBar = {
-            Row(
+            Box(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        vertical = Dimens.largePadding,
-                        horizontal = Dimens.topBarPadding,
-                    ).height(64.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(Dimens.mediumPadding)
+                    .fillMaxWidth().padding(
+                        vertical = Dimens.largePadding
+                    )
             ) {
-                IconButton(
-                    onClick = {
-                        navigateToBack()
-                    }
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(
+                            vertical = Dimens.largePadding,
+                            horizontal = Dimens.topBarPadding,
+                        ),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(Dimens.mediumPadding)
                 ) {
-                    Icon(
-                        imageVector = ImageVector.vectorResource(R.drawable.chevron_left),
-                        tint = CustomTheme.colors.iconDefault,
-                        contentDescription = "back",
-                    )
-                }
-                TextField(
-                    modifier = Modifier.weight(1f).onFocusChanged{
-                        if(it.isFocused){
-                            showResult = false
+                    IconButton(
+                        onClick = {
+                            navigateToBack()
                         }
-                    },
-                    value = keyword,
-                    onValueChange = {keyword = it},
-                    placeholder = {
-                        Text(
-                            text = "검색",
-                            style = CustomTheme.typography.button2,
-                            color = CustomTheme.colors.textSecondary
+                    ) {
+                        Icon(
+                            imageVector = ImageVector.vectorResource(R.drawable.chevron_left),
+                            tint = CustomTheme.colors.iconDefault,
+                            contentDescription = "back",
                         )
-                    },
-                    textStyle = CustomTheme.typography.button2,
-                    colors = TextFieldDefaults.colors(
-                        focusedTextColor = CustomTheme.colors.textPrimary,
-                        unfocusedTextColor = CustomTheme.colors.textPrimary,
-                        focusedContainerColor = CustomTheme.colors.borderLight,
-                        unfocusedContainerColor = CustomTheme.colors.borderLight,
-                        cursorColor = CustomTheme.colors.textPrimary,
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent,
-                        focusedTrailingIconColor = CustomTheme.colors.iconDefault,
-                        unfocusedTrailingIconColor = Color.Transparent,
-                    ),
-                    shape = RoundedCornerShape(Dimens.cornerRadius),
-                    singleLine = true,
-                    maxLines = 1,
-                    keyboardActions = KeyboardActions(onDone = {
-                        focusManager.clearFocus()
-                        if(keyword.isNotEmpty()){
-                            onEvent(PostEvent.SearchPost(keyword))
-                            showResult = true
-                        }
-                    })
-                )
-                Box(
-                    modifier = Modifier.size(48.dp),
-                    contentAlignment = Alignment.Center
-                ){
-                    Text(
-                        modifier = Modifier.clickable{ navigateToBack() },
-                        text = "닫기",
-                        style = CustomTheme.typography.button1,
-                        color = CustomTheme.colors.textPrimary,
+                    }
+                    TextField(
+                        modifier = Modifier
+                            .weight(1f).height(48.dp)
+                            .onFocusChanged {
+                                if (it.isFocused) {
+                                    showResult = false
+                                }
+                            },
+                        value = keyword,
+                        onValueChange = { keyword = it },
+                        placeholder = {
+                            Text(
+                                text = "검색",
+                                style = CustomTheme.typography.caption1,
+                                color = CustomTheme.colors.textSecondary
+                            )
+                        },
+                        textStyle = CustomTheme.typography.button2,
+                        colors = TextFieldDefaults.colors(
+                            focusedTextColor = CustomTheme.colors.textPrimary,
+                            unfocusedTextColor = CustomTheme.colors.textPrimary,
+                            focusedContainerColor = CustomTheme.colors.borderLight,
+                            unfocusedContainerColor = CustomTheme.colors.borderLight,
+                            cursorColor = CustomTheme.colors.textPrimary,
+                            focusedIndicatorColor = Color.Transparent,
+                            unfocusedIndicatorColor = Color.Transparent,
+                            disabledIndicatorColor = Color.Transparent
+                        ),
+                        shape = RoundedCornerShape(Dimens.cornerRadius),
+                        singleLine = true,
+                        maxLines = 1,
+                        keyboardActions = KeyboardActions(onDone = {
+                            focusManager.clearFocus()
+                            if (keyword.isNotEmpty()) {
+                                onEvent(PostEvent.SearchPost(keyword))
+                                showResult = true
+                            }
+                        })
                     )
+                    Box(
+                        modifier = Modifier.size(48.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            modifier = Modifier.clickable { navigateToBack() },
+                            text = "닫기",
+                            style = CustomTheme.typography.button1,
+                            color = CustomTheme.colors.textPrimary,
+                        )
+                    }
                 }
             }
         },
     ){ innerPadding ->
         Column(
-            modifier = Modifier.padding(innerPadding)
+            modifier = Modifier
+                .padding(innerPadding)
                 .fillMaxSize()
                 .padding(
                     horizontal = Dimens.surfaceHorizontalPadding,
@@ -186,7 +193,9 @@ fun PostSearchScreen(searchState: SearchState, navigateToBack: () -> Unit, onEve
                     }
                     item {
                         if (posts.loadState.append is LoadState.Loading && posts.itemCount > 10) {
-                            CircularProgressIndicator(modifier = Modifier.fillMaxWidth().wrapContentWidth(Alignment.CenterHorizontally))
+                            CircularProgressIndicator(modifier = Modifier
+                                .fillMaxWidth()
+                                .wrapContentWidth(Alignment.CenterHorizontally))
                         }
                     }
                 }
@@ -215,10 +224,12 @@ fun PostSearchScreen(searchState: SearchState, navigateToBack: () -> Unit, onEve
                         modifier = Modifier.height(Dimens.mediumPadding)
                     )
                     LazyColumn (
-                        modifier = Modifier.fillMaxWidth().padding(
-                            vertical = Dimens.mediumPadding,
-                            horizontal = 6.dp
-                        ),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(
+                                vertical = Dimens.mediumPadding,
+                                horizontal = 6.dp
+                            ),
                         verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding)
                     ) {
                         items(5) {

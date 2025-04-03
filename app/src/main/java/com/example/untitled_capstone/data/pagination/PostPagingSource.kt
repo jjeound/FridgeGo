@@ -1,6 +1,5 @@
 package com.example.untitled_capstone.data.pagination
 
-import android.util.Log
 import androidx.paging.ExperimentalPagingApi
 import androidx.paging.LoadType
 import androidx.paging.PagingState
@@ -10,11 +9,6 @@ import com.example.untitled_capstone.data.local.db.PostItemDatabase
 import com.example.untitled_capstone.data.local.entity.PostItemEntity
 import com.example.untitled_capstone.data.remote.service.PostApi
 import com.example.untitled_capstone.data.util.PostFetchType
-import com.skydoves.sandwich.message
-import com.skydoves.sandwich.onError
-import com.skydoves.sandwich.onException
-import com.skydoves.sandwich.onSuccess
-import com.skydoves.sandwich.retrofit.errorBody
 import retrofit2.HttpException
 import java.io.IOException
 
@@ -40,7 +34,7 @@ class PostPagingSource(
                     if(lastItem == null) {
                         return MediatorResult.Success(endOfPaginationReached = true)
                     } else {
-                        (lastItem.id / state.config.pageSize) + 1
+                        lastItem.pagerNumber + 1
                     }
                 }
             }
@@ -56,12 +50,12 @@ class PostPagingSource(
                 if(loadType == LoadType.REFRESH) {
                     db.dao.clearAll()
                 }
-                val postEntities = response.result!!.content.map { it.toPostEntity() }
+                val postEntities = response.result!!.content.map { it.toPostEntity(response.result.number + 1) }
                 db.dao.upsertAll(postEntities)
             }
 
             MediatorResult.Success(
-                endOfPaginationReached = response.result!!.content.isEmpty()
+                endOfPaginationReached = response.result!!.last
             )
         } catch(e: IOException) {
             MediatorResult.Error(e)

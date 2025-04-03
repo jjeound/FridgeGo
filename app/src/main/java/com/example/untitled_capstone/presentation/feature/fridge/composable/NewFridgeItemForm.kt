@@ -84,24 +84,37 @@ import java.util.Locale
 fun NewFridgeItemForm(id: Long?, state: FridgeState, navController: NavHostController, onAction: (FridgeAction) -> Unit){
     val context = LocalContext.current
     val packageName = context.packageName
+    val focusManager = LocalFocusManager.current
     val showDialog = remember { mutableStateOf(false) }
-    var image by remember { mutableStateOf(state.item?.image?.toUri()) }
+
+    var image by remember { mutableStateOf(state.item?.image) }
     var name by remember { mutableStateOf("") }
     var quantity by remember { mutableStateOf("") }
+
     var showDatePicker by remember { mutableStateOf(false) }
     val datePickerState = rememberDatePickerState()
     var expirationDate by remember { mutableLongStateOf(0L) }
-    val selectedDate = datePickerState.selectedDateMillis?.let {
+    val scannedDate = navController.currentBackStackEntry?.savedStateHandle?.get<String>("date")
+    var selectedDate = datePickerState.selectedDateMillis?.let {
         expirationDate = it
         convertMillisToDate(it)
-    } ?: if(state.item != null) {
+    } ?: if (state.item != null) {
         state.item.expirationDate.let {
+            expirationDate = it // 기존 데이터가 있으면 expirationDate 설정
             convertMillisToDate(it)
         }
-    } else {
+    }  else {
         ""
     }
-    val focusManager = LocalFocusManager.current
+
+    scannedDate?.let {
+        if (scannedDate.isNotBlank()) {
+            val parsedDate = parseDateToMillis(scannedDate)
+            expirationDate = parsedDate
+            selectedDate = convertMillisToDate(parsedDate)
+        }
+    }
+
     var validator by remember { mutableStateOf(false) }
     validator = name.isNotBlank() && selectedDate.isNotBlank()
     LaunchedEffect(Unit) {
@@ -110,7 +123,7 @@ fun NewFridgeItemForm(id: Long?, state: FridgeState, navController: NavHostContr
     LaunchedEffect(state.item) {
         state.item?.let {
             name = it.name
-            image = it.image?.toUri()
+            image = it.image
             quantity = it.quantity
             expirationDate = it.expirationDate
         }
@@ -122,7 +135,7 @@ fun NewFridgeItemForm(id: Long?, state: FridgeState, navController: NavHostContr
                 Activity.RESULT_OK -> {
                     result.data?.data?.let { uri ->
                         uri.let {
-                            image = uri
+                            image = uri.toString()
                             Log.d("TargetSDK", "imageUri - selected : $uri")
                         }
                     }
@@ -249,12 +262,78 @@ fun NewFridgeItemForm(id: Long?, state: FridgeState, navController: NavHostContr
             Row(
                 horizontalArrangement = Arrangement.spacedBy(Dimens.mediumPadding)
             ) {
-                Column {
+                TextField(
+                    label = {
+                        Row {
+                            Text(
+                                text = "이름",
+                                style = CustomTheme.typography.caption1,
+                                color = CustomTheme.colors.textSecondary,
+                            )
+                            Text(
+                                text = " *",
+                                style = CustomTheme.typography.caption1,
+                                color = CustomTheme.colors.iconRed,
+                            )
+                        }
+                    },
+                    value = name,
+                    onValueChange = {name = it},
+                    modifier = Modifier.width(80.dp),
+                    textStyle = CustomTheme.typography.button2,
+                    colors = TextFieldDefaults.colors(
+                        focusedTextColor = CustomTheme.colors.textPrimary,
+                        unfocusedTextColor = CustomTheme.colors.textPrimary,
+                        focusedContainerColor = CustomTheme.colors.onSurface,
+                        unfocusedContainerColor = CustomTheme.colors.onSurface,
+                        cursorColor = CustomTheme.colors.textPrimary,
+                        focusedIndicatorColor = CustomTheme.colors.primary,
+                        unfocusedIndicatorColor = CustomTheme.colors.border,
+                        focusedTrailingIconColor = CustomTheme.colors.iconDefault,
+                        unfocusedTrailingIconColor = Color.Transparent,
+                    ),
+                    keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
+                    singleLine = true,
+                    maxLines = 1
+                )
+                TextField(
+                    label = {
+                        Row {
+                            Text(
+                                text = "수량",
+                                style = CustomTheme.typography.caption1,
+                                color = CustomTheme.colors.textSecondary,
+                            )
+                        }
+                    },
+                    value = quantity,
+                    onValueChange = {quantity = it},
+                    modifier = Modifier.width(80.dp),
+                    textStyle = CustomTheme.typography.button2,
+                    colors = TextFieldDefaults.colors(
+                        focusedTextColor = CustomTheme.colors.textPrimary,
+                        unfocusedTextColor = CustomTheme.colors.textPrimary,
+                        focusedContainerColor = CustomTheme.colors.onSurface,
+                        unfocusedContainerColor = CustomTheme.colors.onSurface,
+                        cursorColor = CustomTheme.colors.textPrimary,
+                        focusedIndicatorColor = CustomTheme.colors.primary,
+                        unfocusedIndicatorColor = CustomTheme.colors.border,
+                        focusedTrailingIconColor = CustomTheme.colors.iconDefault,
+                        unfocusedTrailingIconColor = Color.Transparent,
+                    ),
+                    keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    singleLine = true,
+                    maxLines = 1
+                )
+            }
+            TextField(
+                label = {
                     Row {
                         Text(
-                            text = "이름",
+                            text = "유통기한",
                             style = CustomTheme.typography.caption1,
-                            color = CustomTheme.colors.textPrimary,
+                            color = CustomTheme.colors.textSecondary,
                         )
                         Text(
                             text = " *",
@@ -262,157 +341,76 @@ fun NewFridgeItemForm(id: Long?, state: FridgeState, navController: NavHostContr
                             color = CustomTheme.colors.iconRed,
                         )
                     }
-                    TextField(
-                        value = name,
-                        onValueChange = {name = it},
-                        modifier = Modifier.width(80.dp),
-                        textStyle = CustomTheme.typography.button2,
-                        colors = TextFieldDefaults.colors(
-                            focusedTextColor = CustomTheme.colors.textPrimary,
-                            unfocusedTextColor = CustomTheme.colors.textPrimary,
-                            focusedContainerColor = CustomTheme.colors.onSurface,
-                            unfocusedContainerColor = CustomTheme.colors.onSurface,
-                            cursorColor = CustomTheme.colors.textPrimary,
-                            focusedIndicatorColor = Color.Transparent,
-                            unfocusedIndicatorColor = Color.Transparent,
-                            focusedTrailingIconColor = CustomTheme.colors.iconDefault,
-                            unfocusedTrailingIconColor = Color.Transparent,
-                        ),
-                        keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
-                        singleLine = true,
-                        maxLines = 1
-                    )
-                    HorizontalDivider(
-                        modifier = Modifier.width(80.dp),
-                        thickness = 1.dp,
-                        color = CustomTheme.colors.border
-                    )
-                }
-                Column {
-                    Row {
-                        Text(
-                            text = "수량",
-                            style = CustomTheme.typography.caption1,
-                            color = CustomTheme.colors.textPrimary,
+                },
+                modifier = Modifier.width(300.dp),
+                value = selectedDate,
+                onValueChange = { },
+                textStyle = CustomTheme.typography.button2,
+                readOnly = true,
+                trailingIcon = {
+                    IconButton(onClick = {
+                        showDatePicker = !showDatePicker
+                        focusManager.clearFocus()
+                    }) {
+                        Icon(
+                            imageVector = ImageVector.vectorResource(R.drawable.calendar),
+                            contentDescription = "Select date",
+                            tint = CustomTheme.colors.iconSelected
                         )
                     }
-                    TextField(
-                        value = quantity,
-                        onValueChange = {quantity = it},
-                        modifier = Modifier.width(80.dp),
-                        textStyle = CustomTheme.typography.button2,
-                        colors = TextFieldDefaults.colors(
-                            focusedTextColor = CustomTheme.colors.textPrimary,
-                            unfocusedTextColor = CustomTheme.colors.textPrimary,
-                            focusedContainerColor = CustomTheme.colors.onSurface,
-                            unfocusedContainerColor = CustomTheme.colors.onSurface,
-                            cursorColor = CustomTheme.colors.textPrimary,
-                            focusedIndicatorColor = Color.Transparent,
-                            unfocusedIndicatorColor = Color.Transparent,
-                            focusedTrailingIconColor = CustomTheme.colors.iconDefault,
-                            unfocusedTrailingIconColor = Color.Transparent,
-                        ),
-                        keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        singleLine = true,
-                        maxLines = 1
-                    )
-                    HorizontalDivider(
-                        modifier = Modifier.width(80.dp),
-                        thickness = 1.dp,
-                        color = CustomTheme.colors.border
-                    )
-                }
-            }
-            Column {
-                Row {
-                    Text(
-                        text = "유통기한",
-                        style = CustomTheme.typography.caption1,
-                        color = CustomTheme.colors.textPrimary,
-                    )
-                    Text(
-                        text = " *",
-                        style = CustomTheme.typography.caption1,
-                        color = CustomTheme.colors.iconRed,
-                    )
-                }
-                TextField(
-                    modifier = Modifier.width(300.dp),
-                    value = selectedDate,
-                    onValueChange = { },
-                    textStyle = CustomTheme.typography.button2,
-                    readOnly = true,
-                    trailingIcon = {
-                        IconButton(onClick = {
-                            showDatePicker = !showDatePicker
-                            focusManager.clearFocus()
+                },
+                colors = TextFieldDefaults.colors(
+                    focusedTextColor = CustomTheme.colors.textPrimary,
+                    unfocusedTextColor = CustomTheme.colors.textPrimary,
+                    focusedContainerColor = CustomTheme.colors.onSurface,
+                    unfocusedContainerColor = CustomTheme.colors.onSurface,
+                    cursorColor = CustomTheme.colors.textPrimary,
+                    focusedIndicatorColor = CustomTheme.colors.primary,
+                    unfocusedIndicatorColor = CustomTheme.colors.border,
+                    focusedTrailingIconColor = CustomTheme.colors.iconDefault,
+                    unfocusedTrailingIconColor = Color.Transparent,
+                ),
+
+            )
+            if(showDatePicker){
+                DatePickerDialog(
+                    onDismissRequest = {},
+                    confirmButton = {
+                        TextButton(onClick = {
+                            showDatePicker = false
                         }) {
-                            Icon(
-                                imageVector = ImageVector.vectorResource(R.drawable.calendar),
-                                contentDescription = "Select date",
-                                tint = CustomTheme.colors.iconSelected
+                            Text(
+                                text = "확인",
+                                color = CustomTheme.colors.textPrimary,
+                                style = CustomTheme.typography.button2,
                             )
                         }
                     },
-                    colors = TextFieldDefaults.colors(
-                        focusedTextColor = CustomTheme.colors.textPrimary,
-                        unfocusedTextColor = CustomTheme.colors.textPrimary,
-                        focusedContainerColor = CustomTheme.colors.onSurface,
-                        unfocusedContainerColor = CustomTheme.colors.onSurface,
-                        cursorColor = CustomTheme.colors.textPrimary,
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent,
-                        focusedTrailingIconColor = CustomTheme.colors.iconDefault,
-                        unfocusedTrailingIconColor = Color.Transparent,
-                    ),
-
-                )
-                HorizontalDivider(
-                    modifier = Modifier.width(300.dp),
-                    thickness = 1.dp,
-                    color = CustomTheme.colors.border
-                )
-                if(showDatePicker){
-                    DatePickerDialog(
-                        onDismissRequest = {},
-                        confirmButton = {
-                            TextButton(onClick = {
-                                showDatePicker = false
-                            }) {
-                                Text(
-                                    text = "확인",
-                                    color = CustomTheme.colors.textPrimary,
-                                    style = CustomTheme.typography.button2,
-                                )
-                            }
-                        },
-                        dismissButton = {
-                            TextButton(onClick = {showDatePicker = false}) {
-                                Text(
-                                    text = "취소",
-                                    color = CustomTheme.colors.textPrimary,
-                                    style = CustomTheme.typography.button2,
-                                )
-                            }
+                    dismissButton = {
+                        TextButton(onClick = {showDatePicker = false}) {
+                            Text(
+                                text = "취소",
+                                color = CustomTheme.colors.textPrimary,
+                                style = CustomTheme.typography.button2,
+                            )
+                        }
+                    },
+                    colors = DatePickerDefaults.colors(
+                        containerColor = CustomTheme.colors.onSurface,
+                    )
+                ) {
+                    DatePicker(
+                        state = datePickerState,
+                        showModeToggle = false,
+                        title = {
+                            Text(
+                                text = ""
+                            )
                         },
                         colors = DatePickerDefaults.colors(
                             containerColor = CustomTheme.colors.onSurface,
                         )
-                    ) {
-                        DatePicker(
-                            state = datePickerState,
-                            showModeToggle = false,
-                            title = {
-                                Text(
-                                    text = ""
-                                )
-                            },
-                            colors = DatePickerDefaults.colors(
-                                containerColor = CustomTheme.colors.onSurface,
-                            )
-                        )
-                    }
+                    )
                 }
             }
             Button(
@@ -481,12 +479,13 @@ fun NewFridgeItemForm(id: Long?, state: FridgeState, navController: NavHostContr
             enabled = validator,
             onClick = {
                 navController.popBackStack()
+                navController.currentBackStackEntry?.savedStateHandle?.remove<String>("date")
                 state.item?.let {
                     onAction(FridgeAction.ModifyItem(
                         FridgeItem(
                             id = it.id,
                             name = name,
-                            image = image.toString(),
+                            image = image,
                             quantity = quantity,
                             expirationDate = expirationDate,
                             notification = it.notification,
@@ -499,7 +498,7 @@ fun NewFridgeItemForm(id: Long?, state: FridgeState, navController: NavHostContr
                         FridgeItem(
                             id = 0L,
                             name = name,
-                            image = image.toString(),
+                            image = image,
                             quantity = quantity,
                             expirationDate = expirationDate,
                             notification = false,
@@ -523,3 +522,25 @@ fun convertMillisToDate(millis: Long): String {
     return formatter.format(Date(millis))
 }
 
+fun parseDateToMillis(dateString: String): Long {
+    val dateFormats = listOf(
+        "yyyy.MM.dd",
+        "yyyy/MM/dd",
+        "yyyy-MM-dd"
+    )
+
+    for (format in dateFormats) {
+        try {
+            val formatter = SimpleDateFormat(format, Locale.getDefault())
+            val date = formatter.parse(dateString)
+            if (date != null) {
+                return date.time
+            }
+        } catch (e: Exception) {
+            // 실패해도 다른 포맷으로 시도해야 하므로 무시
+        }
+    }
+
+    // 모든 포맷이 실패하면 0L 반환
+    return 0L
+}

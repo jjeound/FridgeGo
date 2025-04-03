@@ -1,5 +1,6 @@
 package com.example.untitled_capstone.data.remote.dto
 
+
 data class FridgeResultDto(
     val content: List<ContentDto>,
     val empty: Boolean,

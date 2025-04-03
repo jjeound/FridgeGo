@@ -41,6 +41,7 @@ fun AddFridgeItemScreen(id: Long?, state: FridgeState, navController: NavHostCon
                     IconButton(
                         onClick = {
                             navController.popBackStack()
+                            navController.currentBackStackEntry?.savedStateHandle?.remove<String>("date")
                             onAction(FridgeAction.InitState)
                         }
                     ) {

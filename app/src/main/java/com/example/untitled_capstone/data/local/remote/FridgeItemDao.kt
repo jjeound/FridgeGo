@@ -21,14 +21,9 @@ interface FridgeItemDao {
     @Query("SELECT * FROM fridgeitementity")
     fun getFridgeItems(): PagingSource<Int, FridgeItemEntity>
 
-    @Query("SELECT * FROM fridgeitementity ORDER BY expirationDate ASC") // 날짜 정렬
-    fun getFridgeItemsByDate(): PagingSource<Int, FridgeItemEntity>
-
     @Query("UPDATE fridgeitementity SET notification = :notification WHERE id = :id")
     suspend fun toggleNotification(id: Long, notification: Boolean)
 
-    @Update
-    suspend fun modifyItem(fridgeItemEntity: FridgeItemEntity)
 }
 
 

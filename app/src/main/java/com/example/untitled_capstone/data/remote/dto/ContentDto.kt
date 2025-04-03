@@ -11,7 +11,7 @@ data class ContentDto(
     val storageType: Boolean,
     val useByDate: Long
 ){
-    fun toFridgeItemEntity(): FridgeItemEntity {
+    fun toFridgeItemEntity(pagerNumber: Int): FridgeItemEntity {
         return FridgeItemEntity(
             id = id,
             name = foodName,
@@ -20,6 +20,7 @@ data class ContentDto(
             expirationDate = useByDate,
             notification = alarmStatus,
             isFridge = storageType,
+            pagerNumber = pagerNumber
         )
     }
     fun toFridgeItem(): FridgeItem {

@@ -12,7 +12,8 @@ data class FridgeItemEntity(
     val quantity: String,
     val expirationDate: Long,
     var notification: Boolean,
-    val isFridge: Boolean
+    val isFridge: Boolean,
+    val pagerNumber: Int
 ){
     fun toFridgeItem(): FridgeItem{
         return FridgeItem(

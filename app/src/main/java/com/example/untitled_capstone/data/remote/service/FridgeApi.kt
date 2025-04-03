@@ -1,6 +1,5 @@
 package com.example.untitled_capstone.data.remote.service
 
-import com.example.untitled_capstone.data.remote.dto.ContentDto
 import com.example.untitled_capstone.data.remote.dto.FridgeDto
 import com.example.untitled_capstone.data.remote.dto.ApiResponse
 import com.example.untitled_capstone.data.remote.dto.FridgeResponse

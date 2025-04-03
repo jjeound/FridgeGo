@@ -129,7 +129,8 @@ fun RefrigeratorScreen(fridgeItems: LazyPagingItems<FridgeItem>, state: FridgeSt
         Box(modifier = Modifier.fillMaxSize()) {
             if(fridgeItems.loadState.refresh is LoadState.Loading || state.loading) {
                 CircularProgressIndicator(
-                    modifier = Modifier.align(Alignment.Center)
+                    modifier = Modifier.align(Alignment.Center),
+                    color = CustomTheme.colors.primary
                 )
             } else {
                 LazyColumn(

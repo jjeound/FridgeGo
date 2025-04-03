@@ -12,6 +12,7 @@ import com.example.untitled_capstone.data.remote.service.FridgeApi
 import com.example.untitled_capstone.data.remote.dto.ContentDto
 import com.example.untitled_capstone.data.remote.dto.ApiResponse
 import com.example.untitled_capstone.data.remote.dto.NewFridgeItemDto
+import com.example.untitled_capstone.data.util.FridgeFetchType
 import com.example.untitled_capstone.domain.model.FridgeItem
 import com.example.untitled_capstone.domain.repository.FridgeRepository
 import kotlinx.coroutines.flow.Flow
@@ -24,20 +25,20 @@ class FridgeRepositoryImpl(
     private val db: FridgeItemDatabase,
 ): FridgeRepository {
     @OptIn(ExperimentalPagingApi::class)
-    override fun getFridgeItemsPaged(): Flow<PagingData<FridgeItemEntity>> {
+    override fun getFridgeItemsPaged(fetchType: FridgeFetchType): Flow<PagingData<FridgeItemEntity>> {
         return Pager(
             config = PagingConfig(pageSize = NETWORK_PAGE_SIZE, enablePlaceholders = false),
-            remoteMediator = FridgePagingSource(api, db, "id"),
+            remoteMediator = FridgePagingSource(api, db, fetchType),
             pagingSourceFactory = { db.dao.getFridgeItems() }
         ).flow
     }
 
     @OptIn(ExperimentalPagingApi::class)
-    override fun getFridgeItemsByDate(): Flow<PagingData<FridgeItemEntity>> {
+    override fun getFridgeItemsByDate(fetchType: FridgeFetchType): Flow<PagingData<FridgeItemEntity>> {
         return Pager(
             config = PagingConfig(pageSize = NETWORK_PAGE_SIZE, enablePlaceholders = false),
-            remoteMediator = FridgePagingSource(api, db, "date"),
-            pagingSourceFactory = { db.dao.getFridgeItemsByDate() }
+            remoteMediator = FridgePagingSource(api, db, fetchType),
+            pagingSourceFactory = { db.dao.getFridgeItems() }
         ).flow
     }
 
@@ -82,7 +83,6 @@ class FridgeRepositoryImpl(
             Resource.Loading(data = null)
             val response = api.modifyItem(updatedItem.id, updatedItem.toModifyFridgeReqDto())
             if(response.isSuccess){
-                db.dao.modifyItem(updatedItem.toFridgeItemEntity())
                 Resource.Success(response)
             }else{
                 Resource.Error(response.message)

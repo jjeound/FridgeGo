@@ -8,6 +8,7 @@ import androidx.paging.filter
 import androidx.paging.insertFooterItem
 import androidx.paging.map
 import com.example.untitled_capstone.core.util.Resource
+import com.example.untitled_capstone.data.util.FridgeFetchType
 import com.example.untitled_capstone.domain.model.FridgeItem
 import com.example.untitled_capstone.domain.use_case.fridge.FridgeUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -167,7 +168,7 @@ class FridgeViewModel @Inject constructor(
 
     private fun getItems() {
         viewModelScope.launch {
-            fridgeUseCases.getFridgeItems()
+            fridgeUseCases.getFridgeItems(FridgeFetchType.OrderByCreated)
                 .distinctUntilChanged()
                 .cachedIn(viewModelScope)
                 .collect { pagingData ->
@@ -184,7 +185,7 @@ class FridgeViewModel @Inject constructor(
 
     private fun getItemsByDate() {
         viewModelScope.launch {
-            fridgeUseCases.getFridgeItemsByDate()
+            fridgeUseCases.getFridgeItemsByDate(FridgeFetchType.OrderByDate)
                 .distinctUntilChanged()
                 .cachedIn(viewModelScope)
                 .collect { pagingData ->

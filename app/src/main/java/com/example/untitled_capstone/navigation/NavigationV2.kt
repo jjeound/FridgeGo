@@ -145,8 +145,9 @@ fun NavigationV2(navController: NavHostController, mainViewModel: MainViewModel)
             }
             composable<Screen.ScanNav> {
                 val parentEntry = navController.getBackStackEntry(Graph.FridgeGraph)
-                val viewModel: FridgeViewModel = hiltViewModel(parentEntry)
-                ScanExpirationDate()
+                ScanExpirationDate(
+                    navController
+                )
             }
         }
         navigation<Graph.ChatGraph>(

@@ -12,7 +12,16 @@ import androidx.camera.view.PreviewView
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -20,72 +29,133 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.navigation.NavHostController
+import com.example.untitled_capstone.R
+import com.example.untitled_capstone.core.util.Dimens
+import com.example.untitled_capstone.presentation.feature.fridge.FridgeAction
 import com.example.untitled_capstone.ui.theme.CustomTheme
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions.DEFAULT_OPTIONS
 
+@kotlin.OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ScanExpirationDate() {
+fun ScanExpirationDate(navController: NavHostController) {
     val lifecycleOwner = LocalLifecycleOwner.current
-    var detectedText by remember { mutableStateOf("유통기한을 인식하세요") }
-
-    Box(modifier = Modifier.fillMaxSize()) {
-        AndroidView(
-            factory = { ctx ->
-                val previewView = PreviewView(ctx)
-                val cameraProviderFuture = ProcessCameraProvider.getInstance(ctx)
-
-                cameraProviderFuture.addListener({
-                    val cameraProvider = cameraProviderFuture.get()
-                    val preview = Preview.Builder().build().also {
-                        it.surfaceProvider = previewView.surfaceProvider
+    var detectedText by remember { mutableStateOf<String?>(null) }
+    Scaffold(
+        containerColor = CustomTheme.colors.onSurface,
+        topBar = {
+            TopAppBar(
+                modifier = Modifier.padding(horizontal = Dimens.topBarPadding),
+                title = {},
+                navigationIcon = {
+                    IconButton(
+                        onClick = {
+                            navController.popBackStack()
+                        }
+                    ) {
+                        Icon(
+                            imageVector = ImageVector.vectorResource(R.drawable.chevron_left),
+                            tint = CustomTheme.colors.iconSelected,
+                            contentDescription = "back",
+                        )
                     }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = CustomTheme.colors.onSurface
+                )
+            )
+        },
+    ){ innerPadding ->
+        Box(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
+            AndroidView(
+                factory = { ctx ->
+                    val previewView = PreviewView(ctx)
+                    val cameraProviderFuture = ProcessCameraProvider.getInstance(ctx)
 
-                    val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
-
-                    val imageAnalysis = ImageAnalysis.Builder()
-                        .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-                        .build()
-                        .also {
-                            it.setAnalyzer(ContextCompat.getMainExecutor(ctx)) { imageProxy ->
-                                processImageProxy(imageProxy) { extractedText ->
-                                    val expirationDate = extractExpirationDate(extractedText)
-                                    detectedText = expirationDate ?: "유통기한 정보 없음"
-                                }
-                            }
+                    cameraProviderFuture.addListener({
+                        val cameraProvider = cameraProviderFuture.get()
+                        val preview = Preview.Builder().build().also {
+                            it.surfaceProvider = previewView.surfaceProvider
                         }
 
-                    cameraProvider.unbindAll() // 기존 바인딩 해제 (중복 방지)
-                    cameraProvider.bindToLifecycle(
-                        lifecycleOwner, cameraSelector, preview, imageAnalysis
-                    )
+                        val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
 
-                }, ContextCompat.getMainExecutor(ctx))
+                        val imageAnalysis = ImageAnalysis.Builder()
+                            .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                            .build()
+                            .also {
+                                it.setAnalyzer(ContextCompat.getMainExecutor(ctx)) { imageProxy ->
+                                    processImageProxy(imageProxy) { extractedText ->
+                                        val expirationDate = extractExpirationDate(extractedText)
+                                        if (detectedText == null && expirationDate != null) {  // ✅ 첫 값만 저장
+                                            detectedText = expirationDate
+                                            navController.previousBackStackEntry?.savedStateHandle?.set("date", detectedText)
+                                            navController.popBackStack()
+                                        }
+                                    }
+                                }
+                            }
 
-                previewView
-            },
-            modifier = Modifier.fillMaxSize()
-        )
+                        cameraProvider.unbindAll() // 기존 바인딩 해제 (중복 방지)
+                        cameraProvider.bindToLifecycle(
+                            lifecycleOwner, cameraSelector, preview, imageAnalysis
+                        )
 
-        // 감지된 텍스트를 화면에 표시
-        Text(
-            text = detectedText,
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .background(CustomTheme.colors.surface),
-            color = CustomTheme.colors.textPrimary,
-        )
+                    }, ContextCompat.getMainExecutor(ctx))
+
+                    previewView
+                },
+                modifier = Modifier.fillMaxSize()
+            )
+//            if(showDialog){
+//                AlertDialog(
+//                    onDismissRequest = { showDialog = false },
+//                    title = {
+//                        Text(
+//                            text = "유통기한 정보",
+//                            style = CustomTheme.typography.title1,
+//                            color = CustomTheme.colors.textPrimary,
+//                        )
+//                    },
+//                    text = {
+//                        Text(
+//                            text = detectedText ?: "",
+//                            style = CustomTheme.typography.body1,
+//                            color = CustomTheme.colors.textPrimary,
+//                        )
+//                    },
+//                    dismissButton = {
+//
+//                    },
+//                    confirmButton = {
+//                        IconButton(
+//                            onClick = { showDialog = false }
+//                        ) {
+//                            Icon(
+//                                imageVector = ImageVector.vectorResource(R.drawable.close),
+//                                tint = CustomTheme.colors.iconSelected,
+//                                contentDescription = "close",
+//                            )
+//                        }
+//                    },
+//                    modifier = Modifier.background(CustomTheme.colors.surface)
+//                )
+//            }
+        }
     }
 }
 
 private fun extractExpirationDate(text: String): String? {
-    val regex = Regex("(유통기한|EXP|Expiry Date|소비기한)[:\\s]*(\\d{4}[-./]\\d{1,2}[-./]\\d{1,2})")
+    val regex = Regex("[:\\s]*(\\d{4}[-./]\\d{1,2}[-./]\\d{1,2})")
     val match = regex.find(text)
-    return match?.groupValues?.get(2) // 날짜 부분만 반환
+    return match?.groupValues?.get(1)
 }
 
 @OptIn(ExperimentalGetImage::class)

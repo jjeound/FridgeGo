@@ -5,11 +5,13 @@ import com.example.untitled_capstone.data.remote.dto.GetPostByIdResponse
 import com.example.untitled_capstone.data.remote.dto.NewPostDto
 import com.example.untitled_capstone.data.remote.dto.PostLikedResponse
 import com.example.untitled_capstone.data.remote.dto.PostResponse
+import okhttp3.MultipartBody
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.PATCH
 import retrofit2.http.POST
+import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -59,4 +61,10 @@ interface PostApi {
         @Query("page") page: Int = 1,
         @Query("size") size: Int = 10,
     ): PostResponse
+
+    @POST("/api/s3/update-post/{postId}")
+    suspend fun uploadPostImage(
+        @Path("postId") postId: Long,
+        @Part recipeImage: List<MultipartBody.Part>
+    ): ApiResponse
 }

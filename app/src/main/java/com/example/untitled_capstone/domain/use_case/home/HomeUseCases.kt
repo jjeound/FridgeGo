@@ -10,5 +10,8 @@ data class HomeUseCases(
     val getIsFirstSelection: GetIsFirstSelection,
     val setIsFirstSelection: SetIsFirstSelection,
     val getRecipeById: GetRecipeById,
-    val toggleLike: ToggleLike
+    val toggleLike: ToggleLike,
+    val deleteRecipe: DeleteRecipe,
+    val modifyRecipe: ModifyRecipe,
+    val uploadImage: UploadRecipeImage,
 )

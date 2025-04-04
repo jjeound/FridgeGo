@@ -1,6 +1,7 @@
 package com.example.untitled_capstone.presentation.feature.home.screen
 
 import android.util.Log
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -46,6 +47,7 @@ import com.example.untitled_capstone.presentation.feature.home.state.RecipeState
 import com.example.untitled_capstone.presentation.feature.home.state.TastePrefState
 import com.example.untitled_capstone.presentation.feature.home.composable.ChatBot
 import com.example.untitled_capstone.presentation.feature.main.MainViewModel
+import com.example.untitled_capstone.presentation.feature.post.composable.PostListContainer
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -116,11 +118,13 @@ fun HomeScreen(mainViewModel: MainViewModel, state: RecipeState, recipeItems: La
                             items( recipeItems.itemCount){ index ->
                                 val item = recipeItems[index]
                                 if(item != null){
-                                    MyRecipe(item, onEvent = onEvent,
-                                        onClick = {
+                                    Box(
+                                        modifier = Modifier.clickable {
                                             navigate(item.id)
                                         }
-                                    )
+                                    ){
+                                        MyRecipe(recipe = item ,onEvent = onEvent)
+                                    }
                                 }
                             }
                             item {

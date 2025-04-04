@@ -6,8 +6,8 @@ import kotlinx.serialization.Serializable
 data class Recipe(
     val id: Long,
     val title: String,
-    val image: String?,
+    val instructions: String,
     val ingredients: List<String>,
-    val steps: List<String>,
-    val isLiked: Boolean,
+    val imageUrl: String? = null,
+    val liked: Boolean
 )

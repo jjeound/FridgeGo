@@ -19,6 +19,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -34,18 +35,24 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
+import coil.compose.AsyncImage
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
-import com.example.untitled_capstone.presentation.feature.fridge.FridgeAction
+import com.example.untitled_capstone.domain.model.Recipe
+import com.example.untitled_capstone.navigation.Screen
 import com.example.untitled_capstone.presentation.feature.home.HomeEvent
 import com.example.untitled_capstone.presentation.feature.home.state.RecipeState
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RecipeScreen(id: Long, state: RecipeState, onEvent: (HomeEvent) -> Unit, navigate: () -> Unit){
+fun RecipeScreen(id: Long, state: RecipeState, onEvent: (HomeEvent) -> Unit, navController: NavHostController){
     var expanded by remember { mutableStateOf(false) }
     val menuItem = listOf("수정", "삭제")
     LaunchedEffect(Unit) {
@@ -56,7 +63,10 @@ fun RecipeScreen(id: Long, state: RecipeState, onEvent: (HomeEvent) -> Unit, nav
             modifier = Modifier.fillMaxSize(),
             color = CustomTheme.colors.primary
         )
-    }else{
+    }
+    if (state.recipe != null){
+        val recipe = state.recipe
+        Log.d("instructions", recipe.ingredients.toString())
         Scaffold(
             containerColor = CustomTheme.colors.onSurface,
             topBar = {
@@ -65,7 +75,7 @@ fun RecipeScreen(id: Long, state: RecipeState, onEvent: (HomeEvent) -> Unit, nav
                     navigationIcon = {
                         IconButton(
                             onClick = {
-                                navigate()
+                                navController.popBackStack()
                                 onEvent(HomeEvent.InitState)
                             }
                         ) {
@@ -78,7 +88,7 @@ fun RecipeScreen(id: Long, state: RecipeState, onEvent: (HomeEvent) -> Unit, nav
                     },
                     title = {
                         Text(
-                            text = state.recipe?.title ?: "",
+                            text = recipe.title,
                             style = CustomTheme.typography.title1,
                             color = CustomTheme.colors.textPrimary,
                             softWrap = true
@@ -115,8 +125,15 @@ fun RecipeScreen(id: Long, state: RecipeState, onEvent: (HomeEvent) -> Unit, nav
                                     onClick = {
                                         expanded = false
                                         when(option){
-                                            menuItem[0] -> {}
-                                            menuItem[1] -> {}
+                                            menuItem[0] -> {
+                                                navController.navigate(
+                                                    Screen.RecipeModifyNav
+                                                )
+                                            }
+                                            menuItem[1] -> {
+                                                onEvent(HomeEvent.DeleteRecipe(recipe.id))
+                                                navController.popBackStack()
+                                            }
                                         }
                                     },
                                 )
@@ -129,103 +146,117 @@ fun RecipeScreen(id: Long, state: RecipeState, onEvent: (HomeEvent) -> Unit, nav
                 )
             }
         ) { innerPadding ->
+            HorizontalDivider(
+                modifier = Modifier.fillMaxWidth().padding(innerPadding),
+                thickness = 1.dp,
+                color = CustomTheme.colors.borderLight
+            )
             Column(
-                modifier = Modifier.padding(innerPadding).fillMaxSize()
-                    .padding(horizontal = Dimens.surfaceHorizontalPadding,
-                        vertical = Dimens.surfaceVerticalPadding),
-                verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding),
+                modifier = Modifier.padding(innerPadding).padding(
+                    horizontal = Dimens.largePadding,
+                    vertical = Dimens.largePadding
+                ).fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(Dimens.largePadding),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                if(state.recipe != null){
-                    val recipe = state.recipe
-                    Box(
-                        modifier = Modifier.size(300.dp)
-                            .clip(shape = RoundedCornerShape(Dimens.cornerRadius))
-                            .background(CustomTheme.colors.surface),
-                        contentAlignment = Alignment.BottomEnd,
-                    ){
-//                if (recipe.image != null) {
-//                    AsyncImage(
-//                        model = recipe.image.toUri(),
-//                        contentDescription = recipe.title,
-//                        alignment = Alignment.Center,
-//                        contentScale = ContentScale.Fit,
-//                        modifier = Modifier.size(300.dp)
-//                            .clip(shape = RoundedCornerShape(Dimens.cornerRadius))
-//                    )
-//                }
-                        Row {
-                            IconButton(
-                                onClick = { }
-                            ) {
-                                Icon(
-                                    imageVector = ImageVector.vectorResource(R.drawable.camera),
-                                    contentDescription = "like",
-                                    tint = CustomTheme.colors.iconDefault,
-                                )
-                            }
-                            IconButton(
-                                onClick = {
-                                    onEvent(HomeEvent.ToggleLike(recipe.id, !recipe.liked))
-                                }
-                            ) {
-                                if(recipe.liked){
-                                    Icon(
-                                        imageVector = ImageVector.vectorResource(R.drawable.heart_filled),
-                                        contentDescription = "like",
-                                        tint = CustomTheme.colors.iconRed,
-                                    )
-                                }else{
-                                    Icon(
-                                        imageVector = ImageVector.vectorResource(R.drawable.heart),
-                                        contentDescription = "like",
-                                        tint = CustomTheme.colors.iconDefault,
-                                    )
-                                }
-                            }
+                Box(
+                    modifier = Modifier.size(100.dp)
+                        .clip(shape = RoundedCornerShape(Dimens.cornerRadius))
+                        .background(CustomTheme.colors.surface),
+                    contentAlignment = Alignment.BottomEnd,
+                ){
+                    if (recipe.imageUrl != null) {
+                        AsyncImage(
+                            model = recipe.imageUrl,
+                            contentDescription = recipe.title,
+                            alignment = Alignment.Center,
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.size(100.dp)
+                                .clip(shape = RoundedCornerShape(Dimens.cornerRadius))
+                        )
+                    }
+                    IconButton(
+                        onClick = {
+                            onEvent(HomeEvent.ToggleLike(recipe.id, !recipe.liked))
+                        }
+                    ) {
+                        if(recipe.liked){
+                            Icon(
+                                imageVector = ImageVector.vectorResource(R.drawable.heart_filled),
+                                contentDescription = "like",
+                                tint = CustomTheme.colors.iconRed,
+                            )
+                        }else{
+                            Icon(
+                                imageVector = ImageVector.vectorResource(R.drawable.heart),
+                                contentDescription = "like",
+                                tint = CustomTheme.colors.iconDefault,
+                            )
                         }
                     }
-                    val regex = "\\[(.*?)]".toRegex() // [ ] 안의 텍스트 추출 정규식
-                    val parts = regex.split(recipe.instructions) // [] 기준으로 텍스트 나누기
-                    val matches = regex.findAll(recipe.instructions).map { it.groupValues[1] }.toList()
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                    ) {
-                        parts.forEachIndexed { index, text ->
-                            if (index > 1) { // 첫 번째 항목은 [] 앞에 있는 내용이므로 제외
-                                Text(
-                                    text = matches[index - 1].trim(), // [ ] 안의 텍스트
-                                    style = CustomTheme.typography.title1,
-                                    color = CustomTheme.colors.textPrimary,
-                                    modifier = Modifier.padding(vertical = Dimens.mediumPadding)
-                                )
-                            }
-
-                            if (text.trim().startsWith('-')) {
-                                val ingredients = text.split('-').map { it.trim() }.filter { it.isNotEmpty() }
-
-                                ingredients.forEach { ingredient ->
-                                    Text(
-                                        text = ingredient,
-                                        style = CustomTheme.typography.body2,
-                                        color = CustomTheme.colors.textPrimary,
-                                    )
-                                }
-                            } else {
-                                Column(
-                                    horizontalAlignment = Alignment.Start
-                                ) {
-                                    val steps = splitByNumber(text)
-
-                                    steps.forEach { step ->
-                                        Text(
-                                            text = step,
-                                            style = CustomTheme.typography.body2,
-                                            color = CustomTheme.colors.textPrimary,
-                                        )
-                                    }
-                                }
-                            }
+                }
+                Column{
+                    Text(
+                        modifier = Modifier.padding(vertical = 6.dp),
+                        text = "재료 \uD83D\uDCCC",
+                        style = CustomTheme.typography.title1,
+                        color = CustomTheme.colors.textPrimary,
+                    )
+                    HorizontalDivider(
+                        thickness = 1.dp,
+                        color = CustomTheme.colors.borderLight
+                    )
+                }
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(Dimens.smallPadding),
+                    horizontalAlignment = Alignment.Start
+                ){
+                    recipe.ingredients.forEach {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                        ) {
+                            Text(
+                            text = "✅",
+                            style = CustomTheme.typography.body2,
+                            color = CustomTheme.colors.textPrimary,
+                            )
+                            Spacer(
+                                modifier = Modifier.width(Dimens.smallPadding)
+                            )
+                            Text(
+                                text = it,
+                                style = CustomTheme.typography.body2,
+                                color = CustomTheme.colors.textPrimary,
+                            )
+                        }
+                    }
+                }
+                Column{
+                    Text(
+                        modifier = Modifier.padding(vertical = 6.dp),
+                        text = "레시피 \uD83D\uDE80",
+                        style = CustomTheme.typography.title1,
+                        color = CustomTheme.colors.textPrimary,
+                    )
+                    HorizontalDivider(
+                        thickness = 1.dp,
+                        color = CustomTheme.colors.borderLight
+                    )
+                }
+                val steps = Regex("""(\d+\.)\s""").findAll(recipe.instructions)
+                    .map { it.value + recipe.instructions.substring(it.range.last + 1).split(Regex("""\d+\.\s"""))[0] }
+                    .toList()
+                Column{
+                    steps.forEach {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Start
+                        ) {
+                            Text(
+                                text = it,
+                                style = CustomTheme.typography.body2,
+                                color = CustomTheme.colors.textPrimary,
+                            )
                         }
                     }
                 }
@@ -234,8 +265,23 @@ fun RecipeScreen(id: Long, state: RecipeState, onEvent: (HomeEvent) -> Unit, nav
     }
 }
 
-private fun splitByNumber(text: String): List<String> {
-    return text.split(Regex("(?=\\d+\\.)")) // 숫자 + 점(.)이 나오면 그 앞에서 split
-        .map { it.trim() }
-        .filter { it.isNotEmpty() }
+@Preview
+@Composable
+fun RecipeScreenPreview() {
+    RecipeScreen(
+        id = 1,
+        state = RecipeState(
+            recipe = Recipe(
+                id = 1,
+                title = "Sample Recipe",
+                imageUrl = null,
+                ingredients = listOf("돼지고기(목살) 1컵 (130g)", "돼지고기(목살) 1컵 (130g)", "돼지고기(목살) 1컵 (130g)"),
+                instructions = "1. 돼지고기는 1.5cm 정도 두께로 먹기 좋게 자른다. 1. 돼지고기는 1.5cm 정도 두께로 먹기 좋게 자른다. 1. 돼지고기는 1.5cm 정도 두께로 먹기 좋게 자른다. 1. 돼지고기는 1.5cm 정도 두께로 먹기 좋게 자른다.",
+                liked = false
+            ),
+            loading = false
+        ),
+        onEvent = {},
+        navController = rememberNavController()
+    )
 }

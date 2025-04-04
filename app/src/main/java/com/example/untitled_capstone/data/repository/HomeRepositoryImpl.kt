@@ -22,8 +22,13 @@ import retrofit2.HttpException
 import javax.inject.Inject
 import androidx.core.content.edit
 import com.example.untitled_capstone.core.util.Constants.TASTE_PREFERENCE
+import com.example.untitled_capstone.data.remote.dto.ModifyRecipeBody
+import com.example.untitled_capstone.data.remote.dto.RecipeLikedDto
+import com.example.untitled_capstone.data.remote.dto.RecipeLikedResponse
+import com.example.untitled_capstone.domain.model.Recipe
 import com.example.untitled_capstone.domain.model.RecipeRaw
 import dagger.hilt.android.qualifiers.ApplicationContext
+import okhttp3.MultipartBody
 
 class HomeRepositoryImpl @Inject constructor(
     private val api: HomeApi,
@@ -79,7 +84,7 @@ class HomeRepositoryImpl @Inject constructor(
         ).flow
     }
 
-    override suspend fun getRecipeById(id: Long): Resource<RecipeRaw> {
+    override suspend fun getRecipeById(id: Long): Resource<Recipe> {
         return try {
             Resource.Loading(data = null)
             val response = api.getRecipeById(id)
@@ -95,13 +100,13 @@ class HomeRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun toggleLike(id: Long, liked: Boolean): Resource<ApiResponse> {
+    override suspend fun toggleLike(id: Long, liked: Boolean): Resource<RecipeLikedDto> {
         return try {
             Resource.Loading(data = null)
             val response = api.toggleLike(id)
             if(response.isSuccess){
                 db.dao.toggleLike(id, liked)
-                Resource.Success(response)
+                Resource.Success(response.result!!)
             }else {
                 Resource.Error(message = response.toString())
             }
@@ -113,13 +118,43 @@ class HomeRepositoryImpl @Inject constructor(
     }
 
 
-    override suspend fun addRecipe(
-        title: String,
-        instructions: String
-    ): Resource<ApiResponse> {
+    override suspend fun addRecipe(recipe: String): Resource<ApiResponse> {
         return try {
             Resource.Loading(data = null)
-            val response = api.addRecipe(RecipeReqDto(title, instructions))
+            val response = api.addRecipe(RecipeReqDto(recipe))
+            if(response.isSuccess){
+                Resource.Success(response)
+            }else {
+                Resource.Error(message = response.toString())
+            }
+        } catch (e: IOException) {
+            Resource.Error(e.toString())
+        } catch (e: HttpException) {
+            Resource.Error(e.toString())
+        }
+    }
+
+    override suspend fun deleteRecipe(id: Long): Resource<ApiResponse> {
+        return try {
+            Resource.Loading(data = null)
+            val response = api.deleteRecipe(id)
+            if(response.isSuccess){
+                Resource.Success(response)
+            }else {
+                Resource.Error(message = response.toString())
+            }
+        } catch (e: IOException) {
+            Resource.Error(e.toString())
+        } catch (e: HttpException) {
+            Resource.Error(e.toString())
+        }
+    }
+
+    override suspend fun modifyRecipe(recipe: Recipe): Resource<ApiResponse> {
+        return try {
+            Resource.Loading(data = null)
+            val response = api.modifyRecipe(recipe.id, ModifyRecipeBody(title = recipe.title,
+                instructions = recipe.instructions, ingredients = recipe.ingredients))
             if(response.isSuccess){
                 Resource.Success(response)
             }else {
@@ -170,5 +205,21 @@ class HomeRepositoryImpl @Inject constructor(
 
     override fun setFirstSelection(isFirst: Boolean) {
         prefs.edit { putBoolean("isFirstSelection", isFirst) }
+    }
+
+    override suspend fun uploadImage(id: Long, image: MultipartBody.Part): Resource<ApiResponse> {
+        return try {
+            Resource.Loading(data = null)
+            val response = api.uploadImage(id, image)
+            if(response.isSuccess){
+                Resource.Success(response)
+            }else {
+                Resource.Error(message = response.toString())
+            }
+        } catch (e: IOException) {
+            Resource.Error(e.toString())
+        } catch (e: HttpException) {
+            Resource.Error(e.toString())
+        }
     }
 }

@@ -1,7 +1,7 @@
 package com.example.untitled_capstone.data.remote.dto
 
 data class RecipeResultDto(
-    val content: List<RecipeDto>,
+    val content: List<RecipeRawDto>,
     val empty: Boolean,
     val first: Boolean,
     val last: Boolean,

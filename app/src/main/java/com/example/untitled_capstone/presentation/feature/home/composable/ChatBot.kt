@@ -65,11 +65,11 @@ fun ChatBot(aiState: AiState, onEvent: (HomeEvent) -> Unit) {
             items(
                 count =  response.size
             ) {
-                var r = response[it]
-                r = r.replace("\\n", "").replace("\"", "").replace("+", "")
+                var recipe = response[it]
+                recipe = recipe.replace("\\n", "").replace("\"", "").replace("+", "")
                 val regex = "\\[(.*?)]".toRegex() // [ ] 안의 텍스트 추출 정규식
-                val parts = regex.split(r) // [] 기준으로 텍스트 나누기
-                val matches = regex.findAll(r).map { it.groupValues[1] }.toList() // [] 안의 내용 추출
+                val parts = regex.split(recipe) // [] 기준으로 텍스트 나누기
+                val matches = regex.findAll(recipe).map { it.groupValues[1] }.toList() // [] 안의 내용 추출
                 Row(
                     modifier = Modifier.fillMaxWidth()
                 ) {
@@ -95,15 +95,12 @@ fun ChatBot(aiState: AiState, onEvent: (HomeEvent) -> Unit) {
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.End,
-                                verticalAlignment = Alignment.Top
+                                verticalAlignment = Alignment.CenterVertically
                             ) {
                                 IconButton(
                                     modifier = Modifier.then(Modifier.size(24.dp)),
                                     onClick = {
-                                        onEvent(HomeEvent.AddRecipe(
-                                            title = matches[0],
-                                            instructions = r
-                                        ))
+                                        onEvent(HomeEvent.AddRecipe(recipe))
                                     }
                                 ) {
                                     Icon(

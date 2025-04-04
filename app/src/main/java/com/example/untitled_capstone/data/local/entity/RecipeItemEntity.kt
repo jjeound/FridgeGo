@@ -8,7 +8,7 @@ import com.example.untitled_capstone.domain.model.RecipeRaw
 data class RecipeItemEntity(
     @PrimaryKey val id: Long,
     val title: String,
-    val instructions: String,
+    val imageUrl: String?,
     val liked: Boolean,
     val pagerNumber: Int
 ){
@@ -16,7 +16,7 @@ data class RecipeItemEntity(
         return  RecipeRaw(
             id = id,
             title = title,
-            instructions = instructions,
+            imageUrl = imageUrl,
             liked = liked
         )
     }

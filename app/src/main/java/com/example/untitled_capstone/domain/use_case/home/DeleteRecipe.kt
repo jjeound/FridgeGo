@@ -5,10 +5,10 @@ import com.example.untitled_capstone.data.remote.dto.ApiResponse
 import com.example.untitled_capstone.domain.repository.HomeRepository
 import javax.inject.Inject
 
-class AddRecipe @Inject constructor(
+class DeleteRecipe @Inject constructor(
     private val repository: HomeRepository
-)  {
-    suspend operator fun invoke(recipe: String): Resource<ApiResponse>{
-        return repository.addRecipe(recipe)
+) {
+    suspend operator fun invoke(id: Long): Resource<ApiResponse> {
+        return repository.deleteRecipe(id)
     }
 }

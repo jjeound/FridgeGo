@@ -28,7 +28,7 @@ class MainViewModel @Inject constructor(
     private val _authState = MutableStateFlow<AuthState>(AuthState.Success)
     val authState = _authState.asStateFlow()
 
-    private val _startDestination = mutableStateOf<Graph>(Graph.HomeGraph)
+    private val _startDestination = mutableStateOf<Graph>(Graph.OnBoardingGraph)
     val startDestination: State<Graph> = _startDestination
 
     private val _splashCondition = mutableStateOf(true)

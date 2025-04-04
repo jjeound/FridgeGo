@@ -34,6 +34,7 @@ import com.example.untitled_capstone.presentation.feature.fridge.FridgeViewModel
 import com.example.untitled_capstone.presentation.feature.fridge.composable.ScanExpirationDate
 import com.example.untitled_capstone.presentation.feature.fridge.screen.AddFridgeItemScreen
 import com.example.untitled_capstone.presentation.feature.fridge.screen.RefrigeratorScreen
+import com.example.untitled_capstone.presentation.feature.home.screen.RecipeModifyScreen
 import com.example.untitled_capstone.presentation.feature.login.screen.SetLocationScreen
 import com.example.untitled_capstone.presentation.feature.my.MyLikedPostScreen
 import com.example.untitled_capstone.presentation.feature.my.MyPostScreen
@@ -52,13 +53,13 @@ fun NavigationV2(navController: NavHostController, mainViewModel: MainViewModel)
             startDestination = Screen.Home
         ){
             composable<Screen.Home> {
-                //val parentEntry = navController.getBackStackEntry(Graph.HomeGraph)
-                val viewModel: HomeViewModel = hiltViewModel()
+                val parentEntry = navController.getBackStackEntry(Graph.HomeGraph)
+                val viewModel: HomeViewModel = hiltViewModel(parentEntry)
                 val recipeState by viewModel.recipeState.collectAsStateWithLifecycle()
                 val recipeItems = viewModel.recipeItemsState.collectAsLazyPagingItems()
                 val tastePrefState by viewModel.tastePrefState.collectAsStateWithLifecycle()
                 val aiState by remember { viewModel.aiState }
-                HomeScreen(mainViewModel, recipeState, recipeItems, tastePrefState, aiState, viewModel::onAction) { id ->
+                HomeScreen(mainViewModel, recipeState, recipeItems, tastePrefState, aiState, viewModel::onEvent) { id ->
                     navController.navigate(
                         Screen.RecipeNav(
                             id = id
@@ -71,9 +72,19 @@ fun NavigationV2(navController: NavHostController, mainViewModel: MainViewModel)
                 val viewModel: HomeViewModel = hiltViewModel(parentEntry)
                 val recipeState by viewModel.recipeState.collectAsStateWithLifecycle()
                 val args = it.toRoute<Screen.RecipeNav>()
-                RecipeScreen(args.id, recipeState, viewModel::onAction){
-                    navController.popBackStack()
-                }
+                RecipeScreen(args.id, recipeState, viewModel::onEvent, navController)
+            }
+            composable<Screen.RecipeModifyNav>{
+                val parentEntry = navController.getBackStackEntry(Graph.HomeGraph)
+                val viewModel: HomeViewModel = hiltViewModel(parentEntry)
+                val recipeState by viewModel.recipeState.collectAsStateWithLifecycle()
+                val modifyState by remember { viewModel.modifyState }
+                RecipeModifyScreen(
+                    recipe = recipeState.recipe!!,
+                    state = modifyState,
+                    onEvent = viewModel::onEvent,
+                    navigateToBack = {navController.popBackStack()}
+                )
             }
         }
         navigation<Graph.PostGraph>(
@@ -144,7 +155,6 @@ fun NavigationV2(navController: NavHostController, mainViewModel: MainViewModel)
                 AddFridgeItemScreen(args.id, state, navController, viewModel::onAction)
             }
             composable<Screen.ScanNav> {
-                val parentEntry = navController.getBackStackEntry(Graph.FridgeGraph)
                 ScanExpirationDate(
                     navController
                 )

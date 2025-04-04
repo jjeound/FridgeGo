@@ -5,7 +5,6 @@ import com.example.untitled_capstone.core.util.Resource
 import com.example.untitled_capstone.data.local.entity.FridgeItemEntity
 import com.example.untitled_capstone.data.remote.dto.ContentDto
 import com.example.untitled_capstone.data.remote.dto.ApiResponse
-import com.example.untitled_capstone.data.remote.dto.FridgeResponse
 import com.example.untitled_capstone.data.remote.dto.NewFridgeItemDto
 import com.example.untitled_capstone.data.util.FridgeFetchType
 import com.example.untitled_capstone.domain.model.FridgeItem

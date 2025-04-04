@@ -18,6 +18,7 @@ import com.example.untitled_capstone.domain.use_case.fridge.GetFridgeItemsByDate
 import com.example.untitled_capstone.domain.use_case.fridge.ModifyFridgeItems
 import com.example.untitled_capstone.domain.use_case.fridge.ToggleNotification
 import com.example.untitled_capstone.domain.use_case.home.AddRecipe
+import com.example.untitled_capstone.domain.use_case.home.DeleteRecipe
 import com.example.untitled_capstone.domain.use_case.home.GetAnotherRecommendation
 import com.example.untitled_capstone.domain.use_case.home.GetFirstRecommendation
 import com.example.untitled_capstone.domain.use_case.home.GetIsFirstSelection
@@ -25,9 +26,11 @@ import com.example.untitled_capstone.domain.use_case.home.GetRecipeById
 import com.example.untitled_capstone.domain.use_case.home.GetRecipeItems
 import com.example.untitled_capstone.domain.use_case.home.GetTastePreference
 import com.example.untitled_capstone.domain.use_case.home.HomeUseCases
+import com.example.untitled_capstone.domain.use_case.home.ModifyRecipe
 import com.example.untitled_capstone.domain.use_case.home.SetIsFirstSelection
 import com.example.untitled_capstone.domain.use_case.home.SetTastePreference
 import com.example.untitled_capstone.domain.use_case.home.ToggleLike
+import com.example.untitled_capstone.domain.use_case.home.UploadRecipeImage
 import com.example.untitled_capstone.domain.use_case.login.GetAddressByCoord
 import com.example.untitled_capstone.domain.use_case.my.GetAccessToken
 import com.example.untitled_capstone.domain.use_case.my.GetMyProfile
@@ -117,7 +120,10 @@ object UseCaseModule {
             getIsFirstSelection = GetIsFirstSelection(repository),
             setIsFirstSelection = SetIsFirstSelection(repository),
             getRecipeById = GetRecipeById(repository),
-            toggleLike = ToggleLike(repository)
+            toggleLike = ToggleLike(repository),
+            deleteRecipe = DeleteRecipe(repository),
+            modifyRecipe = ModifyRecipe(repository),
+            uploadImage = UploadRecipeImage(repository)
         )
     }
 

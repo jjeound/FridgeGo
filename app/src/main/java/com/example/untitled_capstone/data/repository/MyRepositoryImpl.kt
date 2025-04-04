@@ -1,9 +1,7 @@
 package com.example.untitled_capstone.data.repository
 
 import android.content.Context
-import android.util.Log
 import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.stringPreferencesKey
 import com.example.untitled_capstone.core.util.PrefKeys.EMAIL
 import com.example.untitled_capstone.core.util.PrefKeys.IMAGE_URL
 import com.example.untitled_capstone.core.util.PrefKeys.NICKNAME
@@ -15,11 +13,9 @@ import com.example.untitled_capstone.domain.model.Profile
 import com.example.untitled_capstone.domain.repository.MyRepository
 import com.example.untitled_capstone.domain.repository.TokenRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import okhttp3.MultipartBody
-import okhttp3.RequestBody
 import okio.IOException
 import retrofit2.HttpException
 import javax.inject.Inject

@@ -39,7 +39,6 @@ import com.example.untitled_capstone.ui.theme.CustomTheme
 @Composable
 fun MyPostScreen(navigate: (Long) -> Unit, postItems: LazyPagingItems<PostRaw>,
                  onEvent: (PostEvent) -> Unit, navigateToBack: () -> Unit){
-    LaunchedEffect(postItems) { }
     Scaffold(
         containerColor = CustomTheme.colors.surface,
         topBar = {

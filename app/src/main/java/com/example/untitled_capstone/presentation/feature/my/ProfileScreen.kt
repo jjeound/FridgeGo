@@ -23,7 +23,6 @@ import androidx.navigation.NavHostController
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.navigation.Graph
-import com.example.untitled_capstone.navigation.Screen
 import com.example.untitled_capstone.presentation.feature.my.composable.ProfileDetail
 import com.example.untitled_capstone.ui.theme.CustomTheme
 

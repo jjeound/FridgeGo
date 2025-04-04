@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -33,7 +34,6 @@ import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -43,7 +43,6 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -62,9 +61,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
 import androidx.core.content.ContextCompat
-import androidx.core.net.toUri
 import androidx.navigation.NavHostController
-import androidx.paging.compose.collectAsLazyPagingItems
 import coil.compose.AsyncImage
 import com.example.untitled_capstone.MainActivity
 import com.example.untitled_capstone.R
@@ -74,7 +71,6 @@ import com.example.untitled_capstone.navigation.Screen
 import com.example.untitled_capstone.presentation.feature.fridge.FridgeAction
 import com.example.untitled_capstone.presentation.feature.fridge.FridgeState
 import com.example.untitled_capstone.ui.theme.CustomTheme
-import kotlinx.coroutines.runBlocking
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -180,7 +176,7 @@ fun NewFridgeItemForm(id: Long?, state: FridgeState, navController: NavHostContr
     }
     Column(
         modifier = Modifier
-            .fillMaxSize(),
+            .fillMaxSize().imePadding(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         if(state.loading){
@@ -537,7 +533,7 @@ fun parseDateToMillis(dateString: String): Long {
                 return date.time
             }
         } catch (e: Exception) {
-            // 실패해도 다른 포맷으로 시도해야 하므로 무시
+            Log.e("ParseDate", "Failed to parse date: $dateString with format: $format", e)
         }
     }
 

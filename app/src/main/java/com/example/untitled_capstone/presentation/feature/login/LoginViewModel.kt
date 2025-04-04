@@ -1,6 +1,5 @@
 package com.example.untitled_capstone.presentation.feature.login
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.untitled_capstone.core.util.Resource

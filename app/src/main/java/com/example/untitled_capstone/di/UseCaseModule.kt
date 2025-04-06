@@ -1,5 +1,6 @@
 package com.example.untitled_capstone.di
 
+import com.example.untitled_capstone.domain.repository.ChatRepository
 import com.example.untitled_capstone.domain.repository.FridgeRepository
 import com.example.untitled_capstone.domain.repository.HomeRepository
 import com.example.untitled_capstone.domain.repository.LocalUserManger
@@ -9,6 +10,16 @@ import com.example.untitled_capstone.domain.repository.PostRepository
 import com.example.untitled_capstone.domain.repository.TokenRepository
 import com.example.untitled_capstone.domain.use_case.app_entry.ReadAppEntry
 import com.example.untitled_capstone.domain.use_case.app_entry.SaveAppEntry
+import com.example.untitled_capstone.domain.use_case.chat.ChatCheckWhoIsIn
+import com.example.untitled_capstone.domain.use_case.chat.ChatCreateRoom
+import com.example.untitled_capstone.domain.use_case.chat.ChatGetMessages
+import com.example.untitled_capstone.domain.use_case.chat.ChatGetMyRooms
+import com.example.untitled_capstone.domain.use_case.chat.ChatRead
+import com.example.untitled_capstone.domain.use_case.chat.ChatRoomClose
+import com.example.untitled_capstone.domain.use_case.chat.ChatRoomEnter
+import com.example.untitled_capstone.domain.use_case.chat.ChatRoomExit
+import com.example.untitled_capstone.domain.use_case.chat.ChatRoomJoin
+import com.example.untitled_capstone.domain.use_case.chat.ChatUseCases
 import com.example.untitled_capstone.domain.use_case.fridge.AddFridgeItem
 import com.example.untitled_capstone.domain.use_case.fridge.DeleteFridgeItem
 import com.example.untitled_capstone.domain.use_case.fridge.FridgeUseCases
@@ -53,6 +64,7 @@ import com.example.untitled_capstone.domain.use_case.post.ModifyPost
 import com.example.untitled_capstone.domain.use_case.post.PostUseCases
 import com.example.untitled_capstone.domain.use_case.post.SearchPosts
 import com.example.untitled_capstone.domain.use_case.post.ToggleLikePost
+import com.example.untitled_capstone.domain.use_case.post.UploadPostImages
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -139,6 +151,22 @@ object UseCaseModule {
             modifyPost = ModifyPost(repository),
             searchPosts = SearchPosts(repository),
             getNickname = GetNickname(repository),
+            uploadPostImages = UploadPostImages(repository)
+        )
+    }
+
+    @Provides
+    fun provideChatUseCases(repository: ChatRepository): ChatUseCases{
+        return ChatUseCases(
+            createRoom = ChatCreateRoom(repository),
+            readChats = ChatRead(repository),
+            joinChatRoom = ChatRoomJoin(repository),
+            closeChatRoom = ChatRoomClose(repository),
+            enterChatRoom = ChatRoomEnter(repository),
+            checkWhoIsIn = ChatCheckWhoIsIn(repository),
+            getMessages = ChatGetMessages(repository),
+            getMyRooms = ChatGetMyRooms(repository),
+            exitChatRoom = ChatRoomExit(repository)
         )
     }
 

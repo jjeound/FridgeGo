@@ -19,6 +19,7 @@ import com.example.untitled_capstone.data.local.remote.RecipeItemDao
 import com.example.untitled_capstone.data.pagination.FridgePagingSource
 import com.example.untitled_capstone.data.pagination.PostPagingSource
 import com.example.untitled_capstone.data.pagination.RecipePagingSource
+import com.example.untitled_capstone.data.remote.service.ChatApi
 import com.example.untitled_capstone.data.remote.service.FridgeApi
 import com.example.untitled_capstone.data.remote.service.HomeApi
 import com.example.untitled_capstone.data.remote.service.LoginApi
@@ -26,11 +27,15 @@ import com.example.untitled_capstone.data.remote.service.MapApi
 import com.example.untitled_capstone.data.remote.service.MyApi
 import com.example.untitled_capstone.data.remote.service.PostApi
 import com.example.untitled_capstone.data.remote.service.TokenApi
+import com.example.untitled_capstone.data.util.ApiResponseAdapterFactory
+import com.example.untitled_capstone.data.util.Converters
 import com.example.untitled_capstone.data.util.FridgeFetchType
 import com.example.untitled_capstone.data.util.PostFetchType
 import com.example.untitled_capstone.domain.repository.TokenRepository
 import com.example.untitled_capstone.domain.use_case.token.AuthAuthenticator
 import com.example.untitled_capstone.domain.use_case.token.AuthInterceptor
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -162,6 +167,25 @@ object AppModule {
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(TokenApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideChatApi(gson: Gson, okHttpClient: OkHttpClient): ChatApi {
+        return Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .client(okHttpClient)
+            .addConverterFactory(GsonConverterFactory.create(gson))
+            .build()
+            .create(ChatApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideGson(): Gson {
+        return GsonBuilder()
+            .registerTypeAdapterFactory(ApiResponseAdapterFactory())
+            .create()
     }
 
     @OptIn(ExperimentalPagingApi::class)

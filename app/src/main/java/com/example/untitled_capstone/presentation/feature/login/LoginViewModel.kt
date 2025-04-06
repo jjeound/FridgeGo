@@ -39,6 +39,7 @@ class LoginViewModel @Inject constructor(
             is LoginEvent.SetNickname -> setNickname(event.nickname)
             is LoginEvent.GetAddressByCoord -> getAddressByCoord(event.x, event.y)
             is LoginEvent.ModifyNickname -> modifyNickname(event.nickname)
+            is LoginEvent.SetAddress -> setLocation(event.district, event.neighborhood)
         }
     }
 
@@ -48,7 +49,14 @@ class LoginViewModel @Inject constructor(
             when(result){
                 is Resource.Success -> {
                     result.data?.let{
-                        setLocation(result.data.regionGu, result.data.regionDong)
+                        _addressState.update {
+                            it.copy(
+                                address = Address(result.data.regionGu, result.data.regionDong),
+                                which = false,
+                                loading = false,
+                                error = null
+                            )
+                        }
                     }
                 }
                 is Resource.Error -> {
@@ -151,6 +159,7 @@ class LoginViewModel @Inject constructor(
                         _addressState.update {
                             it.copy(
                                 address = Address(district, neighborhood),
+                                which = true,
                                 loading = false,
                                 error = null
                             )

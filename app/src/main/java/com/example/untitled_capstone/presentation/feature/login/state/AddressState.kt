@@ -4,6 +4,7 @@ import com.example.untitled_capstone.domain.model.Address
 
 data class AddressState(
     val address: Address? = null,
+    val which: Boolean = false,
     val loading: Boolean = false,
     val error: String? = null
 )

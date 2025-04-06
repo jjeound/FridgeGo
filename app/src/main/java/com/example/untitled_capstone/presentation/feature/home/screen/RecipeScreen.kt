@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
@@ -209,11 +210,10 @@ fun RecipeScreen(id: Long, state: RecipeState, onEvent: (HomeEvent) -> Unit, nav
                 }
                 Column(
                     verticalArrangement = Arrangement.spacedBy(Dimens.smallPadding),
-                    horizontalAlignment = Alignment.Start
                 ){
                     recipe.ingredients.forEach {
                         Row(
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier.wrapContentWidth(),
                         ) {
                             Text(
                             text = "✅",

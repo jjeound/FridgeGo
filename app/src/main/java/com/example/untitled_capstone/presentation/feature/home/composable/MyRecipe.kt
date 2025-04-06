@@ -5,6 +5,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
@@ -33,10 +36,12 @@ import com.example.untitled_capstone.ui.theme.CustomTheme
 import com.example.untitled_capstone.domain.model.RecipeRaw
 
 @Composable
-fun MyRecipe(recipe: RecipeRaw, onEvent: (HomeEvent) -> Unit){
+fun MyRecipe(recipe: RecipeRaw, modifier: Modifier = Modifier, onEvent: (HomeEvent) -> Unit, onClick: () -> Unit){
     var isLiked by remember { mutableStateOf(recipe.liked) }
     Column(
-        modifier = Modifier.wrapContentSize()
+        modifier = modifier.clickable{
+            onClick()
+        }
     ) {
         if(recipe.imageUrl != null){
             Box{
@@ -45,7 +50,7 @@ fun MyRecipe(recipe: RecipeRaw, onEvent: (HomeEvent) -> Unit){
                     contentDescription = recipe.title,
                     alignment = Alignment.Center,
                     contentScale = ContentScale.Crop,
-                    modifier = Modifier.size(130.dp)
+                    modifier = Modifier.fillMaxWidth().aspectRatio(1f)
                         .clip(shape = RoundedCornerShape(Dimens.cornerRadius))
                 )
                 IconButton(
@@ -72,8 +77,7 @@ fun MyRecipe(recipe: RecipeRaw, onEvent: (HomeEvent) -> Unit){
             }
         } else {
             Box(
-                modifier = Modifier
-                    .size(130.dp)
+                modifier = Modifier.fillMaxWidth().aspectRatio(1f)
                     .clip(shape = RoundedCornerShape(Dimens.cornerRadius))
                     .background(CustomTheme.colors.surface)
             ){
@@ -101,7 +105,7 @@ fun MyRecipe(recipe: RecipeRaw, onEvent: (HomeEvent) -> Unit){
             }
         }
         Spacer(
-            modifier = Modifier.height(Dimens.smallPadding)
+            modifier = Modifier.height(Dimens.mediumPadding)
         )
         Text(
             text = recipe.title,

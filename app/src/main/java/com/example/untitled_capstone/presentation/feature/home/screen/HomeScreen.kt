@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -112,18 +113,15 @@ fun HomeScreen(mainViewModel: MainViewModel, state: RecipeState, recipeItems: La
                         LazyVerticalGrid(
                             columns = GridCells.Fixed(2),
                             state = rememberLazyGridState(),
-                            verticalArrangement = Arrangement.spacedBy(20.dp),
-                            horizontalArrangement = Arrangement.spacedBy(20.dp),
+                            verticalArrangement = Arrangement.spacedBy(Dimens.hugePadding),
+                            horizontalArrangement = Arrangement.spacedBy(Dimens.hugePadding),
                         ) {
                             items( recipeItems.itemCount){ index ->
                                 val item = recipeItems[index]
                                 if(item != null){
-                                    Box(
-                                        modifier = Modifier.clickable {
-                                            navigate(item.id)
-                                        }
-                                    ){
-                                        MyRecipe(recipe = item ,onEvent = onEvent)
+                                    MyRecipe(recipe = item ,modifier = Modifier
+                                        .fillMaxWidth().padding(Dimens.smallPadding), onEvent = onEvent){
+                                        navigate(item.id)
                                     }
                                 }
                             }

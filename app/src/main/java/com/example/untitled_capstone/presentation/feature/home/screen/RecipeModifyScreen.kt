@@ -52,7 +52,6 @@ import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
@@ -75,7 +74,6 @@ import com.example.untitled_capstone.presentation.feature.home.HomeEvent
 import com.example.untitled_capstone.presentation.feature.home.state.ModifyState
 import com.example.untitled_capstone.presentation.feature.my.composable.getRealPathFromURI
 import com.example.untitled_capstone.ui.theme.CustomTheme
-import kotlinx.coroutines.launch
 import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -88,7 +86,6 @@ fun RecipeModifyScreen(recipe: Recipe, state: ModifyState, onEvent: (HomeEvent) 
     }
     var instructions by remember { mutableStateOf( recipe.instructions)}
     val listState = rememberLazyListState()
-    val coroutineScope = rememberCoroutineScope()
     var validator =
         if (title.isNotEmpty() &&
             ingredients.isNotEmpty() &&
@@ -220,7 +217,7 @@ fun RecipeModifyScreen(recipe: Recipe, state: ModifyState, onEvent: (HomeEvent) 
                 .padding(innerPadding)
                 .padding(
                     horizontal = Dimens.largePadding,
-                    vertical = Dimens.largePadding
+                    vertical = Dimens.mediumPadding
                 )
                 .fillMaxSize()
                 .imePadding()
@@ -265,7 +262,7 @@ fun RecipeModifyScreen(recipe: Recipe, state: ModifyState, onEvent: (HomeEvent) 
                             focusedContainerColor = CustomTheme.colors.onSurface,
                             unfocusedContainerColor = CustomTheme.colors.onSurface,
                             cursorColor = CustomTheme.colors.textPrimary,
-                            focusedIndicatorColor = CustomTheme.colors.textFieldBorder,
+                            focusedIndicatorColor = CustomTheme.colors.border,
                             unfocusedIndicatorColor = Color.Transparent,
                             focusedTrailingIconColor = CustomTheme.colors.iconDefault,
                             unfocusedTrailingIconColor = Color.Transparent,
@@ -361,57 +358,62 @@ fun RecipeModifyScreen(recipe: Recipe, state: ModifyState, onEvent: (HomeEvent) 
             }
             items(ingredients.size){ index ->
                 val i = ingredients[index]
-                Column{
-                    Row(
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = "✅",
-                            style = CustomTheme.typography.body2,
-                            color = CustomTheme.colors.textPrimary,
-                        )
-                        TextField(
-                            modifier = Modifier.onFocusChanged {
-                                if (it.isFocused) {
-                                    coroutineScope.launch {
-                                        listState.animateScrollToItem(index + 1)
-                                    }
-                                } },
-                            value = i.value,
-                            onValueChange = { ingredients[index].value = it },
-                            placeholder = {
-                                Text(
-                                    text = "재료 추가..//",
-                                    style = CustomTheme.typography.body3,
-                                    color = CustomTheme.colors.textSecondary
-                                )
-                            },
-                            textStyle = CustomTheme.typography.body2,
-                            colors = TextFieldDefaults.colors(
-                                focusedTextColor = CustomTheme.colors.textPrimary,
-                                unfocusedTextColor = CustomTheme.colors.textPrimary,
-                                focusedContainerColor = CustomTheme.colors.onSurface,
-                                unfocusedContainerColor = CustomTheme.colors.onSurface,
-                                cursorColor = CustomTheme.colors.textPrimary,
-                                focusedIndicatorColor = CustomTheme.colors.textFieldBorder,
-                                unfocusedIndicatorColor = Color.Transparent,
-                                focusedTrailingIconColor = CustomTheme.colors.iconDefault,
-                                unfocusedTrailingIconColor = Color.Transparent,
-                            ),
-                            keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() })
-                        )
-                        IconButton(
-                            onClick = {
-                                ingredients.removeAt(index)
-                            }
-                        ) {
-                            Icon(
-                                imageVector = ImageVector.vectorResource(R.drawable.close),
-                                contentDescription = "delete",
-                                tint = CustomTheme.colors.iconDefault,
+                Row(
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "✅",
+                        style = CustomTheme.typography.body2,
+                        color = CustomTheme.colors.textPrimary,
+                    )
+                    TextField(
+                        value = i.value,
+                        onValueChange = { ingredients[index].value = it },
+                        placeholder = {
+                            Text(
+                                text = "재료 추가..//",
+                                style = CustomTheme.typography.body3,
+                                color = CustomTheme.colors.textSecondary
                             )
+                        },
+                        trailingIcon = {
+                            IconButton(
+                                onClick = {
+                                    ingredients[index].value = ""
+                                }
+                            ) {
+                                Icon(
+                                    imageVector = ImageVector.vectorResource(R.drawable.delete),
+                                    contentDescription = "delete",
+                                    tint = CustomTheme.colors.iconDefault,
+                                )
+                            }
+                        },
+                        textStyle = CustomTheme.typography.body2,
+                        colors = TextFieldDefaults.colors(
+                            focusedTextColor = CustomTheme.colors.textPrimary,
+                            unfocusedTextColor = CustomTheme.colors.textPrimary,
+                            focusedContainerColor = CustomTheme.colors.onSurface,
+                            unfocusedContainerColor = CustomTheme.colors.onSurface,
+                            cursorColor = CustomTheme.colors.textPrimary,
+                            focusedIndicatorColor = CustomTheme.colors.border,
+                            unfocusedIndicatorColor = Color.Transparent,
+                            focusedTrailingIconColor = CustomTheme.colors.iconDefault,
+                            unfocusedTrailingIconColor = Color.Transparent,
+                        ),
+                        keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() })
+                    )
+                    IconButton(
+                        onClick = {
+                            ingredients.removeAt(index)
                         }
+                    ) {
+                        Icon(
+                            imageVector = ImageVector.vectorResource(R.drawable.close),
+                            contentDescription = "delete",
+                            tint = CustomTheme.colors.iconDefault,
+                        )
                     }
                 }
             }

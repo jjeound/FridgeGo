@@ -9,5 +9,6 @@ data class PostUseCases(
     val deletePost: DeletePost,
     val modifyPost: ModifyPost,
     val searchPosts: SearchPosts,
-    val getNickname: GetNickname
+    val getNickname: GetNickname,
+    val uploadPostImages: UploadPostImages
 )

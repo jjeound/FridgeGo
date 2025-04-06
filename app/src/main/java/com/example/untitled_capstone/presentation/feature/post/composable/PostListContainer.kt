@@ -23,9 +23,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.presentation.feature.post.PostEvent
@@ -45,29 +47,23 @@ fun PostListContainer(post: PostRaw, onEvent: (PostEvent) -> Unit){
         Row(
             modifier = Modifier.fillMaxSize().padding(Dimens.mediumPadding)
         ){
-//            if (post.image.isNotEmpty()){
-//                AsyncImage(
-//                    model = post.image[0]!!.toUri(),
-//                    contentDescription = post.title,
-//                    alignment = Alignment.Center,
-//                    contentScale = ContentScale.Fit,
-//                    modifier = Modifier.size(80.dp)
-//                        .clip(shape = RoundedCornerShape(Dimens.cornerRadius))
-//                )
-//            } else {
-//                Box(
-//                    modifier = Modifier
-//                        .size(80.dp)
-//                        .clip(shape = RoundedCornerShape(Dimens.cornerRadius))
-//                        .background(CustomTheme.colors.surface)
-//                )
-//            }
-            Box(
-                modifier = Modifier
-                    .size(80.dp)
-                    .clip(shape = RoundedCornerShape(Dimens.cornerRadius))
-                    .background(CustomTheme.colors.surface)
-            )
+            if (post.imageUrls.isNotEmpty()){
+                AsyncImage(
+                    model = post.imageUrls[0],
+                    contentDescription = post.title,
+                    alignment = Alignment.Center,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.size(80.dp)
+                        .clip(shape = RoundedCornerShape(Dimens.cornerRadius))
+                )
+            } else {
+                Box(
+                    modifier = Modifier
+                        .size(80.dp)
+                        .clip(shape = RoundedCornerShape(Dimens.cornerRadius))
+                        .background(CustomTheme.colors.surface)
+                )
+            }
             Spacer(
                 modifier = Modifier.width(Dimens.largePadding)
             )
@@ -90,7 +86,7 @@ fun PostListContainer(post: PostRaw, onEvent: (PostEvent) -> Unit){
                 )
                 Row {
                     Text(
-                        text = "무거동", //post.location,
+                        text = post.neighborhood,
                         style = CustomTheme.typography.caption2,
                         color = CustomTheme.colors.textSecondary,
                     )
@@ -98,7 +94,7 @@ fun PostListContainer(post: PostRaw, onEvent: (PostEvent) -> Unit){
                         modifier = Modifier.width(3.dp)
                     )
                     Text(
-                        text = "1시간 전", //post.time,
+                        text = post.timeAgo,
                         style = CustomTheme.typography.caption2,
                         color = CustomTheme.colors.textSecondary,
                     )
@@ -124,24 +120,19 @@ fun PostListContainer(post: PostRaw, onEvent: (PostEvent) -> Unit){
                         onEvent(PostEvent.ToggleLike(post.id))
                     }
                 ) {
-//                    if(post.isLiked){
-//                        Icon(
-//                            imageVector = ImageVector.vectorResource(R.drawable.heart_filled),
-//                            contentDescription = "like",
-//                            tint = CustomTheme.colors.iconRed,
-//                        )
-//                    }else {
-//                        Icon(
-//                            imageVector = ImageVector.vectorResource(R.drawable.heart),
-//                            contentDescription = "like",
-//                            tint = CustomTheme.colors.iconDefault,
-//                        )
-//                    }
-                    Icon(
-                        imageVector = ImageVector.vectorResource(R.drawable.heart),
-                        contentDescription = "like",
-                        tint = CustomTheme.colors.iconDefault,
-                    )
+                    if(post.liked){
+                        Icon(
+                            imageVector = ImageVector.vectorResource(R.drawable.heart_filled),
+                            contentDescription = "like",
+                            tint = CustomTheme.colors.iconRed,
+                        )
+                    }else {
+                        Icon(
+                            imageVector = ImageVector.vectorResource(R.drawable.heart),
+                            contentDescription = "like",
+                            tint = CustomTheme.colors.iconDefault,
+                        )
+                    }
                 }
                 Text(
                     text = "${post.likeCount}",

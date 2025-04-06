@@ -1,5 +1,6 @@
 package com.example.untitled_capstone.data.remote.service
 
+import com.example.untitled_capstone.data.remote.dto.AddPostResponse
 import com.example.untitled_capstone.data.remote.dto.ApiResponse
 import com.example.untitled_capstone.data.remote.dto.GetPostByIdResponse
 import com.example.untitled_capstone.data.remote.dto.NewPostDto
@@ -9,6 +10,7 @@ import okhttp3.MultipartBody
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.Multipart
 import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.Part
@@ -20,7 +22,7 @@ interface PostApi {
     @POST("/api/post")
     suspend fun post(
         @Body newPostDto: NewPostDto
-    ): ApiResponse
+    ): AddPostResponse
 
     @GET("/api/post")
     suspend fun getPosts(
@@ -62,9 +64,10 @@ interface PostApi {
         @Query("size") size: Int = 10,
     ): PostResponse
 
+    @Multipart
     @POST("/api/s3/update-post/{postId}")
-    suspend fun uploadPostImage(
+    suspend fun uploadPostImages(
         @Path("postId") postId: Long,
-        @Part recipeImage: List<MultipartBody.Part>
+        @Part postImage: List<MultipartBody.Part>
     ): ApiResponse
 }

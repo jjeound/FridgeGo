@@ -1,6 +1,7 @@
 package com.example.untitled_capstone.presentation.feature.post
 
 import com.example.untitled_capstone.domain.model.NewPost
+import java.io.File
 
 sealed interface PostEvent{
     data object LoadItems: PostEvent
@@ -13,4 +14,5 @@ sealed interface PostEvent{
     data object GetMyPosts: PostEvent
     data object GetLikedPosts: PostEvent
     data object InitState: PostEvent
+    data class UploadPostImages(val id: Long, val images: List<File>): PostEvent
 }

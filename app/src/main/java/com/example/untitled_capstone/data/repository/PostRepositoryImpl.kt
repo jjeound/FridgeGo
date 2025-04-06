@@ -5,10 +5,12 @@ import androidx.paging.ExperimentalPagingApi
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
+import com.example.untitled_capstone.core.util.PrefKeys.NICKNAME
 import com.example.untitled_capstone.core.util.Resource
 import com.example.untitled_capstone.data.local.db.PostItemDatabase
 import com.example.untitled_capstone.data.local.entity.PostItemEntity
 import com.example.untitled_capstone.data.pagination.PostPagingSource
+import com.example.untitled_capstone.data.remote.dto.AddPostResponse
 import com.example.untitled_capstone.data.remote.dto.ApiResponse
 import com.example.untitled_capstone.data.remote.dto.NewPostDto
 import com.example.untitled_capstone.data.remote.dto.PostLikedDto
@@ -19,6 +21,9 @@ import com.example.untitled_capstone.domain.model.Post
 import com.example.untitled_capstone.domain.repository.PostRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
+import okhttp3.MultipartBody
 import okio.IOException
 import retrofit2.HttpException
 import javax.inject.Inject
@@ -28,14 +33,14 @@ class PostRepositoryImpl @Inject constructor(
     private val db: PostItemDatabase,
     @ApplicationContext context: Context
 ): PostRepository {
-    private val prefs = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+    val dataStore = context.dataStore
 
-    override suspend fun post(newPostDto: NewPostDto): Resource<ApiResponse> {
+    override suspend fun post(newPostDto: NewPostDto): Resource<Long> {
         return try {
             Resource.Loading(data = null)
             val response = api.post(newPostDto)
             if(response.isSuccess){
-                Resource.Success(response)
+                Resource.Success(response.result)
             }else {
                 Resource.Error(message = response.toString())
             }
@@ -141,8 +146,29 @@ class PostRepositoryImpl @Inject constructor(
         ).flow
     }
 
-    override fun getNickname(): String {
-        return prefs.getString("nickname", "") ?: ""
+    override suspend fun getNickname(): String? {
+        return dataStore.data.map { prefs ->
+            prefs[NICKNAME]
+        }.first()
+    }
+
+    override suspend fun uploadImages(
+        id: Long,
+        images: List<MultipartBody.Part>
+    ): Resource<ApiResponse> {
+        return try {
+            Resource.Loading(data = null)
+            val response = api.uploadPostImages(id, images)
+            if(response.isSuccess){
+                Resource.Success(response)
+            }else {
+                Resource.Error(message = response.toString())
+            }
+        } catch (e: IOException) {
+            Resource.Error(e.toString())
+        } catch (e: HttpException) {
+            Resource.Error(e.toString())
+        }
     }
 
     companion object {

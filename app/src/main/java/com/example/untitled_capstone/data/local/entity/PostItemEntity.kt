@@ -2,9 +2,12 @@ package com.example.untitled_capstone.data.local.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import androidx.room.TypeConverters
+import com.example.untitled_capstone.data.util.Converters
 import com.example.untitled_capstone.domain.model.PostRaw
 
 @Entity
+@TypeConverters(Converters::class)
 data class PostItemEntity(
     @PrimaryKey val id: Long,
     val timeAgo: String,
@@ -14,6 +17,8 @@ data class PostItemEntity(
     val title: String,
     val district: String,
     val neighborhood: String,
+    val imageUrls: List<String>,
+    val liked: Boolean,
     val pagerNumber: Int
 ){
     fun toPostRaw(): PostRaw{
@@ -25,7 +30,9 @@ data class PostItemEntity(
             likeCount = likeCount,
             memberCount = memberCount,
             price = price,
-            title = title
+            title = title,
+            imageUrls = imageUrls,
+            liked = liked
         )
     }
 }

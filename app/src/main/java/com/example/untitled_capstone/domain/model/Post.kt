@@ -12,5 +12,7 @@ data class Post(
     val nickname: String,
     val price: Int,
     val timeAgo: String,
-    val title: String
+    val title: String,
+    val imageUrls: List<String>,
+    val liked: Boolean
 )

@@ -22,14 +22,14 @@ import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.presentation.feature.post.PostEvent
 import com.example.untitled_capstone.presentation.feature.post.PostState
-import com.example.untitled_capstone.presentation.feature.post.PostViewModel
+import com.example.untitled_capstone.presentation.feature.post.UploadState
 import com.example.untitled_capstone.presentation.feature.post.composable.NewPostForm
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WritingNewPostScreen(navController: NavHostController, state: PostState, onEvent: (PostEvent) -> Unit){
+fun WritingNewPostScreen(navController: NavHostController, state: PostState, uploadState: UploadState, onEvent: (PostEvent) -> Unit){
     Scaffold(
         containerColor = CustomTheme.colors.onSurface,
         topBar = {
@@ -68,7 +68,7 @@ fun WritingNewPostScreen(navController: NavHostController, state: PostState, onE
                 .padding(horizontal = Dimens.surfaceHorizontalPadding,
                 vertical = Dimens.surfaceVerticalPadding),
         ){
-            NewPostForm(state, navController, onEvent)
+            NewPostForm(state, uploadState, navController, onEvent)
         }
     }
 }

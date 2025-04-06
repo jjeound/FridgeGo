@@ -1,5 +1,6 @@
 package com.example.untitled_capstone.presentation.feature.post.screen
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -27,7 +28,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,7 +42,6 @@ import androidx.navigation.NavHostController
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.navigation.Screen
-import com.example.untitled_capstone.presentation.feature.fridge.FridgeAction
 import com.example.untitled_capstone.presentation.feature.post.composable.PostContainer
 import com.example.untitled_capstone.presentation.feature.post.PostEvent
 import com.example.untitled_capstone.presentation.feature.post.PostState
@@ -49,7 +49,7 @@ import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PostDetailScreen(id: Long, nickname: String, state: PostState, onEvent: (PostEvent) -> Unit, navController: NavHostController){
+fun PostDetailScreen(id: Long, nickname: MutableState<String>, state: PostState, onEvent: (PostEvent) -> Unit, navController: NavHostController){
     var expanded by remember { mutableStateOf(false) }
     var menuItem by remember { mutableStateOf(emptyList<String>()) }
     LaunchedEffect(Unit) {
@@ -57,7 +57,8 @@ fun PostDetailScreen(id: Long, nickname: String, state: PostState, onEvent: (Pos
     }
     LaunchedEffect(state.post) {
         if(state.post != null){
-            menuItem = if(nickname == state.post.nickname) listOf("수정", "삭제") else listOf("신고")
+            menuItem = if(nickname.value == state.post.nickname) listOf("수정", "삭제") else listOf("신고")
+            Log.d("gi", state.post.toString())
         }
     }
     if(state.isLoading){
@@ -168,24 +169,19 @@ fun PostDetailScreen(id: Long, nickname: String, state: PostState, onEvent: (Pos
                                         onEvent(PostEvent.ToggleLike(post.id))
                                     }
                                 ) {
-//                                if(post.isLiked){
-//                                    Icon(
-//                                        imageVector = ImageVector.vectorResource(R.drawable.heart_filled),
-//                                        contentDescription = "like",
-//                                        tint = CustomTheme.colors.iconRed,
-//                                    )
-//                                }else{
-//                                    Icon(
-//                                        imageVector = ImageVector.vectorResource(R.drawable.heart),
-//                                        contentDescription = "like",
-//                                        tint = CustomTheme.colors.iconDefault,
-//                                    )
-//                                }
-                                    Icon(
-                                        imageVector = ImageVector.vectorResource(R.drawable.heart),
-                                        contentDescription = "like",
-                                        tint = CustomTheme.colors.iconDefault,
-                                    )
+                                    if(post.liked){
+                                        Icon(
+                                            imageVector = ImageVector.vectorResource(R.drawable.heart_filled),
+                                            contentDescription = "like",
+                                            tint = CustomTheme.colors.iconRed,
+                                        )
+                                    }else{
+                                        Icon(
+                                            imageVector = ImageVector.vectorResource(R.drawable.heart),
+                                            contentDescription = "like",
+                                            tint = CustomTheme.colors.iconDefault,
+                                        )
+                                    }
                                 }
                                 VerticalDivider(
                                     modifier = Modifier.padding(horizontal = 6.dp).height(80.dp),

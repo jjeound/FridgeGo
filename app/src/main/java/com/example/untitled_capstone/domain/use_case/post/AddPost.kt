@@ -10,7 +10,7 @@ import javax.inject.Inject
 class AddPost @Inject constructor(
     private val repository: PostRepository
 ) {
-    suspend operator fun invoke(post: NewPost): Resource<ApiResponse> {
+    suspend operator fun invoke(post: NewPost): Resource<Long> {
         return repository.post(post.toNewPostDto())
     }
 }

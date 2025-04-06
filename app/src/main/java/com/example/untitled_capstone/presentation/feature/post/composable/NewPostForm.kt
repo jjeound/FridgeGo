@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
@@ -36,6 +37,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
@@ -67,6 +69,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
 import androidx.core.content.ContextCompat
+import androidx.core.net.toUri
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.untitled_capstone.MainActivity
@@ -75,12 +78,16 @@ import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.domain.model.NewPost
 import com.example.untitled_capstone.navigation.Screen
 import com.example.untitled_capstone.presentation.feature.fridge.composable.PermissionDialog
+import com.example.untitled_capstone.presentation.feature.home.HomeEvent
+import com.example.untitled_capstone.presentation.feature.my.composable.getRealPathFromURI
 import com.example.untitled_capstone.presentation.feature.post.PostEvent
 import com.example.untitled_capstone.presentation.feature.post.PostState
+import com.example.untitled_capstone.presentation.feature.post.UploadState
 import com.example.untitled_capstone.ui.theme.CustomTheme
+import java.io.File
 
 @Composable
-fun NewPostForm(state: PostState, navController: NavHostController, onEvent: (PostEvent) -> Unit) {
+fun NewPostForm(state: PostState, uploadState: UploadState, navController: NavHostController, onEvent: (PostEvent) -> Unit) {
     val context = LocalContext.current
     var isExpandedPeopleMenu by remember { mutableStateOf(false) }
     var isExpandedCategoryMenu by remember { mutableStateOf(false) }
@@ -93,21 +100,30 @@ fun NewPostForm(state: PostState, navController: NavHostController, onEvent: (Po
     var content by remember { mutableStateOf("") }
     val focusManager = LocalFocusManager.current
     var validator by remember { mutableStateOf(false) }
-    val images = remember { mutableStateListOf<Uri>() }
+    val images = remember { mutableStateListOf<String>() }
     val showDialog = remember { mutableStateOf(false) }
+    val files = remember { mutableStateListOf<File>() }
     val albumLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
                 result.data?.clipData?.let { clipData ->
-                    val imageUris = (0 until clipData.itemCount).map { index ->
+                    val imageUris =  (0 until clipData.itemCount).map { index ->
                         clipData.getItemAt(index).uri
                     }
                     imageUris.forEach { uri ->
-                        images.add(uri)
+                        images.add(uri.toString())
+                        val filePath = context.getRealPathFromURI(uri)
+                        if (filePath != null) {
+                            files.add(File(filePath))
+                        }
                         Log.d("TargetSDK", "imageUri - selected : $uri")
                     }
                 } ?: result.data?.data?.let { uri ->
-                    images.add(uri)
+                    images.add(uri.toString())
+                    val filePath = context.getRealPathFromURI(uri)
+                    if (filePath != null) {
+                        files.add(File(filePath))
+                    }
                     Log.d("TargetSDK", "imageUri - selected : $uri")
                 }
             }
@@ -147,6 +163,9 @@ fun NewPostForm(state: PostState, navController: NavHostController, onEvent: (Po
             category = Category.entries.find { it.eng == state.post.category }?.kor ?: Category.VEGETABLE.kor
             price = state.post.price.toString()
             quantity = state.post.memberCount.toString()
+            state.post.imageUrls.forEach {
+                images.add(it)
+            }
         }
     }
     validator = price.isNotBlank() && title.isNotBlank() && content.isNotBlank()
@@ -158,6 +177,12 @@ fun NewPostForm(state: PostState, navController: NavHostController, onEvent: (Po
         },
         verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding)
     ){
+        if(state.isLoading || uploadState.isLoading){
+            CircularProgressIndicator(
+                modifier = Modifier.fillMaxSize(),
+                color = CustomTheme.colors.primary,
+            )
+        }
         Row(
             horizontalArrangement = Arrangement.spacedBy(Dimens.mediumPadding)
         ) {
@@ -208,7 +233,7 @@ fun NewPostForm(state: PostState, navController: NavHostController, onEvent: (Po
                 itemsIndexed(images) { index, image ->
                     Box {
                         AsyncImage(
-                            model = image,
+                            model = image.toUri(),
                             contentDescription = "image",
                             alignment = Alignment.Center,
                             contentScale = ContentScale.Crop,
@@ -520,15 +545,27 @@ fun NewPostForm(state: PostState, navController: NavHostController, onEvent: (Po
                         )
                     )
                 }
-                navController.navigate(Screen.Post){
-                    popUpTo(Screen.Post)
-                }
             }
         ) {
             Text(
-                text = "등록하기",
+                text = if(state.post != null) "수정하기" else "등록하기",
                 style = CustomTheme.typography.button1,
             )
+        }
+        LaunchedEffect(uploadState) {
+            if(uploadState.id != null){
+                Log.d("files", "files : ${files.toList()}")
+                onEvent(
+                    PostEvent.UploadPostImages(
+                        uploadState.id,
+                        files.toList()
+                    )
+                )
+            }
+            if(uploadState.isSuccess){
+                navController.popBackStack()
+                onEvent(PostEvent.InitState)
+            }
         }
         PermissionDialog(
             showDialog = showDialog,

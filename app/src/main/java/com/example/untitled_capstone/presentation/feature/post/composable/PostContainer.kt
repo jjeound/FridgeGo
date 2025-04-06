@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -33,35 +35,34 @@ import androidx.core.net.toUri
 @Composable
 fun PostContainer(post: Post){
     val category = Category.entries.find { it.eng == post.category }?.kor ?: Category.VEGETABLE.kor
+    val pagerState = rememberPagerState(pageCount = {
+        post.imageUrls.size
+    })
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding)
     ){
-//        if (post.image.isNotEmpty()) {
-//            AsyncImage(
-//                model = post.image[0]!!.toUri(), //수정 해야 함
-//                contentDescription = post.title,
-//                alignment = Alignment.Center,
-//                contentScale = ContentScale.Fit,
-//                modifier = Modifier.fillMaxWidth().aspectRatio(1f)
-//                    .clip(shape = RoundedCornerShape(Dimens.cornerRadius))
-//            )
-//        } else {
-//            Box(
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .aspectRatio(1f)
-//                    .clip(shape = RoundedCornerShape(Dimens.cornerRadius))
-//                    .background(CustomTheme.colors.surface)
-//            )
-//        }
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .aspectRatio(1f)
-                .clip(shape = RoundedCornerShape(Dimens.cornerRadius))
-                .background(CustomTheme.colors.surface)
-        )
+        if (post.imageUrls.isNotEmpty()) {
+            HorizontalPager(state = pagerState){ page ->
+                val image = post.imageUrls[page]
+                AsyncImage(
+                    model = image,
+                    contentDescription = post.title,
+                    alignment = Alignment.Center,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxWidth().aspectRatio(1f)
+                        .clip(shape = RoundedCornerShape(Dimens.cornerRadius))
+                )
+            }
+        } else {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .aspectRatio(1f)
+                    .clip(shape = RoundedCornerShape(Dimens.cornerRadius))
+                    .background(CustomTheme.colors.surface)
+            )
+        }
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,

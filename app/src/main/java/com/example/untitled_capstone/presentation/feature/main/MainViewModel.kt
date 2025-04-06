@@ -38,6 +38,7 @@ class MainViewModel @Inject constructor(
 
     init {
         appEntry()
+        observeAuthEvents()
     }
 
     private fun appEntry(){

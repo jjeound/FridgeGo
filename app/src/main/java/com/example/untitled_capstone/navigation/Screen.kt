@@ -1,16 +1,10 @@
 package com.example.untitled_capstone.navigation
 
-import com.example.untitled_capstone.domain.model.ChattingRoom
 import kotlinx.serialization.Serializable
-import kotlin.reflect.typeOf
 
 sealed interface Screen {
     @Serializable
-    data class ChattingRoomNav(val chattingRoom: ChattingRoom) : Screen{
-        companion object {
-            val typeMap = mapOf(typeOf<ChattingRoom>() to CustomNavType.ChatType)
-        }
-    }
+    data class ChattingRoomNav(val id: Long) : Screen
 
     @Serializable
     data class RecipeNav(val id: Long) : Screen

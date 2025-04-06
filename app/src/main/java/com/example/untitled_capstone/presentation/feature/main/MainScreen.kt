@@ -15,20 +15,24 @@ import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.untitled_capstone.R
+import com.example.untitled_capstone.navigation.Graph
 import com.example.untitled_capstone.navigation.NavigationV2
 import com.example.untitled_capstone.navigation.Screen
 import com.example.untitled_capstone.presentation.feature.my.composable.MyTopBar
 import com.example.untitled_capstone.presentation.feature.fridge.composable.FridgeTopBar
 import com.example.untitled_capstone.presentation.feature.post.composable.PostTopBar
+import com.example.untitled_capstone.presentation.util.AuthEvent
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @Composable
@@ -46,6 +50,14 @@ fun MainScreen(viewModel: MainViewModel){
     val route = navBackStackEntry?.destination?.route
     val bottomRoute = route?.split(".")?.lastOrNull()
     val bottomBarDestination = screens.any { bottomRoute.equals(it) }
+    val authState = viewModel.authState.collectAsStateWithLifecycle()
+    LaunchedEffect(authState) {
+       if(authState.value == AuthEvent.Logout){
+          navController.navigate(route = Graph.LoginGraph) {
+            popUpTo(route = Graph.LoginGraph) { inclusive = true }
+          }
+       }
+    }
 
     Scaffold(
         containerColor = CustomTheme.colors.surface,

@@ -1,5 +1,6 @@
 package com.example.untitled_capstone.navigation
 
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -118,7 +119,8 @@ fun NavigationV2(navController: NavHostController, mainViewModel: MainViewModel)
                 val parentEntry = navController.getBackStackEntry(Graph.PostGraph)
                 val viewModel: PostViewModel = hiltViewModel(parentEntry)
                 val state by viewModel.state.collectAsStateWithLifecycle()
-                WritingNewPostScreen(navController, state, viewModel::onEvent)
+                val uploadState by viewModel.uploadState.collectAsStateWithLifecycle()
+                WritingNewPostScreen(navController, state, uploadState, viewModel::onEvent)
             }
             composable<Screen.PostSearchNav> {
                 val viewModel: PostViewModel = hiltViewModel()
@@ -164,15 +166,28 @@ fun NavigationV2(navController: NavHostController, mainViewModel: MainViewModel)
             startDestination = Screen.Chat
         ){
             composable<Screen.Chat>{
-                val viewModel = it.sharedViewModel<ChatViewModel>(navController)
-                ChattingScreen(viewModel.chatState, navController)
+                val parentEntry = navController.getBackStackEntry(Graph.ChatGraph)
+                val viewModel: ChatViewModel = hiltViewModel(parentEntry)
+                val state by viewModel.state
+                ChattingScreen(
+                    snackbarHostState = remember { SnackbarHostState() },
+                    viewModel = viewModel,
+                    state = state,
+                    navController = navController,
+                )
             }
-            composable<Screen.ChattingRoomNav>(
-                typeMap = Screen.ChattingRoomNav.typeMap
-            ) {
-                val viewModel = it.sharedViewModel<ChatViewModel>(navController)
+            composable<Screen.ChattingRoomNav>{
+                val parentEntry = navController.getBackStackEntry(Graph.ChatGraph)
+                val viewModel: ChatViewModel = hiltViewModel(parentEntry)
+                val state by viewModel.state
                 val args = it.toRoute<Screen.ChattingRoomNav>()
-                ChattingRoomScreen(viewModel.messageState, args.chattingRoom , navController)
+                ChattingRoomScreen(
+                    snackbarHostState = remember { SnackbarHostState() },
+                    viewModel = viewModel,
+                    state = state,
+                    roomId = args.id,
+                    navController = navController
+                )
             }
         }
         navigation<Graph.MyGraph>(

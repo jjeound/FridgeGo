@@ -226,19 +226,19 @@ class HomeViewModel @Inject constructor(
                         _recipeItemsState.update { pagingData ->
                             pagingData.map {
                                 if(it.id == id){
-                                    it.copy(liked = liked)
+                                    it.copy(liked = result.data.liked)
                                 }else{
                                     it
                                 }
                             }
                         }
-                    }
-                    _recipeState.update {
-                        it.copy(
-                            recipe = it.recipe?.copy(liked = liked),
-                            loading = false,
-                            error = null
-                        )
+                        _recipeState.update {
+                            it.copy(
+                                recipe = it.recipe?.copy(liked = result.data.liked),
+                                loading = false,
+                                error = null
+                            )
+                        }
                     }
                 }
                 is Resource.Error -> {
@@ -272,7 +272,6 @@ class HomeViewModel @Inject constructor(
 
     private fun modifyRecipe(recipe: Recipe){
         viewModelScope.launch {
-            _modifyState.value.isLoading.value = true
             val result = homeUseCases.modifyRecipe(recipe)
             when(result){
                 is Resource.Success -> {

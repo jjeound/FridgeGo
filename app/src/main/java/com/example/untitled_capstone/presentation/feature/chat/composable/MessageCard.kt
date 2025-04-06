@@ -33,102 +33,102 @@ import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @Composable
 fun MessageCard(message: Message) {
-    val isMe = message.user.id == 1
-    if(isMe){
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.End,
-        ) {
-            Text(
-                modifier = Modifier.align(Alignment.Bottom),
-                text = message.message,
-                style = CustomTheme.typography.caption2,
-                color = CustomTheme.colors.textSecondary,
-            )
-            Spacer(
-                modifier = Modifier.width(Dimens.smallPadding)
-            )
-            Card(
-                shape = RoundedCornerShape(Dimens.cornerRadius),
-                colors = CardDefaults.cardColors(
-                    containerColor = CustomTheme.colors.surface
-                )
-            ) {
-                Box(
-                    modifier = Modifier.padding(
-                        horizontal = Dimens.mediumPadding,
-                        vertical = Dimens.smallPadding
-                    )
-                ) {
-                    Text(
-                        text = message.message,
-                        style = CustomTheme.typography.caption1,
-                        color = CustomTheme.colors.textPrimary,
-                    )
-                }
-            }
-        }
-    }else{
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Start,
-        ) {
-            if(message.user.profileImage != null){
-                AsyncImage(
-                    model = message.user.profileImage.toUri(),
-                    contentDescription = "get image",
-                    modifier = Modifier
-                        .size(36.dp)
-                        .clip(shape = RoundedCornerShape(36.dp))
-                )
-            } else {
-                Icon(
-                    imageVector = ImageVector.vectorResource(R.drawable.profile),
-                    contentDescription = "get image",
-                    tint = CustomTheme.colors.iconDefault,
-                )
-            }
-            Spacer(
-                modifier = Modifier.width(6.dp)
-            )
-            Column {
-                Text(
-                    text = message.user.name,
-                    style = CustomTheme.typography.caption2,
-                    color = CustomTheme.colors.textPrimary,
-                )
-                Card(
-                    shape = RoundedCornerShape(Dimens.cornerRadius),
-                    colors = CardDefaults.cardColors(
-                        containerColor = CustomTheme.colors.surface
-                    )
-                ) {
-                    Box(
-                        modifier = Modifier.padding(
-                            horizontal = Dimens.mediumPadding,
-                            vertical = Dimens.smallPadding
-                        )
-                    ) {
-                        Text(
-                            text = message.message,
-                            style = CustomTheme.typography.caption1,
-                            color = CustomTheme.colors.textPrimary,
-                        )
-                    }
-                }
-            }
-            Spacer(
-                modifier = Modifier.width(Dimens.smallPadding)
-            )
-            Text(
-                modifier = Modifier.align(Alignment.Bottom),
-                text = message.message,
-                style = CustomTheme.typography.caption2,
-                color = CustomTheme.colors.textSecondary,
-            )
-        }
-    }
-    Spacer(
-        modifier = Modifier.height(Dimens.mediumPadding)
-    )
+//    val isMe = message.user.id == 1
+//    if(isMe){
+//        Row(
+//            modifier = Modifier.fillMaxWidth(),
+//            horizontalArrangement = Arrangement.End,
+//        ) {
+//            Text(
+//                modifier = Modifier.align(Alignment.Bottom),
+//                text = message.message,
+//                style = CustomTheme.typography.caption2,
+//                color = CustomTheme.colors.textSecondary,
+//            )
+//            Spacer(
+//                modifier = Modifier.width(Dimens.smallPadding)
+//            )
+//            Card(
+//                shape = RoundedCornerShape(Dimens.cornerRadius),
+//                colors = CardDefaults.cardColors(
+//                    containerColor = CustomTheme.colors.surface
+//                )
+//            ) {
+//                Box(
+//                    modifier = Modifier.padding(
+//                        horizontal = Dimens.mediumPadding,
+//                        vertical = Dimens.smallPadding
+//                    )
+//                ) {
+//                    Text(
+//                        text = message.message,
+//                        style = CustomTheme.typography.caption1,
+//                        color = CustomTheme.colors.textPrimary,
+//                    )
+//                }
+//            }
+//        }
+//    }else{
+//        Row(
+//            modifier = Modifier.fillMaxWidth(),
+//            horizontalArrangement = Arrangement.Start,
+//        ) {
+//            if(message.user.profileImage != null){
+//                AsyncImage(
+//                    model = message.user.profileImage.toUri(),
+//                    contentDescription = "get image",
+//                    modifier = Modifier
+//                        .size(36.dp)
+//                        .clip(shape = RoundedCornerShape(36.dp))
+//                )
+//            } else {
+//                Icon(
+//                    imageVector = ImageVector.vectorResource(R.drawable.profile),
+//                    contentDescription = "get image",
+//                    tint = CustomTheme.colors.iconDefault,
+//                )
+//            }
+//            Spacer(
+//                modifier = Modifier.width(6.dp)
+//            )
+//            Column {
+//                Text(
+//                    text = message.user.name,
+//                    style = CustomTheme.typography.caption2,
+//                    color = CustomTheme.colors.textPrimary,
+//                )
+//                Card(
+//                    shape = RoundedCornerShape(Dimens.cornerRadius),
+//                    colors = CardDefaults.cardColors(
+//                        containerColor = CustomTheme.colors.surface
+//                    )
+//                ) {
+//                    Box(
+//                        modifier = Modifier.padding(
+//                            horizontal = Dimens.mediumPadding,
+//                            vertical = Dimens.smallPadding
+//                        )
+//                    ) {
+//                        Text(
+//                            text = message.message,
+//                            style = CustomTheme.typography.caption1,
+//                            color = CustomTheme.colors.textPrimary,
+//                        )
+//                    }
+//                }
+//            }
+//            Spacer(
+//                modifier = Modifier.width(Dimens.smallPadding)
+//            )
+//            Text(
+//                modifier = Modifier.align(Alignment.Bottom),
+//                text = message.message,
+//                style = CustomTheme.typography.caption2,
+//                color = CustomTheme.colors.textSecondary,
+//            )
+//        }
+//    }
+//    Spacer(
+//        modifier = Modifier.height(Dimens.mediumPadding)
+//    )
 }

@@ -1,125 +1,365 @@
 package com.example.untitled_capstone.presentation.feature.chat
 
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import com.example.untitled_capstone.R
+import androidx.lifecycle.viewModelScope
+import com.example.untitled_capstone.core.util.Resource
+import com.example.untitled_capstone.domain.model.ChatMember
 import com.example.untitled_capstone.domain.model.ChattingRoom
+import com.example.untitled_capstone.domain.model.ChattingRoomRaw
 import com.example.untitled_capstone.domain.model.Message
-import com.example.untitled_capstone.domain.model.User
-import com.example.untitled_capstone.presentation.feature.chat.event.ChattingAction
-import com.example.untitled_capstone.presentation.feature.chat.state.ChatState
-import com.example.untitled_capstone.presentation.feature.chat.state.MessageState
+import com.example.untitled_capstone.domain.use_case.chat.ChatUseCases
+import com.example.untitled_capstone.navigation.Screen
+import com.example.untitled_capstone.presentation.feature.chat.state.ChatApiState
+import com.example.untitled_capstone.presentation.util.UiEvent
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class ChatViewModel: ViewModel(){
-    var chatState by mutableStateOf(ChatState())
-        private set
+@HiltViewModel
+class ChatViewModel @Inject constructor(
+    private val chatUseCases: ChatUseCases
+): ViewModel(){
 
-    var messageState by mutableStateOf(MessageState())
-        private set
+    private val _state = mutableStateOf(ChatApiState())
+    val state: State<ChatApiState> = _state
 
-//    init {
-//        chatState = chatState.copy(
-//            chats = listOf(
-//                ChattingRoom(
-//                    message = "message1",
-//                    lastSentMessageTime = "2021-12-31",
-//                    user = User(
-//                        id = 1,
-//                        name = "닉네임",
-//                        profile = R.drawable.ic_launcher_background
-//                    ),
-//                    title = "title1",
-//                    numberOfPeople = 1,
-//                    messagesNotReadYet = 1
-//                ),
-//                ChattingRoom(
-//                    message = "message1",
-//                    lastSentMessageTime = "2021-12-31",
-//                    user = User(
-//                        id = 2,
-//                        name = "닉네임",
-//                        profile = R.drawable.ic_launcher_background
-//                    ),
-//                    title = "title2",
-//                    numberOfPeople = 2,
-//                    messagesNotReadYet = 2
-//                ),
-//                ChattingRoom(
-//                    message = "message3",
-//                    lastSentMessageTime = "2021-12-31",
-//                    user = User(
-//                        id = 3,
-//                        name = "닉네임",
-//                        profile = R.drawable.ic_launcher_background
-//                    ),
-//                    title = "title3",
-//                    numberOfPeople = 3
-//                ),
-//                ChattingRoom(
-//                    message = "message1",
-//                    lastSentMessageTime = "2021-12-31",
-//                    user = User(
-//                        id = 4,
-//                        name = "닉네임",
-//                        profile = R.drawable.ic_launcher_background
-//                    ),
-//                    title = "title1",
-//                    numberOfPeople = 4
-//                ),
-//            ),
-//            isLoading = false
-//        )
-//        messageState = messageState.copy(
-//            messages = listOf(
-//                Message(
-//                    message = "message1",
-//                    time = "2025-01-24",
-//                    user = User(
-//                        id = 4,
-//                        name = "닉네임",
-//                        profile = R.drawable.ic_launcher_background
-//                    ),
-//                ),
-//                Message(
-//                    message = "message2",
-//                    time = "2025-01-24",
-//                    user = User(
-//                        id = 4,
-//                        name = "닉네임",
-//                        profile = R.drawable.ic_launcher_background
-//                    ),
-//                ),
-//                Message(
-//                    message = "message3",
-//                    time = "2025-01-24",
-//                    user = User(
-//                        id = 1,
-//                        name = "닉네임",
-//                        profile = R.drawable.ic_launcher_background
-//                    ),
-//                ),
-//                Message(
-//                    message = "message4",
-//                    time = "2025-01-24",
-//                    user = User(
-//                        id = 1,
-//                        name = "닉네임",
-//                        profile = R.drawable.ic_launcher_background
-//                    ),
-//                ),
-//            )
-//        )
-//    }
+    private var _chattingRoomList = mutableStateOf<List<ChattingRoomRaw>>(emptyList())
+    val chattingRoomList: State<List<ChattingRoomRaw>> = _chattingRoomList
 
-    fun onAction(action: ChattingAction){
-        when(action){
-            ChattingAction.GoToChattingRoom -> getMessages()
+    private var _chattingRoom = mutableStateOf<ChattingRoom?>(null)
+    val chattingRoom: State<ChattingRoom?> = _chattingRoom
+
+    private var _message = mutableStateOf<List<Message>>(emptyList())
+    val message: State<List<Message>> = _message
+
+    private var _member = mutableStateOf<List<ChatMember>>(emptyList())
+    val member: State<List<ChatMember>> = _member
+
+    private val _event = MutableSharedFlow<UiEvent>()
+    val event = _event.asSharedFlow()
+
+    fun createChatRoom(name: String, maxParticipants: Int){
+        viewModelScope.launch {
+            val result = chatUseCases.createRoom(name, maxParticipants)
+            when(result){
+                is Resource.Success -> {
+                    result.data?.let {
+                        _state.value.apply {
+                            isSuccess = true
+                            isLoading = false
+                            error = null
+                        }
+                    }
+                }
+                is Resource.Error -> {
+                    _state.value.apply {
+                        isSuccess = false
+                        isLoading = false
+                        error = result.message
+                    }
+                    _event.emit(UiEvent.ShowSnackbar(
+                        result.message ?: "Unknown error"
+                    ))
+                }
+                is Resource.Loading -> {
+                    _state.value.apply {
+                        isSuccess = false
+                        isLoading = true
+                        error = null
+                    }
+                }
+            }
         }
     }
 
-    fun getMessages(){
-        //get messages from server
+    fun readChats(id: Long){
+        viewModelScope.launch {
+            val result = chatUseCases.readChats(id)
+            when(result){
+                is Resource.Success -> {
+                    result.data?.let {
+                        _state.value.apply {
+                            isSuccess = true
+                            isLoading = false
+                            error = null
+                        }
+                    }
+                }
+                is Resource.Error -> {
+                    _state.value.apply {
+                        isSuccess = false
+                        isLoading = false
+                        error = result.message
+                    }
+                    _event.emit(UiEvent.ShowSnackbar(
+                        result.message ?: "Unknown error"
+                    ))
+                }
+                is Resource.Loading -> {
+                    _state.value.apply {
+                        isSuccess = false
+                        isLoading = true
+                        error = null
+                    }
+                }
+            }
+        }
+    }
+
+    fun getMyRooms(){
+        viewModelScope.launch {
+            val result = chatUseCases.getMyRooms()
+            when(result){
+                is Resource.Success -> {
+                    result.data?.let {
+                        _chattingRoomList.value = it
+                        _state.value.apply {
+                            isSuccess = true
+                            isLoading = false
+                            error = null
+                        }
+                    }
+                }
+                is Resource.Error -> {
+                    _chattingRoomList.value = emptyList()
+                    _state.value.apply {
+                        isSuccess = false
+                        isLoading = false
+                        error = result.message
+                    }
+                    _event.emit(UiEvent.ShowSnackbar(
+                        result.message ?: "Unknown error"
+                    ))
+                }
+                is Resource.Loading -> {
+                    _chattingRoomList.value = emptyList()
+                    _state.value.apply {
+                        isSuccess = false
+                        isLoading = true
+                        error = null
+                    }
+                }
+            }
+        }
+    }
+
+    fun exitChatRoom(id: Long){
+        viewModelScope.launch {
+            val result = chatUseCases.exitChatRoom(id)
+            when(result){
+                is Resource.Success -> {
+                    result.data?.let {
+                        _state.value.apply {
+                            isSuccess = true
+                            isLoading = false
+                            error = null
+                        }
+                    }
+                }
+                is Resource.Error -> {
+                    _state.value.apply {
+                        isSuccess = false
+                        isLoading = false
+                        error = result.message
+                    }
+                    _event.emit(UiEvent.ShowSnackbar(
+                        result.message ?: "Unknown error"
+                    ))
+                }
+                is Resource.Loading -> {
+                    _state.value.apply {
+                        isSuccess = false
+                        isLoading = true
+                        error = null
+                    }
+                }
+            }
+        }
+    }
+
+    fun closeChatRoom(id: Long){
+        viewModelScope.launch {
+            val result = chatUseCases.closeChatRoom(id)
+            when(result){
+                is Resource.Success -> {
+                    result.data?.let {
+                        _state.value.apply {
+                            isSuccess = true
+                            isLoading = false
+                            error = null
+                        }
+                    }
+                }
+                is Resource.Error -> {
+                    _state.value.apply {
+                        isSuccess = false
+                        isLoading = false
+                        error = result.message
+                    }
+                    _event.emit(UiEvent.ShowSnackbar(
+                        result.message ?: "Unknown error"
+                    ))
+                }
+                is Resource.Loading -> {
+                    _state.value.apply {
+                        isSuccess = false
+                        isLoading = true
+                        error = null
+                    }
+                }
+            }
+        }
+    }
+
+    fun getMessages(id: Long, lastMessageId: Long? = null){
+        viewModelScope.launch {
+            val result = chatUseCases.getMessages(id, lastMessageId)
+            when(result){
+                is Resource.Success -> {
+                    result.data?.let {
+                        _message.value = it
+                        _state.value.apply {
+                            isSuccess = true
+                            isLoading = false
+                            error = null
+                        }
+                    }
+                }
+                is Resource.Error -> {
+                    _message.value = emptyList()
+                    _state.value.apply {
+                        isSuccess = false
+                        isLoading = false
+                        error = result.message
+                    }
+                    _event.emit(UiEvent.ShowSnackbar(
+                        result.message ?: "Unknown error"
+                    ))
+                }
+                is Resource.Loading -> {
+                    _message.value = emptyList()
+                    _state.value.apply {
+                        isSuccess = false
+                        isLoading = true
+                        error = null
+                    }
+                }
+            }
+        }
+    }
+
+    fun joinChatRoom(id: Long){
+        viewModelScope.launch {
+            val result = chatUseCases.joinChatRoom(id)
+            when(result){
+                is Resource.Success -> {
+                    result.data?.let {
+                        _state.value.apply {
+                            isSuccess = true
+                            isLoading = false
+                            error = null
+                        }
+                    }
+                }
+                is Resource.Error -> {
+                    _state.value.apply {
+                        isSuccess = false
+                        isLoading = false
+                        error = result.message
+                    }
+                    _event.emit(UiEvent.ShowSnackbar(
+                        result.message ?: "Unknown error"
+                    ))
+                }
+                is Resource.Loading -> {
+                    _state.value.apply {
+                        isSuccess = false
+                        isLoading = true
+                        error = null
+                    }
+                }
+            }
+        }
+    }
+
+    fun checkWhoIsIn(id: Long){
+        viewModelScope.launch {
+            val result = chatUseCases.checkWhoIsIn(id)
+            when(result){
+                is Resource.Success -> {
+                    result.data?.let {
+                        _member.value = it
+                        _state.value.apply {
+                            isSuccess = true
+                            isLoading = false
+                            error = null
+                        }
+                    }
+                }
+                is Resource.Error -> {
+                    _member.value = emptyList()
+                    _state.value.apply {
+                        isSuccess = false
+                        isLoading = false
+                        error = result.message
+                    }
+                    _event.emit(UiEvent.ShowSnackbar(
+                        result.message ?: "Unknown error"
+                    ))
+                }
+                is Resource.Loading -> {
+                    _member.value = emptyList()
+                    _state.value.apply {
+                        isSuccess = false
+                        isLoading = true
+                        error = null
+                    }
+                }
+            }
+        }
+    }
+
+    fun enterChatRoom(id: Long){
+        viewModelScope.launch {
+            val result = chatUseCases.enterChatRoom(id)
+            when(result){
+                is Resource.Success -> {
+                    result.data?.let {
+                        _state.value.apply {
+                            isSuccess = true
+                            isLoading = false
+                            error = null
+                        }
+                    }
+                }
+                is Resource.Error -> {
+                    _state.value.apply {
+                        isSuccess = false
+                        isLoading = false
+                        error = result.message
+                    }
+                    _event.emit(UiEvent.ShowSnackbar(
+                        result.message ?: "Unknown error"
+                    ))
+                }
+                is Resource.Loading -> {
+                    _state.value.apply {
+                        isSuccess = false
+                        isLoading = true
+                        error = null
+                    }
+                }
+            }
+        }
+    }
+
+    fun navigateUp(route: Screen){
+        viewModelScope.launch {
+            _event.emit(UiEvent.Navigate(route))
+        }
     }
 }

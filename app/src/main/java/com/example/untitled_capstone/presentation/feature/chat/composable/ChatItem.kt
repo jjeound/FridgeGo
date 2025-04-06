@@ -23,11 +23,15 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
-import com.example.untitled_capstone.domain.model.ChattingRoom
+import com.example.untitled_capstone.domain.model.ChattingRoomRaw
 import com.example.untitled_capstone.ui.theme.CustomTheme
+import java.time.ZoneId
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 @Composable
-fun ChatItem(chat: ChattingRoom){
+fun ChatItem(chattingRoomRaw: ChattingRoomRaw){
     Row (
         modifier = Modifier.fillMaxWidth().padding(vertical = Dimens.mediumPadding),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -50,7 +54,7 @@ fun ChatItem(chat: ChattingRoom){
             ) {
                 Row{
                     Text(
-                        text = chat.title,
+                        text = chattingRoomRaw.name,
                         style = CustomTheme.typography.title1,
                         color = CustomTheme.colors.textPrimary,
                     )
@@ -58,13 +62,13 @@ fun ChatItem(chat: ChattingRoom){
                         modifier = Modifier.width(6.dp)
                     )
                     Text(
-                        text = chat.numberOfPeople.toString(),
+                        text = chattingRoomRaw.currentParticipants.toString(),
                         style = CustomTheme.typography.caption1,
                         color = CustomTheme.colors.textSecondary,
                     )
                 }
                 Text(
-                    text = chat.message,
+                    text = chattingRoomRaw.lastMessage ?: "",
                     style = CustomTheme.typography.body2,
                     color = CustomTheme.colors.textSecondary,
                 )
@@ -74,19 +78,21 @@ fun ChatItem(chat: ChattingRoom){
             modifier = Modifier.padding(vertical = Dimens.smallPadding),
             horizontalAlignment = Alignment.End
         ) {
-            Text(
-                text = chat.lastSentMessageTime,
-                style = CustomTheme.typography.caption1,
-                color = CustomTheme.colors.textSecondary,
-            )
+            if(chattingRoomRaw.lastMessageTime != null){
+                Text(
+                    text = formatUtcToKoreanDateTime(chattingRoomRaw.lastMessageTime),
+                    style = CustomTheme.typography.caption1,
+                    color = CustomTheme.colors.textSecondary,
+                )
+            }
             Spacer(
                 modifier = Modifier.height(6.dp)
             )
-            if(chat.messagesNotReadYet > 0){
+            if(chattingRoomRaw.unreadCount > 0){
                 Badge(
                     content = {
                         Text(
-                            text = chat.messagesNotReadYet.toString(),
+                            text = chattingRoomRaw.unreadCount.toString(),
                             style = CustomTheme.typography.caption2,
                             color = Color.White
                         )
@@ -95,6 +101,29 @@ fun ChatItem(chat: ChattingRoom){
                     modifier = Modifier.size(20.dp)
                 )
             }
+        }
+    }
+}
+
+fun formatUtcToKoreanDateTime(utcTime: String): String {
+    val utcZoned = ZonedDateTime.parse(utcTime)
+    val koreaTime = utcZoned.withZoneSameInstant(ZoneId.of("Asia/Seoul"))
+
+    val now = ZonedDateTime.now(ZoneId.of("Asia/Seoul"))
+    val today = now.toLocalDate()
+    val yesterday = today.minusDays(1)
+
+    val date = koreaTime.toLocalDate()
+
+    return when (date) {
+        today -> {
+            val timeFormatter = DateTimeFormatter.ofPattern("a h:mm", Locale.KOREAN)
+            koreaTime.format(timeFormatter)
+        }
+        yesterday -> "어제"
+        else -> {
+            val dateFormatter = DateTimeFormatter.ofPattern("M월 d일", Locale.KOREAN)
+            koreaTime.format(dateFormatter)
         }
     }
 }

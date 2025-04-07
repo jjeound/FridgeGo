@@ -1,5 +1,7 @@
 package com.example.untitled_capstone.domain.model
 
+import com.example.untitled_capstone.domain.use_case.post.PostImage
+
 data class Post(
     val category: String,
     val content: String,
@@ -13,6 +15,7 @@ data class Post(
     val price: Int,
     val timeAgo: String,
     val title: String,
-    val imageUrls: List<String>,
+    val image: List<PostImage>? = null,
+    val profileImageUrl: String? = null,
     val liked: Boolean
 )

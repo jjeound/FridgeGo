@@ -11,9 +11,10 @@ import com.example.untitled_capstone.data.util.PostFetchType
 import com.example.untitled_capstone.domain.model.Post
 import kotlinx.coroutines.flow.Flow
 import okhttp3.MultipartBody
+import okhttp3.RequestBody
 
 interface PostRepository {
-    suspend fun post(newPostDto: NewPostDto): Resource<Long>
+    suspend fun post(newPostDto: RequestBody, images: List<MultipartBody.Part>?): Resource<Long>
     fun getMyPosts(fetchType: PostFetchType): Flow<PagingData<PostItemEntity>>
     suspend fun getPostById(id: Long): Resource<Post>
     suspend fun deletePost(id: Long): Resource<ApiResponse>
@@ -23,4 +24,5 @@ interface PostRepository {
     fun getLikedPosts(fetchType: PostFetchType): Flow<PagingData<PostItemEntity>>
     suspend fun getNickname(): String?
     suspend fun uploadImages(id: Long, images: List<MultipartBody.Part>): Resource<ApiResponse>
+    suspend fun deleteImage(id: Long, imageId: Long): Resource<ApiResponse>
 }

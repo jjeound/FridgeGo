@@ -24,6 +24,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import okio.IOException
 import retrofit2.HttpException
 import javax.inject.Inject
@@ -35,10 +36,10 @@ class PostRepositoryImpl @Inject constructor(
 ): PostRepository {
     val dataStore = context.dataStore
 
-    override suspend fun post(newPostDto: NewPostDto): Resource<Long> {
+    override suspend fun post(newPostDto: RequestBody, images: List<MultipartBody.Part>?): Resource<Long> {
         return try {
             Resource.Loading(data = null)
-            val response = api.post(newPostDto)
+            val response = api.post(newPostDto, images)
             if(response.isSuccess){
                 Resource.Success(response.result)
             }else {
@@ -82,6 +83,7 @@ class PostRepositoryImpl @Inject constructor(
             Resource.Loading(data = null)
             val response = api.deletePost(id)
             if(response.isSuccess){
+                db.dao.clearAll() //페이징 꼬여서 다 지워야 함
                 Resource.Success(response)
             }else {
                 Resource.Error(message = response.toString())
@@ -159,6 +161,25 @@ class PostRepositoryImpl @Inject constructor(
         return try {
             Resource.Loading(data = null)
             val response = api.uploadPostImages(id, images)
+            if(response.isSuccess){
+                Resource.Success(response)
+            }else {
+                Resource.Error(message = response.toString())
+            }
+        } catch (e: IOException) {
+            Resource.Error(e.toString())
+        } catch (e: HttpException) {
+            Resource.Error(e.toString())
+        }
+    }
+
+    override suspend fun deleteImage(
+        id: Long,
+        imageId: Long
+    ): Resource<ApiResponse> {
+        return try {
+            Resource.Loading(data = null)
+            val response = api.deletePostImage(id, imageId)
             if(response.isSuccess){
                 Resource.Success(response)
             }else {

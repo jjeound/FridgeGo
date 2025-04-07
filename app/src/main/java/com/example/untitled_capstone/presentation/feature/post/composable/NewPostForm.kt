@@ -163,8 +163,8 @@ fun NewPostForm(state: PostState, uploadState: UploadState, navController: NavHo
             category = Category.entries.find { it.eng == state.post.category }?.kor ?: Category.VEGETABLE.kor
             price = state.post.price.toString()
             quantity = state.post.memberCount.toString()
-            state.post.imageUrls.forEach {
-                images.add(it)
+            state.post.image?.forEach {
+                images.add(it.imageUrl)
             }
         }
     }
@@ -248,6 +248,11 @@ fun NewPostForm(state: PostState, uploadState: UploadState, navController: NavHo
                                 .padding(Dimens.smallPadding),
                             onClick = {
                                 images.removeAt(index)
+                                if(state.post != null){
+                                    onEvent(PostEvent.DeletePostImage(state.post.id,
+                                        state.post.image!![index].id
+                                    ))
+                                }
                             }
                         ) {
                             Icon(
@@ -541,7 +546,8 @@ fun NewPostForm(state: PostState, uploadState: UploadState, navController: NavHo
                                 category = Category.entries.find { it.kor == category }?.eng ?: Category.VEGETABLE.eng,
                                 price = price.toInt(),
                                 memberCount = quantity.toInt()
-                            )
+                            ),
+                            if(files.isNotEmpty()) files.toList() else null
                         )
                     )
                 }
@@ -554,17 +560,21 @@ fun NewPostForm(state: PostState, uploadState: UploadState, navController: NavHo
         }
         LaunchedEffect(uploadState) {
             if(uploadState.id != null){
-                Log.d("files", "files : ${files.toList()}")
-                onEvent(
-                    PostEvent.UploadPostImages(
-                        uploadState.id,
-                        files.toList()
+                if(files.isNotEmpty()){
+                    onEvent(
+                        PostEvent.UploadPostImages(
+                            uploadState.id,
+                            files.toList()
+                        )
                     )
-                )
+                }else{
+                    onEvent(PostEvent.InitState)
+                    navController.popBackStack()
+                }
             }
             if(uploadState.isSuccess){
-                navController.popBackStack()
                 onEvent(PostEvent.InitState)
+                navController.popBackStack()
             }
         }
         PermissionDialog(

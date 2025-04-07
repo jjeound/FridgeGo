@@ -44,7 +44,10 @@ fun WritingNewPostScreen(navController: NavHostController, state: PostState, upl
                 },
                 navigationIcon = {
                     IconButton(
-                        onClick = { navController.popBackStack()}
+                        onClick = {
+                            navController.popBackStack()
+                            onEvent(PostEvent.InitState)
+                        }
                     ) {
                         Icon(
                             imageVector = ImageVector.vectorResource(R.drawable.close),

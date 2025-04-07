@@ -12,6 +12,7 @@ import com.example.untitled_capstone.core.util.Resource
 import com.example.untitled_capstone.data.util.PostFetchType
 import com.example.untitled_capstone.domain.model.NewPost
 import com.example.untitled_capstone.domain.model.PostRaw
+import com.example.untitled_capstone.domain.use_case.chat.ChatCreateRoom
 import com.example.untitled_capstone.domain.use_case.post.PostUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,7 +27,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PostViewModel @Inject constructor(
-    private val postUseCases: PostUseCases
+    private val postUseCases: PostUseCases,
+    private val createRoom: ChatCreateRoom
 ): ViewModel() {
 
     private val _state = MutableStateFlow(PostState())
@@ -46,7 +48,7 @@ class PostViewModel @Inject constructor(
     fun onEvent(action: PostEvent){
         when(action){
             is PostEvent.LoadItems -> loadItems()
-            is PostEvent.AddNewPost -> addNewPost(action.post)
+            is PostEvent.AddNewPost -> addNewPost(action.post, action.images)
             is PostEvent.ToggleLike -> toggleLike(action.id)
             is PostEvent.DeletePost -> deletePost(action.id)
             is PostEvent.GetLikedPosts -> getLikedPosts()
@@ -56,6 +58,7 @@ class PostViewModel @Inject constructor(
             is PostEvent.SearchPost -> searchPost(action.keyword)
             is PostEvent.InitState -> initState()
             is PostEvent.UploadPostImages -> uploadPostImages(action.id, action.images)
+            is PostEvent.DeletePostImage -> deletePostImage(action.id, action.imageId)
         }
     }
 
@@ -137,15 +140,15 @@ class PostViewModel @Inject constructor(
                     }
                     _uploadState.update {
                         it.copy(
-                            id = id,
+                            id = id
                         )
                     }
                 }
                 is Resource.Error -> {
-                    _state.update { it.copy(isLoading = false, error = result.message ?: "An unexpected error occurred") }
+                    _uploadState.update { it.copy(isLoading = false, error = result.message ?: "An unexpected error occurred") }
                 }
                 is Resource.Loading -> {
-                    _state.update { it.copy(isLoading = true) }
+                    _uploadState.update { it.copy(isLoading = true) }
                 }
             }
         }
@@ -215,23 +218,26 @@ class PostViewModel @Inject constructor(
         }
     }
 
-    private fun addNewPost(post: NewPost){
+    private fun addNewPost(post: NewPost, images: List<File>? = null){
         viewModelScope.launch {
-            val result = postUseCases.addPost(post)
+            val result = postUseCases.addPost(post, images)
             when(result){
                 is Resource.Success -> {
                     loadItems()
                     _uploadState.update {
                         it.copy(
-                            id = result.data,
+                            isSuccess = true,
+                            isLoading = false,
+                            error = null
                         )
                     }
+                    createChattingRoom(post.title, post.memberCount)
                 }
                 is Resource.Error -> {
-                    _state.update { it.copy(isLoading = false, error = result.message ?: "An unexpected error occurred") }
+                    _uploadState.update { it.copy(isLoading = false, error = result.message ?: "An unexpected error occurred") }
                 }
                 is Resource.Loading -> {
-                    _state.update { it.copy(isLoading = true) }
+                    _uploadState.update { it.copy(isLoading = true) }
                 }
             }
         }
@@ -282,6 +288,14 @@ class PostViewModel @Inject constructor(
                 error = null
             )
         }
+        _uploadState.update {
+            it.copy(
+                id = null,
+                isSuccess = false,
+                isLoading = false,
+                error = null
+            )
+        }
     }
 
     private fun uploadPostImages(id: Long, images: List<File>){
@@ -304,6 +318,57 @@ class PostViewModel @Inject constructor(
                 }
                 is Resource.Loading -> {
                     _uploadState.update { it.copy(isLoading = true) }
+                }
+            }
+        }
+    }
+
+    private fun deletePostImage(id: Long, imageId: Long) {
+        viewModelScope.launch {
+            val result = postUseCases.deletePostImage(id, imageId)
+            when(result){
+                is Resource.Success -> {
+                    result.data?.let{
+                        _state.update {
+                            it.copy(
+                                isSuccess = true,
+                                isLoading = false,
+                                error = null
+                            )
+                        }
+                    }
+                }
+                is Resource.Error -> {
+                    _state.update { it.copy(isLoading = false, error = result.message ?: "An unexpected error occurred") }
+                }
+                is Resource.Loading -> {
+                    _state.update { it.copy(isLoading = true) }
+                }
+            }
+        }
+    }
+
+    private fun createChattingRoom(title: String, memberCount: Int){
+        viewModelScope.launch {
+            val result = createRoom(title, memberCount)
+            when(result){
+                is Resource.Success -> {
+                    result.data?.let{
+                        _state.update {
+                            it.copy(
+                                isSuccess = true,
+                                isLoading = false,
+                                error = null
+                            )
+                        }
+                    }
+                }
+                is Resource.Error -> {
+                    _state.update { it.copy(isLoading = false, error = result.message ?: "An unexpected error occurred") }
+                    //createChattingRoom(title, memberCount)
+                }
+                is Resource.Loading -> {
+                    _state.update { it.copy(isLoading = true) }
                 }
             }
         }

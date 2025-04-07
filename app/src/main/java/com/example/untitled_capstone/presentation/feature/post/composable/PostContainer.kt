@@ -36,15 +36,15 @@ import androidx.core.net.toUri
 fun PostContainer(post: Post){
     val category = Category.entries.find { it.eng == post.category }?.kor ?: Category.VEGETABLE.kor
     val pagerState = rememberPagerState(pageCount = {
-        post.imageUrls.size
+        post.image?.size ?: 1
     })
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding)
     ){
-        if (post.imageUrls.isNotEmpty()) {
+        if (post.image?.isNotEmpty() == true) {
             HorizontalPager(state = pagerState){ page ->
-                val image = post.imageUrls[page]
+                val image = post.image[page].imageUrl
                 AsyncImage(
                     model = image,
                     contentDescription = post.title,

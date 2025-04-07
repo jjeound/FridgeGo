@@ -15,7 +15,8 @@ data class PostDto(
     val price: Int,
     val timeAgo: String,
     val title: String,
-    val imageUrls: List<String>,
+    val image: List<ImageDto>? = null,
+    val profileImageUrl: String? = null,
     val liked: Boolean
 ){
     fun toPost(): Post{
@@ -32,7 +33,8 @@ data class PostDto(
             price = price,
             timeAgo = timeAgo,
             title = title,
-            imageUrls = imageUrls,
+            image = image?.map { it.toPostImage() },
+            profileImageUrl = profileImageUrl,
             liked = liked
         )
     }

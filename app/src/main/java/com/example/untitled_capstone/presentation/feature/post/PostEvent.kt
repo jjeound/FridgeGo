@@ -5,7 +5,7 @@ import java.io.File
 
 sealed interface PostEvent{
     data object LoadItems: PostEvent
-    data class AddNewPost(val post: NewPost): PostEvent
+    data class AddNewPost(val post: NewPost, val images: List<File>? = null): PostEvent
     data class ToggleLike(val id: Long): PostEvent
     data class DeletePost(val id: Long): PostEvent
     data class ModifyPost(val id: Long, val newPost: NewPost): PostEvent
@@ -15,4 +15,5 @@ sealed interface PostEvent{
     data object GetLikedPosts: PostEvent
     data object InitState: PostEvent
     data class UploadPostImages(val id: Long, val images: List<File>): PostEvent
+    data class DeletePostImage(val id: Long, val imageId: Long): PostEvent
 }

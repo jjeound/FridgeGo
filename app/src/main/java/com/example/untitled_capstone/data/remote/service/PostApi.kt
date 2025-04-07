@@ -7,6 +7,7 @@ import com.example.untitled_capstone.data.remote.dto.NewPostDto
 import com.example.untitled_capstone.data.remote.dto.PostLikedResponse
 import com.example.untitled_capstone.data.remote.dto.PostResponse
 import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
@@ -19,9 +20,11 @@ import retrofit2.http.Query
 
 interface PostApi {
 
+    @Multipart
     @POST("/api/post")
     suspend fun post(
-        @Body newPostDto: NewPostDto
+        @Part("post") post: RequestBody,
+        @Part postImages: List<MultipartBody.Part>? = null
     ): AddPostResponse
 
     @GET("/api/post")
@@ -69,5 +72,11 @@ interface PostApi {
     suspend fun uploadPostImages(
         @Path("postId") postId: Long,
         @Part postImage: List<MultipartBody.Part>
+    ): ApiResponse
+
+    @DELETE("/api/s3/delete-post-image/{postId}/{imageId}")
+    suspend fun deletePostImage(
+        @Path("postId") postId: Long,
+        @Path("imageId") imageId: Long
     ): ApiResponse
 }

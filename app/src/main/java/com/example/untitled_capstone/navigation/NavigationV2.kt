@@ -17,7 +17,7 @@ import androidx.navigation.toRoute
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.example.untitled_capstone.presentation.feature.notification.NotificationViewModel
 import com.example.untitled_capstone.presentation.feature.chat.ChatViewModel
-import com.example.untitled_capstone.presentation.feature.chat.screen.ChattingRoomScreen
+import com.example.untitled_capstone.presentation.feature.chat.screen.ChattingDetailScreen
 import com.example.untitled_capstone.presentation.feature.chat.screen.ChattingScreen
 import com.example.untitled_capstone.presentation.feature.home.screen.HomeScreen
 import com.example.untitled_capstone.presentation.feature.home.HomeViewModel
@@ -181,7 +181,7 @@ fun NavigationV2(navController: NavHostController, mainViewModel: MainViewModel)
                 val viewModel: ChatViewModel = hiltViewModel(parentEntry)
                 val state by viewModel.state
                 val args = it.toRoute<Screen.ChattingRoomNav>()
-                ChattingRoomScreen(
+                ChattingDetailScreen(
                     snackbarHostState = remember { SnackbarHostState() },
                     viewModel = viewModel,
                     state = state,

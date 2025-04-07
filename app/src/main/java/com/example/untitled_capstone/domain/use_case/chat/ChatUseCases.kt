@@ -9,5 +9,10 @@ data class ChatUseCases(
     val checkWhoIsIn: ChatCheckWhoIsIn,
     val getMessages: ChatGetMessages,
     val getMyRooms: ChatGetMyRooms,
-    val exitChatRoom: ChatRoomExit
+    val exitChatRoom: ChatRoomExit,
+    val subscribeRoom: SubscribeRoom,
+    val disconnect: Disconnect,
+    val sendReadEvent: SendReadEvent,
+    val sendMessage: SendMessage,
+    val connectChatSocket: ConnectChatSocket
 )

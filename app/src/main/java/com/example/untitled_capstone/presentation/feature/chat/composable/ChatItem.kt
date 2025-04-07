@@ -1,6 +1,7 @@
 package com.example.untitled_capstone.presentation.feature.chat.composable
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -33,18 +34,17 @@ import java.util.Locale
 @Composable
 fun ChatItem(chattingRoomRaw: ChattingRoomRaw){
     Row (
-        modifier = Modifier.fillMaxWidth().padding(vertical = Dimens.mediumPadding),
+        modifier = Modifier.fillMaxWidth().padding(Dimens.mediumPadding).background(
+            if(chattingRoomRaw.active) CustomTheme.colors.onSurface else CustomTheme.colors.surface
+        ),
         horizontalArrangement = Arrangement.SpaceBetween,
     ){
         Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Image(
-                imageVector = ImageVector.vectorResource(R.drawable.profile),
+                imageVector = ImageVector.vectorResource(R.drawable.chattingroom_image),
                 contentDescription = "profile",
-                modifier = Modifier.size(48.dp).clip(
-                    shape = RoundedCornerShape(24.dp)
-                )
             )
             Spacer(
                 modifier = Modifier.width(Dimens.mediumPadding)
@@ -76,7 +76,8 @@ fun ChatItem(chattingRoomRaw: ChattingRoomRaw){
         }
         Column(
             modifier = Modifier.padding(vertical = Dimens.smallPadding),
-            horizontalAlignment = Alignment.End
+            horizontalAlignment = Alignment.End,
+            verticalArrangement = Arrangement.Top
         ) {
             if(chattingRoomRaw.lastMessageTime != null){
                 Text(
@@ -88,7 +89,7 @@ fun ChatItem(chattingRoomRaw: ChattingRoomRaw){
             Spacer(
                 modifier = Modifier.height(6.dp)
             )
-            if(chattingRoomRaw.unreadCount > 0){
+            if(chattingRoomRaw.unreadCount > 0 && chattingRoomRaw.active){
                 Badge(
                     content = {
                         Text(

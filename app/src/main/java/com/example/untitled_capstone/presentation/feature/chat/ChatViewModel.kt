@@ -1,5 +1,6 @@
 package com.example.untitled_capstone.presentation.feature.chat
 
+import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -361,5 +362,36 @@ class ChatViewModel @Inject constructor(
         viewModelScope.launch {
             _event.emit(UiEvent.Navigate(route))
         }
+    }
+
+    fun connectSocket(token: String, roomId: Long) {
+        chatUseCases.connectChatSocket(token, roomId, onConnected = {
+            // 연결 성공 시 처리
+        }, onError = {
+            // 에러 처리
+        })
+    }
+
+    fun subscribe(roomId: Long) {
+        chatUseCases.subscribeRoom(roomId,
+            onMessage = { message ->
+                _message.value = _message.value + message
+            },
+            onUnreadUpdate = { unread ->
+                print(unread.toString())
+            }//푸시 알람
+        )
+    }
+
+    fun sendMessage(roomId: Long, content: String) {
+        chatUseCases.sendMessage(roomId, content)
+    }
+
+    fun sendRead(roomId: Long) {
+        chatUseCases.sendReadEvent(roomId)
+    }
+
+    fun disconnect() {
+        chatUseCases.disconnect()
     }
 }

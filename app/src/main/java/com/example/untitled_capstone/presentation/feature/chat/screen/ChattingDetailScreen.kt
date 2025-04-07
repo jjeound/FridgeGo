@@ -41,7 +41,7 @@ import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ChattingRoomScreen(
+fun ChattingDetailScreen(
     snackbarHostState: SnackbarHostState,
     viewModel: ChatViewModel,
     state: ChatApiState,

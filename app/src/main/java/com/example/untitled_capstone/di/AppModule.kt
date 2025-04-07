@@ -19,6 +19,7 @@ import com.example.untitled_capstone.data.local.remote.RecipeItemDao
 import com.example.untitled_capstone.data.pagination.FridgePagingSource
 import com.example.untitled_capstone.data.pagination.PostPagingSource
 import com.example.untitled_capstone.data.pagination.RecipePagingSource
+import com.example.untitled_capstone.data.remote.manager.WebSocketManager
 import com.example.untitled_capstone.data.remote.service.ChatApi
 import com.example.untitled_capstone.data.remote.service.FridgeApi
 import com.example.untitled_capstone.data.remote.service.HomeApi
@@ -28,7 +29,6 @@ import com.example.untitled_capstone.data.remote.service.MyApi
 import com.example.untitled_capstone.data.remote.service.PostApi
 import com.example.untitled_capstone.data.remote.service.TokenApi
 import com.example.untitled_capstone.data.util.ApiResponseAdapterFactory
-import com.example.untitled_capstone.data.util.Converters
 import com.example.untitled_capstone.data.util.FridgeFetchType
 import com.example.untitled_capstone.data.util.PostFetchType
 import com.example.untitled_capstone.domain.repository.TokenRepository
@@ -237,4 +237,8 @@ object AppModule {
             }
         )
     }
+
+    @Provides
+    @Singleton
+    fun provideWebSocketManager(): WebSocketManager = WebSocketManager()
 }

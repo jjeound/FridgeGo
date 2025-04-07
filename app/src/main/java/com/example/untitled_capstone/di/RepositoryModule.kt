@@ -5,6 +5,7 @@ import android.content.Context
 import com.example.untitled_capstone.data.local.db.FridgeItemDatabase
 import com.example.untitled_capstone.data.local.db.PostItemDatabase
 import com.example.untitled_capstone.data.local.db.RecipeItemDatabase
+import com.example.untitled_capstone.data.remote.manager.WebSocketManager
 import com.example.untitled_capstone.data.remote.service.ChatApi
 import com.example.untitled_capstone.data.remote.service.FridgeApi
 import com.example.untitled_capstone.data.remote.service.HomeApi
@@ -19,6 +20,7 @@ import com.example.untitled_capstone.data.repository.LocalUserMangerImpl
 import com.example.untitled_capstone.data.repository.LoginRepositoryImpl
 import com.example.untitled_capstone.data.repository.MyRepositoryImpl
 import com.example.untitled_capstone.data.repository.PostRepositoryImpl
+import com.example.untitled_capstone.data.repository.WebSocketRepositoryImpl
 import com.example.untitled_capstone.domain.repository.ChatRepository
 import com.example.untitled_capstone.domain.repository.FridgeRepository
 import com.example.untitled_capstone.domain.repository.HomeRepository
@@ -27,6 +29,7 @@ import com.example.untitled_capstone.domain.repository.LoginRepository
 import com.example.untitled_capstone.domain.repository.MyRepository
 import com.example.untitled_capstone.domain.repository.PostRepository
 import com.example.untitled_capstone.domain.repository.TokenRepository
+import com.example.untitled_capstone.domain.repository.WebSocketRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -80,4 +83,10 @@ object RepositoryModule {
     fun provideChatRepository(api: ChatApi, @ApplicationContext context: Context): ChatRepository{
         return ChatRepositoryImpl(api, context)
     }
+
+    @Provides
+    @Singleton
+    fun provideWebSocketRepository(
+        webSocketManager: WebSocketManager
+    ): WebSocketRepository = WebSocketRepositoryImpl(webSocketManager)
 }

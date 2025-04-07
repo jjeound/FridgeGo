@@ -8,6 +8,7 @@ import com.example.untitled_capstone.domain.repository.LoginRepository
 import com.example.untitled_capstone.domain.repository.MyRepository
 import com.example.untitled_capstone.domain.repository.PostRepository
 import com.example.untitled_capstone.domain.repository.TokenRepository
+import com.example.untitled_capstone.domain.repository.WebSocketRepository
 import com.example.untitled_capstone.domain.use_case.app_entry.ReadAppEntry
 import com.example.untitled_capstone.domain.use_case.app_entry.SaveAppEntry
 import com.example.untitled_capstone.domain.use_case.chat.ChatCheckWhoIsIn
@@ -20,6 +21,11 @@ import com.example.untitled_capstone.domain.use_case.chat.ChatRoomEnter
 import com.example.untitled_capstone.domain.use_case.chat.ChatRoomExit
 import com.example.untitled_capstone.domain.use_case.chat.ChatRoomJoin
 import com.example.untitled_capstone.domain.use_case.chat.ChatUseCases
+import com.example.untitled_capstone.domain.use_case.chat.ConnectChatSocket
+import com.example.untitled_capstone.domain.use_case.chat.Disconnect
+import com.example.untitled_capstone.domain.use_case.chat.SendMessage
+import com.example.untitled_capstone.domain.use_case.chat.SendReadEvent
+import com.example.untitled_capstone.domain.use_case.chat.SubscribeRoom
 import com.example.untitled_capstone.domain.use_case.fridge.AddFridgeItem
 import com.example.untitled_capstone.domain.use_case.fridge.DeleteFridgeItem
 import com.example.untitled_capstone.domain.use_case.fridge.FridgeUseCases
@@ -56,6 +62,7 @@ import com.example.untitled_capstone.domain.use_case.my.MyUseCases
 import com.example.untitled_capstone.domain.use_case.my.UploadProfileImage
 import com.example.untitled_capstone.domain.use_case.post.AddPost
 import com.example.untitled_capstone.domain.use_case.post.DeletePost
+import com.example.untitled_capstone.domain.use_case.post.DeletePostImage
 import com.example.untitled_capstone.domain.use_case.post.GetLikedPosts
 import com.example.untitled_capstone.domain.use_case.post.GetMyPosts
 import com.example.untitled_capstone.domain.use_case.post.GetNickname
@@ -151,12 +158,13 @@ object UseCaseModule {
             modifyPost = ModifyPost(repository),
             searchPosts = SearchPosts(repository),
             getNickname = GetNickname(repository),
-            uploadPostImages = UploadPostImages(repository)
+            uploadPostImages = UploadPostImages(repository),
+            deletePostImage = DeletePostImage(repository)
         )
     }
 
     @Provides
-    fun provideChatUseCases(repository: ChatRepository): ChatUseCases{
+    fun provideChatUseCases(repository: ChatRepository, socketRepository: WebSocketRepository): ChatUseCases{
         return ChatUseCases(
             createRoom = ChatCreateRoom(repository),
             readChats = ChatRead(repository),
@@ -166,7 +174,12 @@ object UseCaseModule {
             checkWhoIsIn = ChatCheckWhoIsIn(repository),
             getMessages = ChatGetMessages(repository),
             getMyRooms = ChatGetMyRooms(repository),
-            exitChatRoom = ChatRoomExit(repository)
+            exitChatRoom = ChatRoomExit(repository),
+            sendMessage = SendMessage(socketRepository),
+            subscribeRoom = SubscribeRoom(socketRepository),
+            disconnect = Disconnect(socketRepository),
+            sendReadEvent = SendReadEvent(socketRepository),
+            connectChatSocket = ConnectChatSocket(socketRepository)
         )
     }
 

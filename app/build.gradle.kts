@@ -109,6 +109,11 @@ dependencies {
     // ML Kit - 텍스트 인식
     implementation (libs.text.recognition)
 
+    //Websocket
+    implementation (libs.stompprotocolandroid)
+    implementation(libs.rxjava)
+    implementation(libs.rxandroid)
+
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.coil.compose)
 

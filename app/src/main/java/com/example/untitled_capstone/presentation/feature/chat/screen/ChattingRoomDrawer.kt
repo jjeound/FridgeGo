@@ -59,29 +59,29 @@ fun ChattingRoomDrawer(
             color = CustomTheme.colors.primary
         )
     }
-    Scaffold(
-        containerColor = CustomTheme.colors.onSurface,
-        topBar = {
-            CenterAlignedTopAppBar(
-                modifier = Modifier.padding(horizontal = Dimens.topBarPadding),
-                title = {},
-                navigationIcon = {
-                    IconButton(
-                        onClick = { navController.popBackStack()}
-                    ) {
-                        Icon(
-                            imageVector = ImageVector.vectorResource(R.drawable.chevron_left),
-                            tint = CustomTheme.colors.iconDefault,
-                            contentDescription = "back",
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = CustomTheme.colors.onSurface
-                )
-            )
-        },
-    ){
-
-    }
+//    Scaffold(
+//        containerColor = CustomTheme.colors.onSurface,
+//        topBar = {
+//            CenterAlignedTopAppBar(
+//                modifier = Modifier.padding(horizontal = Dimens.topBarPadding),
+//                title = {},
+//                navigationIcon = {
+//                    IconButton(
+//                        onClick = { navController.popBackStack()}
+//                    ) {
+//                        Icon(
+//                            imageVector = ImageVector.vectorResource(R.drawable.chevron_left),
+//                            tint = CustomTheme.colors.iconDefault,
+//                            contentDescription = "back",
+//                        )
+//                    }
+//                },
+//                colors = TopAppBarDefaults.topAppBarColors(
+//                    containerColor = CustomTheme.colors.onSurface
+//                )
+//            )
+//        },
+//    ){
+//
+//    }
 }

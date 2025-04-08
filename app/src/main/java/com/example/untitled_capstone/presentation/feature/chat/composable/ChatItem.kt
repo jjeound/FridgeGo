@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -13,6 +14,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Badge
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -33,74 +36,80 @@ import java.util.Locale
 
 @Composable
 fun ChatItem(chattingRoomRaw: ChattingRoomRaw){
-    Row (
-        modifier = Modifier.fillMaxWidth().padding(Dimens.mediumPadding).background(
-            if(chattingRoomRaw.active) CustomTheme.colors.onSurface else CustomTheme.colors.surface
+    Card(
+        colors = CardDefaults.cardColors(
+            containerColor = if(chattingRoomRaw.active) CustomTheme.colors.onSurface else CustomTheme.colors.surface,
         ),
-        horizontalArrangement = Arrangement.SpaceBetween,
+        shape = RoundedCornerShape(Dimens.cornerRadius),
+        modifier = Modifier.fillMaxWidth()
     ){
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Image(
-                imageVector = ImageVector.vectorResource(R.drawable.chattingroom_image),
-                contentDescription = "profile",
-            )
-            Spacer(
-                modifier = Modifier.width(Dimens.mediumPadding)
-            )
+        Row (
+            modifier = Modifier.fillMaxSize().padding(Dimens.mediumPadding),
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ){
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Image(
+                    imageVector = ImageVector.vectorResource(R.drawable.chattingroom_image),
+                    contentDescription = "profile",
+                )
+                Spacer(
+                    modifier = Modifier.width(Dimens.mediumPadding)
+                )
+                Column(
+                    modifier = Modifier.padding(vertical = Dimens.smallPadding),
+                ) {
+                    Row{
+                        Text(
+                            text = chattingRoomRaw.name,
+                            style = CustomTheme.typography.title1,
+                            color = CustomTheme.colors.textPrimary,
+                        )
+                        Spacer(
+                            modifier = Modifier.width(6.dp)
+                        )
+                        Text(
+                            text = chattingRoomRaw.currentParticipants.toString(),
+                            style = CustomTheme.typography.caption1,
+                            color = CustomTheme.colors.textSecondary,
+                        )
+                    }
+                    Text(
+                        text = chattingRoomRaw.lastMessage ?: "",
+                        style = CustomTheme.typography.body2,
+                        color = CustomTheme.colors.textSecondary,
+                    )
+                }
+            }
             Column(
                 modifier = Modifier.padding(vertical = Dimens.smallPadding),
+                horizontalAlignment = Alignment.End,
+                verticalArrangement = Arrangement.Top
             ) {
-                Row{
+                if(chattingRoomRaw.lastMessageTime != null){
                     Text(
-                        text = chattingRoomRaw.name,
-                        style = CustomTheme.typography.title1,
-                        color = CustomTheme.colors.textPrimary,
-                    )
-                    Spacer(
-                        modifier = Modifier.width(6.dp)
-                    )
-                    Text(
-                        text = chattingRoomRaw.currentParticipants.toString(),
+                        text = formatUtcToKoreanDateTime(chattingRoomRaw.lastMessageTime),
                         style = CustomTheme.typography.caption1,
                         color = CustomTheme.colors.textSecondary,
                     )
                 }
-                Text(
-                    text = chattingRoomRaw.lastMessage ?: "",
-                    style = CustomTheme.typography.body2,
-                    color = CustomTheme.colors.textSecondary,
+                Spacer(
+                    modifier = Modifier.height(6.dp)
                 )
-            }
-        }
-        Column(
-            modifier = Modifier.padding(vertical = Dimens.smallPadding),
-            horizontalAlignment = Alignment.End,
-            verticalArrangement = Arrangement.Top
-        ) {
-            if(chattingRoomRaw.lastMessageTime != null){
-                Text(
-                    text = formatUtcToKoreanDateTime(chattingRoomRaw.lastMessageTime),
-                    style = CustomTheme.typography.caption1,
-                    color = CustomTheme.colors.textSecondary,
-                )
-            }
-            Spacer(
-                modifier = Modifier.height(6.dp)
-            )
-            if(chattingRoomRaw.unreadCount > 0 && chattingRoomRaw.active){
-                Badge(
-                    content = {
-                        Text(
-                            text = chattingRoomRaw.unreadCount.toString(),
-                            style = CustomTheme.typography.caption2,
-                            color = Color.White
-                        )
-                    },
-                    containerColor = CustomTheme.colors.iconRed,
-                    modifier = Modifier.size(20.dp)
-                )
+                if(chattingRoomRaw.unreadCount > 0 && chattingRoomRaw.active){
+                    Badge(
+                        content = {
+                            Text(
+                                text = chattingRoomRaw.unreadCount.toString(),
+                                style = CustomTheme.typography.caption2,
+                                color = Color.White
+                            )
+                        },
+                        containerColor = CustomTheme.colors.iconRed,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
             }
         }
     }

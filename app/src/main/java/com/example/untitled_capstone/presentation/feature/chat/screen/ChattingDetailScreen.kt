@@ -29,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
@@ -48,9 +49,10 @@ fun ChattingDetailScreen(
     roomId: Long,
     navController: NavHostController
 ) {
-    val messages by remember {viewModel.message}
-    val chattingRoom by remember { viewModel.chattingRoom }
+    val messages by viewModel.message.collectAsStateWithLifecycle()
+    val chattingRoom by viewModel.chattingRoom.collectAsStateWithLifecycle()
     LaunchedEffect(Unit) {
+        viewModel.enterChatRoom(roomId)
         viewModel.getMessages(roomId)
         viewModel.readChats(roomId)
     }
@@ -72,7 +74,7 @@ fun ChattingDetailScreen(
             color = CustomTheme.colors.primary
         )
     }
-    chattingRoom?.let {
+    if(chattingRoom.response.isNotEmpty()) {
         Scaffold(
             containerColor = CustomTheme.colors.onSurface,
             topBar = {
@@ -81,7 +83,7 @@ fun ChattingDetailScreen(
                     title = {
                         Row{
                             Text(
-                                text = chattingRoom!!.name,
+                                text = chattingRoom.res,
                                 style = CustomTheme.typography.title1,
                                 color = CustomTheme.colors.textPrimary,
                             )

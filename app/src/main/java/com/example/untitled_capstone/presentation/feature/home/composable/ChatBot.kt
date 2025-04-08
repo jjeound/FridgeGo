@@ -157,6 +157,14 @@ fun ChatBot(aiState: AiState, onEvent: (HomeEvent) -> Unit) {
                                 modifier = Modifier.padding(Dimens.mediumPadding)
                             )
                         }
+                        if(aiState.error.value.isNotBlank()){
+                            Text(
+                                text = "에러가 발생하였습니다. 다시 시도해주세요.",
+                                style = CustomTheme.typography.body1,
+                                color = CustomTheme.colors.iconRed,
+                                modifier = Modifier.padding(Dimens.mediumPadding)
+                            )
+                        }
                     }
                 }
             }

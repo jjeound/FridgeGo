@@ -79,7 +79,7 @@ fun NavigationV2(navController: NavHostController, mainViewModel: MainViewModel)
                 val parentEntry = navController.getBackStackEntry(Graph.HomeGraph)
                 val viewModel: HomeViewModel = hiltViewModel(parentEntry)
                 val recipeState by viewModel.recipeState.collectAsStateWithLifecycle()
-                val modifyState by remember { viewModel.modifyState }
+                val modifyState by viewModel.modifyState.collectAsStateWithLifecycle()
                 RecipeModifyScreen(
                     recipe = recipeState.recipe!!,
                     state = modifyState,
@@ -168,7 +168,7 @@ fun NavigationV2(navController: NavHostController, mainViewModel: MainViewModel)
             composable<Screen.Chat>{
                 val parentEntry = navController.getBackStackEntry(Graph.ChatGraph)
                 val viewModel: ChatViewModel = hiltViewModel(parentEntry)
-                val state by viewModel.state
+                val state = viewModel.state
                 ChattingScreen(
                     snackbarHostState = remember { SnackbarHostState() },
                     viewModel = viewModel,
@@ -179,7 +179,7 @@ fun NavigationV2(navController: NavHostController, mainViewModel: MainViewModel)
             composable<Screen.ChattingRoomNav>{
                 val parentEntry = navController.getBackStackEntry(Graph.ChatGraph)
                 val viewModel: ChatViewModel = hiltViewModel(parentEntry)
-                val state by viewModel.state
+                val state = viewModel.state
                 val args = it.toRoute<Screen.ChattingRoomNav>()
                 ChattingDetailScreen(
                     snackbarHostState = remember { SnackbarHostState() },

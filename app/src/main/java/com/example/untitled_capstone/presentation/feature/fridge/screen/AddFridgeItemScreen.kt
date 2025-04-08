@@ -1,7 +1,11 @@
 package com.example.untitled_capstone.presentation.feature.fridge.screen
 
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -24,6 +28,7 @@ import com.example.untitled_capstone.ui.theme.CustomTheme
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddFridgeItemScreen(id: Long?, state: FridgeState, navController: NavHostController, onAction: (FridgeAction) -> Unit ){
+    val scrollState = rememberScrollState()
     Scaffold(
         containerColor = CustomTheme.colors.onSurface,
         topBar = {
@@ -60,7 +65,10 @@ fun AddFridgeItemScreen(id: Long?, state: FridgeState, navController: NavHostCon
         Box(
             modifier = Modifier.padding(innerPadding)
                 .padding(horizontal = Dimens.surfaceHorizontalPadding,
-                vertical = Dimens.surfaceVerticalPadding),
+                vertical = Dimens.surfaceVerticalPadding).scrollable(
+                    state = scrollState,
+                    orientation = Orientation.Vertical
+                )
         ){
            NewFridgeItemForm(id, state, navController, onAction)
         }

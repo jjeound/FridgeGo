@@ -47,6 +47,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -84,8 +85,8 @@ fun NewFridgeItemForm(id: Long?, state: FridgeState, navController: NavHostContr
     val showDialog = remember { mutableStateOf(false) }
 
     var image by remember { mutableStateOf(state.item?.image) }
-    var name by remember { mutableStateOf("") }
-    var quantity by remember { mutableStateOf("") }
+    var name by rememberSaveable { mutableStateOf("") }
+    var quantity by rememberSaveable { mutableStateOf("") }
 
     var showDatePicker by remember { mutableStateOf(false) }
     val datePickerState = rememberDatePickerState()
@@ -176,7 +177,7 @@ fun NewFridgeItemForm(id: Long?, state: FridgeState, navController: NavHostContr
     }
     Column(
         modifier = Modifier
-            .fillMaxSize().imePadding(),
+            .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         if(state.loading){

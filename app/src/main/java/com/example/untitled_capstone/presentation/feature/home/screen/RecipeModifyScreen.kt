@@ -145,8 +145,8 @@ fun RecipeModifyScreen(recipe: Recipe, state: ModifyState, onEvent: (HomeEvent) 
             listState.animateScrollToItem(ingredients.size + 3)
         }
     }
-    LaunchedEffect(state.isSuccess.value) {
-        if(state.isSuccess.value){
+    LaunchedEffect(state.isSuccess) {
+        if(state.isSuccess){
             navigateToBack()
         }
     }
@@ -202,7 +202,7 @@ fun RecipeModifyScreen(recipe: Recipe, state: ModifyState, onEvent: (HomeEvent) 
                 )
             }
         )
-        if(state.isLoading.value){
+        if(state.loading){
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center

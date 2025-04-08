@@ -40,8 +40,8 @@ class HomeViewModel @Inject constructor(
     private val _aiState = mutableStateOf(AiState())
     val aiState: State<AiState> = _aiState
 
-    private val _modifyState = mutableStateOf(ModifyState())
-    val modifyState: State<ModifyState> = _modifyState
+    private val _modifyState = MutableStateFlow(ModifyState())
+    val modifyState: StateFlow<ModifyState> = _modifyState
 
     private val _recipeItemsState: MutableStateFlow<PagingData<RecipeRaw>> = MutableStateFlow(PagingData.empty())
     val recipeItemsState = _recipeItemsState.asStateFlow()
@@ -75,6 +75,20 @@ class HomeViewModel @Inject constructor(
                 error = null
             )
         }
+        _modifyState.update {
+            it.copy(
+                isSuccess = false,
+                loading = false,
+                error = null
+            )
+        }
+        _tastePrefState.update {
+            it.copy(
+                isSuccess = false,
+                loading = false,
+                error = null
+            )
+        }
     }
 
     private fun getTastePreference() {
@@ -86,6 +100,7 @@ class HomeViewModel @Inject constructor(
                         _tastePrefState.update {
                             it.copy(
                                 tastePref = result.data.tastePreference,
+                                isSuccess = false,
                                 loading = false,
                                 error = null
                             )
@@ -93,10 +108,10 @@ class HomeViewModel @Inject constructor(
                     }
                 }
                 is Resource.Error -> {
-                    _tastePrefState.update { it.copy(loading = false, error = result.message ?: "An unexpected error occurred") }
+                    _tastePrefState.update { it.copy(isSuccess = false, loading = false, error = result.message ?: "An unexpected error occurred") }
                 }
                 is Resource.Loading -> {
-                    _tastePrefState.update { it.copy(loading = true) }
+                    _tastePrefState.update { it.copy(isSuccess = false, loading = true) }
                 }
             }
         }
@@ -105,12 +120,12 @@ class HomeViewModel @Inject constructor(
     private fun setTastePreference(tastePreference: String) {
         viewModelScope.launch {
             val result = homeUseCases.setTastePreference(TastePreference(tastePreference))
-            Log.d("set", result.data.toString())
             when(result){
                 is Resource.Success -> {
                     result.data?.let{
                         _tastePrefState.update {
                             it.copy(
+                                isSuccess = true,
                                 loading = false,
                                 error = null
                             )
@@ -118,10 +133,10 @@ class HomeViewModel @Inject constructor(
                     }
                 }
                 is Resource.Error -> {
-                    _tastePrefState.update { it.copy(loading = false, error = result.message ?: "An unexpected error occurred") }
+                    _tastePrefState.update { it.copy(isSuccess = false, loading = false, error = result.message ?: "An unexpected error occurred") }
                 }
                 is Resource.Loading -> {
-                    _tastePrefState.update { it.copy(loading = true) }
+                    _tastePrefState.update { it.copy(isSuccess = false, loading = true) }
                 }
             }
         }
@@ -276,23 +291,14 @@ class HomeViewModel @Inject constructor(
             when(result){
                 is Resource.Success -> {
                     result.data?.let {
-                        _recipeItemsState.update { pagingData->
-                            pagingData.map {
-                                if(it.id == recipe.id){
-                                    RecipeRaw(
-                                        id = recipe.id,
-                                        title = recipe.title,
-                                        imageUrl = it.imageUrl,
-                                        liked = it.liked
-                                    )
-                                }else{
-                                    it
-                                }
-                            }
+                        _modifyState.update {
+                            it.copy(
+                                isSuccess = true,
+                                loading = false,
+                                error = null
+                            )
                         }
-                        _modifyState.value.isSuccess.value = true
-                        _modifyState.value.error.value = ""
-                        _modifyState.value.isLoading.value = false
+                        getRecipes()
                     }
                 }
                 is Resource.Error -> {

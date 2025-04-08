@@ -53,7 +53,7 @@ fun KakaoLogin(state: LoginState, onAction: (LoginEvent) -> Unit, navController:
             if(state.response != null){
                 if (state.response.nickname != null){
                     navController.navigate(route = Graph.HomeGraph) {
-                        popUpTo(route = Graph.HomeGraph) { inclusive = true }
+                        popUpTo(0)
                     }
                 } else {
                     navController.navigate(Screen.NicknameNav)

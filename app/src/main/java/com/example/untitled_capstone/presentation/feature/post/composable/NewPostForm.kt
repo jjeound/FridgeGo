@@ -170,7 +170,7 @@ fun NewPostForm(state: PostState, uploadState: UploadState, navController: NavHo
     }
     validator = price.isNotBlank() && title.isNotBlank() && content.isNotBlank()
     Column(
-        modifier = Modifier.imePadding().pointerInput(Unit) {
+        modifier = Modifier.pointerInput(Unit) {
             detectTapGestures(onTap = {
                 focusManager.clearFocus()
             })

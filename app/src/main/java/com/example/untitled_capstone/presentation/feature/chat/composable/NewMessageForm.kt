@@ -27,10 +27,11 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
+import com.example.untitled_capstone.presentation.feature.chat.ChatViewModel
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @Composable
-fun NewMessageForm(){
+fun NewMessageForm(roomId: Long, viewModel: ChatViewModel){
     var text by remember { mutableStateOf("") }
     val focusManager = LocalFocusManager.current
 
@@ -87,7 +88,11 @@ fun NewMessageForm(){
         IconButton(
             modifier = Modifier.align(Alignment.Bottom)
                 .padding(bottom = 16.dp).then(Modifier.size(24.dp)),
-            onClick = { }
+            enabled = text.isNotEmpty(),
+            onClick = {
+                viewModel.sendMessage(roomId, text)
+                text = ""
+            }
         ) {
             Icon(
                 imageVector = ImageVector.vectorResource(R.drawable.send),

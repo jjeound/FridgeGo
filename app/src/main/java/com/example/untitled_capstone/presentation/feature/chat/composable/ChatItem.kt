@@ -29,6 +29,7 @@ import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.domain.model.ChattingRoomRaw
 import com.example.untitled_capstone.ui.theme.CustomTheme
+import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -116,7 +117,8 @@ fun ChatItem(chattingRoomRaw: ChattingRoomRaw){
 }
 
 fun formatUtcToKoreanDateTime(utcTime: String): String {
-    val utcZoned = ZonedDateTime.parse(utcTime)
+    val localDateTime = LocalDateTime.parse(utcTime)
+    val utcZoned = localDateTime.atZone(ZoneId.of("UTC")) // UTC 기준으로 변환
     val koreaTime = utcZoned.withZoneSameInstant(ZoneId.of("Asia/Seoul"))
 
     val now = ZonedDateTime.now(ZoneId.of("Asia/Seoul"))

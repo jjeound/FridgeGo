@@ -14,5 +14,5 @@ data class ChatUseCases(
     val disconnect: Disconnect,
     val sendReadEvent: SendReadEvent,
     val sendMessage: SendMessage,
-    val connectChatSocket: ConnectChatSocket
+    val connectChatSocket: ConnectChatSocket,
 )

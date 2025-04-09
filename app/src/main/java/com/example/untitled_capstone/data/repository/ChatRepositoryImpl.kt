@@ -1,6 +1,7 @@
 package com.example.untitled_capstone.data.repository
 
 import android.content.Context
+import com.example.untitled_capstone.core.util.PrefKeys.NICKNAME
 import com.example.untitled_capstone.core.util.Resource
 import com.example.untitled_capstone.data.remote.dto.NewChatRoomBody
 import com.example.untitled_capstone.data.remote.service.ChatApi
@@ -10,13 +11,14 @@ import com.example.untitled_capstone.domain.model.ChattingRoomRaw
 import com.example.untitled_capstone.domain.model.Message
 import com.example.untitled_capstone.domain.repository.ChatRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import okio.IOException
 import retrofit2.HttpException
 import javax.inject.Inject
 
 class ChatRepositoryImpl @Inject constructor(
     private val api: ChatApi,
-    @ApplicationContext context: Context
 ): ChatRepository {
     override suspend fun createChatRoom(newChatRoomBody: NewChatRoomBody): Resource<ChattingRoom> {
         return try {
@@ -161,5 +163,4 @@ class ChatRepositoryImpl @Inject constructor(
             Resource.Error(e.toString())
         }
     }
-
 }

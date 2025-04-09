@@ -26,11 +26,10 @@ playServicesLocation = "21.3.0"
 playServicesMaps = "19.1.0"
 retrofit = "2.11.0"
 roomKtx = "2.6.1"
+roomCompiler = "2.6.1"
 runtimeLivedata = "1.7.8"
 rxandroid = "2.1.1"
 rxjava = "2.2.21"
-sandwich = "2.1.0"
-sandwichRetrofit = "2.1.0"
 stompprotocolandroid = "1.6.6"
 textRecognition = "16.0.1"
 v2User = "2.21.1"
@@ -51,7 +50,7 @@ androidx-navigation-compose = { module = "androidx.navigation:navigation-compose
 androidx-paging-common = { module = "androidx.paging:paging-common", version.ref = "pagingCommon" }
 androidx-paging-compose = { module = "androidx.paging:paging-compose", version.ref = "pagingRuntimeKtx" }
 androidx-paging-runtime-ktx = { module = "androidx.paging:paging-runtime-ktx", version.ref = "pagingRuntimeKtx" }
-androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomKtx" }
+androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomCompiler" }
 androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomKtx" }
 androidx-room-paging = { module = "androidx.room:room-paging", version.ref = "roomKtx" }
 androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "workRuntimeKtx" }
@@ -81,8 +80,6 @@ play-services-maps = { module = "com.google.android.gms:play-services-maps", ver
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 rxandroid = { module = "io.reactivex.rxjava2:rxandroid", version.ref = "rxandroid" }
 rxjava = { module = "io.reactivex.rxjava2:rxjava", version.ref = "rxjava" }
-sandwich = { module = "com.github.skydoves:sandwich", version.ref = "sandwich" }
-sandwich-retrofit = { module = "com.github.skydoves:sandwich-retrofit", version.ref = "sandwichRetrofit" }
 stompprotocolandroid = { module = "com.github.NaikSoftware:StompProtocolAndroid", version.ref = "stompprotocolandroid" }
 text-recognition = { module = "com.google.mlkit:text-recognition", version.ref = "textRecognition" }
 v2-user = { module = "com.kakao.sdk:v2-user", version.ref = "v2User" }

@@ -80,8 +80,6 @@ dependencies {
     implementation (libs.converter.gson)
     implementation (libs.okhttp)
     implementation (libs.logging.interceptor)
-    implementation (libs.sandwich)
-    implementation(libs.sandwich.retrofit)
 
     // Paging
     implementation (libs.androidx.paging.runtime.ktx)

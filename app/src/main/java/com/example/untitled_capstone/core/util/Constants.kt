@@ -7,5 +7,5 @@ object Constants {
     const val APP_ENTRY = "app_entry"
     const val NETWORK_ERROR = 401
     const val TASTE_PREFERENCE = "tastePreference"
-    const val WS_URL = "ws://https://api.refrigerator.asia/ws/chat"
+    const val WS_URL = "wss://api.refrigerator.asia/ws/chat"
 }

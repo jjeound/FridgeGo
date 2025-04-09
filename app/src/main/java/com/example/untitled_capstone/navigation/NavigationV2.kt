@@ -18,6 +18,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import com.example.untitled_capstone.presentation.feature.notification.NotificationViewModel
 import com.example.untitled_capstone.presentation.feature.chat.ChatViewModel
 import com.example.untitled_capstone.presentation.feature.chat.screen.ChattingDetailScreen
+import com.example.untitled_capstone.presentation.feature.chat.screen.ChattingRoomDrawer
 import com.example.untitled_capstone.presentation.feature.chat.screen.ChattingScreen
 import com.example.untitled_capstone.presentation.feature.home.screen.HomeScreen
 import com.example.untitled_capstone.presentation.feature.home.HomeViewModel
@@ -168,7 +169,7 @@ fun NavigationV2(navController: NavHostController, mainViewModel: MainViewModel)
             composable<Screen.Chat>{
                 val parentEntry = navController.getBackStackEntry(Graph.ChatGraph)
                 val viewModel: ChatViewModel = hiltViewModel(parentEntry)
-                val state = viewModel.state
+                val state by viewModel.state.collectAsStateWithLifecycle()
                 ChattingScreen(
                     snackbarHostState = remember { SnackbarHostState() },
                     viewModel = viewModel,
@@ -179,13 +180,27 @@ fun NavigationV2(navController: NavHostController, mainViewModel: MainViewModel)
             composable<Screen.ChattingRoomNav>{
                 val parentEntry = navController.getBackStackEntry(Graph.ChatGraph)
                 val viewModel: ChatViewModel = hiltViewModel(parentEntry)
-                val state = viewModel.state
+                val state by viewModel.state.collectAsStateWithLifecycle()
                 val args = it.toRoute<Screen.ChattingRoomNav>()
                 ChattingDetailScreen(
                     snackbarHostState = remember { SnackbarHostState() },
                     viewModel = viewModel,
                     state = state,
                     roomId = args.id,
+                    navController = navController
+                )
+            }
+            composable<Screen.ChattingDrawerNav>{
+                val parentEntry = navController.getBackStackEntry(Graph.ChatGraph)
+                val viewModel: ChatViewModel = hiltViewModel(parentEntry)
+                val state by viewModel.state.collectAsStateWithLifecycle()
+                val args = it.toRoute<Screen.ChattingDrawerNav>()
+                ChattingRoomDrawer(
+                    snackbarHostState = remember { SnackbarHostState() },
+                    viewModel = viewModel,
+                    state = state,
+                    roomId = args.id,
+                    title = args.title,
                     navController = navController
                 )
             }

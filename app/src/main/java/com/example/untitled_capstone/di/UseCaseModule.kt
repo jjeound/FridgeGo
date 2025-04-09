@@ -179,7 +179,7 @@ object UseCaseModule {
             subscribeRoom = SubscribeRoom(socketRepository),
             disconnect = Disconnect(socketRepository),
             sendReadEvent = SendReadEvent(socketRepository),
-            connectChatSocket = ConnectChatSocket(socketRepository)
+            connectChatSocket = ConnectChatSocket(socketRepository),
         )
     }
 

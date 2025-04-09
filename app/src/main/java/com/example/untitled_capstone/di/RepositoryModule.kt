@@ -80,13 +80,13 @@ object RepositoryModule {
 
     @Provides
     @Singleton
-    fun provideChatRepository(api: ChatApi, @ApplicationContext context: Context): ChatRepository{
-        return ChatRepositoryImpl(api, context)
+    fun provideChatRepository(api: ChatApi): ChatRepository{
+        return ChatRepositoryImpl(api)
     }
 
     @Provides
     @Singleton
     fun provideWebSocketRepository(
-        webSocketManager: WebSocketManager
+        webSocketManager: WebSocketManager,
     ): WebSocketRepository = WebSocketRepositoryImpl(webSocketManager)
 }

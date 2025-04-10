@@ -13,7 +13,6 @@ import com.example.untitled_capstone.data.remote.dto.ApiResponse
 import com.example.untitled_capstone.data.remote.dto.PreferenceDto
 import com.example.untitled_capstone.data.remote.dto.RecipeReqDto
 import com.example.untitled_capstone.data.remote.service.HomeApi
-import com.example.untitled_capstone.data.repository.FridgeRepositoryImpl.Companion.NETWORK_PAGE_SIZE
 import com.example.untitled_capstone.domain.model.TastePreference
 import com.example.untitled_capstone.domain.repository.HomeRepository
 import kotlinx.coroutines.flow.Flow
@@ -21,12 +20,11 @@ import okio.IOException
 import retrofit2.HttpException
 import javax.inject.Inject
 import androidx.core.content.edit
+import com.example.untitled_capstone.core.util.Constants.NETWORK_PAGE_SIZE
 import com.example.untitled_capstone.core.util.Constants.TASTE_PREFERENCE
 import com.example.untitled_capstone.data.remote.dto.ModifyRecipeBody
 import com.example.untitled_capstone.data.remote.dto.RecipeLikedDto
-import com.example.untitled_capstone.data.remote.dto.RecipeLikedResponse
 import com.example.untitled_capstone.domain.model.Recipe
-import com.example.untitled_capstone.domain.model.RecipeRaw
 import dagger.hilt.android.qualifiers.ApplicationContext
 import okhttp3.MultipartBody
 

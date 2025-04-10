@@ -1,11 +1,13 @@
 package com.example.untitled_capstone.presentation.feature.chat.screen
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
@@ -23,6 +25,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,8 +34,11 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import androidx.paging.LoadState
+import androidx.paging.compose.LazyPagingItems
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
+import com.example.untitled_capstone.domain.model.Message
 import com.example.untitled_capstone.navigation.Screen
 import com.example.untitled_capstone.presentation.feature.chat.ChatViewModel
 import com.example.untitled_capstone.presentation.feature.chat.composable.MessageCard
@@ -45,15 +52,17 @@ import com.example.untitled_capstone.ui.theme.CustomTheme
 fun ChattingDetailScreen(
     snackbarHostState: SnackbarHostState,
     viewModel: ChatViewModel,
+    messages: LazyPagingItems<Message>,
     state: ChatUiState,
     roomId: Long,
     navController: NavHostController
 ) {
-    val messages = viewModel.message
-    val chattingRoom = viewModel.chattingRoom
+    //val messages = viewModel.message
+    val chattingRoom by remember { viewModel.chattingRoom }
     val member = viewModel.member
     val myName = viewModel.name
     val myRoomList = viewModel.chattingRoomList
+    val listState = rememberLazyListState()
     LaunchedEffect(Unit) {
         viewModel.enterChatRoom(roomId)
         viewModel.getMessages(roomId)
@@ -83,7 +92,7 @@ fun ChattingDetailScreen(
             color = CustomTheme.colors.primary
         )
     }
-    if(chattingRoom != null) {
+    chattingRoom?.let { room ->
         Scaffold(
             containerColor = CustomTheme.colors.onSurface,
             topBar = {
@@ -92,7 +101,7 @@ fun ChattingDetailScreen(
                     title = {
                         Row{
                             Text(
-                                text = chattingRoom.name,
+                                text = room.name,
                                 style = CustomTheme.typography.title1,
                                 color = CustomTheme.colors.textPrimary,
                             )
@@ -100,7 +109,7 @@ fun ChattingDetailScreen(
                                 modifier = Modifier.width(3.dp)
                             )
                             Text(
-                                text = chattingRoom.currentParticipants.toString(),
+                                text = room.currentParticipants.toString(),
                                 style = CustomTheme.typography.title2,
                                 color = CustomTheme.colors.textSecondary,
                                 modifier = Modifier.align(Alignment.Bottom)
@@ -124,7 +133,7 @@ fun ChattingDetailScreen(
                     actions = {
                         IconButton(
                             onClick = {
-                                viewModel.navigateUp(Screen.ChattingDrawerNav(roomId, chattingRoom.name))
+                                viewModel.navigateUp(Screen.ChattingDrawerNav(roomId, room.name))
                             }
                         ) {
                             Icon(
@@ -140,27 +149,70 @@ fun ChattingDetailScreen(
                 )
             },
         ) { innerPadding ->
+            LaunchedEffect(key1 = messages.loadState) {
+                if(messages.loadState.refresh is LoadState.Error) {
+                    Log.d("error", (messages.loadState.refresh as LoadState.Error).error.message.toString())
+                }
+            }
             Box(
                 modifier = Modifier.padding(innerPadding).imePadding()
                     .padding(horizontal = Dimens.surfaceHorizontalPadding,
                         vertical = Dimens.surfaceVerticalPadding)
             ){
-                Column {
-                    LazyColumn(
-                        modifier = Modifier.weight(1f),
-                        verticalArrangement = Arrangement.Bottom,
-                    ) {
-                        items(messages.size){ index ->
-                            val message = messages[index]
-                            val isMe = message.senderNickname == myName
-                            val profileImage = member.find { it.nickname == message.senderNickname }?.imageUrl
-                            MessageCard(message = message, isMe, profileImage)
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    if(messages.loadState.refresh is LoadState.Loading) {
+                        Box{
+                            CircularProgressIndicator(
+                                modifier = Modifier.align(Alignment.Center),
+                                color = CustomTheme.colors.primary
+                            )
+                        }
+                    } else {
+                        LazyColumn(
+                            modifier = Modifier.weight(1f),
+                            state = listState,
+                            reverseLayout = true,
+                            verticalArrangement = Arrangement.Bottom,
+                        ) {
+                            items(messages.itemCount){ index ->
+                                val message = messages[index]
+                                if (message != null) {
+                                    val isMe = message.senderNickname == myName
+                                    val profileImage = member.find { it.nickname == message.senderNickname }?.imageUrl
+                                    MessageCard(message = message, isMe, profileImage, room.active)
+                                }
+                            }
+                            when (messages.loadState.append) {
+                                is LoadState.Loading -> {
+                                    item {
+                                        CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+                                    }
+                                }
+
+                                is LoadState.Error -> {
+                                    item {
+                                        Text("메시지 불러오기 실패")
+                                    }
+                                }
+
+                                else -> Unit
+                            }
+                        }
+                        Spacer(
+                            modifier = Modifier.height(22.dp)
+                        )
+                        if(room.active){
+                            NewMessageForm(roomId, viewModel)
+                        }else{
+                            Text(
+                                text = "채팅방이 비활성화 되었습니다.",
+                                style = CustomTheme.typography.body2,
+                                color = CustomTheme.colors.textSecondary,
+                            )
                         }
                     }
-                    Spacer(
-                        modifier = Modifier.height(22.dp)
-                    )
-                    NewMessageForm(roomId, viewModel)
                 }
             }
         }

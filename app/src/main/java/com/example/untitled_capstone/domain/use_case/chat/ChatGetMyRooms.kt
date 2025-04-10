@@ -9,6 +9,21 @@ class ChatGetMyRooms @Inject constructor(
     private val repository: ChatRepository
 ) {
     suspend operator fun invoke(): Resource<List<ChattingRoomRaw>> {
-        return repository.getMyRooms()
+        return when (val result = repository.getMyRooms()) {
+            is Resource.Success -> {
+                result.data?.let { rooms ->
+                    val sorted = rooms.sortedWith(
+                        compareByDescending<ChattingRoomRaw> { it.active }
+                            .thenByDescending {
+                                it.lastMessageTime ?: it.createdAt
+                            }
+                    )
+                    Resource.Success(sorted)
+                } ?: Resource.Success(emptyList())
+            }
+
+            is Resource.Error -> Resource.Error(result.message ?: "Unknown error")
+            is Resource.Loading -> Resource.Loading()
+        }
     }
 }

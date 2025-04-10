@@ -1,7 +1,6 @@
 package com.example.untitled_capstone.domain.use_case.chat
 
 data class ChatUseCases(
-    val createRoom: ChatCreateRoom,
     val readChats: ChatRead,
     val joinChatRoom: ChatRoomJoin,
     val closeChatRoom: ChatRoomClose,
@@ -15,4 +14,5 @@ data class ChatUseCases(
     val sendReadEvent: SendReadEvent,
     val sendMessage: SendMessage,
     val connectChatSocket: ConnectChatSocket,
+    val getChatMessages: GetChatMessagesUseCase
 )

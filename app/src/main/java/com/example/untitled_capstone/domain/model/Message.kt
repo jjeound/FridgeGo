@@ -1,25 +1,13 @@
 package com.example.untitled_capstone.domain.model
 
-import com.example.untitled_capstone.data.remote.dto.MessageDto
+import java.time.LocalDateTime
 
 data class Message(
     val content: String,
-    val enderId: Long,
+    val senderId: Long,
     val messageId: Long,
     val read: Boolean,
     val senderNickname: String,
-    val sentAt: String,
+    val sentAt: LocalDateTime,
     val unreadCount: Int
-){
-    fun toMessageDto(): MessageDto {
-        return MessageDto(
-            content = content,
-            enderId = enderId,
-            messageId = messageId,
-            read = read,
-            senderNickname = senderNickname,
-            sentAt = sentAt,
-            unreadCount = unreadCount
-        )
-    }
-}
+)

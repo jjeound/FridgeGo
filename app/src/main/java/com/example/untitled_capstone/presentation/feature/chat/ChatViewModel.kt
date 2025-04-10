@@ -6,11 +6,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import com.example.untitled_capstone.core.util.Resource
+import com.example.untitled_capstone.data.util.FridgeFetchType
 import com.example.untitled_capstone.domain.model.ChatMember
 import com.example.untitled_capstone.domain.model.ChattingRoom
 import com.example.untitled_capstone.domain.model.ChattingRoomRaw
+import com.example.untitled_capstone.domain.model.FridgeItem
 import com.example.untitled_capstone.domain.model.Message
+import com.example.untitled_capstone.domain.model.UnreadBroadcast
 import com.example.untitled_capstone.domain.use_case.chat.ChatUseCases
 import com.example.untitled_capstone.domain.use_case.my.GetAccessToken
 import com.example.untitled_capstone.domain.use_case.post.GetNickname
@@ -22,6 +27,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -40,11 +46,10 @@ class ChatViewModel @Inject constructor(
     var chattingRoomList by mutableStateOf<List<ChattingRoomRaw>>(emptyList())
         private set
 
-    var chattingRoom by mutableStateOf<ChattingRoom?>(null)
-        private set
+    val chattingRoom = mutableStateOf<ChattingRoom?>(null)
 
-    var message by mutableStateOf<List<Message>>(emptyList())
-        private set
+    private val _message: MutableStateFlow<PagingData<Message>> = MutableStateFlow(PagingData.empty())
+    val message = _message.asStateFlow()
 
     var member by mutableStateOf<List<ChatMember>>(emptyList())
         private set
@@ -54,28 +59,6 @@ class ChatViewModel @Inject constructor(
 
     private val _event = MutableSharedFlow<UiEvent>()
     val event = _event.asSharedFlow()
-
-    fun createChatRoom(name: String, maxParticipants: Int) {
-        viewModelScope.launch {
-            val result = chatUseCases.createRoom(name, maxParticipants)
-            when (result) {
-                is Resource.Success -> {
-                    result.data?.let {
-                        _state.update { ChatUiState.Success(null) }
-                    }
-                }
-
-                is Resource.Error -> {
-                    _state.update { ChatUiState.Error(result.message) }
-                    _event.emit(UiEvent.ShowSnackbar(result.message ?: "Unknown error"))
-                }
-
-                is Resource.Loading -> {
-                    _state.update { ChatUiState.Loading }
-                }
-            }
-        }
-    }
 
     fun readChats(id: Long) {
         viewModelScope.launch {
@@ -107,7 +90,6 @@ class ChatViewModel @Inject constructor(
                     result.data?.let {
                         _state.update { ChatUiState.Success(null) }
                         chattingRoomList = it
-                        Log.d("chattingRoomList", chattingRoomList.toString())
                     }
                 }
 
@@ -167,28 +149,32 @@ class ChatViewModel @Inject constructor(
         }
     }
 
-    fun getMessages(id: Long, lastMessageId: Long? = null) {
-        viewModelScope.launch {
-            val result = chatUseCases.getMessages(id, lastMessageId)
-            when (result) {
-                is Resource.Success -> {
-                    result.data?.let {
-                        _state.update { ChatUiState.Success(null) }
-                        message = it
-                    }
-                }
-
-                is Resource.Error -> {
-                    _state.update { ChatUiState.Error(result.message) }
-                    _event.emit(UiEvent.ShowSnackbar(result.message ?: "Unknown error"))
-                }
-
-                is Resource.Loading -> {
-                    _state.update { ChatUiState.Loading }
-                }
-            }
-        }
-    }
+//    fun getMessages(id: Long, lastMessageId: Long? = null) {
+//        viewModelScope.launch {
+//            val result = chatUseCases.getMessages(id, lastMessageId)
+//            when (result) {
+//                is Resource.Success -> {
+//                    result.data?.let {
+//                        _state.update { ChatUiState.Success(null) }
+//                        if(lastMessageId != null){
+//                            message = it + message
+//                        }else{
+//                            message = it
+//                        }
+//                    }
+//                }
+//
+//                is Resource.Error -> {
+//                    _state.update { ChatUiState.Error(result.message) }
+//                    _event.emit(UiEvent.ShowSnackbar(result.message ?: "Unknown error"))
+//                }
+//
+//                is Resource.Loading -> {
+//                    _state.update { ChatUiState.Loading }
+//                }
+//            }
+//        }
+//    }
 
     fun joinChatRoom(id: Long) {
         viewModelScope.launch {
@@ -242,7 +228,7 @@ class ChatViewModel @Inject constructor(
                 is Resource.Success -> {
                     result.data?.let {
                         _state.update { ChatUiState.Success(null) }
-                        chattingRoom = it
+                        chattingRoom.value = it
                     }
                 }
 
@@ -280,17 +266,25 @@ class ChatViewModel @Inject constructor(
         }
     }
 
-    fun subscribe(roomId: Long) {
-        chatUseCases.subscribeRoom(
-            roomId,
-            onMessage = { msg ->
-                message = message + msg
-            },
-            onUnreadUpdate = { unread ->
-                Log.d("unread", unread.toString())
-            }//푸시 알람
-        )
+    private fun subscribe(roomId: Long) {
+        viewModelScope.launch {
+            chatUseCases.subscribeRoom(
+                roomId,
+                onMessage = { },
+                onUnreadUpdate = { unread ->
+
+                }//푸시 알람
+            )
+        }
     }
+
+//    private fun updateUnreadCount(unread: UnreadBroadcast) {
+//        message = message.map { msg ->
+//            if (msg.messageId == unread.messageId) {
+//                msg.copy(unreadCount = unread.unreadCount)
+//            } else msg
+//        }
+//    }
 
     fun sendMessage(roomId: Long, content: String) {
         chatUseCases.sendMessage(roomId, content)
@@ -308,6 +302,16 @@ class ChatViewModel @Inject constructor(
         viewModelScope.launch {
             val result = getNickname()
             name = result!!
+        }
+    }
+    fun getMessages(roomId: Long) {
+        viewModelScope.launch {
+            chatUseCases.getChatMessages(roomId)
+                .distinctUntilChanged()
+                .cachedIn(viewModelScope)
+                .collect { pagingData ->
+                    _message.value = pagingData
+                }
         }
     }
 }

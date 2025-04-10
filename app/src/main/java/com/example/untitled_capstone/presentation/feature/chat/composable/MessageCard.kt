@@ -6,11 +6,13 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -21,10 +23,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
-import androidx.core.net.toUri
 import coil.compose.AsyncImage
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
@@ -32,7 +32,7 @@ import com.example.untitled_capstone.domain.model.Message
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @Composable
-fun MessageCard(message: Message, isMe: Boolean, profileImage: String?) {
+fun MessageCard(message: Message, isMe: Boolean, profileImage: String?, isActive: Boolean) {
     if(isMe){
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -40,7 +40,7 @@ fun MessageCard(message: Message, isMe: Boolean, profileImage: String?) {
         ) {
             Text(
                 modifier = Modifier.align(Alignment.Bottom),
-                text = formatUtcToKoreanDateTime(message.sentAt),
+                text = formatLocaleDateTimeToKoreanDateTime(message.sentAt),
                 style = CustomTheme.typography.caption2,
                 color = CustomTheme.colors.textSecondary,
             )
@@ -119,12 +119,31 @@ fun MessageCard(message: Message, isMe: Boolean, profileImage: String?) {
             Spacer(
                 modifier = Modifier.width(Dimens.smallPadding)
             )
-            Text(
-                modifier = Modifier.align(Alignment.Bottom),
-                text = formatUtcToKoreanDateTime(message.sentAt),
-                style = CustomTheme.typography.caption2,
-                color = CustomTheme.colors.textSecondary,
-            )
+            if(isActive && message.unreadCount > 0){
+                Column(
+                    modifier = Modifier.height(36.dp),
+                    verticalArrangement = Arrangement.Bottom
+                ) {
+                    Text(
+                        text = message.unreadCount.toString(),
+                        style = CustomTheme.typography.caption2,
+                        color = CustomTheme.colors.iconRed,
+                    )
+                    Text(
+                        text = formatLocaleDateTimeToKoreanDateTime(message.sentAt),
+                        style = CustomTheme.typography.caption2,
+                        color = CustomTheme.colors.textSecondary,
+                    )
+                }
+            } else {
+                Text(
+                    modifier = Modifier.weight(1f).align(Alignment.Bottom),
+                    text = formatLocaleDateTimeToKoreanDateTime(message.sentAt),
+                    style = CustomTheme.typography.caption2,
+                    color = CustomTheme.colors.textSecondary,
+                )
+            }
+
         }
     }
     Spacer(

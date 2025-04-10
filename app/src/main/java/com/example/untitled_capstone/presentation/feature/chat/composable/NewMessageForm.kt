@@ -38,10 +38,10 @@ fun NewMessageForm(roomId: Long, viewModel: ChatViewModel){
     Row(
         modifier = Modifier.fillMaxWidth().wrapContentHeight(),
         horizontalArrangement = Arrangement.spacedBy(Dimens.mediumPadding),
+        verticalAlignment = Alignment.Bottom
     ) {
         IconButton(
-            modifier = Modifier.align(Alignment.Bottom)
-                .padding(bottom = 16.dp).then(Modifier.size(24.dp)),
+            modifier = Modifier.padding(bottom = 16.dp).then(Modifier.size(24.dp)),
             onClick = { }
         ) {
             Icon(
@@ -71,7 +71,7 @@ fun NewMessageForm(roomId: Long, viewModel: ChatViewModel){
                     )
                 }
             },
-            modifier = Modifier.weight(1f),
+            modifier = Modifier.weight(1f).wrapContentHeight(),
             textStyle = CustomTheme.typography.button2,
             colors = TextFieldDefaults.colors(
                 focusedTextColor = CustomTheme.colors.textPrimary,
@@ -86,8 +86,7 @@ fun NewMessageForm(roomId: Long, viewModel: ChatViewModel){
             keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() })
         )
         IconButton(
-            modifier = Modifier.align(Alignment.Bottom)
-                .padding(bottom = 16.dp).then(Modifier.size(24.dp)),
+            modifier = Modifier.padding(bottom = 16.dp).then(Modifier.size(24.dp)),
             enabled = text.isNotEmpty(),
             onClick = {
                 viewModel.sendMessage(roomId, text)

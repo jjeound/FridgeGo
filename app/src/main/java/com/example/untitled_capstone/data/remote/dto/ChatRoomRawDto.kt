@@ -1,6 +1,7 @@
 package com.example.untitled_capstone.data.remote.dto
 
 import com.example.untitled_capstone.domain.model.ChattingRoomRaw
+import java.time.LocalDateTime
 
 data class ChatRoomRawDto(
     val active: Boolean,
@@ -9,17 +10,21 @@ data class ChatRoomRawDto(
     val lastMessageTime: String? = null,
     val name: String,
     val roomId: Long,
-    val unreadCount: Int
+    val unreadCount: Int,
+    val createdAt: String,
+    val host: Boolean,
 ){
     fun toChattingRoomRaw(): ChattingRoomRaw {
         return ChattingRoomRaw(
             active = active,
             currentParticipants = currentParticipants,
             lastMessage = lastMessage,
-            lastMessageTime = lastMessageTime,
+            lastMessageTime = lastMessageTime?.let { LocalDateTime.parse(it) },
             name = name,
             roomId = roomId,
-            unreadCount = unreadCount
+            unreadCount = unreadCount,
+            createdAt = createdAt.let { LocalDateTime.parse(it) },
+            host = host
         )
     }
 }

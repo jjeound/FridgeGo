@@ -14,10 +14,6 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface ChatApi {
-    @POST("/api/chat/room")
-    suspend fun createChatRoom(
-        @Body newChatRoomBody: NewChatRoomBody
-    ): ApiResponseTest<ChatRoomResponse>
 
     @POST("/api/chat/room/{roomId}/read")
     suspend fun readChats(

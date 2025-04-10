@@ -90,7 +90,7 @@ fun ChatItem(chattingRoomRaw: ChattingRoomRaw){
             ) {
                 if(chattingRoomRaw.lastMessageTime != null){
                     Text(
-                        text = formatUtcToKoreanDateTime(chattingRoomRaw.lastMessageTime),
+                        text = formatLocaleDateTimeToKoreanDateTime(chattingRoomRaw.lastMessageTime),
                         style = CustomTheme.typography.caption1,
                         color = CustomTheme.colors.textSecondary,
                     )
@@ -116,10 +116,8 @@ fun ChatItem(chattingRoomRaw: ChattingRoomRaw){
     }
 }
 
-fun formatUtcToKoreanDateTime(utcTime: String): String {
-    val localDateTime = LocalDateTime.parse(utcTime)
-    val utcZoned = localDateTime.atZone(ZoneId.of("UTC")) // UTC 기준으로 변환
-    val koreaTime = utcZoned.withZoneSameInstant(ZoneId.of("Asia/Seoul"))
+fun formatLocaleDateTimeToKoreanDateTime(localDateTime: LocalDateTime): String {
+    val koreaTime = localDateTime.atZone(ZoneId.of("Asia/Seoul"))
 
     val now = ZonedDateTime.now(ZoneId.of("Asia/Seoul"))
     val today = now.toLocalDate()

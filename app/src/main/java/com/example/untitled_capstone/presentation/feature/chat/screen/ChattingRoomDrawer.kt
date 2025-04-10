@@ -20,6 +20,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -152,27 +153,33 @@ fun ChattingRoomDrawer(
                             color = CustomTheme.colors.textPrimary,
                         )
                         member.forEach {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(
-                                        vertical = Dimens.smallPadding,
-                                    ),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(Dimens.smallPadding)
-                            ) {
-                                AsyncImage(
+                            Column {
+                                Row(
                                     modifier = Modifier
-                                        .size(36.dp)
-                                        .clip(CircleShape),
-                                    model = it.imageUrl,
-                                    contentScale = ContentScale.Crop,
-                                    contentDescription = "profile image",
-                                )
-                                Text(
-                                    text = it.nickname,
-                                    style = CustomTheme.typography.title1,
-                                    color = CustomTheme.colors.textPrimary,
+                                        .fillMaxWidth()
+                                        .padding(
+                                            vertical = Dimens.smallPadding,
+                                        ),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(Dimens.smallPadding)
+                                ) {
+                                    AsyncImage(
+                                        modifier = Modifier
+                                            .size(36.dp)
+                                            .clip(CircleShape),
+                                        model = it.imageUrl,
+                                        contentScale = ContentScale.Crop,
+                                        contentDescription = "profile image",
+                                    )
+                                    Text(
+                                        text = it.nickname,
+                                        style = CustomTheme.typography.title1,
+                                        color = CustomTheme.colors.textPrimary,
+                                    )
+                                }
+                                HorizontalDivider(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    color = CustomTheme.colors.borderLight
                                 )
                             }
                         }

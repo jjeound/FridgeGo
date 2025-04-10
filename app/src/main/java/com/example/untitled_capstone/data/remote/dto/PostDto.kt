@@ -17,7 +17,10 @@ data class PostDto(
     val title: String,
     val image: List<ImageDto>? = null,
     val profileImageUrl: String? = null,
-    val liked: Boolean
+    val liked: Boolean,
+    val chatRoomId: Long,
+    val currentParticipants: Int,
+    val roomActive: Boolean
 ){
     fun toPost(): Post{
         return Post(
@@ -35,7 +38,10 @@ data class PostDto(
             title = title,
             image = image?.map { it.toPostImage() },
             profileImageUrl = profileImageUrl,
-            liked = liked
+            liked = liked,
+            chatRoomId = chatRoomId,
+            currentParticipants = currentParticipants,
+            roomActive = roomActive
         )
     }
 }

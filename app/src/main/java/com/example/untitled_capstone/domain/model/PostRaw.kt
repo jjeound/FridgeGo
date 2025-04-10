@@ -10,5 +10,7 @@ data class PostRaw(
     val district: String,
     val neighborhood: String,
     val imageUrls: List<String>,
-    val liked: Boolean
+    val liked: Boolean,
+    val currentParticipants: Int,
+    val roomActive: Boolean
 )

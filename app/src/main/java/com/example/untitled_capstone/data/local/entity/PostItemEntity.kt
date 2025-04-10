@@ -19,7 +19,9 @@ data class PostItemEntity(
     val neighborhood: String,
     val imageUrls: List<String>,
     val liked: Boolean,
-    val pagerNumber: Int
+    val pagerNumber: Int,
+    val currentParticipants: Int,
+    val roomActive: Boolean
 ){
     fun toPostRaw(): PostRaw{
         return  PostRaw(
@@ -32,7 +34,9 @@ data class PostItemEntity(
             price = price,
             title = title,
             imageUrls = imageUrls,
-            liked = liked
+            liked = liked,
+            currentParticipants = currentParticipants,
+            roomActive = roomActive
         )
     }
 }

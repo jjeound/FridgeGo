@@ -27,6 +27,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,6 +45,7 @@ import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
+import com.example.untitled_capstone.domain.model.Keyword
 import com.example.untitled_capstone.presentation.feature.post.PostEvent
 import com.example.untitled_capstone.presentation.feature.post.SearchState
 import com.example.untitled_capstone.presentation.feature.post.composable.PostListContainer
@@ -51,10 +53,19 @@ import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PostSearchScreen(searchState: SearchState, navigateToBack: () -> Unit, onEvent: (PostEvent) -> Unit, navigateToDetail: (id: Long) -> Unit) {
+fun PostSearchScreen(
+    searchState: SearchState,
+    searchHistory: List<Keyword>,
+    navigateToBack: () -> Unit,
+    onEvent: (PostEvent) -> Unit,
+    navigateToDetail: (id: Long) -> Unit
+) {
     var keyword by remember { mutableStateOf("") }
     val focusManager = LocalFocusManager.current
     var showResult by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        onEvent(PostEvent.GetSearchHistory)
+    }
     Scaffold(
         containerColor = CustomTheme.colors.surface,
         topBar = {
@@ -91,6 +102,7 @@ fun PostSearchScreen(searchState: SearchState, navigateToBack: () -> Unit, onEve
                             .onFocusChanged {
                                 if (it.isFocused) {
                                     showResult = false
+                                    //onEvent(PostEvent.GetSearchHistory)
                                 }
                             },
                         value = keyword,
@@ -118,9 +130,10 @@ fun PostSearchScreen(searchState: SearchState, navigateToBack: () -> Unit, onEve
                         maxLines = 1,
                         keyboardActions = KeyboardActions(onDone = {
                             focusManager.clearFocus()
-                            if (keyword.isNotEmpty()) {
+                            if (keyword.isNotBlank()) {
                                 onEvent(PostEvent.SearchPost(keyword))
                                 showResult = true
+                                onEvent(PostEvent.AddSearchHistory(Keyword(keyword)))
                             }
                         })
                     )
@@ -214,6 +227,11 @@ fun PostSearchScreen(searchState: SearchState, navigateToBack: () -> Unit, onEve
                             color = CustomTheme.colors.textPrimary,
                         )
                         Text(
+                            modifier = Modifier.clickable{
+                                if(searchHistory.isNotEmpty()){
+                                    onEvent(PostEvent.DeleteAllSearchHistory)
+                                }
+                            },
                             text = "전체 삭제",
                             style = CustomTheme.typography.button2,
                             color = CustomTheme.colors.textSecondary,
@@ -231,7 +249,8 @@ fun PostSearchScreen(searchState: SearchState, navigateToBack: () -> Unit, onEve
                             ),
                         verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding)
                     ) {
-                        items(5) {
+                        items(searchHistory.size) { index ->
+                            val keyword = searchHistory[index]
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 verticalAlignment = Alignment.CenterVertically
@@ -246,12 +265,14 @@ fun PostSearchScreen(searchState: SearchState, navigateToBack: () -> Unit, onEve
                                 )
                                 Text(
                                     modifier = Modifier.weight(1f),
-                                    text = "검색어",
+                                    text = keyword.keyword,
                                     style = CustomTheme.typography.body1,
                                     color = CustomTheme.colors.textPrimary,
                                 )
                                 IconButton(
-                                    onClick = {},
+                                    onClick = {
+                                        onEvent(PostEvent.DeleteSearchHistory(keyword.keyword))
+                                    },
                                     modifier = Modifier.size(24.dp)
                                 ){
                                     Icon(
@@ -272,5 +293,5 @@ fun PostSearchScreen(searchState: SearchState, navigateToBack: () -> Unit, onEve
 @Preview
 @Composable
 fun PostSearchScreenPreview() {
-    PostSearchScreen(searchState = SearchState(), navigateToBack = {}, onEvent = {}, navigateToDetail = {})
+    PostSearchScreen(searchState = SearchState(), searchHistory = emptyList(), navigateToBack = {}, onEvent = {}, navigateToDetail = {})
 }

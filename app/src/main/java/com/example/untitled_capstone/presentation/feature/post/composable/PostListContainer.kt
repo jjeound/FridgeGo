@@ -110,7 +110,7 @@ fun PostListContainer(post: PostRaw, onEvent: (PostEvent) -> Unit){
                     tint = CustomTheme.colors.iconDefault,
                 )
                 Text(
-                    text = "1/${post.memberCount}",
+                    text = "${post.currentParticipants}/${post.memberCount}",
                     style = CustomTheme.typography.caption2,
                     color = CustomTheme.colors.textSecondary,
                 )

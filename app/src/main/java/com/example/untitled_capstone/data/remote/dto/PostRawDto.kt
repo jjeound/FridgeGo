@@ -13,7 +13,9 @@ data class PostRawDto(
     val district: String,
     val neighborhood: String,
     val imageUrls: List<String>,
-    val liked: Boolean
+    val liked: Boolean,
+    val currentParticipants: Int,
+    val roomActive: Boolean
 ){
     fun toPostEntity(pagerNumber: Int): PostItemEntity{
         return  PostItemEntity(
@@ -27,7 +29,9 @@ data class PostRawDto(
             title = title,
             imageUrls = imageUrls,
             liked = liked,
-            pagerNumber = pagerNumber
+            pagerNumber = pagerNumber,
+            currentParticipants = currentParticipants,
+            roomActive = roomActive
         )
     }
 }

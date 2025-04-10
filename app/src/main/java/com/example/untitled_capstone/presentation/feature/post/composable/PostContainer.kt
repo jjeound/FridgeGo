@@ -10,9 +10,11 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -69,11 +71,20 @@ fun PostContainer(post: Post){
             verticalAlignment = Alignment.CenterVertically
         ) {
             Row {
-                Icon(
-                    imageVector = ImageVector.vectorResource(R.drawable.profile),
-                    contentDescription = "profile image",
-                    tint = CustomTheme.colors.iconDefault
-                )
+                if(post.profileImageUrl != null){
+                    AsyncImage(
+                        modifier = Modifier.size(36.dp).clip(CircleShape),
+                        model = post.profileImageUrl,
+                        contentScale = ContentScale.Crop,
+                        contentDescription = "profile image",
+                    )
+                }else{
+                    Icon(
+                        imageVector = ImageVector.vectorResource(R.drawable.profile),
+                        contentDescription = "profile image",
+                        tint = CustomTheme.colors.iconDefault
+                    )
+                }
                 Spacer(
                     modifier = Modifier.width(Dimens.smallPadding)
                 )
@@ -113,6 +124,7 @@ fun PostContainer(post: Post){
                 modifier = Modifier.height(Dimens.mediumPadding)
             )
             Text(
+                modifier = Modifier.weight(1f),
                 text = post.content,
                 style = CustomTheme.typography.body2,
                 color = CustomTheme.colors.textPrimary,

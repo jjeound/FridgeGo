@@ -5,6 +5,7 @@ import androidx.paging.ExperimentalPagingApi
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
+import com.example.untitled_capstone.core.util.Constants.NETWORK_PAGE_SIZE
 import com.example.untitled_capstone.core.util.PrefKeys.NICKNAME
 import com.example.untitled_capstone.core.util.Resource
 import com.example.untitled_capstone.data.local.db.PostItemDatabase
@@ -17,6 +18,7 @@ import com.example.untitled_capstone.data.remote.dto.PostLikedDto
 import com.example.untitled_capstone.data.remote.dto.PostLikedResponse
 import com.example.untitled_capstone.data.remote.service.PostApi
 import com.example.untitled_capstone.data.util.PostFetchType
+import com.example.untitled_capstone.domain.model.Keyword
 import com.example.untitled_capstone.domain.model.Post
 import com.example.untitled_capstone.domain.repository.PostRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -36,12 +38,12 @@ class PostRepositoryImpl @Inject constructor(
 ): PostRepository {
     val dataStore = context.dataStore
 
-    override suspend fun post(newPostDto: RequestBody, images: List<MultipartBody.Part>?): Resource<Long> {
+    override suspend fun post(newPostDto: RequestBody, images: List<MultipartBody.Part>?): Resource<ApiResponse> {
         return try {
             Resource.Loading(data = null)
             val response = api.post(newPostDto, images)
             if(response.isSuccess){
-                Resource.Success(response.result)
+                Resource.Success(response)
             }else {
                 Resource.Error(message = response.toString())
             }
@@ -192,7 +194,51 @@ class PostRepositoryImpl @Inject constructor(
         }
     }
 
-    companion object {
-        const val NETWORK_PAGE_SIZE = 10
+    override suspend fun getSearchHistory(): Resource<List<Keyword>> {
+        return try {
+            Resource.Loading(data = null)
+            val response = api.getSearchHistory()
+            if(response.isSuccess){
+                Resource.Success(response.result?.map { it.toKeyword() })
+            }else {
+                Resource.Error(message = response.toString())
+            }
+        } catch (e: IOException) {
+            Resource.Error(e.toString())
+        } catch (e: HttpException) {
+            Resource.Error(e.toString())
+        }
+    }
+
+    override suspend fun deleteSearchHistory(keyword: String): Resource<ApiResponse> {
+        return try {
+            Resource.Loading(data = null)
+            val response = api.deleteSearchHistory(keyword)
+            if(response.isSuccess){
+                Resource.Success(response)
+            }else {
+                Resource.Error(message = response.toString())
+            }
+        } catch (e: IOException) {
+            Resource.Error(e.toString())
+        } catch (e: HttpException) {
+            Resource.Error(e.toString())
+        }
+    }
+
+    override suspend fun deleteAllSearchHistory(): Resource<ApiResponse> {
+        return try {
+            Resource.Loading(data = null)
+            val response = api.deleteAllSearchHistory()
+            if(response.isSuccess){
+                Resource.Success(response)
+            }else {
+                Resource.Error(message = response.toString())
+            }
+        } catch (e: IOException) {
+            Resource.Error(e.toString())
+        } catch (e: HttpException) {
+            Resource.Error(e.toString())
+        }
     }
 }

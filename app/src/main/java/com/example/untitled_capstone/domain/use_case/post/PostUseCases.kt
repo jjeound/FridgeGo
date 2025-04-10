@@ -11,5 +11,8 @@ data class PostUseCases(
     val searchPosts: SearchPosts,
     val getNickname: GetNickname,
     val uploadPostImages: UploadPostImages,
-    val deletePostImage: DeletePostImage
+    val deletePostImage: DeletePostImage,
+    val getSearchHistory: GetSearchHistory,
+    val deleteSearchHistory: DeleteSearchHistory,
+    val deleteAllSearchHistory: DeleteAllSearchHistory,
 )

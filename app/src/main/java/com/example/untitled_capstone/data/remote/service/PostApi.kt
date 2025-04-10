@@ -6,6 +6,7 @@ import com.example.untitled_capstone.data.remote.dto.GetPostByIdResponse
 import com.example.untitled_capstone.data.remote.dto.NewPostDto
 import com.example.untitled_capstone.data.remote.dto.PostLikedResponse
 import com.example.untitled_capstone.data.remote.dto.PostResponse
+import com.example.untitled_capstone.data.remote.dto.SearchHistoryResponse
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.http.Body
@@ -25,7 +26,7 @@ interface PostApi {
     suspend fun post(
         @Part("post") post: RequestBody,
         @Part postImages: List<MultipartBody.Part>? = null
-    ): AddPostResponse
+    ): ApiResponse
 
     @GET("/api/post")
     suspend fun getPosts(
@@ -79,4 +80,15 @@ interface PostApi {
         @Path("postId") postId: Long,
         @Path("imageId") imageId: Long
     ): ApiResponse
+
+    @GET("/api/search-history")
+    suspend fun getSearchHistory(): SearchHistoryResponse
+
+    @DELETE("/api/search-history")
+    suspend fun deleteSearchHistory(
+        @Query("keyword") keyword: String
+    ): ApiResponse
+
+    @DELETE("/api/search-history/all")
+    suspend fun deleteAllSearchHistory(): ApiResponse
 }

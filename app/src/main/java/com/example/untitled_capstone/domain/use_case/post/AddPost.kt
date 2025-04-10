@@ -18,7 +18,7 @@ import javax.inject.Inject
 class AddPost @Inject constructor(
     private val repository: PostRepository
 ) {
-    suspend operator fun invoke(post: NewPost, images: List<File>?): Resource<Long> {
+    suspend operator fun invoke(post: NewPost, images: List<File>?): Resource<ApiResponse> {
         val gson = Gson()
         val json = gson.toJson(post.toNewPostDto())
         val jsonBody = json.toRequestBody("application/json; charset=utf-8".toMediaType())

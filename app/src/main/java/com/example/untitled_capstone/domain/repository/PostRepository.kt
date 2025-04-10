@@ -8,13 +8,14 @@ import com.example.untitled_capstone.data.remote.dto.ApiResponse
 import com.example.untitled_capstone.data.remote.dto.NewPostDto
 import com.example.untitled_capstone.data.remote.dto.PostLikedDto
 import com.example.untitled_capstone.data.util.PostFetchType
+import com.example.untitled_capstone.domain.model.Keyword
 import com.example.untitled_capstone.domain.model.Post
 import kotlinx.coroutines.flow.Flow
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 
 interface PostRepository {
-    suspend fun post(newPostDto: RequestBody, images: List<MultipartBody.Part>?): Resource<Long>
+    suspend fun post(newPostDto: RequestBody, images: List<MultipartBody.Part>?): Resource<ApiResponse>
     fun getMyPosts(fetchType: PostFetchType): Flow<PagingData<PostItemEntity>>
     suspend fun getPostById(id: Long): Resource<Post>
     suspend fun deletePost(id: Long): Resource<ApiResponse>
@@ -25,4 +26,7 @@ interface PostRepository {
     suspend fun getNickname(): String?
     suspend fun uploadImages(id: Long, images: List<MultipartBody.Part>): Resource<ApiResponse>
     suspend fun deleteImage(id: Long, imageId: Long): Resource<ApiResponse>
+    suspend fun getSearchHistory(): Resource<List<Keyword>>
+    suspend fun deleteSearchHistory(keyword: String): Resource<ApiResponse>
+    suspend fun deleteAllSearchHistory(): Resource<ApiResponse>
 }

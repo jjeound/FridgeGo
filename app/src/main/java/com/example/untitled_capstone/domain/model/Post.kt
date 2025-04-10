@@ -17,5 +17,8 @@ data class Post(
     val title: String,
     val image: List<PostImage>? = null,
     val profileImageUrl: String? = null,
-    val liked: Boolean
+    val liked: Boolean,
+    val chatRoomId: Long,
+    val currentParticipants: Int,
+    val roomActive: Boolean
 )

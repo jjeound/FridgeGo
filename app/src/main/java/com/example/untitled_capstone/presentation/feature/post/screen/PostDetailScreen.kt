@@ -194,12 +194,6 @@ fun PostDetailScreen(id: Long, nickname: MutableState<String>, state: PostState,
                                     color = CustomTheme.colors.textPrimary,
                                     modifier = Modifier.padding(end = 4.dp)
                                 )
-                                Text(
-                                    text = "(1/${post.memberCount})",
-                                    style = CustomTheme.typography.caption2,
-                                    color = CustomTheme.colors.textPrimary,
-                                    modifier = Modifier.align(Alignment.Bottom)
-                                )
                             }
                             Row(
                                 modifier = Modifier.height(80.dp),
@@ -208,11 +202,16 @@ fun PostDetailScreen(id: Long, nickname: MutableState<String>, state: PostState,
                                 Button(
                                     modifier = Modifier.padding(end = 4.dp),
                                     onClick = {
-
+                                        navController.navigate(
+                                            Screen.ChattingRoomNav(post.chatRoomId)
+                                        )
                                     },
+                                    enabled = post.roomActive && post.currentParticipants < post.memberCount,
                                     shape = RoundedCornerShape(Dimens.cornerRadius),
                                     colors = ButtonDefaults.buttonColors(
                                         containerColor = CustomTheme.colors.primary,
+                                        contentColor = CustomTheme.colors.textPrimary,
+                                        disabledContainerColor = CustomTheme.colors.borderLight,
                                     ),
                                     contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
                                 ) {
@@ -228,7 +227,7 @@ fun PostDetailScreen(id: Long, nickname: MutableState<String>, state: PostState,
                                     tint = CustomTheme.colors.iconDefault,
                                 )
                                 Text(
-                                    text = "1/${post.memberCount}",
+                                    text = "${post.currentParticipants}/${post.memberCount}",
                                     style = CustomTheme.typography.caption2,
                                     color = CustomTheme.colors.textSecondary,
                                 )

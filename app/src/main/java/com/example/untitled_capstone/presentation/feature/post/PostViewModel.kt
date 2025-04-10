@@ -1,7 +1,9 @@
 package com.example.untitled_capstone.presentation.feature.post
 
 import androidx.compose.runtime.State
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -10,9 +12,9 @@ import androidx.paging.cachedIn
 import androidx.paging.map
 import com.example.untitled_capstone.core.util.Resource
 import com.example.untitled_capstone.data.util.PostFetchType
+import com.example.untitled_capstone.domain.model.Keyword
 import com.example.untitled_capstone.domain.model.NewPost
 import com.example.untitled_capstone.domain.model.PostRaw
-import com.example.untitled_capstone.domain.use_case.chat.ChatCreateRoom
 import com.example.untitled_capstone.domain.use_case.post.PostUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -28,7 +30,6 @@ import javax.inject.Inject
 @HiltViewModel
 class PostViewModel @Inject constructor(
     private val postUseCases: PostUseCases,
-    private val createRoom: ChatCreateRoom
 ): ViewModel() {
 
     private val _state = MutableStateFlow(PostState())
@@ -44,6 +45,7 @@ class PostViewModel @Inject constructor(
     val uploadState: StateFlow<UploadState> = _uploadState.asStateFlow()
 
     val nickname = mutableStateOf("")
+    val keyword = mutableStateOf<List<Keyword>>(emptyList())
 
     fun onEvent(action: PostEvent){
         when(action){
@@ -59,6 +61,10 @@ class PostViewModel @Inject constructor(
             is PostEvent.InitState -> initState()
             is PostEvent.UploadPostImages -> uploadPostImages(action.id, action.images)
             is PostEvent.DeletePostImage -> deletePostImage(action.id, action.imageId)
+            is PostEvent.GetSearchHistory -> getSearchHistory()
+            is PostEvent.DeleteSearchHistory -> deleteSearchHistory(action.keyword)
+            is PostEvent.DeleteAllSearchHistory -> deleteAllSearchHistory()
+            is PostEvent.AddSearchHistory -> addSearchHistory(action.word)
         }
     }
 
@@ -231,7 +237,6 @@ class PostViewModel @Inject constructor(
                             error = null
                         )
                     }
-                    createChattingRoom(post.title, post.memberCount)
                 }
                 is Resource.Error -> {
                     _uploadState.update { it.copy(isLoading = false, error = result.message ?: "An unexpected error occurred") }
@@ -348,12 +353,13 @@ class PostViewModel @Inject constructor(
         }
     }
 
-    private fun createChattingRoom(title: String, memberCount: Int){
+    private fun getSearchHistory(){
         viewModelScope.launch {
-            val result = createRoom(title, memberCount)
+            val result = postUseCases.getSearchHistory()
             when(result){
                 is Resource.Success -> {
                     result.data?.let{
+                        keyword.value = it
                         _state.update {
                             it.copy(
                                 isSuccess = true,
@@ -365,12 +371,66 @@ class PostViewModel @Inject constructor(
                 }
                 is Resource.Error -> {
                     _state.update { it.copy(isLoading = false, error = result.message ?: "An unexpected error occurred") }
-                    //createChattingRoom(title, memberCount)
                 }
                 is Resource.Loading -> {
                     _state.update { it.copy(isLoading = true) }
                 }
             }
         }
+    }
+
+    private fun deleteSearchHistory(word: String){
+        viewModelScope.launch {
+            val result = postUseCases.deleteSearchHistory(word)
+            when(result){
+                is Resource.Success -> {
+                    result.data?.let{
+                        keyword.value = keyword.value.filter { it.keyword != word }
+                        _state.update {
+                            it.copy(
+                                isSuccess = true,
+                                isLoading = false,
+                                error = null
+                            )
+                        }
+                    }
+                }
+                is Resource.Error -> {
+                    _state.update { it.copy(isLoading = false, error = result.message ?: "An unexpected error occurred") }
+                }
+                is Resource.Loading -> {
+                    _state.update { it.copy(isLoading = true) }
+                }
+            }
+        }
+    }
+    private fun deleteAllSearchHistory(){
+        viewModelScope.launch {
+            val result = postUseCases.deleteAllSearchHistory()
+            when(result){
+                is Resource.Success -> {
+                    result.data?.let{
+                        keyword.value = emptyList()
+                        _state.update {
+                            it.copy(
+                                isSuccess = true,
+                                isLoading = false,
+                                error = null
+                            )
+                        }
+                    }
+                }
+                is Resource.Error -> {
+                    _state.update { it.copy(isLoading = false, error = result.message ?: "An unexpected error occurred") }
+                }
+                is Resource.Loading -> {
+                    _state.update { it.copy(isLoading = true) }
+                }
+            }
+        }
+    }
+
+    private fun addSearchHistory(word: Keyword){
+        keyword.value = listOf(word) + keyword.value
     }
 }

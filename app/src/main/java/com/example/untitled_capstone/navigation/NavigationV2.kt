@@ -126,8 +126,10 @@ fun NavigationV2(navController: NavHostController, mainViewModel: MainViewModel)
             composable<Screen.PostSearchNav> {
                 val viewModel: PostViewModel = hiltViewModel()
                 val searchState by viewModel.searchState
+                val searchHistory by remember { viewModel.keyword }
                 PostSearchScreen(
                     searchState = searchState,
+                    searchHistory = searchHistory,
                     navigateToBack = {navController.popBackStack()},
                     onEvent = viewModel::onEvent,
                     navigateToDetail = { id ->
@@ -181,10 +183,12 @@ fun NavigationV2(navController: NavHostController, mainViewModel: MainViewModel)
                 val parentEntry = navController.getBackStackEntry(Graph.ChatGraph)
                 val viewModel: ChatViewModel = hiltViewModel(parentEntry)
                 val state by viewModel.state.collectAsStateWithLifecycle()
+                val messages = viewModel.message.collectAsLazyPagingItems()
                 val args = it.toRoute<Screen.ChattingRoomNav>()
                 ChattingDetailScreen(
                     snackbarHostState = remember { SnackbarHostState() },
                     viewModel = viewModel,
+                    messages = messages,
                     state = state,
                     roomId = args.id,
                     navController = navController

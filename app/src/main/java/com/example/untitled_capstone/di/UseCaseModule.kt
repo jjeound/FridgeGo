@@ -12,7 +12,6 @@ import com.example.untitled_capstone.domain.repository.WebSocketRepository
 import com.example.untitled_capstone.domain.use_case.app_entry.ReadAppEntry
 import com.example.untitled_capstone.domain.use_case.app_entry.SaveAppEntry
 import com.example.untitled_capstone.domain.use_case.chat.ChatCheckWhoIsIn
-import com.example.untitled_capstone.domain.use_case.chat.ChatCreateRoom
 import com.example.untitled_capstone.domain.use_case.chat.ChatGetMessages
 import com.example.untitled_capstone.domain.use_case.chat.ChatGetMyRooms
 import com.example.untitled_capstone.domain.use_case.chat.ChatRead
@@ -23,6 +22,7 @@ import com.example.untitled_capstone.domain.use_case.chat.ChatRoomJoin
 import com.example.untitled_capstone.domain.use_case.chat.ChatUseCases
 import com.example.untitled_capstone.domain.use_case.chat.ConnectChatSocket
 import com.example.untitled_capstone.domain.use_case.chat.Disconnect
+import com.example.untitled_capstone.domain.use_case.chat.GetChatMessagesUseCase
 import com.example.untitled_capstone.domain.use_case.chat.SendMessage
 import com.example.untitled_capstone.domain.use_case.chat.SendReadEvent
 import com.example.untitled_capstone.domain.use_case.chat.SubscribeRoom
@@ -61,12 +61,15 @@ import com.example.untitled_capstone.domain.use_case.login.SetNickname
 import com.example.untitled_capstone.domain.use_case.my.MyUseCases
 import com.example.untitled_capstone.domain.use_case.my.UploadProfileImage
 import com.example.untitled_capstone.domain.use_case.post.AddPost
+import com.example.untitled_capstone.domain.use_case.post.DeleteAllSearchHistory
 import com.example.untitled_capstone.domain.use_case.post.DeletePost
 import com.example.untitled_capstone.domain.use_case.post.DeletePostImage
+import com.example.untitled_capstone.domain.use_case.post.DeleteSearchHistory
 import com.example.untitled_capstone.domain.use_case.post.GetLikedPosts
 import com.example.untitled_capstone.domain.use_case.post.GetMyPosts
 import com.example.untitled_capstone.domain.use_case.post.GetNickname
 import com.example.untitled_capstone.domain.use_case.post.GetPostById
+import com.example.untitled_capstone.domain.use_case.post.GetSearchHistory
 import com.example.untitled_capstone.domain.use_case.post.ModifyPost
 import com.example.untitled_capstone.domain.use_case.post.PostUseCases
 import com.example.untitled_capstone.domain.use_case.post.SearchPosts
@@ -159,14 +162,16 @@ object UseCaseModule {
             searchPosts = SearchPosts(repository),
             getNickname = GetNickname(repository),
             uploadPostImages = UploadPostImages(repository),
-            deletePostImage = DeletePostImage(repository)
+            deletePostImage = DeletePostImage(repository),
+            getSearchHistory = GetSearchHistory(repository),
+            deleteSearchHistory = DeleteSearchHistory(repository),
+            deleteAllSearchHistory = DeleteAllSearchHistory(repository)
         )
     }
 
     @Provides
     fun provideChatUseCases(repository: ChatRepository, socketRepository: WebSocketRepository): ChatUseCases{
         return ChatUseCases(
-            createRoom = ChatCreateRoom(repository),
             readChats = ChatRead(repository),
             joinChatRoom = ChatRoomJoin(repository),
             closeChatRoom = ChatRoomClose(repository),
@@ -180,6 +185,7 @@ object UseCaseModule {
             disconnect = Disconnect(socketRepository),
             sendReadEvent = SendReadEvent(socketRepository),
             connectChatSocket = ConnectChatSocket(socketRepository),
+            getChatMessages = GetChatMessagesUseCase(repository)
         )
     }
 

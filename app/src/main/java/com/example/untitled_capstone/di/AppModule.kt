@@ -8,15 +8,19 @@ import androidx.room.Room
 import com.example.untitled_capstone.core.util.Constants.BASE_URL
 import com.example.untitled_capstone.core.util.Constants.KAKAO_BASE_URL
 import com.example.untitled_capstone.data.local.db.FridgeItemDatabase
+import com.example.untitled_capstone.data.local.db.MessageItemDatabase
 import com.example.untitled_capstone.data.local.db.PostItemDatabase
 import com.example.untitled_capstone.data.local.db.RecipeItemDatabase
 import com.example.untitled_capstone.data.local.entity.FridgeItemEntity
+import com.example.untitled_capstone.data.local.entity.MessageItemEntity
 import com.example.untitled_capstone.data.local.entity.PostItemEntity
 import com.example.untitled_capstone.data.local.entity.RecipeItemEntity
 import com.example.untitled_capstone.data.local.remote.FridgeItemDao
+import com.example.untitled_capstone.data.local.remote.MessageDao
 import com.example.untitled_capstone.data.local.remote.PostItemDao
 import com.example.untitled_capstone.data.local.remote.RecipeItemDao
 import com.example.untitled_capstone.data.pagination.FridgePagingSource
+import com.example.untitled_capstone.data.pagination.MessagePagingSource
 import com.example.untitled_capstone.data.pagination.PostPagingSource
 import com.example.untitled_capstone.data.pagination.RecipePagingSource
 import com.example.untitled_capstone.data.remote.manager.WebSocketManager
@@ -85,6 +89,18 @@ object AppModule {
     @Provides
     @Singleton
     fun providePostDao(db: PostItemDatabase): PostItemDao = db.dao
+
+    @Provides
+    @Singleton
+    fun provideMessageItemDatabase(@ApplicationContext context: Context): MessageItemDatabase{
+        return Room.databaseBuilder(
+            context, MessageItemDatabase::class.java, "message_item_database"
+        ).build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideMessageDao(db: MessageItemDatabase): MessageDao = db.dao
 
     @Provides
     @Singleton
@@ -234,6 +250,23 @@ object AppModule {
             ),
             pagingSourceFactory = {
                 db.dao.getPostItems()
+            }
+        )
+    }
+
+    @OptIn(ExperimentalPagingApi::class)
+    @Provides
+    @Singleton
+    fun provideMessagePager(roomId: Long, db: MessageItemDatabase, api: ChatApi): Pager<Int, MessageItemEntity> {
+        return Pager(
+            config = PagingConfig(pageSize = 20),
+            remoteMediator = MessagePagingSource(
+                roomId = roomId,
+                db = db,
+                api = api,
+            ),
+            pagingSourceFactory = {
+                db.dao.getMessagesPaging(roomId)
             }
         )
     }

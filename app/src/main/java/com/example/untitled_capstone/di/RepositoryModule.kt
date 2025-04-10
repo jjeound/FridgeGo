@@ -3,6 +3,7 @@ package com.example.untitled_capstone.di
 import android.app.Application
 import android.content.Context
 import com.example.untitled_capstone.data.local.db.FridgeItemDatabase
+import com.example.untitled_capstone.data.local.db.MessageItemDatabase
 import com.example.untitled_capstone.data.local.db.PostItemDatabase
 import com.example.untitled_capstone.data.local.db.RecipeItemDatabase
 import com.example.untitled_capstone.data.remote.manager.WebSocketManager
@@ -80,13 +81,14 @@ object RepositoryModule {
 
     @Provides
     @Singleton
-    fun provideChatRepository(api: ChatApi): ChatRepository{
-        return ChatRepositoryImpl(api)
+    fun provideChatRepository(api: ChatApi, db: MessageItemDatabase): ChatRepository{
+        return ChatRepositoryImpl(api, db)
     }
 
     @Provides
     @Singleton
     fun provideWebSocketRepository(
         webSocketManager: WebSocketManager,
-    ): WebSocketRepository = WebSocketRepositoryImpl(webSocketManager)
+        db: MessageItemDatabase
+    ): WebSocketRepository = WebSocketRepositoryImpl(webSocketManager, db)
 }

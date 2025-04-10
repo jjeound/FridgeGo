@@ -8,4 +8,6 @@ object Constants {
     const val NETWORK_ERROR = 401
     const val TASTE_PREFERENCE = "tastePreference"
     const val WS_URL = "wss://api.refrigerator.asia/ws/chat"
+    const val NETWORK_PAGE_SIZE = 10
+    const val MESSAGE_PAGE_SIZE = 30
 }

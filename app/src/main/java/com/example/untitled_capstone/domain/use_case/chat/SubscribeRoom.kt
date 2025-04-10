@@ -8,9 +8,11 @@ import javax.inject.Inject
 class SubscribeRoom @Inject constructor(
     private val repository: WebSocketRepository
 ) {
-    operator fun invoke(roomId: Long,
-                        onMessage: (Message) -> Unit,
-                        onUnreadUpdate: (UnreadBroadcast) -> Unit) {
-        repository.subscribeRoom(roomId, onMessage, onUnreadUpdate)
+    suspend operator fun invoke(roomId: Long,
+                                onMessage: (Message) -> Unit,
+                                onUnreadUpdate: (UnreadBroadcast) -> Unit) {
+        repository.subscribeRoom(roomId, onMessage = {
+            onMessage(it.toMessage())
+        } , onUnreadUpdate)
     }
 }

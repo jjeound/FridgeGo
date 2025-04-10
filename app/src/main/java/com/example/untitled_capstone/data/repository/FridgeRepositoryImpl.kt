@@ -4,6 +4,7 @@ import androidx.paging.ExperimentalPagingApi
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
+import com.example.untitled_capstone.core.util.Constants.NETWORK_PAGE_SIZE
 import com.example.untitled_capstone.core.util.Resource
 import com.example.untitled_capstone.data.local.db.FridgeItemDatabase
 import com.example.untitled_capstone.data.local.entity.FridgeItemEntity
@@ -124,10 +125,5 @@ class FridgeRepositoryImpl(
         } catch (e: HttpException) {
             Resource.Error(e.toString())
         }
-    }
-
-
-    companion object {
-        const val NETWORK_PAGE_SIZE = 10
     }
 }

@@ -201,7 +201,7 @@ fun NewFridgeItemForm(id: Long?, state: FridgeState, navController: NavHostContr
                         alignment = Alignment.Center,
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
-                            .size(300.dp)
+                            .size(100.dp)
                             .clip(shape = RoundedCornerShape(Dimens.cornerRadius))
                     )
                     IconButton(
@@ -221,7 +221,7 @@ fun NewFridgeItemForm(id: Long?, state: FridgeState, navController: NavHostContr
             } else {
                 Box(
                     modifier = Modifier
-                        .size(300.dp)
+                        .size(100.dp)
                         .clip(shape = RoundedCornerShape(Dimens.cornerRadius))
                         .background(CustomTheme.colors.surface)
                 ){

@@ -64,6 +64,7 @@ fun KakaoLogin(state: LoginState, onAction: (LoginEvent) -> Unit, navController:
             modifier = Modifier.width(600.dp).height(90.dp).padding(
                 Dimens.largePadding
             ).clickable {
+                //onAction(LoginEvent.KakaoLogin(KakaoAccessTokenRequest(accessToken = "1")))
                 kakaoLogin(context){ code ->
                     onAction(LoginEvent.KakaoLogin(KakaoAccessTokenRequest(accessToken = code)))
                     if(state.error != null){

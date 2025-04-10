@@ -3,6 +3,7 @@ package com.example.untitled_capstone.data.remote.service
 import com.example.untitled_capstone.data.remote.dto.AddressResponse
 import com.example.untitled_capstone.data.remote.dto.KakaoAccessTokenRequest
 import com.example.untitled_capstone.data.remote.dto.ApiResponse
+import com.example.untitled_capstone.data.remote.dto.EmailReq
 import com.example.untitled_capstone.data.remote.dto.KakaoLoginResponse
 import com.example.untitled_capstone.data.remote.dto.LocationDto
 import retrofit2.http.Body
@@ -36,4 +37,10 @@ interface LoginApi {
         @Header("Authorization") token: String,
         @Query("nickname") nickname: String
     ): ApiResponse
+
+    @POST("/api/user/login")
+    suspend fun loginTest(
+        @Body email: EmailReq
+    ): KakaoLoginResponse
+
 }

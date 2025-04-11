@@ -43,7 +43,7 @@ sealed interface Screen {
     data object My: Screen
 
     @Serializable
-    data object Profile: Screen
+    data class Profile(val nickname: String?): Screen
 
     @Serializable
     data object NicknameNav: Screen

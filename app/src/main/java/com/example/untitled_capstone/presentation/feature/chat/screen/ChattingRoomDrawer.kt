@@ -163,14 +163,25 @@ fun ChattingRoomDrawer(
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.spacedBy(Dimens.smallPadding)
                                 ) {
-                                    AsyncImage(
-                                        modifier = Modifier
-                                            .size(36.dp)
-                                            .clip(CircleShape),
-                                        model = it.imageUrl,
-                                        contentScale = ContentScale.Crop,
-                                        contentDescription = "profile image",
-                                    )
+                                    if(it.imageUrl != null){
+                                        AsyncImage(
+                                            modifier = Modifier
+                                                .size(36.dp)
+                                                .clip(CircleShape),
+                                            model = it.imageUrl,
+                                            contentScale = ContentScale.Crop,
+                                            contentDescription = "profile image",
+                                        )
+                                    }else{
+                                        Icon(
+                                            modifier = Modifier
+                                                .size(36.dp)
+                                                .clip(CircleShape),
+                                            imageVector = ImageVector.vectorResource(R.drawable.profile),
+                                            contentDescription = "profile image",
+                                            tint = CustomTheme.colors.iconDefault
+                                        )
+                                    }
                                     Text(
                                         text = it.nickname,
                                         style = CustomTheme.typography.title1,

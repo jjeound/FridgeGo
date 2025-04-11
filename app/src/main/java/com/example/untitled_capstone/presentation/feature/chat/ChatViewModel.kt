@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
+import androidx.paging.map
 import com.example.untitled_capstone.core.util.Resource
 import com.example.untitled_capstone.data.util.FridgeFetchType
 import com.example.untitled_capstone.domain.model.ChatMember
@@ -272,19 +273,25 @@ class ChatViewModel @Inject constructor(
                 roomId,
                 onMessage = { },
                 onUnreadUpdate = { unread ->
-
+                    updateUnreadCount(unread)
                 }//푸시 알람
             )
         }
     }
 
-//    private fun updateUnreadCount(unread: UnreadBroadcast) {
-//        message = message.map { msg ->
-//            if (msg.messageId == unread.messageId) {
-//                msg.copy(unreadCount = unread.unreadCount)
-//            } else msg
-//        }
-//    }
+    private fun updateUnreadCount(unread: UnreadBroadcast) {
+        _message.update { pagingData->
+            pagingData.map {
+                if(it.messageId == unread.messageId){
+                    it.copy(
+                        unreadCount = unread.unreadCount
+                    )
+                }else{
+                    it
+                }
+            }
+        }
+    }
 
     fun sendMessage(roomId: Long, content: String) {
         chatUseCases.sendMessage(roomId, content)

@@ -57,7 +57,6 @@ fun ChattingDetailScreen(
     roomId: Long,
     navController: NavHostController
 ) {
-    //val messages = viewModel.message
     val chattingRoom by remember { viewModel.chattingRoom }
     val member = viewModel.member
     val myName = viewModel.name
@@ -87,10 +86,14 @@ fun ChattingDetailScreen(
         }
     }
     if(state is ChatUiState.Loading){
-        CircularProgressIndicator(
+        Box(
             modifier = Modifier.fillMaxSize(),
-            color = CustomTheme.colors.primary
-        )
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator(
+                color = CustomTheme.colors.primary
+            )
+        }
     }
     chattingRoom?.let { room ->
         Scaffold(
@@ -119,8 +122,8 @@ fun ChattingDetailScreen(
                     navigationIcon = {
                         IconButton(
                             onClick = {
-                                navController.popBackStack()
                                 viewModel.disconnect()
+                                navController.popBackStack()
                             }
                         ) {
                             Icon(
@@ -163,9 +166,11 @@ fun ChattingDetailScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     if(messages.loadState.refresh is LoadState.Loading) {
-                        Box{
+                        Box(
+                            modifier = Modifier.fillMaxWidth(),
+                            contentAlignment = Alignment.Center
+                        ){
                             CircularProgressIndicator(
-                                modifier = Modifier.align(Alignment.Center),
                                 color = CustomTheme.colors.primary
                             )
                         }
@@ -183,21 +188,6 @@ fun ChattingDetailScreen(
                                     val profileImage = member.find { it.nickname == message.senderNickname }?.imageUrl
                                     MessageCard(message = message, isMe, profileImage, room.active)
                                 }
-                            }
-                            when (messages.loadState.append) {
-                                is LoadState.Loading -> {
-                                    item {
-                                        CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
-                                    }
-                                }
-
-                                is LoadState.Error -> {
-                                    item {
-                                        Text("메시지 불러오기 실패")
-                                    }
-                                }
-
-                                else -> Unit
                             }
                         }
                         Spacer(

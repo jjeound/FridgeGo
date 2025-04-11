@@ -4,7 +4,7 @@ import com.example.untitled_capstone.domain.model.ChatMember
 
 data class ChatMemberDto(
     val host: Boolean,
-    val imageUrl: String,
+    val imageUrl: String? = null,
     val nickname: String
 ){
     fun toChatMember(): ChatMember {

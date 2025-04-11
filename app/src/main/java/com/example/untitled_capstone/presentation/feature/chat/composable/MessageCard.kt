@@ -1,12 +1,10 @@
 package com.example.untitled_capstone.presentation.feature.chat.composable
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -38,12 +36,31 @@ fun MessageCard(message: Message, isMe: Boolean, profileImage: String?, isActive
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.End,
         ) {
-            Text(
-                modifier = Modifier.align(Alignment.Bottom),
-                text = formatLocaleDateTimeToKoreanDateTime(message.sentAt),
-                style = CustomTheme.typography.caption2,
-                color = CustomTheme.colors.textSecondary,
-            )
+            if(isActive && message.unreadCount > 0){
+                Column(
+                    modifier = Modifier.wrapContentHeight(),
+                    verticalArrangement = Arrangement.Bottom
+                ) {
+                    Text(
+                        modifier = Modifier.align(Alignment.End),
+                        text = message.unreadCount.toString(),
+                        style = CustomTheme.typography.caption2,
+                        color = CustomTheme.colors.iconRed,
+                    )
+                    Text(
+                        text = formatLocaleDateTimeToKoreanDateTime(message.sentAt),
+                        style = CustomTheme.typography.caption2,
+                        color = CustomTheme.colors.textSecondary,
+                    )
+                }
+            } else {
+                Text(
+                    modifier = Modifier.align(Alignment.Bottom),
+                    text = formatLocaleDateTimeToKoreanDateTime(message.sentAt),
+                    style = CustomTheme.typography.caption2,
+                    color = CustomTheme.colors.textSecondary,
+                )
+            }
             Spacer(
                 modifier = Modifier.width(Dimens.smallPadding)
             )

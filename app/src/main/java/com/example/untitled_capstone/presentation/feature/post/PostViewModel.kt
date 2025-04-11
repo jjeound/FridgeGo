@@ -15,6 +15,7 @@ import com.example.untitled_capstone.data.util.PostFetchType
 import com.example.untitled_capstone.domain.model.Keyword
 import com.example.untitled_capstone.domain.model.NewPost
 import com.example.untitled_capstone.domain.model.PostRaw
+import com.example.untitled_capstone.domain.use_case.my.GetOtherProfile
 import com.example.untitled_capstone.domain.use_case.post.PostUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow

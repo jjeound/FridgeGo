@@ -242,7 +242,9 @@ fun PostDetailScreen(id: Long, nickname: MutableState<String>, state: PostState,
                     .padding(horizontal = Dimens.surfaceHorizontalPadding,
                         vertical = Dimens.surfaceVerticalPadding),
             ){
-                PostContainer(post= post)
+                PostContainer(post= post, goToProfile = {navController.navigate(Screen.Profile(
+                    post.nickname
+                ))})
             }
         }
     }

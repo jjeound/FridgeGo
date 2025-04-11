@@ -1,6 +1,7 @@
 package com.example.untitled_capstone.presentation.feature.post.composable
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -35,7 +36,7 @@ import com.example.untitled_capstone.ui.theme.CustomTheme
 import androidx.core.net.toUri
 
 @Composable
-fun PostContainer(post: Post){
+fun PostContainer(post: Post, goToProfile: () -> Unit){
     val category = Category.entries.find { it.eng == post.category }?.kor ?: Category.VEGETABLE.kor
     val pagerState = rememberPagerState(pageCount = {
         post.image?.size ?: 1
@@ -66,7 +67,9 @@ fun PostContainer(post: Post){
             )
         }
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().clickable{
+                goToProfile()
+            },
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {

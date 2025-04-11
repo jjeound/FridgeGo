@@ -23,6 +23,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,27 +36,30 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.domain.model.Profile
+import com.example.untitled_capstone.navigation.Graph
 import com.example.untitled_capstone.navigation.Screen
 import com.example.untitled_capstone.presentation.feature.my.MyEvent
+import com.example.untitled_capstone.presentation.feature.my.MyState
 import com.example.untitled_capstone.ui.theme.CustomTheme
 import java.io.File
 
 @Composable
-fun ProfileDetail(profile: Profile, onEvent: (MyEvent) -> Unit, navController: NavHostController){
+fun ProfileDetail(loginState: Boolean, profile: Profile, onEvent: (MyEvent) -> Unit, navController: NavHostController){
     val context = LocalContext.current
-    var image by remember { mutableStateOf(profile.imageUrl) }
+    var image by remember { mutableStateOf(profile.imageUrl?.toUri()) }
     val albumLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             when (result.resultCode) {
                 Activity.RESULT_OK -> {
                     result.data?.data?.let { uri ->
                         uri.let {
-                            image = uri.toString()
+                            image = uri
                             val filePath = context.getRealPathFromURI(it)
                             if (filePath != null) {
                                 onEvent(MyEvent.UploadProfileImage(File(filePath)))
@@ -72,7 +76,13 @@ fun ProfileDetail(profile: Profile, onEvent: (MyEvent) -> Unit, navController: N
         putExtra(Intent.EXTRA_ALLOW_MULTIPLE, false)
         addCategory(Intent.CATEGORY_OPENABLE)
     }
-
+    if(!loginState){
+        navController.navigate(Screen.LoginNav){
+            popUpTo(Graph.LoginGraph){
+                inclusive = true
+            }
+        }
+    }
     Column (
         modifier = Modifier.fillMaxSize().padding(Dimens.mediumPadding),
         horizontalAlignment = Alignment.CenterHorizontally,

@@ -28,7 +28,21 @@ import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileScreen(navController: NavHostController, state: MyState, onEvent: (MyEvent) -> Unit, navigateToBack: () -> Unit){
+fun ProfileScreen(
+    navController: NavHostController,
+    state: MyState,
+    onEvent: (MyEvent) -> Unit,
+    navigateToBack: () -> Unit,
+    loginState: Boolean,
+    nickName: String? = null
+) {
+    LaunchedEffect(Unit) {
+        if(nickName != null){
+            onEvent(MyEvent.GetOtherProfile(nickName))
+        } else {
+            onEvent(MyEvent.GetMyProfile)
+        }
+    }
     Scaffold(
         containerColor = CustomTheme.colors.surface,
         topBar = {
@@ -73,12 +87,7 @@ fun ProfileScreen(navController: NavHostController, state: MyState, onEvent: (My
                         vertical = Dimens.surfaceVerticalPadding)
             ){
                 if(state.profile != null){
-                    ProfileDetail(state.profile, onEvent, navController)
-                }
-            }
-            LaunchedEffect(state) {
-                if(!state.isLoggedIn){
-                    navController.navigate(Graph.LoginGraph)
+                    ProfileDetail(loginState, state.profile, onEvent, navController)
                 }
             }
         }

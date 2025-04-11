@@ -17,6 +17,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -40,7 +41,7 @@ import com.example.untitled_capstone.presentation.feature.my.composable.MyContai
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @Composable
-fun MyScreen(navController: NavHostController, onEvent: (MyEvent) -> Unit, state: MyState) {
+fun MyScreen(navController: NavHostController, onEvent: (MyEvent) -> Unit, state: MyState, nickname: String?) {
     val locationPermissions = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)
     val requestPermissionLauncher =
         rememberLauncherForActivityResult(
@@ -56,22 +57,16 @@ fun MyScreen(navController: NavHostController, onEvent: (MyEvent) -> Unit, state
     val context = LocalContext.current
     val packageName = context.packageName
     val showDialog = remember { mutableStateOf(false) }
+
     Column(
         modifier = Modifier.padding(horizontal = Dimens.surfaceHorizontalPadding,
             vertical = Dimens.surfaceVerticalPadding),
         verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding),
     ) {
-        if(state.isLoggedIn){
-            MyAccountContainer({
-                navController.navigate(route = Screen.Profile)
-            }, state)
-        }else{
-            MyAccountContainer({
-                navController.navigate(route = Graph.LoginGraph) {
-                    popUpTo(route = Graph.LoginGraph) { inclusive = true }
-                }
-            }, state)
-        }
+        MyAccountContainer(
+            navigateTo = { navController.navigate(route = Screen.Profile(null)) },
+            nickname = nickname ?: ""
+        )
         Card(
             shape = RoundedCornerShape(Dimens.cornerRadius),
             colors = CardDefaults.cardColors(

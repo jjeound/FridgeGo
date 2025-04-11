@@ -3,15 +3,11 @@ package com.example.untitled_capstone.data.repository
 import com.example.untitled_capstone.data.local.db.MessageItemDatabase
 import com.example.untitled_capstone.data.remote.dto.MessageDto
 import com.example.untitled_capstone.data.remote.manager.WebSocketManager
-import com.example.untitled_capstone.domain.model.Message
 import com.example.untitled_capstone.domain.model.UnreadBroadcast
-import com.example.untitled_capstone.domain.repository.TokenRepository
 import com.example.untitled_capstone.domain.repository.WebSocketRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 

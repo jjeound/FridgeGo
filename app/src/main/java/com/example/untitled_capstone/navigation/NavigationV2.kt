@@ -141,6 +141,34 @@ fun NavigationV2(navController: NavHostController, mainViewModel: MainViewModel)
                     }
                 )
             }
+            composable<Screen.ChattingRoomNav>{
+                val viewModel: ChatViewModel = hiltViewModel()
+                val state by viewModel.state.collectAsStateWithLifecycle()
+                val messages = viewModel.message.collectAsLazyPagingItems()
+                val args = it.toRoute<Screen.ChattingRoomNav>()
+                ChattingDetailScreen(
+                    snackbarHostState = remember { SnackbarHostState() },
+                    viewModel = viewModel,
+                    messages = messages,
+                    state = state,
+                    roomId = args.id,
+                    navController = navController
+                )
+            }
+            composable<Screen.Profile>{
+                val viewModel: MyViewModel = hiltViewModel()
+                val state by viewModel.state.collectAsStateWithLifecycle()
+                val loginState = viewModel.loginState
+                val args = it.toRoute<Screen.Profile>()
+                ProfileScreen(
+                    navController,
+                    state,
+                    viewModel::onEvent,
+                    {navController.popBackStack()},
+                    loginState,
+                    args.nickname
+                )
+            }
         }
         navigation<Graph.FridgeGraph>(
             startDestination = Screen.Fridge
@@ -216,13 +244,15 @@ fun NavigationV2(navController: NavHostController, mainViewModel: MainViewModel)
                 val parentEntry = navController.getBackStackEntry(Graph.MyGraph)
                 val viewModel: MyViewModel = hiltViewModel(parentEntry)
                 val state by viewModel.state.collectAsStateWithLifecycle()
-                MyScreen(navController, viewModel::onEvent, state)
+                val nickname by viewModel.nickname.collectAsStateWithLifecycle()
+                MyScreen(navController, viewModel::onEvent, state, nickname)
             }
             composable<Screen.Profile>{
                 val parentEntry = navController.getBackStackEntry(Graph.MyGraph)
                 val viewModel: MyViewModel = hiltViewModel(parentEntry)
                 val state by viewModel.state.collectAsStateWithLifecycle()
-                ProfileScreen(navController, state, viewModel::onEvent, {navController.popBackStack()})
+                val loginState = viewModel.loginState
+                ProfileScreen(navController, state, viewModel::onEvent, {navController.popBackStack()}, loginState)
             }
             composable<Screen.NicknameNav>{
                 val viewModel: LoginViewModel = hiltViewModel()

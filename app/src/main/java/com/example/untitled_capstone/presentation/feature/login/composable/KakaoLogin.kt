@@ -7,6 +7,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -29,6 +30,8 @@ import com.example.untitled_capstone.navigation.Graph
 import com.example.untitled_capstone.navigation.Screen
 import com.example.untitled_capstone.presentation.feature.login.LoginEvent
 import com.example.untitled_capstone.presentation.feature.login.state.LoginState
+import com.example.untitled_capstone.presentation.util.AuthEvent
+import com.example.untitled_capstone.presentation.util.AuthEventBus
 import com.kakao.sdk.auth.model.OAuthToken
 import com.kakao.sdk.common.model.ClientError
 import com.kakao.sdk.common.model.ClientErrorCause
@@ -37,6 +40,17 @@ import com.kakao.sdk.user.UserApiClient
 @Composable
 fun KakaoLogin(state: LoginState, onAction: (LoginEvent) -> Unit, navController: NavHostController){
     val context = LocalContext.current
+    LaunchedEffect(state.response) {
+        if(state.response != null){
+            if (state.response.nickname != null){
+                navController.navigate(route = Graph.HomeGraph) {
+                    popUpTo(0)
+                }
+            } else {
+                navController.navigate(Screen.NicknameNav)
+            }
+        }
+    }
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -49,28 +63,17 @@ fun KakaoLogin(state: LoginState, onAction: (LoginEvent) -> Unit, navController:
             imageVector = ImageVector.vectorResource(R.drawable.logo),
             contentDescription = "logo"
         )
-        LaunchedEffect(state.response) {
-            if(state.response != null){
-                if (state.response.nickname != null){
-                    navController.navigate(route = Graph.HomeGraph) {
-                        popUpTo(0)
-                    }
-                } else {
-                    navController.navigate(Screen.NicknameNav)
-                }
-            }
-        }
+        Spacer(
+            modifier = Modifier.height(Dimens.hugePadding)
+        )
         Image(
             modifier = Modifier.width(600.dp).height(90.dp).padding(
                 Dimens.largePadding
             ).clickable {
-                //onAction(LoginEvent.KakaoLogin(KakaoAccessTokenRequest(accessToken = "1")))
-                kakaoLogin(context){ code ->
-                    onAction(LoginEvent.KakaoLogin(KakaoAccessTokenRequest(accessToken = code)))
-                    if(state.error != null){
-                        Toast.makeText(context, "로그인 에러 " + state.error, Toast.LENGTH_SHORT).show()
-                    }
-                }
+                onAction(LoginEvent.KakaoLogin(KakaoAccessTokenRequest(accessToken = "3")))
+//                kakaoLogin(context){ code ->
+//                    onAction(LoginEvent.KakaoLogin(KakaoAccessTokenRequest(accessToken = code)))
+//                }
             },
             painter = painterResource(id = R.drawable.kakao_login_large_wide),
             contentDescription = "kakao_login"

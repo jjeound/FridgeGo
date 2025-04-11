@@ -35,7 +35,7 @@ class LoginRepositoryImpl @Inject constructor(
         return try {
             Resource.Loading(data = null)
             //val response = api.kakaoLogin(accessToken)
-            val response = api.loginTest(EmailReq("1"))
+            val response = api.loginTest(EmailReq("2"))
             if(response.isSuccess){
                 tokenRepository.saveAccessToken(response.result!!.accessToken)
                 tokenRepository.saveRefreshToken(response.result.refreshToken)

@@ -37,17 +37,6 @@ fun LoginScreen(navController: NavHostController, state: LoginState, onAction: (
                         color = CustomTheme.colors.textPrimary,
                     )
                 },
-                navigationIcon = {
-                    IconButton(
-                        onClick = {navController.popBackStack()}
-                    ) {
-                        Icon(
-                            imageVector = ImageVector.vectorResource(R.drawable.chevron_left),
-                            tint = CustomTheme.colors.iconSelected,
-                            contentDescription = "back",
-                        )
-                    }
-                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = CustomTheme.colors.onSurface
                 )

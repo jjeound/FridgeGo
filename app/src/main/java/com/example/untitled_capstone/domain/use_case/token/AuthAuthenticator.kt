@@ -4,6 +4,7 @@ import com.example.untitled_capstone.data.remote.dto.TokenDto
 import com.example.untitled_capstone.data.util.ErrorCode.JWT4004
 import com.example.untitled_capstone.domain.repository.TokenRepository
 import com.example.untitled_capstone.presentation.util.AuthEvent
+import com.example.untitled_capstone.presentation.util.AuthEventBus
 import com.example.untitled_capstone.presentation.util.AuthEventBus.authEventChannel
 import com.kakao.sdk.common.Constants.AUTHORIZATION
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -23,9 +24,9 @@ class AuthAuthenticator @Inject constructor(
     private val tokenManager: TokenRepository
 ) : Authenticator {
     override fun authenticate(route: Route?, response: Response): Request? {
-//        if (responseCount(response) >= MAX_AUTH_RETRY) {
-//            return null // 무한 루프 방지
-//        }
+        if (responseCount(response) >= MAX_AUTH_RETRY) {
+            return null // 무한 루프 방지
+        }
 
         if (response.code != 401) return null
 
@@ -61,29 +62,24 @@ class AuthAuthenticator @Inject constructor(
         return response.data?.result
     }
 
-//    private fun responseCount(response: Response): Int {
-//        var count = 1
-//        var priorResponse = response.priorResponse
-//        while (priorResponse != null) {
-//            count++
-//            priorResponse = priorResponse.priorResponse
-//        }
-//        return count
-//    }
-
-    @OptIn(DelicateCoroutinesApi::class)
-    private fun handleTokenExpired() {
-        // 로그아웃 처리 (예: 토큰 삭제 & 로그인 화면 이동)
-        runBlocking {
-            tokenManager.deleteTokens()
+    private fun responseCount(response: Response): Int {
+        var count = 1
+        var priorResponse = response.priorResponse
+        while (priorResponse != null) {
+            count++
+            priorResponse = priorResponse.priorResponse
         }
-        // 예: EventBus 또는 StateFlow를 사용해서 로그아웃 이벤트 발생
-        GlobalScope.launch {
-            authEventChannel.send(AuthEvent.Logout)
-        }
+        return count
     }
 
-//    companion object {
-//        private const val MAX_AUTH_RETRY = 3
-//    }
+    @OptIn(DelicateCoroutinesApi::class)
+    private suspend fun handleTokenExpired() {
+        // 로그아웃 처리 (예: 토큰 삭제 & 로그인 화면 이동)
+        AuthEventBus.send(AuthEvent.Logout)
+        tokenManager.deleteTokens()
+    }
+
+    companion object {
+        private const val MAX_AUTH_RETRY = 3
+    }
 }

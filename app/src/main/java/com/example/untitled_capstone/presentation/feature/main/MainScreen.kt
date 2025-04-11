@@ -52,11 +52,13 @@ fun MainScreen(viewModel: MainViewModel){
     val bottomBarDestination = screens.any { bottomRoute.equals(it) }
     val authState = viewModel.authState.collectAsStateWithLifecycle()
     LaunchedEffect(authState) {
-       if(authState.value == AuthEvent.Logout){
-          navController.navigate(route = Graph.LoginGraph) {
-            popUpTo(route = Graph.LoginGraph) { inclusive = true }
-          }
-       }
+        if(authState.value is AuthState.Logout){
+            navController.navigate(route = Graph.LoginGraph){
+                popUpTo(Graph.LoginGraph){
+                    inclusive = true
+                }
+            }
+        }
     }
 
     Scaffold(

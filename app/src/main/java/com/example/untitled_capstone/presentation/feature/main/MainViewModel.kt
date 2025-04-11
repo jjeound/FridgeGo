@@ -25,7 +25,7 @@ class MainViewModel @Inject constructor(
     var topSelector by mutableStateOf(true)
         private set
 
-    private val _authState = MutableStateFlow<AuthState>(AuthState.Success)
+    private val _authState = MutableStateFlow<AuthState>(AuthState.Login)
     val authState = _authState.asStateFlow()
 
     private val _startDestination = mutableStateOf<Graph>(Graph.OnBoardingGraph)
@@ -44,7 +44,7 @@ class MainViewModel @Inject constructor(
     private fun appEntry(){
         viewModelScope.launch {
             readAppEntry().collect { appEntry ->
-                if (appEntry) {
+                if (appEntry && _authState.value is AuthState.Login) {
                     _startDestination.value = Graph.HomeGraph
                 } else {
                     _startDestination.value = Graph.OnBoardingGraph
@@ -71,13 +71,5 @@ class MainViewModel @Inject constructor(
                 }
             }
         }
-    }
-
-    fun showError(message: String) {
-        _authState.value = AuthState.Error(message)
-    }
-
-    fun showLoading() {
-        _authState.value = AuthState.Loading
     }
 }

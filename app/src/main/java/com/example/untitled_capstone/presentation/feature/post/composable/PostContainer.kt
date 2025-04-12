@@ -33,7 +33,6 @@ import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.domain.model.Post
 import com.example.untitled_capstone.ui.theme.CustomTheme
-import androidx.core.net.toUri
 
 @Composable
 fun PostContainer(post: Post, goToProfile: () -> Unit){

@@ -1,10 +1,7 @@
 package com.example.untitled_capstone.presentation.feature.post
 
 import androidx.compose.runtime.State
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
@@ -15,7 +12,6 @@ import com.example.untitled_capstone.data.util.PostFetchType
 import com.example.untitled_capstone.domain.model.Keyword
 import com.example.untitled_capstone.domain.model.NewPost
 import com.example.untitled_capstone.domain.model.PostRaw
-import com.example.untitled_capstone.domain.use_case.my.GetOtherProfile
 import com.example.untitled_capstone.domain.use_case.post.PostUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,7 +20,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import okhttp3.MultipartBody
 import java.io.File
 import javax.inject.Inject
 

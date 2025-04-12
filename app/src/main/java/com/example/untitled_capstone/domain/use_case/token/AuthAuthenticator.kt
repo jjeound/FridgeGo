@@ -5,13 +5,10 @@ import com.example.untitled_capstone.data.util.ErrorCode.JWT4004
 import com.example.untitled_capstone.domain.repository.TokenRepository
 import com.example.untitled_capstone.presentation.util.AuthEvent
 import com.example.untitled_capstone.presentation.util.AuthEventBus
-import com.example.untitled_capstone.presentation.util.AuthEventBus.authEventChannel
 import com.kakao.sdk.common.Constants.AUTHORIZATION
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import okhttp3.Authenticator

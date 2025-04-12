@@ -33,7 +33,10 @@ import com.example.untitled_capstone.presentation.feature.my.composable.MyTopBar
 import com.example.untitled_capstone.presentation.feature.fridge.composable.FridgeTopBar
 import com.example.untitled_capstone.presentation.feature.post.composable.PostTopBar
 import com.example.untitled_capstone.presentation.util.AuthEvent
+import com.example.untitled_capstone.presentation.util.AuthEventBus
+import com.example.untitled_capstone.presentation.util.UiEvent
 import com.example.untitled_capstone.ui.theme.CustomTheme
+import kotlinx.coroutines.flow.receiveAsFlow
 
 @Composable
 fun MainScreen(viewModel: MainViewModel){
@@ -85,7 +88,7 @@ fun MainScreen(viewModel: MainViewModel){
                     screens[0] -> {
                         FloatingActionButton(
                             onClick = {
-                                viewModel.showBottomSheet.value = true
+                                viewModel.showBottomSheet()
                             },
                             elevation = FloatingActionButtonDefaults.elevation(0.dp),
                             containerColor = Color.Unspecified,

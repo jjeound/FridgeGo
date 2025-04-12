@@ -1,13 +1,11 @@
 package com.example.untitled_capstone.presentation.feature.home
 
-import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import androidx.paging.map
 import com.example.untitled_capstone.core.util.Resource
 import com.example.untitled_capstone.domain.model.Recipe
 import com.example.untitled_capstone.domain.model.RecipeRaw
@@ -21,7 +19,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.io.File
@@ -43,8 +41,11 @@ class HomeViewModel @Inject constructor(
     private val _modifyState = MutableStateFlow(ModifyState())
     val modifyState: StateFlow<ModifyState> = _modifyState
 
-    private val _recipeItemsState: MutableStateFlow<PagingData<RecipeRaw>> = MutableStateFlow(PagingData.empty())
-    val recipeItemsState = _recipeItemsState.asStateFlow()
+//    private val _recipeItemsState: MutableStateFlow<PagingData<RecipeRaw>> = MutableStateFlow(PagingData.empty())
+//    val recipeItemsState = _recipeItemsState.asStateFlow()
+
+    private val _recipePagingData: MutableStateFlow<PagingData<RecipeRaw>> = MutableStateFlow(PagingData.empty<RecipeRaw>())
+    val recipePagingData = _recipePagingData.asStateFlow()
 
     init {
         getTastePreference()
@@ -148,7 +149,7 @@ class HomeViewModel @Inject constructor(
             when(result){
                 is Resource.Success -> {
                     result.data?.let{
-                        getRecipes()
+                       getRecipes()
                     }
                 }
                 is Resource.Error -> {
@@ -192,21 +193,29 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private fun getRecipes() {
+    private fun getRecipes(){
         viewModelScope.launch {
             homeUseCases.getRecipeItems()
-                .distinctUntilChanged()
                 .cachedIn(viewModelScope)
-                .collect { pagingData ->
-                    _recipeItemsState.value = pagingData
-                    _recipeState.update {
-                        it.copy(
-                            loading = false,
-                            error = null
-                        )
-                    }
+                .collectLatest { pagingData ->
+                    _recipePagingData.value = pagingData
+                    _recipeState.update { it.copy(error = null) }
                 }
         }
+//        viewModelScope.launch {
+//            homeUseCases.getRecipeItems()
+//                .distinctUntilChanged()
+//                .cachedIn(viewModelScope)
+//                .collect { pagingData ->
+//                    _recipeItemsState.value = pagingData
+//                    _recipeState.update {
+//                        it.copy(
+//                            loading = false,
+//                            error = null
+//                        )
+//                    }
+//                }
+//        }
     }
 
     private fun getRecipeById(id: Long){
@@ -238,15 +247,15 @@ class HomeViewModel @Inject constructor(
             when(result){
                 is Resource.Success -> {
                     result.data?.let{
-                        _recipeItemsState.update { pagingData ->
-                            pagingData.map {
-                                if(it.id == id){
-                                    it.copy(liked = result.data.liked)
-                                }else{
-                                    it
-                                }
-                            }
-                        }
+//                        _recipeItemsState.update { pagingData ->
+//                            pagingData.map {
+//                                if(it.id == id){
+//                                    it.copy(liked = result.data.liked)
+//                                }else{
+//                                    it
+//                                }
+//                            }
+//                        }
                         _recipeState.update {
                             it.copy(
                                 recipe = it.recipe?.copy(liked = result.data.liked),
@@ -298,7 +307,6 @@ class HomeViewModel @Inject constructor(
                                 error = null
                             )
                         }
-                        getRecipes()
                     }
                 }
                 is Resource.Error -> {

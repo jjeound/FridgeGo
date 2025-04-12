@@ -60,7 +60,6 @@ fun HomeScreen(mainViewModel: MainViewModel, state: RecipeState, recipeItems: La
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = false
     )
-    val itemCount by remember { derivedStateOf { recipeItems.itemCount } }
     Column(
         modifier = Modifier.padding(
             horizontal = Dimens.surfaceHorizontalPadding)
@@ -104,7 +103,7 @@ fun HomeScreen(mainViewModel: MainViewModel, state: RecipeState, recipeItems: La
                             color = CustomTheme.colors.primary
                         )
                     } else {
-                        if(itemCount == 0){
+                        if(recipeItems.itemCount == 0){
                             AsyncImage(
                                 modifier = Modifier.fillMaxWidth(),
                                 model = R.drawable.home_banner,
@@ -136,11 +135,11 @@ fun HomeScreen(mainViewModel: MainViewModel, state: RecipeState, recipeItems: La
                 }
             }
         }
-        if(mainViewModel.showBottomSheet.value){
+        if(mainViewModel.showBottomSheet){
             ModalBottomSheet(
                 modifier = Modifier.fillMaxSize(),
                 sheetState = sheetState,
-                onDismissRequest = { mainViewModel.showBottomSheet.value = false},
+                onDismissRequest = { mainViewModel.hideBottomSheet()},
                 containerColor = CustomTheme.colors.onSurface
             ) {
                 ChatBot(aiState, onEvent)

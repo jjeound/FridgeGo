@@ -1,6 +1,7 @@
 package com.example.untitled_capstone.data.repository
 
 import android.content.Context
+import android.util.Log
 import androidx.paging.ExperimentalPagingApi
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
@@ -154,6 +155,11 @@ class HomeRepositoryImpl @Inject constructor(
             val response = api.modifyRecipe(recipe.id, ModifyRecipeBody(title = recipe.title,
                 instructions = recipe.instructions, ingredients = recipe.ingredients))
             if(response.isSuccess){
+                db.dao.updateRecipe(
+                    id = recipe.id,
+                    title = recipe.title,
+                    imageUrl = recipe.imageUrl
+                )
                 Resource.Success(response)
             }else {
                 Resource.Error(message = response.toString())

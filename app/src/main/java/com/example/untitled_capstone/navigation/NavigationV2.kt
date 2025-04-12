@@ -58,7 +58,7 @@ fun NavigationV2(navController: NavHostController, mainViewModel: MainViewModel)
                 val parentEntry = navController.getBackStackEntry(Graph.HomeGraph)
                 val viewModel: HomeViewModel = hiltViewModel(parentEntry)
                 val recipeState by viewModel.recipeState.collectAsStateWithLifecycle()
-                val recipeItems = viewModel.recipeItemsState.collectAsLazyPagingItems()
+                val recipeItems = viewModel.recipePagingData.collectAsLazyPagingItems()
                 val tastePrefState by viewModel.tastePrefState.collectAsStateWithLifecycle()
                 val aiState by remember { viewModel.aiState }
                 HomeScreen(mainViewModel, recipeState, recipeItems, tastePrefState, aiState, viewModel::onEvent) { id ->
@@ -361,13 +361,4 @@ fun NavigationV2(navController: NavHostController, mainViewModel: MainViewModel)
             }
         }
     }
-}
-
-@Composable
-inline fun <reified T: ViewModel> NavBackStackEntry.sharedViewModel(navController: NavHostController): T{
-    val navGraphRoute = destination.parent?.route ?: return viewModel()
-    val parentEntry = remember(this){
-        navController.getBackStackEntry(navGraphRoute)
-    }
-    return viewModel(parentEntry)
 }

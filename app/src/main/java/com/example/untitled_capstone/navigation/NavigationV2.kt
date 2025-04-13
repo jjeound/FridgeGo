@@ -79,12 +79,10 @@ fun NavigationV2(
             composable<Screen.RecipeModifyNav>{
                 val parentEntry = navController.getBackStackEntry(Graph.HomeGraph)
                 val viewModel: HomeViewModel = hiltViewModel(parentEntry)
-                val modifyState by viewModel.modifyState.collectAsStateWithLifecycle()
                 RecipeModifyScreen(
                     viewModel = viewModel,
-                    state = modifyState,
                     onEvent = viewModel::onEvent,
-                    navigateToBack = {navController.popBackStack()}
+                    navController = navController
                 )
             }
         }

@@ -13,6 +13,5 @@ sealed interface HomeEvent {
     data class GetRecipeById(val id: Long): HomeEvent
     data object InitState: HomeEvent
     data class DeleteRecipe(val id: Long): HomeEvent
-    data class ModifyRecipe(val recipe: Recipe): HomeEvent
-    data class UploadImage(val id: Long, val file: File): HomeEvent
+    data class UploadImageThenModifyRecipe(val recipe: Recipe, val file: File?): HomeEvent
 }

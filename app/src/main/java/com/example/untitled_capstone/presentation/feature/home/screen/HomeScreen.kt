@@ -68,6 +68,7 @@ fun HomeScreen(
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = false,
     )
+    val scrollState = rememberLazyGridState()
     val isExpanded = remember { mutableStateOf(false) }
     LaunchedEffect(true) {
         viewModel.event.collect { event ->
@@ -77,6 +78,9 @@ fun HomeScreen(
                 }
                 is UIEvent.Navigate -> {
                     navController.navigate(event.route)
+                }
+                is UIEvent.PopBackStack -> {
+                    navController.popBackStack()
                 }
             }
         }
@@ -139,7 +143,7 @@ fun HomeScreen(
                         }
                         LazyVerticalGrid(
                             columns = GridCells.Fixed(2),
-                            state = rememberLazyGridState(),
+                            state = scrollState,
                             verticalArrangement = Arrangement.spacedBy(Dimens.hugePadding),
                             horizontalArrangement = Arrangement.spacedBy(Dimens.hugePadding),
                         ) {

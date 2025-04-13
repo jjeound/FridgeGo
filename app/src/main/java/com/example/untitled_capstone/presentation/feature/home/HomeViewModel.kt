@@ -15,14 +15,12 @@ import com.example.untitled_capstone.domain.model.TastePreference
 import com.example.untitled_capstone.domain.use_case.home.HomeUseCases
 import com.example.untitled_capstone.navigation.Screen
 import com.example.untitled_capstone.presentation.feature.home.state.AiState
-import com.example.untitled_capstone.presentation.feature.home.state.ModifyState
 import com.example.untitled_capstone.presentation.feature.home.state.RecipeState
 import com.example.untitled_capstone.presentation.feature.home.state.TastePrefState
 import com.example.untitled_capstone.presentation.util.UIEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -43,9 +41,6 @@ class HomeViewModel @Inject constructor(
 
     var aiState by mutableStateOf(AiState())
         private set
-
-    private val _modifyState = MutableStateFlow(ModifyState())
-    val modifyState: StateFlow<ModifyState> = _modifyState
 
     private val _recipePagingData: MutableStateFlow<PagingData<RecipeRaw>> = MutableStateFlow(PagingData.empty<RecipeRaw>())
     val recipePagingData = _recipePagingData.asStateFlow()
@@ -69,20 +64,12 @@ class HomeViewModel @Inject constructor(
             is HomeEvent.GetTastePreference -> getTastePreference()
             is HomeEvent.InitState -> initState()
             is HomeEvent.DeleteRecipe -> deleteRecipe(event.id)
-            is HomeEvent.ModifyRecipe -> modifyRecipe(event.recipe)
-            is HomeEvent.UploadImage -> uploadImage(event.id, event.file)
+            is HomeEvent.UploadImageThenModifyRecipe -> uploadImageThenModify(event.recipe, event.file)
         }
     }
 
     private fun initState(){
         recipeState = RecipeState()
-        _modifyState.update {
-            it.copy(
-                isSuccess = false,
-                loading = false,
-                error = null
-            )
-        }
     }
 
     private fun getTastePreference() {
@@ -268,13 +255,21 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private fun modifyRecipe(recipe: Recipe){
+    private fun uploadImageThenModify(recipe: Recipe, imageFile: File?){
         viewModelScope.launch {
+            imageFile?.let {
+                val uploadResult = homeUseCases.uploadImage(recipe.id, it)
+                if (uploadResult is Resource.Error) {
+                    _event.emit(UIEvent.ShowSnackbar(uploadResult.message ?: "이미지 업로드 실패했지만 계속 진행합니다."))
+                    // 실패해도 넘어감
+                }
+            }
             val result = homeUseCases.modifyRecipe(recipe)
             when(result){
                 is Resource.Success -> {
                     result.data?.let {
                         recipeState.isLoading = false
+                        _event.emit(UIEvent.PopBackStack)
                         _recipePagingData.update { pagingData ->
                             pagingData.map {
                                 if(it.id == recipe.id) {
@@ -287,26 +282,6 @@ class HomeViewModel @Inject constructor(
                                 }
                             }
                         }
-                    }
-                }
-                is Resource.Error -> {
-                    recipeState.isLoading = false
-                    _event.emit(UIEvent.ShowSnackbar(result.message ?: "Unknown error"))
-                }
-                is Resource.Loading -> {
-                    recipeState.isLoading = true
-                }
-            }
-        }
-    }
-
-    private fun uploadImage(id: Long, file: File) {
-        viewModelScope.launch {
-            val result = homeUseCases.uploadImage(id, file)
-            when(result){
-                is Resource.Success -> {
-                    result.data?.let{
-                        recipeState.isLoading = false
                     }
                 }
                 is Resource.Error -> {

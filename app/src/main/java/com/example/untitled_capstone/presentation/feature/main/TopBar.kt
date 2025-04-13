@@ -27,7 +27,11 @@ fun TopBar(index: Int, navController: NavHostController){
             when(index){
                 1 -> {
                     Text(
-                        text = "",
+                        text = "홈",
+                        fontFamily = CustomTheme.typography.headline3.fontFamily,
+                        fontWeight = CustomTheme.typography.headline3.fontWeight,
+                        fontSize = CustomTheme.typography.headline3.fontSize,
+                        color = CustomTheme.colors.textPrimary,
                     )
                 }
                 4 -> {
@@ -42,15 +46,6 @@ fun TopBar(index: Int, navController: NavHostController){
             }
         },
         actions = {
-            IconButton(
-                onClick = {}
-            ) {
-                Icon(
-                    imageVector = ImageVector.vectorResource(R.drawable.search),
-                    tint = CustomTheme.colors.iconDefault,
-                    contentDescription = "search"
-                )
-            }
             IconButton(
                 onClick = {navController.navigate(Screen.NotificationNav)}
             ) {

@@ -37,6 +37,8 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -44,6 +46,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -53,6 +56,8 @@ import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
@@ -60,12 +65,14 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
+import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.untitled_capstone.MainActivity
 import com.example.untitled_capstone.R
@@ -74,15 +81,22 @@ import com.example.untitled_capstone.domain.model.Recipe
 import com.example.untitled_capstone.presentation.feature.fridge.composable.PermissionDialog
 import com.example.untitled_capstone.presentation.feature.home.HomeEvent
 import com.example.untitled_capstone.presentation.feature.home.HomeViewModel
-import com.example.untitled_capstone.presentation.feature.home.state.ModifyState
 import com.example.untitled_capstone.presentation.feature.my.composable.getRealPathFromURI
+import com.example.untitled_capstone.presentation.util.UIEvent
 import com.example.untitled_capstone.ui.theme.CustomTheme
+import kotlinx.coroutines.launch
 import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RecipeModifyScreen(viewModel: HomeViewModel, state: ModifyState, onEvent: (HomeEvent) -> Unit, navigateToBack: () -> Unit) {
-    var recipe by remember { mutableStateOf(viewModel.recipeState.recipe!!) }
+fun RecipeModifyScreen(
+    viewModel: HomeViewModel,
+    onEvent: (HomeEvent) -> Unit,
+    navController: NavHostController,
+) {
+    val snackbarHostState = remember { SnackbarHostState() }
+    val state = remember { viewModel.recipeState }
+    var recipe by remember { mutableStateOf(state.recipe!!) }
     val focusManager = LocalFocusManager.current
     var title by remember { mutableStateOf( recipe.title)}
     val ingredients = remember {
@@ -90,14 +104,15 @@ fun RecipeModifyScreen(viewModel: HomeViewModel, state: ModifyState, onEvent: (H
     }
     var instructions by remember { mutableStateOf( recipe.instructions)}
     val listState = rememberLazyListState()
+    val scope = rememberCoroutineScope()
     var validator =
         if (title.isNotEmpty() &&
             ingredients.isNotEmpty() &&
-            ingredients.toList().first().value.isNotBlank() &&
             instructions.isNotEmpty()) true else false
 
     val context = LocalContext.current
     var image by remember { mutableStateOf(recipe.imageUrl) }
+    var imageFile by remember { mutableStateOf<File?>(null) }
     val showDialog = remember { mutableStateOf(false) }
     val albumLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -108,7 +123,7 @@ fun RecipeModifyScreen(viewModel: HomeViewModel, state: ModifyState, onEvent: (H
                             image = uri.toString()
                             val filePath = context.getRealPathFromURI(it)
                             if (filePath != null) {
-                                onEvent(HomeEvent.UploadImage(recipe.id ,File(filePath)))
+                                imageFile = File(filePath)
                             }
                             Log.d("TargetSDK", "imageUri - selected : $uri")
                         }
@@ -149,20 +164,31 @@ fun RecipeModifyScreen(viewModel: HomeViewModel, state: ModifyState, onEvent: (H
             listState.animateScrollToItem(ingredients.size + 3)
         }
     }
-    LaunchedEffect(state.isSuccess) {
-        if(state.isSuccess){
-            navigateToBack()
+    LaunchedEffect(true) {
+        viewModel.event.collect { event ->
+            when (event) {
+                is UIEvent.ShowSnackbar -> {
+                    snackbarHostState.showSnackbar(event.message)
+                }
+                is UIEvent.Navigate -> {
+                    navController.navigate(event.route)
+                }
+                is UIEvent.PopBackStack -> {
+                    navController.popBackStack()
+                }
+            }
         }
     }
     Scaffold(
         containerColor = CustomTheme.colors.onSurface,
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = {
             CenterAlignedTopAppBar(
                 modifier = Modifier.padding(Dimens.topBarPadding),
                 navigationIcon = {
                     IconButton(
                         onClick = {
-                            navigateToBack()
+                            navController.popBackStack()
                             onEvent(HomeEvent.InitState)
                         }
                     ) {
@@ -206,7 +232,7 @@ fun RecipeModifyScreen(viewModel: HomeViewModel, state: ModifyState, onEvent: (H
                 )
             }
         )
-        if(state.loading){
+        if(state.isLoading){
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
@@ -217,13 +243,14 @@ fun RecipeModifyScreen(viewModel: HomeViewModel, state: ModifyState, onEvent: (H
             }
         }
         LazyColumn (
+            state = listState,
             modifier = Modifier
                 .padding(innerPadding)
+                .fillMaxSize()
                 .padding(
                     horizontal = Dimens.largePadding,
                     vertical = Dimens.mediumPadding
                 )
-                .fillMaxSize()
                 .imePadding()
                 .pointerInput(Unit) {
                     detectTapGestures(onTap = {
@@ -406,7 +433,14 @@ fun RecipeModifyScreen(viewModel: HomeViewModel, state: ModifyState, onEvent: (H
                             focusedTrailingIconColor = CustomTheme.colors.iconDefault,
                             unfocusedTrailingIconColor = Color.Transparent,
                         ),
-                        keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() })
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Text,
+                            imeAction = ImeAction.Next
+                        ),
+                        keyboardActions = KeyboardActions (
+                            onDone = { focusManager.clearFocus() },
+                            onNext = { focusManager.moveFocus(FocusDirection.Down) }
+                        )
                     )
                     IconButton(
                         onClick = {
@@ -439,7 +473,15 @@ fun RecipeModifyScreen(viewModel: HomeViewModel, state: ModifyState, onEvent: (H
                 TextField(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .wrapContentHeight(),
+                        .wrapContentHeight().onFocusChanged(
+                            onFocusChanged = {
+                                if (it.isFocused) {
+                                    scope.launch {
+                                        listState.animateScrollToItem(ingredients.size + 6)
+                                    }
+                                }
+                            }
+                        ),
                     value = instructions,
                     onValueChange = { instructions = it },
                     placeholder = {
@@ -482,15 +524,16 @@ fun RecipeModifyScreen(viewModel: HomeViewModel, state: ModifyState, onEvent: (H
                     ),
                     enabled = validator,
                     onClick = {
-                        onEvent(HomeEvent.ModifyRecipe(
+                        onEvent(HomeEvent.UploadImageThenModifyRecipe(
                             Recipe(
                                 id = recipe.id,
                                 title = title,
                                 imageUrl = image,
-                                ingredients = ingredients.map { it.value.toString() }.toList(),
+                                ingredients = ingredients.filter { it.value.isNotBlank() }.map { it.value.toString() }.toList(),
                                 instructions = instructions,
                                 liked = recipe.liked
-                            )
+                            ),
+                            imageFile
                         ))
                     }
                 ) {

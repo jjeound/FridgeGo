@@ -1,23 +1,29 @@
 package com.example.untitled_capstone.presentation.feature.home
 
-import androidx.compose.runtime.State
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
+import androidx.paging.map
 import com.example.untitled_capstone.core.util.Resource
 import com.example.untitled_capstone.domain.model.Recipe
 import com.example.untitled_capstone.domain.model.RecipeRaw
 import com.example.untitled_capstone.domain.model.TastePreference
 import com.example.untitled_capstone.domain.use_case.home.HomeUseCases
+import com.example.untitled_capstone.navigation.Screen
 import com.example.untitled_capstone.presentation.feature.home.state.AiState
 import com.example.untitled_capstone.presentation.feature.home.state.ModifyState
 import com.example.untitled_capstone.presentation.feature.home.state.RecipeState
 import com.example.untitled_capstone.presentation.feature.home.state.TastePrefState
+import com.example.untitled_capstone.presentation.util.UIEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
@@ -27,25 +33,25 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val homeUseCases: HomeUseCases
+    private val homeUseCases: HomeUseCases,
 ): ViewModel(){
-    private val _tastePrefState = MutableStateFlow(TastePrefState())
-    val tastePrefState: StateFlow<TastePrefState> = _tastePrefState.asStateFlow()
+    var tastePrefState by mutableStateOf(TastePrefState())
+        private set
 
-    private val _recipeState = MutableStateFlow(RecipeState())
-    val recipeState: StateFlow<RecipeState> = _recipeState.asStateFlow()
+    var recipeState by mutableStateOf(RecipeState())
+        private set
 
-    private val _aiState = mutableStateOf(AiState())
-    val aiState: State<AiState> = _aiState
+    var aiState by mutableStateOf(AiState())
+        private set
 
     private val _modifyState = MutableStateFlow(ModifyState())
     val modifyState: StateFlow<ModifyState> = _modifyState
 
-//    private val _recipeItemsState: MutableStateFlow<PagingData<RecipeRaw>> = MutableStateFlow(PagingData.empty())
-//    val recipeItemsState = _recipeItemsState.asStateFlow()
-
     private val _recipePagingData: MutableStateFlow<PagingData<RecipeRaw>> = MutableStateFlow(PagingData.empty<RecipeRaw>())
     val recipePagingData = _recipePagingData.asStateFlow()
+
+    private val _event = MutableSharedFlow<UIEvent>()
+    val event = _event.asSharedFlow()
 
     init {
         getTastePreference()
@@ -69,21 +75,8 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun initState(){
-        _recipeState.update {
-            it.copy(
-                recipe = null,
-                loading = false,
-                error = null
-            )
-        }
+        recipeState = RecipeState()
         _modifyState.update {
-            it.copy(
-                isSuccess = false,
-                loading = false,
-                error = null
-            )
-        }
-        _tastePrefState.update {
             it.copy(
                 isSuccess = false,
                 loading = false,
@@ -98,21 +91,18 @@ class HomeViewModel @Inject constructor(
             when(result){
                 is Resource.Success -> {
                     result.data?.let{
-                        _tastePrefState.update {
-                            it.copy(
-                                tastePref = result.data.tastePreference,
-                                isSuccess = false,
-                                loading = false,
-                                error = null
-                            )
+                        tastePrefState.apply{
+                            data = it.tastePreference
+                            isLoading = false
                         }
                     }
                 }
                 is Resource.Error -> {
-                    _tastePrefState.update { it.copy(isSuccess = false, loading = false, error = result.message ?: "An unexpected error occurred") }
+                    tastePrefState.isLoading = false
+                    _event.emit(UIEvent.ShowSnackbar(result.message ?: "Unknown error"))
                 }
                 is Resource.Loading -> {
-                    _tastePrefState.update { it.copy(isSuccess = false, loading = true) }
+                    tastePrefState.isLoading = true
                 }
             }
         }
@@ -124,20 +114,18 @@ class HomeViewModel @Inject constructor(
             when(result){
                 is Resource.Success -> {
                     result.data?.let{
-                        _tastePrefState.update {
-                            it.copy(
-                                isSuccess = true,
-                                loading = false,
-                                error = null
-                            )
+                        tastePrefState.apply{
+                            isLoading = false
                         }
+                        _event.emit(UIEvent.ShowSnackbar(result.data.result!!))
                     }
                 }
                 is Resource.Error -> {
-                    _tastePrefState.update { it.copy(isSuccess = false, loading = false, error = result.message ?: "An unexpected error occurred") }
+                    tastePrefState.isLoading = false
+                    _event.emit(UIEvent.ShowSnackbar(result.message ?: "Unknown error"))
                 }
                 is Resource.Loading -> {
-                    _tastePrefState.update { it.copy(isSuccess = false, loading = true) }
+                    tastePrefState.isLoading = true
                 }
             }
         }
@@ -148,15 +136,18 @@ class HomeViewModel @Inject constructor(
             val result = homeUseCases.addRecipe(recipe)
             when(result){
                 is Resource.Success -> {
-                    result.data?.let{
-                       getRecipes()
+                    result.data?.let {
+                        recipeState.isLoading = false
+                        //_event.emit(UIEvent.ShowSnackbar(result.data.result!!))
+                        getRecipes()
                     }
                 }
                 is Resource.Error -> {
-                    _recipeState.update { it.copy(loading = false, error = result.message ?: "An unexpected error occurred") }
+                    recipeState.isLoading = false
+                    _event.emit(UIEvent.ShowSnackbar(result.message ?: "Unknown error"))
                 }
                 is Resource.Loading -> {
-                    _recipeState.update { it.copy(loading = true) }
+                    recipeState.isLoading = true
                 }
             }
         }
@@ -164,30 +155,28 @@ class HomeViewModel @Inject constructor(
 
     private fun getRecipeByAI() {
         viewModelScope.launch {
-            aiState.value.isLoading.value = true
             val isFirstSelection = homeUseCases.getIsFirstSelection()
             val result = if (isFirstSelection) {
                 homeUseCases.getFirstRecommendation()
             } else {
                 homeUseCases.getAnotherRecommendation()
             }
-
             when (result) {
                 is Resource.Success -> {
                     result.data?.let {
-                        _aiState.value.response.value = _aiState.value.response.value + it
-                        _aiState.value.error.value = ""
-                        _aiState.value.isLoading.value = false
+                        aiState.apply {
+                            response += it
+                            isLoading = false
+                        }
                         homeUseCases.setIsFirstSelection(false) // 첫 선택 완료 처리
                     }
                 }
                 is Resource.Error -> {
-                    _aiState.value.error.value = result.message.toString()
-                    _aiState.value.isLoading.value = false
+                    aiState.isLoading = false
+                    _event.emit(UIEvent.ShowSnackbar(result.message ?: "다시 시도해주세요."))
                 }
                 is Resource.Loading -> {
-                    _aiState.value.error.value = ""
-                    _aiState.value.isLoading.value = true
+                    aiState.isLoading = true
                 }
             }
         }
@@ -199,23 +188,8 @@ class HomeViewModel @Inject constructor(
                 .cachedIn(viewModelScope)
                 .collectLatest { pagingData ->
                     _recipePagingData.value = pagingData
-                    _recipeState.update { it.copy(error = null) }
                 }
         }
-//        viewModelScope.launch {
-//            homeUseCases.getRecipeItems()
-//                .distinctUntilChanged()
-//                .cachedIn(viewModelScope)
-//                .collect { pagingData ->
-//                    _recipeItemsState.value = pagingData
-//                    _recipeState.update {
-//                        it.copy(
-//                            loading = false,
-//                            error = null
-//                        )
-//                    }
-//                }
-//        }
     }
 
     private fun getRecipeById(id: Long){
@@ -224,18 +198,18 @@ class HomeViewModel @Inject constructor(
             when(result){
                 is Resource.Success -> {
                     result.data?.let{
-                        _recipeState.update { it.copy(
-                            recipe = result.data,
-                            loading = false,
-                            error = null
-                        ) }
+                        recipeState.apply {
+                            recipe = it
+                            isLoading = false
+                        }
                     }
                 }
                 is Resource.Error -> {
-                    _recipeState.update { it.copy(loading = false, error = result.message ?: "An unexpected error occurred") }
+                    recipeState.isLoading = false
+                    _event.emit(UIEvent.ShowSnackbar(result.message ?: "Unknown error"))
                 }
                 is Resource.Loading -> {
-                    _recipeState.update { it.copy(loading = true) }
+                    recipeState.isLoading = true
                 }
             }
         }
@@ -247,29 +221,27 @@ class HomeViewModel @Inject constructor(
             when(result){
                 is Resource.Success -> {
                     result.data?.let{
-//                        _recipeItemsState.update { pagingData ->
-//                            pagingData.map {
-//                                if(it.id == id){
-//                                    it.copy(liked = result.data.liked)
-//                                }else{
-//                                    it
-//                                }
-//                            }
-//                        }
-                        _recipeState.update {
-                            it.copy(
-                                recipe = it.recipe?.copy(liked = result.data.liked),
-                                loading = false,
-                                error = null
-                            )
+                        recipeState.isLoading = false
+                        _recipePagingData.update { pagingData ->
+                            pagingData.map {
+                                if(it.id == id){
+                                    it.copy(liked = result.data.liked)
+                                }else{
+                                    it
+                                }
+                            }
                         }
+                        recipeState.recipe = recipeState.recipe?.copy(
+                            liked = result.data.liked
+                        )
                     }
                 }
                 is Resource.Error -> {
-                    _recipeState.update { it.copy(loading = false, error = result.message ?: "An unexpected error occurred") }
+                    recipeState.isLoading = false
+                    _event.emit(UIEvent.ShowSnackbar(result.message ?: "Unknown error"))
                 }
                 is Resource.Loading -> {
-                    _recipeState.update { it.copy(loading = true) }
+                    recipeState.isLoading = true
                 }
             }
         }
@@ -281,14 +253,16 @@ class HomeViewModel @Inject constructor(
             when(result){
                 is Resource.Success -> {
                     result.data?.let{
+                        recipeState.isLoading = false
                         getRecipes()
                     }
                 }
                 is Resource.Error -> {
-                    _recipeState.update { it.copy(loading = false, error = result.message ?: "An unexpected error occurred") }
+                    recipeState.isLoading = false
+                    _event.emit(UIEvent.ShowSnackbar(result.message ?: "Unknown error"))
                 }
                 is Resource.Loading -> {
-                    _recipeState.update { it.copy(loading = true) }
+                    recipeState.isLoading = true
                 }
             }
         }
@@ -300,20 +274,27 @@ class HomeViewModel @Inject constructor(
             when(result){
                 is Resource.Success -> {
                     result.data?.let {
-                        _modifyState.update {
-                            it.copy(
-                                isSuccess = true,
-                                loading = false,
-                                error = null
-                            )
+                        recipeState.isLoading = false
+                        _recipePagingData.update { pagingData ->
+                            pagingData.map {
+                                if(it.id == recipe.id) {
+                                    it.copy(
+                                        title = recipe.title,
+                                        imageUrl = recipe.imageUrl
+                                    )
+                                }else{
+                                    it
+                                }
+                            }
                         }
                     }
                 }
                 is Resource.Error -> {
-                    _recipeState.update { it.copy(loading = false, error = result.message ?: "An unexpected error occurred") }
+                    recipeState.isLoading = false
+                    _event.emit(UIEvent.ShowSnackbar(result.message ?: "Unknown error"))
                 }
                 is Resource.Loading -> {
-                    _recipeState.update { it.copy(loading = true) }
+                    recipeState.isLoading = true
                 }
             }
         }
@@ -325,21 +306,23 @@ class HomeViewModel @Inject constructor(
             when(result){
                 is Resource.Success -> {
                     result.data?.let{
-                        _recipeState.update {
-                            it.copy(
-                                loading = false,
-                                error = null
-                            )
-                        }
+                        recipeState.isLoading = false
                     }
                 }
                 is Resource.Error -> {
-                    _recipeState.update { it.copy(loading = false, error = result.message ?: "An unexpected error occurred") }
+                    recipeState.isLoading = false
+                    _event.emit(UIEvent.ShowSnackbar(result.message ?: "Unknown error"))
                 }
                 is Resource.Loading -> {
-                    _recipeState.update { it.copy(loading = true) }
+                    recipeState.isLoading = true
                 }
             }
+        }
+    }
+
+    fun navigateUp(route: Screen) {
+        viewModelScope.launch {
+            _event.emit(UIEvent.Navigate(route))
         }
     }
 }

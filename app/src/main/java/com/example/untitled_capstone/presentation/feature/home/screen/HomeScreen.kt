@@ -1,13 +1,11 @@
 package com.example.untitled_capstone.presentation.feature.home.screen
 
 import android.util.Log
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -22,44 +20,73 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.SheetValue
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavHostController
 import androidx.paging.LoadState
-import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
 import coil.compose.AsyncImage
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
-import com.example.untitled_capstone.domain.model.RecipeRaw
-import com.example.untitled_capstone.presentation.feature.home.state.AiState
+import com.example.untitled_capstone.navigation.Screen
 import com.example.untitled_capstone.presentation.feature.home.composable.MyRecipe
 import com.example.untitled_capstone.presentation.feature.home.composable.SetTaste
 import com.example.untitled_capstone.presentation.feature.home.HomeEvent
-import com.example.untitled_capstone.presentation.feature.home.state.RecipeState
-import com.example.untitled_capstone.presentation.feature.home.state.TastePrefState
+import com.example.untitled_capstone.presentation.feature.home.HomeViewModel
 import com.example.untitled_capstone.presentation.feature.home.composable.ChatBot
 import com.example.untitled_capstone.presentation.feature.main.MainViewModel
-import com.example.untitled_capstone.presentation.feature.post.composable.PostListContainer
+import com.example.untitled_capstone.presentation.util.UIEvent
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(mainViewModel: MainViewModel, state: RecipeState, recipeItems: LazyPagingItems<RecipeRaw>, tastePrefState: TastePrefState, aiState: AiState,
-               onEvent: (HomeEvent) -> Unit, navigate: (Long) -> Unit) {
+fun HomeScreen(
+    mainViewModel: MainViewModel,
+    viewModel: HomeViewModel,
+    snackbarHostState: SnackbarHostState,
+    navController: NavHostController,
+    onEvent: (HomeEvent) -> Unit,
+) {
+    val recipeState = remember { viewModel.recipeState }
+    val recipeItems = viewModel.recipePagingData.collectAsLazyPagingItems()
+    val tastePrefState = remember { viewModel.tastePrefState }
+    val aiState = remember { viewModel.aiState }
     val focusManager = LocalFocusManager.current
     val sheetState = rememberModalBottomSheetState(
-        skipPartiallyExpanded = false
+        skipPartiallyExpanded = false,
     )
+    val isExpanded = remember { mutableStateOf(false) }
+    LaunchedEffect(true) {
+        viewModel.event.collect { event ->
+            when (event) {
+                is UIEvent.ShowSnackbar -> {
+                    snackbarHostState.showSnackbar(event.message)
+                }
+                is UIEvent.Navigate -> {
+                    navController.navigate(event.route)
+                }
+            }
+        }
+    }
+    LaunchedEffect(sheetState) {
+        snapshotFlow { sheetState.currentValue }
+            .collect { value ->
+                isExpanded.value = (value == SheetValue.Expanded)
+            }
+    }
     Column(
         modifier = Modifier.padding(
             horizontal = Dimens.surfaceHorizontalPadding)
@@ -97,7 +124,7 @@ fun HomeScreen(mainViewModel: MainViewModel, state: RecipeState, recipeItems: La
                 Box(
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    if(recipeItems.loadState.refresh is LoadState.Loading || state.loading) {
+                    if(recipeItems.loadState.refresh is LoadState.Loading || recipeState.isLoading) {
                         CircularProgressIndicator(
                             modifier = Modifier.align(Alignment.Center),
                             color = CustomTheme.colors.primary
@@ -121,7 +148,9 @@ fun HomeScreen(mainViewModel: MainViewModel, state: RecipeState, recipeItems: La
                                 if(item != null){
                                     MyRecipe(recipe = item ,modifier = Modifier
                                         .fillMaxWidth().padding(Dimens.smallPadding), onEvent = onEvent){
-                                        navigate(item.id)
+                                        viewModel.navigateUp(
+                                            Screen.RecipeNav(item.id)
+                                        )
                                     }
                                 }
                             }
@@ -140,9 +169,9 @@ fun HomeScreen(mainViewModel: MainViewModel, state: RecipeState, recipeItems: La
                 modifier = Modifier.fillMaxSize(),
                 sheetState = sheetState,
                 onDismissRequest = { mainViewModel.hideBottomSheet()},
-                containerColor = CustomTheme.colors.onSurface
+                containerColor = CustomTheme.colors.onSurface,
             ) {
-                ChatBot(aiState, onEvent)
+                ChatBot(aiState, onEvent, isExpanded.value)
             }
         }
     }

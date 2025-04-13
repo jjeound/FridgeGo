@@ -1,9 +1,10 @@
 package com.example.untitled_capstone.presentation.feature.home.state
 
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 
 class AiState{
-    val response = mutableStateOf(emptyList<String>())
-    val isLoading = mutableStateOf(false)
-    val error = mutableStateOf("")
+    var response by mutableStateOf(emptyList<String>())
+    var isLoading by mutableStateOf(false)
 }

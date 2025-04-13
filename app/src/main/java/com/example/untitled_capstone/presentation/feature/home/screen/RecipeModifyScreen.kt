@@ -47,6 +47,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
@@ -72,6 +73,7 @@ import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.domain.model.Recipe
 import com.example.untitled_capstone.presentation.feature.fridge.composable.PermissionDialog
 import com.example.untitled_capstone.presentation.feature.home.HomeEvent
+import com.example.untitled_capstone.presentation.feature.home.HomeViewModel
 import com.example.untitled_capstone.presentation.feature.home.state.ModifyState
 import com.example.untitled_capstone.presentation.feature.my.composable.getRealPathFromURI
 import com.example.untitled_capstone.ui.theme.CustomTheme
@@ -79,7 +81,8 @@ import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RecipeModifyScreen(recipe: Recipe, state: ModifyState, onEvent: (HomeEvent) -> Unit, navigateToBack: () -> Unit) {
+fun RecipeModifyScreen(viewModel: HomeViewModel, state: ModifyState, onEvent: (HomeEvent) -> Unit, navigateToBack: () -> Unit) {
+    var recipe by remember { mutableStateOf(viewModel.recipeState.recipe!!) }
     val focusManager = LocalFocusManager.current
     var title by remember { mutableStateOf( recipe.title)}
     val ingredients = remember {
@@ -499,19 +502,4 @@ fun RecipeModifyScreen(recipe: Recipe, state: ModifyState, onEvent: (HomeEvent) 
             }
         }
     }
-}
-
-@Preview
-@Composable
-fun RecipeModifyScreenPreview() {
-    val recipe = Recipe(
-        id = 1,
-        title = "레시피 제목",
-        imageUrl = null,
-        ingredients = listOf("재료1", "재료2", "재료3"),
-        instructions = "1. 레시피 설명1 2. 레시피 설명2 3. 레시피 설명3",
-        liked = false,
-    )
-    RecipeModifyScreen(recipe, ModifyState(
-    ), {}, {})
 }

@@ -28,6 +28,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -40,6 +41,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
@@ -48,26 +51,34 @@ import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.domain.model.Recipe
 import com.example.untitled_capstone.navigation.Screen
 import com.example.untitled_capstone.presentation.feature.home.HomeEvent
+import com.example.untitled_capstone.presentation.feature.home.HomeViewModel
 import com.example.untitled_capstone.presentation.feature.home.state.RecipeState
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RecipeScreen(id: Long, state: RecipeState, onEvent: (HomeEvent) -> Unit, navController: NavHostController){
+fun RecipeScreen(id: Long, viewModel: HomeViewModel, onEvent: (HomeEvent) -> Unit, navController: NavHostController){
+    val state = remember { viewModel.recipeState }
+    val isLiked = remember { derivedStateOf {
+        state.recipe?.liked == true
+    } }
     var expanded by remember { mutableStateOf(false) }
     val menuItem = listOf("수정", "삭제")
     LaunchedEffect(Unit) {
         onEvent(HomeEvent.GetRecipeById(id))
     }
-    if(state.loading){
-        CircularProgressIndicator(
+    if(state.isLoading){
+        Box(
             modifier = Modifier.fillMaxSize(),
-            color = CustomTheme.colors.primary
-        )
+            contentAlignment = Alignment.Center
+        ){
+            CircularProgressIndicator(
+                color = CustomTheme.colors.primary,
+            )
+        }
     }
     if (state.recipe != null){
-        val recipe = state.recipe
-        Log.d("instructions", recipe.ingredients.toString())
+        val recipe = state.recipe!!
         Scaffold(
             containerColor = CustomTheme.colors.onSurface,
             topBar = {
@@ -181,7 +192,7 @@ fun RecipeScreen(id: Long, state: RecipeState, onEvent: (HomeEvent) -> Unit, nav
                             onEvent(HomeEvent.ToggleLike(recipe.id, !recipe.liked))
                         }
                     ) {
-                        if(recipe.liked){
+                        if(isLiked.value){
                             Icon(
                                 imageVector = ImageVector.vectorResource(R.drawable.heart_filled),
                                 contentDescription = "like",
@@ -263,25 +274,4 @@ fun RecipeScreen(id: Long, state: RecipeState, onEvent: (HomeEvent) -> Unit, nav
             }
         }
     }
-}
-
-@Preview
-@Composable
-fun RecipeScreenPreview() {
-    RecipeScreen(
-        id = 1,
-        state = RecipeState(
-            recipe = Recipe(
-                id = 1,
-                title = "Sample Recipe",
-                imageUrl = null,
-                ingredients = listOf("돼지고기(목살) 1컵 (130g)", "돼지고기(목살) 1컵 (130g)", "돼지고기(목살) 1컵 (130g)"),
-                instructions = "1. 돼지고기는 1.5cm 정도 두께로 먹기 좋게 자른다. 1. 돼지고기는 1.5cm 정도 두께로 먹기 좋게 자른다. 1. 돼지고기는 1.5cm 정도 두께로 먹기 좋게 자른다. 1. 돼지고기는 1.5cm 정도 두께로 먹기 좋게 자른다.",
-                liked = false
-            ),
-            loading = false
-        ),
-        onEvent = {},
-        navController = rememberNavController()
-    )
 }

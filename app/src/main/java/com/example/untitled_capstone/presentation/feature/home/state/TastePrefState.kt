@@ -1,8 +1,10 @@
 package com.example.untitled_capstone.presentation.feature.home.state
 
-data class TastePrefState(
-    val tastePref: String? = null,
-    val isSuccess: Boolean = false,
-    val loading: Boolean = false,
-    val error: String? = null
-)
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+
+class TastePrefState{
+    var data by mutableStateOf("")
+    var isLoading by mutableStateOf(false)
+}

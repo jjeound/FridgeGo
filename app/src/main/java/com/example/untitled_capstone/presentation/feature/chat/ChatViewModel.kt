@@ -8,14 +8,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import androidx.paging.insertHeaderItem
 import androidx.paging.map
 import com.example.untitled_capstone.core.util.Resource
-import com.example.untitled_capstone.data.util.FridgeFetchType
 import com.example.untitled_capstone.domain.model.ChatMember
 import com.example.untitled_capstone.domain.model.ChattingRoom
 import com.example.untitled_capstone.domain.model.ChattingRoomRaw
-import com.example.untitled_capstone.domain.model.FridgeItem
 import com.example.untitled_capstone.domain.model.Message
 import com.example.untitled_capstone.domain.model.UnreadBroadcast
 import com.example.untitled_capstone.domain.use_case.chat.ChatUseCases
@@ -23,7 +20,7 @@ import com.example.untitled_capstone.domain.use_case.my.GetAccessToken
 import com.example.untitled_capstone.domain.use_case.post.GetNickname
 import com.example.untitled_capstone.navigation.Screen
 import com.example.untitled_capstone.presentation.feature.chat.state.ChatUiState
-import com.example.untitled_capstone.presentation.util.UiEvent
+import com.example.untitled_capstone.presentation.util.UIEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -59,7 +56,7 @@ class ChatViewModel @Inject constructor(
     var name by mutableStateOf<String>("")
         private set
 
-    private val _event = MutableSharedFlow<UiEvent>()
+    private val _event = MutableSharedFlow<UIEvent>()
     val event = _event.asSharedFlow()
 
     fun readChats(id: Long) {
@@ -74,7 +71,7 @@ class ChatViewModel @Inject constructor(
 
                 is Resource.Error -> {
                     _state.update { ChatUiState.Error(result.message) }
-                    _event.emit(UiEvent.ShowSnackbar(result.message ?: "Unknown error"))
+                    _event.emit(UIEvent.ShowSnackbar(result.message ?: "Unknown error"))
                 }
 
                 is Resource.Loading -> {
@@ -97,7 +94,7 @@ class ChatViewModel @Inject constructor(
 
                 is Resource.Error -> {
                     _state.update { ChatUiState.Error(result.message) }
-                    _event.emit(UiEvent.ShowSnackbar(result.message ?: "Unknown error"))
+                    _event.emit(UIEvent.ShowSnackbar(result.message ?: "Unknown error"))
                 }
 
                 is Resource.Loading -> {
@@ -119,7 +116,7 @@ class ChatViewModel @Inject constructor(
 
                 is Resource.Error -> {
                     _state.update { ChatUiState.Error(result.message) }
-                    _event.emit(UiEvent.ShowSnackbar(result.message ?: "Unknown error"))
+                    _event.emit(UIEvent.ShowSnackbar(result.message ?: "Unknown error"))
                 }
 
                 is Resource.Loading -> {
@@ -141,7 +138,7 @@ class ChatViewModel @Inject constructor(
 
                 is Resource.Error -> {
                     _state.update { ChatUiState.Error(result.message) }
-                    _event.emit(UiEvent.ShowSnackbar(result.message ?: "Unknown error"))
+                    _event.emit(UIEvent.ShowSnackbar(result.message ?: "Unknown error"))
                 }
 
                 is Resource.Loading -> {
@@ -190,7 +187,7 @@ class ChatViewModel @Inject constructor(
 
                 is Resource.Error -> {
                     _state.update { ChatUiState.Error(result.message) }
-                    _event.emit(UiEvent.ShowSnackbar(result.message ?: "Unknown error"))
+                    _event.emit(UIEvent.ShowSnackbar(result.message ?: "Unknown error"))
                 }
 
                 is Resource.Loading -> {
@@ -213,7 +210,7 @@ class ChatViewModel @Inject constructor(
 
                 is Resource.Error -> {
                     _state.update { ChatUiState.Error(result.message) }
-                    _event.emit(UiEvent.ShowSnackbar(result.message ?: "Unknown error"))
+                    _event.emit(UIEvent.ShowSnackbar(result.message ?: "Unknown error"))
                 }
 
                 is Resource.Loading -> {
@@ -236,7 +233,7 @@ class ChatViewModel @Inject constructor(
 
                 is Resource.Error -> {
                     _state.update { ChatUiState.Error(result.message) }
-                    _event.emit(UiEvent.ShowSnackbar(result.message ?: "Unknown error"))
+                    _event.emit(UIEvent.ShowSnackbar(result.message ?: "Unknown error"))
                 }
 
                 is Resource.Loading -> {
@@ -248,7 +245,7 @@ class ChatViewModel @Inject constructor(
 
     fun navigateUp(route: Screen) {
         viewModelScope.launch {
-            _event.emit(UiEvent.Navigate(route))
+            _event.emit(UIEvent.Navigate(route))
         }
     }
 

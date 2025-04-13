@@ -24,6 +24,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
@@ -44,7 +45,7 @@ import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.navigation.Screen
 import com.example.untitled_capstone.presentation.feature.chat.ChatViewModel
 import com.example.untitled_capstone.presentation.feature.chat.state.ChatUiState
-import com.example.untitled_capstone.presentation.util.UiEvent
+import com.example.untitled_capstone.presentation.util.UIEvent
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -52,11 +53,11 @@ import com.example.untitled_capstone.ui.theme.CustomTheme
 fun ChattingRoomDrawer(
     roomId: Long,
     title: String,
-    snackbarHostState: SnackbarHostState,
     viewModel: ChatViewModel,
     state: ChatUiState,
     navController: NavHostController
 ){
+    val snackbarHostState = remember { SnackbarHostState() }
     val member =  viewModel.member
     val myName = viewModel.name
     val scrollState = rememberScrollState()
@@ -66,10 +67,10 @@ fun ChattingRoomDrawer(
     LaunchedEffect(true) {
         viewModel.event.collect { event ->
             when (event) {
-                is UiEvent.ShowSnackbar -> {
+                is UIEvent.ShowSnackbar -> {
                     snackbarHostState.showSnackbar(event.message)
                 }
-                is UiEvent.Navigate -> {
+                is UIEvent.Navigate -> {
                     navController.navigate(event.route){
                         popUpTo(Screen.Chat){
                             inclusive = true
@@ -87,6 +88,7 @@ fun ChattingRoomDrawer(
     }
     Scaffold(
         containerColor = CustomTheme.colors.surface,
+        snackbarHost = {SnackbarHost(hostState = snackbarHostState)},
         topBar = {
             CenterAlignedTopAppBar(
                 modifier = Modifier.padding(horizontal = Dimens.topBarPadding),

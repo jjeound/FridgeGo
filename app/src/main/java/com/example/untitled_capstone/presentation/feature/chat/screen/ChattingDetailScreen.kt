@@ -20,12 +20,12 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -44,19 +44,19 @@ import com.example.untitled_capstone.presentation.feature.chat.ChatViewModel
 import com.example.untitled_capstone.presentation.feature.chat.composable.MessageCard
 import com.example.untitled_capstone.presentation.feature.chat.composable.NewMessageForm
 import com.example.untitled_capstone.presentation.feature.chat.state.ChatUiState
-import com.example.untitled_capstone.presentation.util.UiEvent
+import com.example.untitled_capstone.presentation.util.UIEvent
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChattingDetailScreen(
-    snackbarHostState: SnackbarHostState,
     viewModel: ChatViewModel,
     messages: LazyPagingItems<Message>,
     state: ChatUiState,
     roomId: Long,
     navController: NavHostController
 ) {
+    val snackbarHostState = remember { SnackbarHostState() }
     val chattingRoom by remember { viewModel.chattingRoom }
     val member = viewModel.member
     val myName = viewModel.name
@@ -76,10 +76,10 @@ fun ChattingDetailScreen(
     LaunchedEffect(true) {
         viewModel.event.collect { event ->
             when (event) {
-                is UiEvent.ShowSnackbar -> {
+                is UIEvent.ShowSnackbar -> {
                     snackbarHostState.showSnackbar(event.message)
                 }
-                is UiEvent.Navigate -> {
+                is UIEvent.Navigate -> {
                     navController.navigate(event.route)
                 }
             }
@@ -98,6 +98,7 @@ fun ChattingDetailScreen(
     chattingRoom?.let { room ->
         Scaffold(
             containerColor = CustomTheme.colors.onSurface,
+            snackbarHost = { SnackbarHost(hostState = snackbarHostState)},
             topBar = {
                 CenterAlignedTopAppBar(
                     modifier = Modifier.padding(horizontal = Dimens.topBarPadding),

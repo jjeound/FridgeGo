@@ -14,9 +14,12 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -32,14 +35,11 @@ import com.example.untitled_capstone.navigation.Screen
 import com.example.untitled_capstone.presentation.feature.my.composable.MyTopBar
 import com.example.untitled_capstone.presentation.feature.fridge.composable.FridgeTopBar
 import com.example.untitled_capstone.presentation.feature.post.composable.PostTopBar
-import com.example.untitled_capstone.presentation.util.AuthEvent
-import com.example.untitled_capstone.presentation.util.AuthEventBus
-import com.example.untitled_capstone.presentation.util.UiEvent
 import com.example.untitled_capstone.ui.theme.CustomTheme
-import kotlinx.coroutines.flow.receiveAsFlow
 
 @Composable
 fun MainScreen(viewModel: MainViewModel){
+    val snackbarHostState = remember { SnackbarHostState() }
     val navController = rememberNavController()
     val screens = listOf(
         Screen.Home.toString(),
@@ -66,6 +66,7 @@ fun MainScreen(viewModel: MainViewModel){
 
     Scaffold(
         containerColor = CustomTheme.colors.surface,
+        snackbarHost = {SnackbarHost(hostState = snackbarHostState)},
         topBar = {
             when{
                 bottomRoute.equals(screens[0]) -> TopBar(1, navController)
@@ -129,10 +130,10 @@ fun MainScreen(viewModel: MainViewModel){
             Box(
                 modifier = Modifier.fillMaxSize().padding(innerPadding)
             ){
-                NavigationV2(navController = navController, viewModel)
+                NavigationV2(navController = navController, viewModel, snackbarHostState)
             }
         }else{
-            NavigationV2(navController = navController, viewModel)
+            NavigationV2(navController = navController, viewModel, snackbarHostState)
         }
     }
 }

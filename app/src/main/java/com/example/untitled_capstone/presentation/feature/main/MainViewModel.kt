@@ -10,13 +10,9 @@ import com.example.untitled_capstone.domain.use_case.app_entry.ReadAppEntry
 import com.example.untitled_capstone.navigation.Graph
 import com.example.untitled_capstone.presentation.util.AuthEvent
 import com.example.untitled_capstone.presentation.util.AuthEventBus
-import com.example.untitled_capstone.presentation.util.UiEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch

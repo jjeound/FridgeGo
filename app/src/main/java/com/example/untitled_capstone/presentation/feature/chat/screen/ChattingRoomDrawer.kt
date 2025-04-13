@@ -77,6 +77,9 @@ fun ChattingRoomDrawer(
                         }
                     }
                 }
+                is UIEvent.PopBackStack -> {
+                    navController.popBackStack()
+                }
             }
         }
     }

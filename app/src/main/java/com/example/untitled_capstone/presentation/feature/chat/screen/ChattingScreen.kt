@@ -42,6 +42,9 @@ fun ChattingScreen(
                 is UIEvent.Navigate -> {
                     navController.navigate(event.route)
                 }
+                is UIEvent.PopBackStack -> {
+                    navController.popBackStack()
+                }
             }
         }
     }

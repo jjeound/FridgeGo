@@ -4,6 +4,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -49,7 +50,11 @@ import com.example.untitled_capstone.presentation.feature.post.screen.WritingNew
 
 
 @Composable
-fun NavigationV2(navController: NavHostController, mainViewModel: MainViewModel) {
+fun NavigationV2(
+    navController: NavHostController,
+    mainViewModel: MainViewModel,
+    snackbarHostState: SnackbarHostState
+) {
     NavHost(navController = navController, startDestination = mainViewModel.startDestination.value){
         navigation<Graph.HomeGraph>(
             startDestination = Screen.Home
@@ -57,32 +62,26 @@ fun NavigationV2(navController: NavHostController, mainViewModel: MainViewModel)
             composable<Screen.Home> {
                 val parentEntry = navController.getBackStackEntry(Graph.HomeGraph)
                 val viewModel: HomeViewModel = hiltViewModel(parentEntry)
-                val recipeState by viewModel.recipeState.collectAsStateWithLifecycle()
-                val recipeItems = viewModel.recipePagingData.collectAsLazyPagingItems()
-                val tastePrefState by viewModel.tastePrefState.collectAsStateWithLifecycle()
-                val aiState by remember { viewModel.aiState }
-                HomeScreen(mainViewModel, recipeState, recipeItems, tastePrefState, aiState, viewModel::onEvent) { id ->
-                    navController.navigate(
-                        Screen.RecipeNav(
-                            id = id
-                        )
-                    )
-                }
+                HomeScreen(
+                    mainViewModel,
+                    viewModel,
+                    snackbarHostState,
+                    navController,
+                    viewModel::onEvent
+                )
             }
             composable<Screen.RecipeNav>{
                 val parentEntry = navController.getBackStackEntry(Graph.HomeGraph)
                 val viewModel: HomeViewModel = hiltViewModel(parentEntry)
-                val recipeState by viewModel.recipeState.collectAsStateWithLifecycle()
                 val args = it.toRoute<Screen.RecipeNav>()
-                RecipeScreen(args.id, recipeState, viewModel::onEvent, navController)
+                RecipeScreen(args.id, viewModel, viewModel::onEvent, navController)
             }
             composable<Screen.RecipeModifyNav>{
                 val parentEntry = navController.getBackStackEntry(Graph.HomeGraph)
                 val viewModel: HomeViewModel = hiltViewModel(parentEntry)
-                val recipeState by viewModel.recipeState.collectAsStateWithLifecycle()
                 val modifyState by viewModel.modifyState.collectAsStateWithLifecycle()
                 RecipeModifyScreen(
-                    recipe = recipeState.recipe!!,
+                    viewModel = viewModel,
                     state = modifyState,
                     onEvent = viewModel::onEvent,
                     navigateToBack = {navController.popBackStack()}
@@ -147,7 +146,6 @@ fun NavigationV2(navController: NavHostController, mainViewModel: MainViewModel)
                 val messages = viewModel.message.collectAsLazyPagingItems()
                 val args = it.toRoute<Screen.ChattingRoomNav>()
                 ChattingDetailScreen(
-                    snackbarHostState = remember { SnackbarHostState() },
                     viewModel = viewModel,
                     messages = messages,
                     state = state,
@@ -201,7 +199,7 @@ fun NavigationV2(navController: NavHostController, mainViewModel: MainViewModel)
                 val viewModel: ChatViewModel = hiltViewModel(parentEntry)
                 val state by viewModel.state.collectAsStateWithLifecycle()
                 ChattingScreen(
-                    snackbarHostState = remember { SnackbarHostState() },
+                    snackbarHostState = snackbarHostState,
                     viewModel = viewModel,
                     state = state,
                     navController = navController,
@@ -214,7 +212,6 @@ fun NavigationV2(navController: NavHostController, mainViewModel: MainViewModel)
                 val messages = viewModel.message.collectAsLazyPagingItems()
                 val args = it.toRoute<Screen.ChattingRoomNav>()
                 ChattingDetailScreen(
-                    snackbarHostState = remember { SnackbarHostState() },
                     viewModel = viewModel,
                     messages = messages,
                     state = state,
@@ -228,7 +225,6 @@ fun NavigationV2(navController: NavHostController, mainViewModel: MainViewModel)
                 val state by viewModel.state.collectAsStateWithLifecycle()
                 val args = it.toRoute<Screen.ChattingDrawerNav>()
                 ChattingRoomDrawer(
-                    snackbarHostState = remember { SnackbarHostState() },
                     viewModel = viewModel,
                     state = state,
                     roomId = args.id,

@@ -1,7 +1,9 @@
 package com.example.untitled_capstone.data.repository
 
+import android.util.Log
 import com.example.untitled_capstone.data.local.db.MessageItemDatabase
 import com.example.untitled_capstone.data.remote.dto.MessageDto
+import com.example.untitled_capstone.data.remote.dto.UnreadBroadcastDto
 import com.example.untitled_capstone.data.remote.manager.WebSocketManager
 import com.example.untitled_capstone.domain.model.UnreadBroadcast
 import com.example.untitled_capstone.domain.repository.WebSocketRepository
@@ -23,7 +25,7 @@ class WebSocketRepositoryImpl @Inject constructor(
     override suspend fun subscribeRoom(
         roomId: Long,
         onMessage: (MessageDto) -> Unit,
-        onUnreadUpdate: (UnreadBroadcast) -> Unit
+        onUnreadUpdate: (UnreadBroadcastDto) -> Unit
     ) {
         webSocketManager.subscribeRoom(
             roomId = roomId,
@@ -33,10 +35,11 @@ class WebSocketRepositoryImpl @Inject constructor(
                 }
                 onMessage(dto) },
             onUnreadUpdate = { dto ->
-                CoroutineScope(Dispatchers.IO).launch {
-                    updateUnreadCount(dto.messageId, roomId, dto.unreadCount )
-                }
-                onUnreadUpdate(dto.toUnreadBroadcast())
+//                Log.d("WebSocketRepositoryImpl", "onUnreadUpdate: $dto")
+//                CoroutineScope(Dispatchers.IO).launch {
+//                    updateUnreadCount(dto.messageId, roomId, dto.unreadCount )
+//                }
+                onUnreadUpdate(dto)
             }
         )
     }

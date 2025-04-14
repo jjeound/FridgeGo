@@ -48,6 +48,9 @@ fun ChattingScreen(
             }
         }
     }
+    LaunchedEffect(true) {
+
+    }
     if(state is ChatUiState.Loading){
         Box(
             modifier = Modifier.fillMaxSize(),

@@ -34,7 +34,6 @@ import com.example.untitled_capstone.ui.theme.CustomTheme
 fun NewMessageForm(roomId: Long, viewModel: ChatViewModel){
     var text by remember { mutableStateOf("") }
     val focusManager = LocalFocusManager.current
-
     Row(
         modifier = Modifier.fillMaxWidth().wrapContentHeight(),
         horizontalArrangement = Arrangement.spacedBy(Dimens.mediumPadding),

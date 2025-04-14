@@ -148,33 +148,6 @@ class ChatViewModel @Inject constructor(
         }
     }
 
-//    fun getMessages(id: Long, lastMessageId: Long? = null) {
-//        viewModelScope.launch {
-//            val result = chatUseCases.getMessages(id, lastMessageId)
-//            when (result) {
-//                is Resource.Success -> {
-//                    result.data?.let {
-//                        _state.update { ChatUiState.Success(null) }
-//                        if(lastMessageId != null){
-//                            message = it + message
-//                        }else{
-//                            message = it
-//                        }
-//                    }
-//                }
-//
-//                is Resource.Error -> {
-//                    _state.update { ChatUiState.Error(result.message) }
-//                    _event.emit(UiEvent.ShowSnackbar(result.message ?: "Unknown error"))
-//                }
-//
-//                is Resource.Loading -> {
-//                    _state.update { ChatUiState.Loading }
-//                }
-//            }
-//        }
-//    }
-
     fun joinChatRoom(id: Long) {
         viewModelScope.launch {
             val result = chatUseCases.joinChatRoom(id)
@@ -269,10 +242,12 @@ class ChatViewModel @Inject constructor(
         viewModelScope.launch {
             chatUseCases.subscribeRoom(
                 roomId,
-                onMessage = { },
+                onMessage = {
+                    //getMessages(roomId)
+                },
                 onUnreadUpdate = { unread ->
                     updateUnreadCount(unread)
-                }//푸시 알람
+                }
             )
         }
     }

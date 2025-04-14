@@ -1,6 +1,7 @@
 package com.example.untitled_capstone.domain.repository
 
 import com.example.untitled_capstone.data.remote.dto.MessageDto
+import com.example.untitled_capstone.data.remote.dto.UnreadBroadcastDto
 import com.example.untitled_capstone.domain.model.UnreadBroadcast
 
 interface WebSocketRepository {
@@ -8,7 +9,7 @@ interface WebSocketRepository {
     suspend fun subscribeRoom(
         roomId: Long,
         onMessage: (MessageDto) -> Unit,
-        onUnreadUpdate: (UnreadBroadcast) -> Unit
+        onUnreadUpdate: (UnreadBroadcastDto) -> Unit
     )
     fun sendMessage(roomId: Long, content: String)
     fun sendReadEvent(roomId: Long)

@@ -88,6 +88,9 @@ fun ChattingDetailScreen(
             }
         }
     }
+    LaunchedEffect(messages.itemCount) {
+        viewModel.sendRead(roomId)
+    }
     if(state is ChatUiState.Loading){
         Box(
             modifier = Modifier.fillMaxSize(),

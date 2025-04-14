@@ -15,6 +15,9 @@ class SubscribeRoom @Inject constructor(
     ) {
         repository.subscribeRoom(roomId, onMessage = {
             onMessage(it.toMessage())
-        } , onUnreadUpdate)
+        } , onUnreadUpdate = {
+            onUnreadUpdate(it.toUnreadBroadcast())
+        }
+        )
     }
 }

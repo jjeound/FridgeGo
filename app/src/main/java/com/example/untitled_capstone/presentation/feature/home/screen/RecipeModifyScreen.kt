@@ -81,6 +81,7 @@ import com.example.untitled_capstone.domain.model.Recipe
 import com.example.untitled_capstone.presentation.feature.fridge.composable.PermissionDialog
 import com.example.untitled_capstone.presentation.feature.home.HomeEvent
 import com.example.untitled_capstone.presentation.feature.home.HomeViewModel
+import com.example.untitled_capstone.presentation.feature.home.state.RecipeState
 import com.example.untitled_capstone.presentation.feature.my.composable.getRealPathFromURI
 import com.example.untitled_capstone.presentation.util.UIEvent
 import com.example.untitled_capstone.ui.theme.CustomTheme
@@ -90,13 +91,13 @@ import java.io.File
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RecipeModifyScreen(
-    viewModel: HomeViewModel,
+    recipeState: RecipeState,
     onEvent: (HomeEvent) -> Unit,
-    navController: NavHostController,
+    popBackStack: () -> Unit,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
-    val state = remember { viewModel.recipeState }
-    var recipe by remember { mutableStateOf(state.recipe!!) }
+    //val state = remember { viewModel.recipeState }
+    var recipe by remember { mutableStateOf(recipeState.recipe!!) }
     val focusManager = LocalFocusManager.current
     var title by remember { mutableStateOf( recipe.title)}
     val ingredients = remember {
@@ -164,21 +165,6 @@ fun RecipeModifyScreen(
             listState.animateScrollToItem(ingredients.size + 3)
         }
     }
-    LaunchedEffect(true) {
-        viewModel.event.collect { event ->
-            when (event) {
-                is UIEvent.ShowSnackbar -> {
-                    snackbarHostState.showSnackbar(event.message)
-                }
-                is UIEvent.Navigate -> {
-                    navController.navigate(event.route)
-                }
-                is UIEvent.PopBackStack -> {
-                    navController.popBackStack()
-                }
-            }
-        }
-    }
     Scaffold(
         containerColor = CustomTheme.colors.onSurface,
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
@@ -188,7 +174,7 @@ fun RecipeModifyScreen(
                 navigationIcon = {
                     IconButton(
                         onClick = {
-                            navController.popBackStack()
+                            popBackStack()
                             onEvent(HomeEvent.InitState)
                         }
                     ) {
@@ -232,7 +218,7 @@ fun RecipeModifyScreen(
                 )
             }
         )
-        if(state.isLoading){
+        if(recipeState.isLoading){
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center

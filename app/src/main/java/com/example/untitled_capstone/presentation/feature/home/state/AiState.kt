@@ -4,7 +4,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 
-class AiState{
+class AiState {
     var response by mutableStateOf(emptyList<String>())
     var isLoading by mutableStateOf(false)
 }

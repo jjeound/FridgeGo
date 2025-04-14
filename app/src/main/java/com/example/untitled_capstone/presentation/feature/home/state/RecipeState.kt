@@ -7,5 +7,6 @@ import com.example.untitled_capstone.domain.model.Recipe
 
 class RecipeState{
     var recipe by mutableStateOf<Recipe?>(null)
+    var tastePreference by mutableStateOf("")
     var isLoading by mutableStateOf(false)
 }

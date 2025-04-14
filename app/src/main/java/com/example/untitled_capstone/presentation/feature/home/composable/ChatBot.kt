@@ -1,5 +1,6 @@
 package com.example.untitled_capstone.presentation.feature.home.composable
 
+import android.util.Log
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -33,9 +34,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -45,8 +43,8 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
-import com.example.untitled_capstone.presentation.feature.home.state.AiState
 import com.example.untitled_capstone.presentation.feature.home.HomeEvent
+import com.example.untitled_capstone.presentation.feature.home.state.AiState
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @Composable
@@ -66,7 +64,7 @@ fun ChatBot(aiState: AiState, onEvent: (HomeEvent) -> Unit, isExpanded: Boolean)
             verticalArrangement = Arrangement.spacedBy(Dimens.largePadding)
         ) {
             items(
-                count =  aiState.response.size
+                count = aiState.response.size
             ) {
                 var recipe = aiState.response[it].replace("\\n", "").replace("\"", "").replace("+", "")
                 val regex = "\\[(.*?)]".toRegex() // [ ] 안의 텍스트 추출 정규식
@@ -154,6 +152,7 @@ fun ChatBot(aiState: AiState, onEvent: (HomeEvent) -> Unit, isExpanded: Boolean)
                         shape = RoundedCornerShape(Dimens.cornerRadius),
                         modifier = Modifier.wrapContentSize()
                     ){
+                        Log.d("loading", aiState.isLoading.toString())
                         if(aiState.isLoading){
                             DotLoadingAnimation(
                                 modifier = Modifier.padding(Dimens.mediumPadding)

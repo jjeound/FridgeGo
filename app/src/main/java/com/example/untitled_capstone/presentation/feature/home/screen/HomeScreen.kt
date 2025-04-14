@@ -37,16 +37,20 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.paging.LoadState
+import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import coil.compose.AsyncImage
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
+import com.example.untitled_capstone.domain.model.RecipeRaw
 import com.example.untitled_capstone.navigation.Screen
 import com.example.untitled_capstone.presentation.feature.home.composable.MyRecipe
 import com.example.untitled_capstone.presentation.feature.home.composable.SetTaste
 import com.example.untitled_capstone.presentation.feature.home.HomeEvent
 import com.example.untitled_capstone.presentation.feature.home.HomeViewModel
 import com.example.untitled_capstone.presentation.feature.home.composable.ChatBot
+import com.example.untitled_capstone.presentation.feature.home.state.AiState
+import com.example.untitled_capstone.presentation.feature.home.state.RecipeState
 import com.example.untitled_capstone.presentation.feature.main.MainViewModel
 import com.example.untitled_capstone.presentation.util.UIEvent
 import com.example.untitled_capstone.ui.theme.CustomTheme
@@ -55,36 +59,19 @@ import com.example.untitled_capstone.ui.theme.CustomTheme
 @Composable
 fun HomeScreen(
     mainViewModel: MainViewModel,
-    viewModel: HomeViewModel,
-    snackbarHostState: SnackbarHostState,
-    navController: NavHostController,
+    recipeState: RecipeState,
+    recipeItems: LazyPagingItems<RecipeRaw>,
+    aiState: AiState,
     onEvent: (HomeEvent) -> Unit,
+    onNavigate: (Screen) -> Unit,
 ) {
-    val recipeState = remember { viewModel.recipeState }
-    val recipeItems = viewModel.recipePagingData.collectAsLazyPagingItems()
-    val tastePrefState = remember { viewModel.tastePrefState }
-    val aiState = remember { viewModel.aiState }
     val focusManager = LocalFocusManager.current
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = false,
     )
     val scrollState = rememberLazyGridState()
     val isExpanded = remember { mutableStateOf(false) }
-    LaunchedEffect(true) {
-        viewModel.event.collect { event ->
-            when (event) {
-                is UIEvent.ShowSnackbar -> {
-                    snackbarHostState.showSnackbar(event.message)
-                }
-                is UIEvent.Navigate -> {
-                    navController.navigate(event.route)
-                }
-                is UIEvent.PopBackStack -> {
-                    navController.popBackStack()
-                }
-            }
-        }
-    }
+
     LaunchedEffect(sheetState) {
         snapshotFlow { sheetState.currentValue }
             .collect { value ->
@@ -100,7 +87,7 @@ fun HomeScreen(
                 focusManager.clearFocus()
             })}
     ) {
-        SetTaste(tastePrefState, onEvent)
+        SetTaste(recipeState, onEvent)
         Spacer(modifier = Modifier.height(Dimens.largePadding))
         Card (
             colors = CardDefaults.cardColors(
@@ -152,7 +139,7 @@ fun HomeScreen(
                                 if(item != null){
                                     MyRecipe(recipe = item ,modifier = Modifier
                                         .fillMaxWidth().padding(Dimens.smallPadding), onEvent = onEvent){
-                                        viewModel.navigateUp(
+                                        onNavigate(
                                             Screen.RecipeNav(item.id)
                                         )
                                     }

@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
+import androidx.paging.filter
 import androidx.paging.map
 import com.example.untitled_capstone.core.util.Resource
 import com.example.untitled_capstone.domain.model.Recipe
@@ -16,7 +17,6 @@ import com.example.untitled_capstone.domain.use_case.home.HomeUseCases
 import com.example.untitled_capstone.navigation.Screen
 import com.example.untitled_capstone.presentation.feature.home.state.AiState
 import com.example.untitled_capstone.presentation.feature.home.state.RecipeState
-import com.example.untitled_capstone.presentation.feature.home.state.TastePrefState
 import com.example.untitled_capstone.presentation.util.UIEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -33,8 +33,6 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val homeUseCases: HomeUseCases,
 ): ViewModel(){
-    var tastePrefState by mutableStateOf(TastePrefState())
-        private set
 
     var recipeState by mutableStateOf(RecipeState())
         private set
@@ -69,7 +67,7 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun initState(){
-        recipeState = RecipeState()
+        //recipeState = RecipeState()
     }
 
     private fun getTastePreference() {
@@ -78,18 +76,18 @@ class HomeViewModel @Inject constructor(
             when(result){
                 is Resource.Success -> {
                     result.data?.let{
-                        tastePrefState.apply{
-                            data = it.tastePreference
+                        recipeState.apply{
+                            tastePreference = it.tastePreference
                             isLoading = false
                         }
                     }
                 }
                 is Resource.Error -> {
-                    tastePrefState.isLoading = false
+                    recipeState.isLoading = false
                     _event.emit(UIEvent.ShowSnackbar(result.message ?: "Unknown error"))
                 }
                 is Resource.Loading -> {
-                    tastePrefState.isLoading = true
+                    recipeState.isLoading = true
                 }
             }
         }
@@ -101,18 +99,18 @@ class HomeViewModel @Inject constructor(
             when(result){
                 is Resource.Success -> {
                     result.data?.let{
-                        tastePrefState.apply{
+                        recipeState.apply{
                             isLoading = false
                         }
                         _event.emit(UIEvent.ShowSnackbar(result.data.result!!))
                     }
                 }
                 is Resource.Error -> {
-                    tastePrefState.isLoading = false
+                    recipeState.isLoading = false
                     _event.emit(UIEvent.ShowSnackbar(result.message ?: "Unknown error"))
                 }
                 is Resource.Loading -> {
-                    tastePrefState.isLoading = true
+                    recipeState.isLoading = true
                 }
             }
         }
@@ -142,6 +140,7 @@ class HomeViewModel @Inject constructor(
 
     private fun getRecipeByAI() {
         viewModelScope.launch {
+            aiState.isLoading = true
             val isFirstSelection = homeUseCases.getIsFirstSelection()
             val result = if (isFirstSelection) {
                 homeUseCases.getFirstRecommendation()
@@ -241,7 +240,9 @@ class HomeViewModel @Inject constructor(
                 is Resource.Success -> {
                     result.data?.let{
                         recipeState.isLoading = false
-                        getRecipes()
+                        _recipePagingData.update { pagingData ->
+                            pagingData.filter { it.id != id }
+                        }
                     }
                 }
                 is Resource.Error -> {
@@ -298,6 +299,12 @@ class HomeViewModel @Inject constructor(
     fun navigateUp(route: Screen) {
         viewModelScope.launch {
             _event.emit(UIEvent.Navigate(route))
+        }
+    }
+
+    fun popBackStack() {
+        viewModelScope.launch {
+            _event.emit(UIEvent.PopBackStack)
         }
     }
 }

@@ -23,12 +23,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.presentation.feature.home.HomeEvent
-import com.example.untitled_capstone.presentation.feature.home.state.TastePrefState
+import com.example.untitled_capstone.presentation.feature.home.state.RecipeState
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @Composable
-fun SetTaste(tastePrefState: TastePrefState, onEvent: (HomeEvent) -> Unit) {
-    var text by rememberSaveable { mutableStateOf(tastePrefState.data) }
+fun SetTaste(recipeState: RecipeState, onEvent: (HomeEvent) -> Unit) {
+    var text by rememberSaveable { mutableStateOf(recipeState.tastePreference) }
     val focusManager = LocalFocusManager.current
 
     Card(

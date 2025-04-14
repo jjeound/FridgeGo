@@ -59,8 +59,13 @@ import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RecipeScreen(id: Long, viewModel: HomeViewModel, onEvent: (HomeEvent) -> Unit, navController: NavHostController){
-    val state = remember { viewModel.recipeState }
+fun RecipeScreen(
+    id: Long,
+    state: RecipeState,
+    onEvent: (HomeEvent) -> Unit,
+    onNavigate: (Screen) -> Unit,
+    popBackStack: () -> Unit
+) {
     val isLiked = remember { derivedStateOf {
         state.recipe?.liked == true
     } }
@@ -89,7 +94,7 @@ fun RecipeScreen(id: Long, viewModel: HomeViewModel, onEvent: (HomeEvent) -> Uni
                     navigationIcon = {
                         IconButton(
                             onClick = {
-                                navController.popBackStack()
+                                popBackStack()
                                 onEvent(HomeEvent.InitState)
                             }
                         ) {
@@ -140,13 +145,13 @@ fun RecipeScreen(id: Long, viewModel: HomeViewModel, onEvent: (HomeEvent) -> Uni
                                         expanded = false
                                         when(option){
                                             menuItem[0] -> {
-                                                navController.navigate(
+                                                onNavigate(
                                                     Screen.RecipeModifyNav
                                                 )
                                             }
                                             menuItem[1] -> {
                                                 onEvent(HomeEvent.DeleteRecipe(recipe.id))
-                                                navController.popBackStack()
+                                                popBackStack()
                                             }
                                         }
                                     },

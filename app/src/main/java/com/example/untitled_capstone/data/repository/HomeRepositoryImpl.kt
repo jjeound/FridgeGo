@@ -104,7 +104,6 @@ class HomeRepositoryImpl @Inject constructor(
             Resource.Loading(data = null)
             val response = api.toggleLike(id)
             if(response.isSuccess){
-                //db.dao.toggleLike(id, liked)
                 Resource.Success(response.result!!)
             }else {
                 Resource.Error(message = response.toString())
@@ -155,11 +154,6 @@ class HomeRepositoryImpl @Inject constructor(
             val response = api.modifyRecipe(recipe.id, ModifyRecipeBody(title = recipe.title,
                 instructions = recipe.instructions, ingredients = recipe.ingredients))
             if(response.isSuccess){
-//                db.dao.updateRecipe(
-//                    id = recipe.id,
-//                    title = recipe.title,
-//                    imageUrl = recipe.imageUrl
-//                )
                 Resource.Success(response)
             }else {
                 Resource.Error(message = response.toString())

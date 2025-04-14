@@ -2,6 +2,7 @@ package com.example.untitled_capstone.navigation
 
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -47,6 +48,7 @@ import com.example.untitled_capstone.presentation.feature.post.screen.PostDetail
 import com.example.untitled_capstone.presentation.feature.post.screen.PostScreen
 import com.example.untitled_capstone.presentation.feature.post.screen.PostSearchScreen
 import com.example.untitled_capstone.presentation.feature.post.screen.WritingNewPostScreen
+import com.example.untitled_capstone.presentation.util.UIEvent
 
 
 @Composable
@@ -62,27 +64,88 @@ fun NavigationV2(
             composable<Screen.Home> {
                 val parentEntry = navController.getBackStackEntry(Graph.HomeGraph)
                 val viewModel: HomeViewModel = hiltViewModel(parentEntry)
+                val recipeState = remember { viewModel.recipeState }
+                val aiState = remember { viewModel.aiState }
+                val recipeItems = viewModel.recipePagingData.collectAsLazyPagingItems()
+                LaunchedEffect(true) {
+                    viewModel.event.collect { event ->
+                        when (event) {
+                            is UIEvent.ShowSnackbar -> {
+                                snackbarHostState.showSnackbar(event.message)
+                            }
+                            is UIEvent.Navigate -> {
+                                navController.navigate(event.route)
+                            }
+                            is UIEvent.PopBackStack -> {
+                                navController.popBackStack()
+                            }
+                        }
+                    }
+                }
                 HomeScreen(
-                    mainViewModel,
-                    viewModel,
-                    snackbarHostState,
-                    navController,
-                    viewModel::onEvent
+                    mainViewModel = mainViewModel,
+                    recipeState = recipeState,
+                    recipeItems = recipeItems,
+                    aiState = aiState,
+                    onEvent = viewModel::onEvent,
+                    onNavigate = { route ->
+                        viewModel.navigateUp(route)
+                    }
                 )
             }
             composable<Screen.RecipeNav>{
                 val parentEntry = navController.getBackStackEntry(Graph.HomeGraph)
                 val viewModel: HomeViewModel = hiltViewModel(parentEntry)
+                val recipeState = remember { viewModel.recipeState }
                 val args = it.toRoute<Screen.RecipeNav>()
-                RecipeScreen(args.id, viewModel, viewModel::onEvent, navController)
+                LaunchedEffect(true) {
+                    viewModel.event.collect { event ->
+                        when (event) {
+                            is UIEvent.ShowSnackbar -> {
+                                snackbarHostState.showSnackbar(event.message)
+                            }
+                            is UIEvent.Navigate -> {
+                                navController.navigate(event.route)
+                            }
+                            is UIEvent.PopBackStack -> {
+                                navController.popBackStack()
+                            }
+                        }
+                    }
+                }
+                RecipeScreen(
+                    id = args.id,
+                    state = recipeState,
+                    onEvent = viewModel::onEvent,
+                    onNavigate = { route ->
+                        viewModel.navigateUp(route)
+                    },
+                    popBackStack = { viewModel.popBackStack() }
+                )
             }
             composable<Screen.RecipeModifyNav>{
                 val parentEntry = navController.getBackStackEntry(Graph.HomeGraph)
                 val viewModel: HomeViewModel = hiltViewModel(parentEntry)
+                val recipeState = remember { viewModel.recipeState }
+                LaunchedEffect(true) {
+                    viewModel.event.collect { event ->
+                        when (event) {
+                            is UIEvent.ShowSnackbar -> {
+                                snackbarHostState.showSnackbar(event.message)
+                            }
+                            is UIEvent.Navigate -> {
+                                navController.navigate(event.route)
+                            }
+                            is UIEvent.PopBackStack -> {
+                                navController.popBackStack()
+                            }
+                        }
+                    }
+                }
                 RecipeModifyScreen(
-                    viewModel = viewModel,
+                    recipeState = recipeState,
                     onEvent = viewModel::onEvent,
-                    navController = navController
+                    popBackStack = {viewModel.popBackStack()}
                 )
             }
         }

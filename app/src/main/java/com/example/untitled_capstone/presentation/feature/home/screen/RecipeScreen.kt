@@ -1,6 +1,5 @@
 package com.example.untitled_capstone.presentation.feature.home.screen
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -38,22 +37,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
-import com.example.untitled_capstone.domain.model.Recipe
 import com.example.untitled_capstone.navigation.Screen
 import com.example.untitled_capstone.presentation.feature.home.HomeEvent
-import com.example.untitled_capstone.presentation.feature.home.HomeViewModel
 import com.example.untitled_capstone.presentation.feature.home.state.RecipeState
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
@@ -207,9 +200,9 @@ fun RecipeScreen(
                             )
                         }else{
                             Icon(
-                                imageVector = ImageVector.vectorResource(R.drawable.heart),
+                                imageVector = ImageVector.vectorResource(R.drawable.heart_filled_inside_default),
                                 contentDescription = "like",
-                                tint = CustomTheme.colors.iconDefault,
+                                tint = Color.Unspecified
                             )
                         }
                     }

@@ -29,6 +29,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -54,6 +55,7 @@ import com.example.untitled_capstone.presentation.feature.home.state.RecipeState
 import com.example.untitled_capstone.presentation.feature.main.MainViewModel
 import com.example.untitled_capstone.presentation.util.UIEvent
 import com.example.untitled_capstone.ui.theme.CustomTheme
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -71,7 +73,7 @@ fun HomeScreen(
     )
     val scrollState = rememberLazyGridState()
     val isExpanded = remember { mutableStateOf(false) }
-
+    val scope = rememberCoroutineScope()
     LaunchedEffect(sheetState) {
         snapshotFlow { sheetState.currentValue }
             .collect { value ->
@@ -162,7 +164,16 @@ fun HomeScreen(
                 onDismissRequest = { mainViewModel.hideBottomSheet()},
                 containerColor = CustomTheme.colors.onSurface,
             ) {
-                ChatBot(aiState, onEvent, isExpanded.value)
+                ChatBot(
+                    aiState = aiState,
+                    onEvent = onEvent,
+                    isExpanded = isExpanded.value,
+                    expandSheet = {
+                        scope.launch {
+                            sheetState.expand()
+                        }
+                    }
+                )
             }
         }
     }

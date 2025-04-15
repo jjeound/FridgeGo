@@ -159,7 +159,8 @@ class HomeViewModel @Inject constructor(
                 }
                 is Resource.Error -> {
                     aiState.isLoading = false
-                    _event.emit(UIEvent.ShowSnackbar(result.message ?: "다시 시도해주세요."))
+                    aiState.error = result.message
+                    //_event.emit(UIEvent.ShowSnackbar(result.message ?: "다시 시도해주세요."))
                 }
                 is Resource.Loading -> {
                     aiState.isLoading = true
@@ -305,6 +306,12 @@ class HomeViewModel @Inject constructor(
     fun popBackStack() {
         viewModelScope.launch {
             _event.emit(UIEvent.PopBackStack)
+        }
+    }
+
+    fun showSnackbar(message: String) {
+        viewModelScope.launch {
+            _event.emit(UIEvent.ShowSnackbar(message))
         }
     }
 }

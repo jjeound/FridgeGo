@@ -1,6 +1,7 @@
 package com.example.untitled_capstone.presentation.feature.home.composable
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -29,16 +30,19 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import com.example.untitled_capstone.R
@@ -48,7 +52,21 @@ import com.example.untitled_capstone.presentation.feature.home.state.AiState
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @Composable
-fun ChatBot(aiState: AiState, onEvent: (HomeEvent) -> Unit, isExpanded: Boolean) {
+fun ChatBot(
+    aiState: AiState,
+    onEvent: (HomeEvent) -> Unit,
+    isExpanded: Boolean,
+    expandSheet: () -> Unit,
+) {
+    val context = LocalContext.current
+    LaunchedEffect(aiState.response.isNotEmpty(), !isExpanded) {
+        expandSheet()
+    }
+    LaunchedEffect(aiState.error) {
+        if (aiState.error != null){
+            Toast.makeText(context, aiState.error, Toast.LENGTH_SHORT).show()
+        }
+    }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -90,44 +108,77 @@ fun ChatBot(aiState: AiState, onEvent: (HomeEvent) -> Unit, isExpanded: Boolean)
                             .wrapContentSize()
                     ) {
                         Column(
-                            modifier = Modifier.padding(Dimens.mediumPadding)
+                            modifier = Modifier.padding(Dimens.largePadding),
+                            verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding)
                         ) {
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.End,
-                                verticalAlignment = Alignment.CenterVertically
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween,
                             ) {
-                                IconButton(
-                                    modifier = Modifier.then(Modifier.size(24.dp)),
-                                    onClick = {
-                                        onEvent(HomeEvent.AddRecipe(recipe))
-                                    }
+                                Text(
+                                    text = matches[0].trim(), // title
+                                    style = CustomTheme.typography.title1,
+                                    color = CustomTheme.colors.textPrimary,
+                                )
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Icon(
-                                        imageVector = ImageVector.vectorResource(R.drawable.flag),
-                                        tint = CustomTheme.colors.iconDefault,
-                                        contentDescription = "save"
+                                    IconButton(
+                                        modifier = Modifier.then(Modifier.size(24.dp)),
+                                        onClick = {
+                                            onEvent(HomeEvent.AddRecipe(recipe))
+                                        }
+                                    ) {
+                                        Icon(
+                                            imageVector = ImageVector.vectorResource(R.drawable.flag),
+                                            tint = CustomTheme.colors.iconSelected,
+                                            contentDescription = "save"
+                                        )
+                                    }
+                                    Text(
+                                        text = "저장",
+                                        style = CustomTheme.typography.caption1,
+                                        color = CustomTheme.colors.textPrimary
                                     )
                                 }
-                                Text(
-                                    text = "저장",
-                                    style = CustomTheme.typography.caption2,
-                                    color = CustomTheme.colors.textSecondary
-                                )
                             }
                             parts.forEachIndexed { index, text ->
-                                if (index > 0) { // 첫 번째 항목은 [] 앞에 있는 내용이므로 제외
+                                if (index > 1) { // 첫 번째 항목은 [] 앞에 있는 내용이므로 제외
+                                    if(index == 2){
+                                        Text(
+                                            text = "${matches[index - 1].trim()} 📌", // 재료
+                                            style = CustomTheme.typography.title1,
+                                            color = CustomTheme.colors.textPrimary,
+                                        )
+                                    }
+                                    if(index == 3){
+                                        Text(
+                                            text = "${matches[index - 1].trim()} \uD83D\uDE80", // 레시피
+                                            style = CustomTheme.typography.title1,
+                                            color = CustomTheme.colors.textPrimary,
+                                        )
+                                    }
+                                }
+                                HorizontalDivider(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    color = CustomTheme.colors.borderLight,
+                                    thickness = 1.dp
+                                )
+                                if(index == 2){
                                     Text(
-                                        text = matches[index - 1].trim(), // [ ] 안의 텍스트
-                                        style = CustomTheme.typography.title1,
+                                        text = text.trim().replace("-", "✅ ").split(",").joinToString("\n").trim(),
+                                        style = CustomTheme.typography.body1,
                                         color = CustomTheme.colors.textPrimary,
                                     )
                                 }
-                                Text(
-                                    text = text.trim(),
-                                    style = CustomTheme.typography.body1,
-                                    color = CustomTheme.colors.textPrimary,
-                                )
+                                if(index == 3){
+                                    Text(
+                                        text = text.trim(),
+                                        style = CustomTheme.typography.body1,
+                                        color = CustomTheme.colors.textPrimary,
+                                    )
+                                }
                             }
                         }
                     }
@@ -173,22 +224,18 @@ fun ChatBot(aiState: AiState, onEvent: (HomeEvent) -> Unit, isExpanded: Boolean)
                     onEvent(HomeEvent.GetRecipeByAi)
                 },
                 enabled = !aiState.isLoading,
-                shape = ButtonDefaults.elevatedShape,
+                shape = ButtonDefaults.filledTonalShape,
                 elevation = ButtonDefaults.elevatedButtonElevation(),
                 colors = ButtonColors(
-                    containerColor = CustomTheme.colors.buttonSurface,
-                    contentColor = CustomTheme.colors.textPrimary,
-                    disabledContainerColor = CustomTheme.colors.textTertiary,
-                    disabledContentColor = CustomTheme.colors.textPrimary,
+                    containerColor = CustomTheme.colors.primary,
+                    contentColor = CustomTheme.colors.onPrimary,
+                    disabledContainerColor = CustomTheme.colors.buttonBorderUnfocused,
+                    disabledContentColor = CustomTheme.colors.textSecondary,
                 ),
-                border = BorderStroke(
-                    width = 1.dp,
-                    color = CustomTheme.colors.borderLight
-                )
             ) {
                 Text(
-                    text = "레시피 추천해줘!!",
-                    style = CustomTheme.typography.button2,
+                    text = "레시피 추천 받기",
+                    style = CustomTheme.typography.button1,
                 )
             }
         }

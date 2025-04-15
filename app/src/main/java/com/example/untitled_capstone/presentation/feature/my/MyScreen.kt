@@ -17,12 +17,9 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -32,10 +29,8 @@ import androidx.navigation.NavHostController
 import com.example.untitled_capstone.MainActivity
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
-import com.example.untitled_capstone.navigation.Graph
 import com.example.untitled_capstone.navigation.Screen
 import com.example.untitled_capstone.presentation.feature.fridge.composable.PermissionDialog
-import com.example.untitled_capstone.presentation.feature.login.LoginEvent
 import com.example.untitled_capstone.presentation.feature.my.composable.MyAccountContainer
 import com.example.untitled_capstone.presentation.feature.my.composable.MyContainer
 import com.example.untitled_capstone.ui.theme.CustomTheme

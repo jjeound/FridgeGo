@@ -49,6 +49,8 @@ import com.example.untitled_capstone.presentation.feature.post.screen.PostScreen
 import com.example.untitled_capstone.presentation.feature.post.screen.PostSearchScreen
 import com.example.untitled_capstone.presentation.feature.post.screen.WritingNewPostScreen
 import com.example.untitled_capstone.presentation.util.UIEvent
+import kotlin.collections.remove
+import kotlin.text.get
 
 
 @Composable
@@ -235,16 +237,71 @@ fun NavigationV2(
             composable<Screen.Fridge>{
                 val parentEntry = navController.getBackStackEntry(Graph.FridgeGraph)
                 val viewModel: FridgeViewModel = hiltViewModel(parentEntry)
-                val state by viewModel.state.collectAsStateWithLifecycle()
+                val state = remember { viewModel.state }
                 val fridgeItems = viewModel.fridgeItemState.collectAsLazyPagingItems()
-                RefrigeratorScreen(fridgeItems, state, mainViewModel, viewModel::onAction, navController)
+                LaunchedEffect(true) {
+                    viewModel.event.collect { event ->
+                        when (event) {
+                            is UIEvent.ShowSnackbar -> {
+                                snackbarHostState.showSnackbar(event.message)
+                            }
+                            is UIEvent.Navigate -> {
+                                navController.navigate(event.route)
+                            }
+                            is UIEvent.PopBackStack -> {
+                                navController.popBackStack()
+                            }
+                        }
+                    }
+                }
+                RefrigeratorScreen(
+                    fridgeItems = fridgeItems,
+                    state = state,
+                    topSelector = mainViewModel.topSelector,
+                    onAction = viewModel::onAction,
+                    onNavigate = { route ->
+                        viewModel.navigateUp(route)
+                    }
+                )
             }
             composable<Screen.AddFridgeItemNav>{
                 val parentEntry = navController.getBackStackEntry(Graph.FridgeGraph)
                 val viewModel: FridgeViewModel = hiltViewModel(parentEntry)
-                val state by viewModel.state.collectAsStateWithLifecycle()
+                val state = remember { viewModel.state }
                 val args = it.toRoute<Screen.AddFridgeItemNav>()
-                AddFridgeItemScreen(args.id, state, navController, viewModel::onAction)
+                LaunchedEffect(true) {
+                    viewModel.event.collect { event ->
+                        when (event) {
+                            is UIEvent.ShowSnackbar -> {
+                                snackbarHostState.showSnackbar(event.message)
+                            }
+                            is UIEvent.Navigate -> {
+                                navController.navigate(event.route)
+                            }
+                            is UIEvent.PopBackStack -> {
+                                navController.popBackStack()
+                            }
+                        }
+                    }
+                }
+                AddFridgeItemScreen(
+                    id = args.id,
+                    state = state,
+                    onAction = viewModel::onAction,
+                    initSavedState = {
+                        navController.currentBackStackEntry?.savedStateHandle?.remove<String>("date")
+                    },
+                    getSavedDate = {
+                        navController.currentBackStackEntry?.savedStateHandle?.get<String>("date")
+                    },
+                    onNavigate = { route ->
+                        viewModel.navigateUp(route)
+                    },
+                    popBackStack = {navController.popBackStack()},
+                    showSnackbar = { message ->
+                        viewModel.showSnackbar(message)
+                    }
+                )
             }
             composable<Screen.ScanNav> {
                 ScanExpirationDate(

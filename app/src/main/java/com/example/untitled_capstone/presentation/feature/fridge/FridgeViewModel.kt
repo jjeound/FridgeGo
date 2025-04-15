@@ -1,17 +1,26 @@
 package com.example.untitled_capstone.presentation.feature.fridge
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
+import androidx.paging.filter
 import androidx.paging.map
 import com.example.untitled_capstone.core.util.Resource
 import com.example.untitled_capstone.data.util.FridgeFetchType
 import com.example.untitled_capstone.domain.model.FridgeItem
 import com.example.untitled_capstone.domain.use_case.fridge.FridgeUseCases
+import com.example.untitled_capstone.navigation.Screen
+import com.example.untitled_capstone.presentation.util.UIEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -21,11 +30,15 @@ import javax.inject.Inject
 class FridgeViewModel @Inject constructor(
     private val fridgeUseCases: FridgeUseCases
 ): ViewModel() {
-    private val _state = MutableStateFlow(FridgeState())
-    val state = _state.asStateFlow()
+
+    var state by mutableStateOf(FridgeState())
+        private set
 
     private val _fridgeItemState: MutableStateFlow<PagingData<FridgeItem>> = MutableStateFlow(PagingData.empty())
     val fridgeItemState = _fridgeItemState.asStateFlow()
+
+    private val _event = MutableSharedFlow<UIEvent>()
+    val event = _event.asSharedFlow()
 
     init {
         onAction(FridgeAction.GetItems)
@@ -45,7 +58,7 @@ class FridgeViewModel @Inject constructor(
     }
 
     private fun initState(){
-        _state.update { FridgeState() }
+        state = FridgeState()
     }
 
     private fun addItem(item: FridgeItem){
@@ -55,15 +68,18 @@ class FridgeViewModel @Inject constructor(
                 is Resource.Success -> {
                     result.data?.let{
                         getItems()
+                        state.isLoading = false
                     }
                 }
                 is Resource.Error -> {
-                    _state.update { it.copy(loading = false, error = result.message ?: "An unexpected error occurred") }
+                    state.isLoading = false
+                    _event.emit(UIEvent.ShowSnackbar(result.message ?: "Unknown error"))
                 }
                 is Resource.Loading -> {
-                    _state.update { it.copy(loading = true) }
+                    state.isLoading = true
                 }
             }
+
         }
     }
 
@@ -73,6 +89,7 @@ class FridgeViewModel @Inject constructor(
             when(result){
                 is Resource.Success -> {
                     result.data?.let{
+                        state.isLoading = false
                         _fridgeItemState.update { pagingData ->
                             pagingData.map {
                                 if(it.id == id){
@@ -85,10 +102,11 @@ class FridgeViewModel @Inject constructor(
                     }
                 }
                 is Resource.Error -> {
-                    _state.update { it.copy(loading = false, error = result.message ?: "An unexpected error occurred") }
+                    state.isLoading = false
+                    _event.emit(UIEvent.ShowSnackbar(result.message ?: "Unknown error"))
                 }
                 is Resource.Loading -> {
-                    _state.update { it.copy(loading = true) }
+                    state.isLoading = true
                 }
             }
         }
@@ -108,18 +126,14 @@ class FridgeViewModel @Inject constructor(
                             }
                         }
                     }
-                    _state.update {
-                        it.copy(
-                            loading = false,
-                            error = null
-                        )
-                    }
+                    state.isLoading = false
                 }
                 is Resource.Error -> {
-                    _state.update { it.copy(loading = false, error = result.message ?: "An unexpected error occurred") }
+                    state.isLoading = false
+                    _event.emit(UIEvent.ShowSnackbar(result.message ?: "Unknown error"))
                 }
                 is Resource.Loading -> {
-                    _state.update { it.copy(loading = true) }
+                    state.isLoading = true
                 }
             }
         }
@@ -130,13 +144,17 @@ class FridgeViewModel @Inject constructor(
             val result = fridgeUseCases.deleteFridgeItem(id)
             when(result){
                 is Resource.Success -> {
-                    getItems()
+                    state.isLoading = false
+                    _fridgeItemState.update { pagingData ->
+                        pagingData.filter { it.id != id }
+                    }
                 }
                 is Resource.Error -> {
-                    _state.update { it.copy(loading = false, error = result.message ?: "An unexpected error occurred") }
+                    state.isLoading = false
+                    _event.emit(UIEvent.ShowSnackbar(result.message ?: "Unknown error"))
                 }
                 is Resource.Loading -> {
-                    _state.update { it.copy(loading = true) }
+                    state.isLoading = true
                 }
             }
         }
@@ -148,17 +166,18 @@ class FridgeViewModel @Inject constructor(
             when(result){
                 is Resource.Success -> {
                     result.data?.let{
-                        _state.update { it.copy(
-                            item = result.data,
-                            loading = false,
-                            error = null) }
+                        state.apply {
+                            response = it
+                            isLoading = false
+                        }
                     }
                 }
                 is Resource.Error -> {
-                    _state.update { it.copy(loading = false, error = result.message ?: "An unexpected error occurred") }
+                    state.isLoading = false
+                    _event.emit(UIEvent.ShowSnackbar(result.message ?: "Unknown error"))
                 }
                 is Resource.Loading -> {
-                    _state.update { it.copy(loading = true) }
+                    state.isLoading = true
                 }
             }
         }
@@ -171,12 +190,6 @@ class FridgeViewModel @Inject constructor(
                 .cachedIn(viewModelScope)
                 .collect { pagingData ->
                     _fridgeItemState.value = pagingData
-                    _state.update {
-                        it.copy(
-                            loading = false,
-                            error = null
-                        )
-                    }
                 }
         }
     }
@@ -188,13 +201,25 @@ class FridgeViewModel @Inject constructor(
                 .cachedIn(viewModelScope)
                 .collect { pagingData ->
                     _fridgeItemState.value = pagingData
-                    _state.update {
-                        it.copy(
-                            loading = false,
-                            error = null
-                        )
-                    }
                 }
+        }
+    }
+
+    fun navigateUp(route: Screen) {
+        viewModelScope.launch {
+            _event.emit(UIEvent.Navigate(route))
+        }
+    }
+
+    fun popBackStack() {
+        viewModelScope.launch {
+            _event.emit(UIEvent.PopBackStack)
+        }
+    }
+
+    fun showSnackbar(message: String) {
+        viewModelScope.launch {
+            _event.emit(UIEvent.ShowSnackbar(message))
         }
     }
 }

@@ -60,15 +60,6 @@ fun FridgeTopBar(navController: NavHostController, viewModel: MainViewModel){
         },
         actions = {
             IconButton(
-                onClick = {}
-            ) {
-                Icon(
-                    imageVector = ImageVector.vectorResource(R.drawable.search),
-                    tint = CustomTheme.colors.iconDefault,
-                    contentDescription = "search"
-                )
-            }
-            IconButton(
                 onClick = {navController.navigate(Screen.NotificationNav)}
             ) {
                 Icon(

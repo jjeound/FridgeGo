@@ -50,7 +50,13 @@ import com.example.untitled_capstone.ui.theme.CustomTheme
 
 
 @Composable
-fun RefrigeratorScreen(fridgeItems: LazyPagingItems<FridgeItem>, state: FridgeState, viewModel: MainViewModel, onAction: (FridgeAction) -> Unit, navController: NavHostController) {
+fun RefrigeratorScreen(
+    fridgeItems: LazyPagingItems<FridgeItem>,
+    state: FridgeState,
+    topSelector: Boolean,
+    onAction: (FridgeAction) -> Unit,
+    onNavigate: (Screen) -> Unit,
+) {
     var expanded by remember { mutableStateOf(false) }
     val menuItemData = listOf("등록 순", "유통기한 순")
     var alignMenu by remember { mutableStateOf("등록 순") }
@@ -124,7 +130,7 @@ fun RefrigeratorScreen(fridgeItems: LazyPagingItems<FridgeItem>, state: FridgeSt
             }
         }
         Box(modifier = Modifier.fillMaxSize()) {
-            if(fridgeItems.loadState.refresh is LoadState.Loading || state.loading) {
+            if(fridgeItems.loadState.refresh is LoadState.Loading || state.isLoading) {
                 CircularProgressIndicator(
                     modifier = Modifier.align(Alignment.Center),
                     color = CustomTheme.colors.primary
@@ -135,14 +141,13 @@ fun RefrigeratorScreen(fridgeItems: LazyPagingItems<FridgeItem>, state: FridgeSt
                 ) {
                     items(count = fridgeItems.itemCount) { index ->
                         val item = fridgeItems[index]
-                        if (item != null && item.isFridge == viewModel.topSelector) {
+                        if (item != null && item.isFridge == topSelector) {
                             FridgeItemContainer(
                                 item,
                                 onAction,
                                 onShowDialog = { showDialog.value = true },
                                 navigateToModifyItemScreen = {
-                                    navController.navigate(
-                                        Screen.AddFridgeItemNav(id = item.id)) },
+                                    onNavigate(Screen.AddFridgeItemNav(id = item.id)) },
                             )
                         }
                     }

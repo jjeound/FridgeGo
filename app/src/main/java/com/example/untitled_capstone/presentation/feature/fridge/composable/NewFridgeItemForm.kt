@@ -24,9 +24,11 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -62,7 +64,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
 import androidx.core.content.ContextCompat
-import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.untitled_capstone.MainActivity
 import com.example.untitled_capstone.R
@@ -78,25 +79,34 @@ import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NewFridgeItemForm(id: Long?, state: FridgeState, navController: NavHostController, onAction: (FridgeAction) -> Unit){
+fun NewFridgeItemForm(
+    id: Long?,
+    state: FridgeState,
+    onAction: (FridgeAction) -> Unit,
+    initSavedState: () -> Unit,
+    getSavedDate: () -> String?,
+    onNavigate: (Screen) -> Unit,
+    popBackStack: () -> Unit,
+    showSnackbar: (String) -> Unit,
+){
     val context = LocalContext.current
     val packageName = context.packageName
     val focusManager = LocalFocusManager.current
     val showDialog = remember { mutableStateOf(false) }
 
-    var image by remember { mutableStateOf(state.item?.image) }
+    var image by remember { mutableStateOf(state.response?.image) }
     var name by rememberSaveable { mutableStateOf("") }
     var quantity by rememberSaveable { mutableStateOf("") }
 
     var showDatePicker by remember { mutableStateOf(false) }
     val datePickerState = rememberDatePickerState()
     var expirationDate by remember { mutableLongStateOf(0L) }
-    val scannedDate = navController.currentBackStackEntry?.savedStateHandle?.get<String>("date")
+    val scannedDate = getSavedDate()
     var selectedDate = datePickerState.selectedDateMillis?.let {
         expirationDate = it
         convertMillisToDate(it)
-    } ?: if (state.item != null) {
-        state.item.expirationDate.let {
+    } ?: if (state.response != null) {
+        state.response!!.expirationDate.let {
             expirationDate = it // 기존 데이터가 있으면 expirationDate 설정
             convertMillisToDate(it)
         }
@@ -113,12 +123,13 @@ fun NewFridgeItemForm(id: Long?, state: FridgeState, navController: NavHostContr
     }
 
     var validator by remember { mutableStateOf(false) }
-    validator = name.isNotBlank() && selectedDate.isNotBlank()
+    var isQuantityInt by remember { mutableStateOf(true) }
+    validator = name.isNotBlank() && selectedDate.isNotBlank() && quantity.isNotBlank()
     LaunchedEffect(Unit) {
         id?.let { onAction(FridgeAction.GetItemById(it)) }
     }
-    LaunchedEffect(state.item) {
-        state.item?.let {
+    LaunchedEffect(state.response) {
+        state.response?.let {
             name = it.name
             image = it.image
             quantity = it.quantity
@@ -177,10 +188,10 @@ fun NewFridgeItemForm(id: Long?, state: FridgeState, navController: NavHostContr
     }
     Column(
         modifier = Modifier
-            .fillMaxSize(),
+            .fillMaxSize().imePadding(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        if(state.loading){
+        if(state.isLoading){
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
@@ -189,7 +200,7 @@ fun NewFridgeItemForm(id: Long?, state: FridgeState, navController: NavHostContr
             }
         }
         Column(
-            modifier = Modifier.weight(1f),
+            modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(Dimens.largePadding)
         ) {
@@ -301,6 +312,11 @@ fun NewFridgeItemForm(id: Long?, state: FridgeState, navController: NavHostContr
                                 style = CustomTheme.typography.caption1,
                                 color = CustomTheme.colors.textSecondary,
                             )
+                            Text(
+                                text = " *",
+                                style = CustomTheme.typography.caption1,
+                                color = CustomTheme.colors.iconRed,
+                            )
                         }
                     },
                     value = quantity,
@@ -317,11 +333,14 @@ fun NewFridgeItemForm(id: Long?, state: FridgeState, navController: NavHostContr
                         unfocusedIndicatorColor = CustomTheme.colors.border,
                         focusedTrailingIconColor = CustomTheme.colors.iconDefault,
                         unfocusedTrailingIconColor = Color.Transparent,
+                        errorIndicatorColor = CustomTheme.colors.error,
+                        errorContainerColor = CustomTheme.colors.onSurface
                     ),
                     keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     singleLine = true,
-                    maxLines = 1
+                    maxLines = 1,
+                    isError = !isQuantityInt
                 )
             }
             TextField(
@@ -417,7 +436,7 @@ fun NewFridgeItemForm(id: Long?, state: FridgeState, navController: NavHostContr
                             context,
                             Manifest.permission.CAMERA
                         ) == PackageManager.PERMISSION_GRANTED ->  {
-                            navController.navigate(
+                            onNavigate(
                                 Screen.ScanNav
                             )
                         }
@@ -475,43 +494,49 @@ fun NewFridgeItemForm(id: Long?, state: FridgeState, navController: NavHostContr
             ),
             enabled = validator,
             onClick = {
-                navController.popBackStack()
-                navController.currentBackStackEntry?.savedStateHandle?.remove<String>("date")
-                state.item?.let {
-                    onAction(FridgeAction.ModifyItem(
-                        FridgeItem(
-                            id = it.id,
-                            name = name,
-                            image = image,
-                            quantity = quantity,
-                            expirationDate = expirationDate,
-                            notification = it.notification,
-                            isFridge = it.isFridge
-                        )
-                    ))
-                    onAction(FridgeAction.InitState)
-                } ?: run {
-                    onAction(FridgeAction.AddItem(
-                        FridgeItem(
-                            id = 0L,
-                            name = name,
-                            image = image,
-                            quantity = quantity,
-                            expirationDate = expirationDate,
-                            notification = false,
-                            isFridge = true
-                        )
-                    ))
+                if(quantity.all { it.isDigit() }){
+                    popBackStack()
+                    initSavedState()
+                    state.response?.let {
+                        onAction(FridgeAction.ModifyItem(
+                            FridgeItem(
+                                id = it.id,
+                                name = name,
+                                image = image,
+                                quantity = quantity,
+                                expirationDate = expirationDate,
+                                notification = it.notification,
+                                isFridge = it.isFridge
+                            )
+                        ))
+                        onAction(FridgeAction.InitState)
+                    } ?: run {
+                        onAction(FridgeAction.AddItem(
+                            FridgeItem(
+                                id = 0L,
+                                name = name,
+                                image = image,
+                                quantity = quantity,
+                                expirationDate = expirationDate,
+                                notification = false,
+                                isFridge = true
+                            )
+                        ))
+                    }
+                }else{
+                    isQuantityInt = false
+                    showSnackbar("수량은 숫자만 입력하세요.")
                 }
             }
         ) {
             Text(
-                text = if(state.item != null) "수정하기" else "등록하기",
+                text = if(state.response != null) "수정하기" else "등록하기",
                 style = CustomTheme.typography.button1,
             )
         }
     }
 }
+
 
 
 fun convertMillisToDate(millis: Long): String {

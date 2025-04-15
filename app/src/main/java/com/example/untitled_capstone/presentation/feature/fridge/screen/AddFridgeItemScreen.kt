@@ -17,9 +17,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
-import androidx.navigation.NavHostController
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
+import com.example.untitled_capstone.navigation.Screen
 import com.example.untitled_capstone.presentation.feature.fridge.composable.NewFridgeItemForm
 import com.example.untitled_capstone.presentation.feature.fridge.FridgeAction
 import com.example.untitled_capstone.presentation.feature.fridge.FridgeState
@@ -27,8 +27,16 @@ import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddFridgeItemScreen(id: Long?, state: FridgeState, navController: NavHostController, onAction: (FridgeAction) -> Unit ){
-    val scrollState = rememberScrollState()
+fun AddFridgeItemScreen(
+    id: Long?,
+    state: FridgeState,
+    onAction: (FridgeAction) -> Unit,
+    initSavedState: () -> Unit,
+    getSavedDate: () -> String?,
+    onNavigate: (Screen) -> Unit,
+    popBackStack: () -> Unit,
+    showSnackbar: (String) -> Unit,
+){
     Scaffold(
         containerColor = CustomTheme.colors.onSurface,
         topBar = {
@@ -44,8 +52,8 @@ fun AddFridgeItemScreen(id: Long?, state: FridgeState, navController: NavHostCon
                 navigationIcon = {
                     IconButton(
                         onClick = {
-                            navController.popBackStack()
-                            navController.currentBackStackEntry?.savedStateHandle?.remove<String>("date")
+                            popBackStack()
+                            initSavedState()
                             onAction(FridgeAction.InitState)
                         }
                     ) {
@@ -65,12 +73,18 @@ fun AddFridgeItemScreen(id: Long?, state: FridgeState, navController: NavHostCon
         Box(
             modifier = Modifier.padding(innerPadding)
                 .padding(horizontal = Dimens.surfaceHorizontalPadding,
-                vertical = Dimens.surfaceVerticalPadding).scrollable(
-                    state = scrollState,
-                    orientation = Orientation.Vertical
-                )
+                vertical = Dimens.surfaceVerticalPadding)
         ){
-           NewFridgeItemForm(id, state, navController, onAction)
+           NewFridgeItemForm(
+               id = id,
+               state = state,
+               onAction = onAction,
+               initSavedState = initSavedState,
+               getSavedDate = getSavedDate,
+               onNavigate = onNavigate,
+               popBackStack = popBackStack,
+               showSnackbar = showSnackbar
+           )
         }
     }
 }

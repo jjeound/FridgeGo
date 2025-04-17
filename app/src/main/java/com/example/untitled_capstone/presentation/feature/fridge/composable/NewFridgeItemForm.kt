@@ -72,7 +72,9 @@ import com.example.untitled_capstone.domain.model.FridgeItem
 import com.example.untitled_capstone.navigation.Screen
 import com.example.untitled_capstone.presentation.feature.fridge.FridgeAction
 import com.example.untitled_capstone.presentation.feature.fridge.FridgeState
+import com.example.untitled_capstone.presentation.feature.my.composable.getRealPathFromURI
 import com.example.untitled_capstone.ui.theme.CustomTheme
+import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -83,7 +85,7 @@ fun NewFridgeItemForm(
     id: Long?,
     state: FridgeState,
     onAction: (FridgeAction) -> Unit,
-    initSavedState: () -> Unit,
+    initSavedDate: () -> Unit,
     getSavedDate: () -> String?,
     onNavigate: (Screen) -> Unit,
     popBackStack: () -> Unit,
@@ -95,6 +97,7 @@ fun NewFridgeItemForm(
     val showDialog = remember { mutableStateOf(false) }
 
     var image by remember { mutableStateOf(state.response?.image) }
+    var imageFile by remember { mutableStateOf<File?>(null) }
     var name by rememberSaveable { mutableStateOf("") }
     var quantity by rememberSaveable { mutableStateOf("") }
 
@@ -124,7 +127,7 @@ fun NewFridgeItemForm(
 
     var validator by remember { mutableStateOf(false) }
     var isQuantityInt by remember { mutableStateOf(true) }
-    validator = name.isNotBlank() && selectedDate.isNotBlank() && quantity.isNotBlank()
+    validator = name.isNotBlank() && selectedDate.isNotBlank()
     LaunchedEffect(Unit) {
         id?.let { onAction(FridgeAction.GetItemById(it)) }
     }
@@ -144,6 +147,10 @@ fun NewFridgeItemForm(
                     result.data?.data?.let { uri ->
                         uri.let {
                             image = uri.toString()
+                            val filePath = context.getRealPathFromURI(it)
+                            if (filePath != null) {
+                                imageFile = File(filePath)
+                            }
                             Log.d("TargetSDK", "imageUri - selected : $uri")
                         }
                     }
@@ -306,18 +313,11 @@ fun NewFridgeItemForm(
                 )
                 TextField(
                     label = {
-                        Row {
-                            Text(
-                                text = "수량",
-                                style = CustomTheme.typography.caption1,
-                                color = CustomTheme.colors.textSecondary,
-                            )
-                            Text(
-                                text = " *",
-                                style = CustomTheme.typography.caption1,
-                                color = CustomTheme.colors.iconRed,
-                            )
-                        }
+                        Text(
+                            text = "수량",
+                            style = CustomTheme.typography.caption1,
+                            color = CustomTheme.colors.textSecondary,
+                        )
                     },
                     value = quantity,
                     onValueChange = {quantity = it},
@@ -496,18 +496,18 @@ fun NewFridgeItemForm(
             onClick = {
                 if(quantity.all { it.isDigit() }){
                     popBackStack()
-                    initSavedState()
+                    initSavedDate()
                     state.response?.let {
                         onAction(FridgeAction.ModifyItem(
                             FridgeItem(
                                 id = it.id,
                                 name = name,
                                 image = image,
-                                quantity = quantity,
+                                quantity = if(quantity.isNotBlank()) quantity else "0",
                                 expirationDate = expirationDate,
                                 notification = it.notification,
                                 isFridge = it.isFridge
-                            )
+                            ),
                         ))
                         onAction(FridgeAction.InitState)
                     } ?: run {
@@ -516,11 +516,12 @@ fun NewFridgeItemForm(
                                 id = 0L,
                                 name = name,
                                 image = image,
-                                quantity = quantity,
+                                quantity = if(quantity.isNotBlank()) quantity else "0",
                                 expirationDate = expirationDate,
                                 notification = false,
                                 isFridge = true
-                            )
+                            ),
+                            imageFile
                         ))
                     }
                 }else{

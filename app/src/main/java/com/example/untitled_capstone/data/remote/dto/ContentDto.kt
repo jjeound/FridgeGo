@@ -6,6 +6,7 @@ import com.example.untitled_capstone.domain.model.FridgeItem
 data class ContentDto(
     val alarmStatus: Boolean,
     val count: Int,
+    val imageUrl: String?,
     val foodName: String,
     val id: Long,
     val storageType: Boolean,
@@ -15,7 +16,7 @@ data class ContentDto(
         return FridgeItemEntity(
             id = id,
             name = foodName,
-            image = null,
+            image = imageUrl,
             quantity = count.toString(),
             expirationDate = useByDate,
             notification = alarmStatus,
@@ -27,20 +28,11 @@ data class ContentDto(
         return  FridgeItem(
             id = id,
             name = foodName,
-            image = null,
+            image = imageUrl,
             quantity = count.toString(),
             expirationDate = useByDate,
             notification = alarmStatus,
             isFridge = storageType,
-        )
-    }
-    fun toModifyFridgeReqDto(): ModifyFridgeReqDto{
-        return ModifyFridgeReqDto(
-            alarmStatus = alarmStatus,
-            count = count,
-            foodName = foodName,
-            storageType = storageType,
-            useByDate = useByDate
         )
     }
 }

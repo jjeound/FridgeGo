@@ -10,13 +10,14 @@ import com.example.untitled_capstone.data.local.db.FridgeItemDatabase
 import com.example.untitled_capstone.data.local.entity.FridgeItemEntity
 import com.example.untitled_capstone.data.pagination.FridgePagingSource
 import com.example.untitled_capstone.data.remote.service.FridgeApi
-import com.example.untitled_capstone.data.remote.dto.ContentDto
-import com.example.untitled_capstone.data.remote.dto.ApiResponse
-import com.example.untitled_capstone.data.remote.dto.NewFridgeItemDto
 import com.example.untitled_capstone.data.util.FridgeFetchType
 import com.example.untitled_capstone.domain.model.FridgeItem
 import com.example.untitled_capstone.domain.repository.FridgeRepository
+import com.google.gson.Gson
 import kotlinx.coroutines.flow.Flow
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import okio.IOException
 import retrofit2.HttpException
 
@@ -43,12 +44,15 @@ class FridgeRepositoryImpl(
         ).flow
     }
 
-    override suspend fun addItem(item: NewFridgeItemDto): Resource<ApiResponse> {
+    override suspend fun addItem(item: FridgeItem, image: MultipartBody.Part?): Resource<String> {
         return try {
             Resource.Loading(data = null)
-            val response = api.addFridgeItem(item)
+            val gson = Gson()
+            val json = gson.toJson(item.toNewFridgeItemDto())
+            val jsonBody = json.toRequestBody("application/json; charset=utf-8".toMediaType())
+            val response = api.addFridgeItem(jsonBody, image)
             if(response.isSuccess){
-                Resource.Success(response)
+                Resource.Success(response.result)
             }else{
                 Resource.Error(response.message)
             }
@@ -62,13 +66,13 @@ class FridgeRepositoryImpl(
     override suspend fun toggleNotification(
         id: Long,
         alarmStatus: Boolean
-    ): Resource<ApiResponse> {
+    ): Resource<String> {
         return try {
             Resource.Loading(data = null)
             val response = api.toggleNotification(id, alarmStatus)
             if(response.isSuccess){
                 db.dao.toggleNotification(id, alarmStatus)
-                Resource.Success(response)
+                Resource.Success(response.result)
             }else{
                 Resource.Error(response.message)
             }
@@ -79,12 +83,12 @@ class FridgeRepositoryImpl(
         }
     }
 
-    override suspend fun modifyItem(updatedItem: ContentDto): Resource<ApiResponse> {
+    override suspend fun modifyItem(updatedItem: FridgeItem): Resource<String> {
         return try {
             Resource.Loading(data = null)
             val response = api.modifyItem(updatedItem.id, updatedItem.toModifyFridgeReqDto())
             if(response.isSuccess){
-                Resource.Success(response)
+                Resource.Success(response.result)
             }else{
                 Resource.Error(response.message)
             }
@@ -95,12 +99,12 @@ class FridgeRepositoryImpl(
         }
     }
 
-    override suspend fun deleteItem(id: Long): Resource<ApiResponse> {
+    override suspend fun deleteItem(id: Long): Resource<String> {
         return try {
             Resource.Loading(data = null)
             val response = api.deleteItem(id)
             if(response.isSuccess){
-                Resource.Success(response)
+                Resource.Success(response.result)
             }else{
                 Resource.Error(response.message)
             }

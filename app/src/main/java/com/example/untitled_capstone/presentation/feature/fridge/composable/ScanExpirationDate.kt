@@ -108,40 +108,6 @@ fun ScanExpirationDate(navController: NavHostController) {
                 },
                 modifier = Modifier.fillMaxSize()
             )
-//            if(showDialog){
-//                AlertDialog(
-//                    onDismissRequest = { showDialog = false },
-//                    title = {
-//                        Text(
-//                            text = "유통기한 정보",
-//                            style = CustomTheme.typography.title1,
-//                            color = CustomTheme.colors.textPrimary,
-//                        )
-//                    },
-//                    text = {
-//                        Text(
-//                            text = detectedText ?: "",
-//                            style = CustomTheme.typography.body1,
-//                            color = CustomTheme.colors.textPrimary,
-//                        )
-//                    },
-//                    dismissButton = {
-//
-//                    },
-//                    confirmButton = {
-//                        IconButton(
-//                            onClick = { showDialog = false }
-//                        ) {
-//                            Icon(
-//                                imageVector = ImageVector.vectorResource(R.drawable.close),
-//                                tint = CustomTheme.colors.iconSelected,
-//                                contentDescription = "close",
-//                            )
-//                        }
-//                    },
-//                    modifier = Modifier.background(CustomTheme.colors.surface)
-//                )
-//            }
         }
     }
 }

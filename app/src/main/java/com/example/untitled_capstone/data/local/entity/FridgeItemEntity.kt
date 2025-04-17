@@ -6,7 +6,8 @@ import com.example.untitled_capstone.domain.model.FridgeItem
 
 @Entity
 data class FridgeItemEntity(
-    @PrimaryKey val id: Long,
+    @PrimaryKey(autoGenerate = true) val key: Long = 0,
+    val id: Long,
     val name: String,
     val image: String?,
     val quantity: String,

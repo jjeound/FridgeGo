@@ -87,10 +87,10 @@ fun FridgeItemContainer(item: FridgeItem, onAction: (FridgeAction) -> Unit, onSh
         ){
             if (item.image != null) {
                 AsyncImage(
-                    model = item.image.toUri(),
+                    model = item.image,
                     contentDescription = item.name,
                     alignment = Alignment.Center,
-                    contentScale = ContentScale.Crop,
+                    contentScale = ContentScale.Fit,
                     modifier = Modifier
                         .size(80.dp)
                         .clip(shape = RoundedCornerShape(Dimens.cornerRadius))

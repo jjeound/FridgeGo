@@ -24,6 +24,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.io.File
 import javax.inject.Inject
 
 @HiltViewModel
@@ -41,13 +42,13 @@ class FridgeViewModel @Inject constructor(
     val event = _event.asSharedFlow()
 
     init {
-        onAction(FridgeAction.GetItems)
+        getItems()
     }
 
     fun onAction(action: FridgeAction){
         when(action){
             is FridgeAction.GetItems -> getItems()
-            is FridgeAction.AddItem -> addItem(action.item)
+            is FridgeAction.AddItem -> addItem(action.item, action.image)
             is FridgeAction.GetItemsByDate -> getItemsByDate()
             is FridgeAction.ToggleNotification -> toggleNotification(action.id, action.alarmStatus)
             is FridgeAction.ModifyItem -> modifyItem(action.item)
@@ -61,13 +62,13 @@ class FridgeViewModel @Inject constructor(
         state = FridgeState()
     }
 
-    private fun addItem(item: FridgeItem){
+    private fun addItem(item: FridgeItem, image: File?) {
         viewModelScope.launch {
-            val result = fridgeUseCases.addFridgeItem(item)
+            val result = fridgeUseCases.addFridgeItem(item, image)
             when(result){
                 is Resource.Success -> {
                     result.data?.let{
-                        getItems()
+                        //getItems()
                         state.isLoading = false
                     }
                 }
@@ -112,15 +113,15 @@ class FridgeViewModel @Inject constructor(
         }
     }
 
-    private fun modifyItem(updatedItem: FridgeItem) {
+    private fun modifyItem(item: FridgeItem) {
         viewModelScope.launch {
-            val result = fridgeUseCases.modifyFridgeItems(updatedItem)
+            val result = fridgeUseCases.modifyFridgeItems(item)
             when(result){
                 is Resource.Success -> {
                     _fridgeItemState.update { pagingData->
                         pagingData.map {
-                            if(it.id == updatedItem.id){
-                                updatedItem
+                            if(it.id == item.id){
+                                item
                             }else{
                                 it
                             }

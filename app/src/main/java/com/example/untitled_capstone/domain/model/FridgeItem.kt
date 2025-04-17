@@ -1,6 +1,6 @@
 package com.example.untitled_capstone.domain.model
 
-import com.example.untitled_capstone.data.remote.dto.ContentDto
+import com.example.untitled_capstone.data.remote.dto.ModifyFridgeReqDto
 import com.example.untitled_capstone.data.remote.dto.NewFridgeItemDto
 
 data class FridgeItem(
@@ -12,14 +12,15 @@ data class FridgeItem(
     var notification: Boolean,
     val isFridge: Boolean
 ){
-    fun toContentDto(): ContentDto = ContentDto(
-        id = id,
-        foodName = name,
-        alarmStatus = notification,
-        useByDate = expirationDate,
-        storageType = isFridge,
-        count = quantity.toInt(),
-    )
+    fun toModifyFridgeReqDto(): ModifyFridgeReqDto{
+        return ModifyFridgeReqDto(
+            alarmStatus = notification,
+            count = quantity.toInt(),
+            foodName = name,
+            storageType = isFridge,
+            useByDate = expirationDate
+        )
+    }
     fun toNewFridgeItemDto(): NewFridgeItemDto = NewFridgeItemDto(
         alarmStatus = notification,
         count = quantity.toInt(),

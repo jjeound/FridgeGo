@@ -31,7 +31,7 @@ fun AddFridgeItemScreen(
     id: Long?,
     state: FridgeState,
     onAction: (FridgeAction) -> Unit,
-    initSavedState: () -> Unit,
+    initSavedDate: () -> Unit,
     getSavedDate: () -> String?,
     onNavigate: (Screen) -> Unit,
     popBackStack: () -> Unit,
@@ -53,7 +53,7 @@ fun AddFridgeItemScreen(
                     IconButton(
                         onClick = {
                             popBackStack()
-                            initSavedState()
+                            initSavedDate()
                             onAction(FridgeAction.InitState)
                         }
                     ) {
@@ -79,7 +79,7 @@ fun AddFridgeItemScreen(
                id = id,
                state = state,
                onAction = onAction,
-               initSavedState = initSavedState,
+               initSavedDate = initSavedDate,
                getSavedDate = getSavedDate,
                onNavigate = onNavigate,
                popBackStack = popBackStack,

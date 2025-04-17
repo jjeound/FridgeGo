@@ -61,6 +61,7 @@ class PostViewModel @Inject constructor(
             is PostEvent.DeleteSearchHistory -> deleteSearchHistory(action.keyword)
             is PostEvent.DeleteAllSearchHistory -> deleteAllSearchHistory()
             is PostEvent.AddSearchHistory -> addSearchHistory(action.word)
+            is PostEvent.ReportPost -> reportPost(action.postId, action.reportType, action.content)
         }
     }
 
@@ -253,7 +254,7 @@ class PostViewModel @Inject constructor(
                         _postItemState.update { pagingData ->
                             pagingData.map {
                                 if(it.id == id){
-                                    it.copy( likeCount = if(result.data.liked) it.likeCount + 1 else it.likeCount - 1, liked = result.data.liked)
+                                    it.copy( likeCount = if(result.data) it.likeCount + 1 else it.likeCount - 1, liked = result.data)
                                 }else{
                                     it
                                 }
@@ -262,8 +263,8 @@ class PostViewModel @Inject constructor(
                         _state.update {
                             it.copy(
                                 post = it.post?.copy(
-                                    likeCount = if(result.data.liked) it.post.likeCount + 1 else it.post.likeCount - 1,
-                                    liked = result.data.liked
+                                    likeCount = if(result.data) it.post.likeCount + 1 else it.post.likeCount - 1,
+                                    liked = result.data
                                 ),
                                 isLoading = false,
                                 error = null
@@ -304,7 +305,7 @@ class PostViewModel @Inject constructor(
             val result = postUseCases.uploadPostImages(id, images)
             when(result){
                 is Resource.Success -> {
-                    result.data?.result?.let{
+                    result.data.let{
                         _uploadState.update {
                             it.copy(
                                 isSuccess = true,
@@ -428,5 +429,24 @@ class PostViewModel @Inject constructor(
 
     private fun addSearchHistory(word: Keyword){
         keyword.value = listOf(word) + keyword.value
+    }
+
+    private fun reportPost(id: Long, reportType: String, content: String) {
+        viewModelScope.launch {
+            val result = postUseCases.reportPost(id, reportType, content)
+            when(result){
+                is Resource.Success -> {
+                    result.data?.let{
+                        _state.update { it.copy(isLoading = false, error = null) }
+                    }
+                }
+                is Resource.Error -> {
+                    _state.update { it.copy(isLoading = false, error = result.message ?: "An unexpected error occurred") }
+                }
+                is Resource.Loading -> {
+                    _state.update { it.copy(isLoading = true) }
+                }
+            }
+        }
     }
 }

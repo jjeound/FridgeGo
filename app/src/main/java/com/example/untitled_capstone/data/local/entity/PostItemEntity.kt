@@ -9,7 +9,8 @@ import com.example.untitled_capstone.domain.model.PostRaw
 @Entity
 @TypeConverters(Converters::class)
 data class PostItemEntity(
-    @PrimaryKey val id: Long,
+    @PrimaryKey(autoGenerate = true) val key: Long = 0,
+    val id: Long,
     val timeAgo: String,
     val likeCount: Int,
     val memberCount: Int,

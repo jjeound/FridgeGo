@@ -11,14 +11,11 @@ import com.example.untitled_capstone.core.util.Resource
 import com.example.untitled_capstone.data.local.db.PostItemDatabase
 import com.example.untitled_capstone.data.local.entity.PostItemEntity
 import com.example.untitled_capstone.data.pagination.PostPagingSource
-import com.example.untitled_capstone.data.remote.dto.AddPostResponse
-import com.example.untitled_capstone.data.remote.dto.ApiResponse
-import com.example.untitled_capstone.data.remote.dto.NewPostDto
-import com.example.untitled_capstone.data.remote.dto.PostLikedDto
-import com.example.untitled_capstone.data.remote.dto.PostLikedResponse
+import com.example.untitled_capstone.data.remote.dto.ReportDto
 import com.example.untitled_capstone.data.remote.service.PostApi
 import com.example.untitled_capstone.data.util.PostFetchType
 import com.example.untitled_capstone.domain.model.Keyword
+import com.example.untitled_capstone.domain.model.NewPost
 import com.example.untitled_capstone.domain.model.Post
 import com.example.untitled_capstone.domain.repository.PostRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -38,14 +35,14 @@ class PostRepositoryImpl @Inject constructor(
 ): PostRepository {
     val dataStore = context.dataStore
 
-    override suspend fun post(newPostDto: RequestBody, images: List<MultipartBody.Part>?): Resource<ApiResponse> {
+    override suspend fun post(newPost: RequestBody, images: List<MultipartBody.Part>?): Resource<String> {
         return try {
             Resource.Loading(data = null)
-            val response = api.post(newPostDto, images)
+            val response = api.post(newPost, images)
             if(response.isSuccess){
-                Resource.Success(response)
+                Resource.Success(response.result)
             }else {
-                Resource.Error(message = response.toString())
+                Resource.Error(message = response.message)
             }
         } catch (e: IOException) {
             Resource.Error(e.toString())
@@ -71,7 +68,7 @@ class PostRepositoryImpl @Inject constructor(
             if(response.isSuccess){
                 Resource.Success(response.result!!.toPost())
             }else {
-                Resource.Error(message = response.toString())
+                Resource.Error(message = response.message)
             }
         } catch (e: IOException) {
             Resource.Error(e.toString())
@@ -80,15 +77,15 @@ class PostRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun deletePost(id: Long): Resource<ApiResponse> {
+    override suspend fun deletePost(id: Long): Resource<String> {
         return try {
             Resource.Loading(data = null)
             val response = api.deletePost(id)
             if(response.isSuccess){
                 db.dao.clearAll() //페이징 꼬여서 다 지워야 함
-                Resource.Success(response)
+                Resource.Success(response.result)
             }else {
-                Resource.Error(message = response.toString())
+                Resource.Error(message = response.message)
             }
         } catch (e: IOException) {
             Resource.Error(e.toString())
@@ -99,15 +96,15 @@ class PostRepositoryImpl @Inject constructor(
 
     override suspend fun modifyPost(
         id: Long,
-        newPostDto: NewPostDto
-    ): Resource<ApiResponse> {
+        newPost: NewPost
+    ): Resource<String> {
         return try {
             Resource.Loading(data = null)
-            val response = api.modifyPost(id, newPostDto)
+            val response = api.modifyPost(id, newPost.toNewPostDto())
             if(response.isSuccess){
-                Resource.Success(response)
+                Resource.Success(response.result)
             }else {
-                Resource.Error(message = response.toString())
+                Resource.Error(message = response.message)
             }
         } catch (e: IOException) {
             Resource.Error(e.toString())
@@ -125,14 +122,14 @@ class PostRepositoryImpl @Inject constructor(
         ).flow
     }
 
-    override suspend fun toggleLike(id: Long): Resource<PostLikedDto> {
+    override suspend fun toggleLike(id: Long): Resource<Boolean> {
         return try {
             Resource.Loading(data = null)
             val response = api.toggleLike(id)
             if(response.isSuccess){
-                Resource.Success(response.result)
+                Resource.Success(response.result!!.liked)
             }else {
-                Resource.Error(message = response.toString())
+                Resource.Error(message = response.message)
             }
         } catch (e: IOException) {
             Resource.Error(e.toString())
@@ -159,14 +156,14 @@ class PostRepositoryImpl @Inject constructor(
     override suspend fun uploadImages(
         id: Long,
         images: List<MultipartBody.Part>
-    ): Resource<ApiResponse> {
+    ): Resource<String> {
         return try {
             Resource.Loading(data = null)
             val response = api.uploadPostImages(id, images)
             if(response.isSuccess){
-                Resource.Success(response)
+                Resource.Success(response.result)
             }else {
-                Resource.Error(message = response.toString())
+                Resource.Error(message = response.message)
             }
         } catch (e: IOException) {
             Resource.Error(e.toString())
@@ -178,14 +175,14 @@ class PostRepositoryImpl @Inject constructor(
     override suspend fun deleteImage(
         id: Long,
         imageId: Long
-    ): Resource<ApiResponse> {
+    ): Resource<String> {
         return try {
             Resource.Loading(data = null)
             val response = api.deletePostImage(id, imageId)
             if(response.isSuccess){
-                Resource.Success(response)
+                Resource.Success(response.result)
             }else {
-                Resource.Error(message = response.toString())
+                Resource.Error(message = response.message)
             }
         } catch (e: IOException) {
             Resource.Error(e.toString())
@@ -210,14 +207,14 @@ class PostRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun deleteSearchHistory(keyword: String): Resource<ApiResponse> {
+    override suspend fun deleteSearchHistory(keyword: String): Resource<String> {
         return try {
             Resource.Loading(data = null)
             val response = api.deleteSearchHistory(keyword)
             if(response.isSuccess){
-                Resource.Success(response)
+                Resource.Success(response.result)
             }else {
-                Resource.Error(message = response.toString())
+                Resource.Error(message = response.message)
             }
         } catch (e: IOException) {
             Resource.Error(e.toString())
@@ -226,14 +223,34 @@ class PostRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun deleteAllSearchHistory(): Resource<ApiResponse> {
+    override suspend fun deleteAllSearchHistory(): Resource<String> {
         return try {
             Resource.Loading(data = null)
             val response = api.deleteAllSearchHistory()
             if(response.isSuccess){
-                Resource.Success(response)
+                Resource.Success(response.result)
             }else {
-                Resource.Error(message = response.toString())
+                Resource.Error(message = response.message)
+            }
+        } catch (e: IOException) {
+            Resource.Error(e.toString())
+        } catch (e: HttpException) {
+            Resource.Error(e.toString())
+        }
+    }
+
+    override suspend fun reportPost(
+        postId: Long,
+        reportType: String,
+        content: String
+    ): Resource<String> {
+        return try {
+            Resource.Loading(data = null)
+            val response = api.reportPost(postId, ReportDto(reportType, content))
+            if(response.isSuccess){
+                Resource.Success(response.result)
+            }else {
+                Resource.Error(message = response.message)
             }
         } catch (e: IOException) {
             Resource.Error(e.toString())

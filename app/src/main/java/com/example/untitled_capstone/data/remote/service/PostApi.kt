@@ -1,12 +1,12 @@
 package com.example.untitled_capstone.data.remote.service
 
-import com.example.untitled_capstone.data.remote.dto.AddPostResponse
 import com.example.untitled_capstone.data.remote.dto.ApiResponse
-import com.example.untitled_capstone.data.remote.dto.GetPostByIdResponse
 import com.example.untitled_capstone.data.remote.dto.NewPostDto
-import com.example.untitled_capstone.data.remote.dto.PostLikedResponse
-import com.example.untitled_capstone.data.remote.dto.PostResponse
-import com.example.untitled_capstone.data.remote.dto.SearchHistoryResponse
+import com.example.untitled_capstone.data.remote.dto.PostDto
+import com.example.untitled_capstone.data.remote.dto.PostLikedDto
+import com.example.untitled_capstone.data.remote.dto.PostResultDto
+import com.example.untitled_capstone.data.remote.dto.ReportDto
+import com.example.untitled_capstone.data.remote.dto.SearchedKeywordDto
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.http.Body
@@ -26,69 +26,75 @@ interface PostApi {
     suspend fun post(
         @Part("post") post: RequestBody,
         @Part postImages: List<MultipartBody.Part>? = null
-    ): ApiResponse
+    ): ApiResponse<String>
 
     @GET("/api/post")
     suspend fun getPosts(
         @Query("page") page: Int = 1,
         @Query("size") size: Int = 10,
-    ): PostResponse
+    ): ApiResponse<PostResultDto>
 
     @GET("/api/post/{postId}")
     suspend fun getPostById(
         @Path("postId") postId: Long
-    ): GetPostByIdResponse
+    ): ApiResponse<PostDto>
 
     @DELETE("/api/post/{postId}")
     suspend fun deletePost(
         @Path("postId") postId: Long
-    ): ApiResponse
+    ): ApiResponse<String>
 
     @PATCH("/api/post/{postId}")
     suspend fun modifyPost(
         @Path("postId") postId: Long,
         @Body newPostDto: NewPostDto
-    ): ApiResponse
+    ): ApiResponse<String>
 
     @GET("/api/post/search")
     suspend fun searchPosts(
         @Query("keyword") keyword: String? = null,
         @Query("page") page: Int = 1,
         @Query("size") size: Int = 10,
-    ): PostResponse
+    ): ApiResponse<PostResultDto>
 
     @PATCH("/api/like/post/{postId}")
     suspend fun toggleLike(
         @Path("postId") postId: Long,
-    ): PostLikedResponse
+    ): ApiResponse<PostLikedDto>
 
     @GET("/api/like/post")
     suspend fun getLikedPosts(
         @Query("page") page: Int = 1,
         @Query("size") size: Int = 10,
-    ): PostResponse
+    ): ApiResponse<PostResultDto>
 
     @Multipart
     @POST("/api/s3/update-post/{postId}")
     suspend fun uploadPostImages(
         @Path("postId") postId: Long,
         @Part postImage: List<MultipartBody.Part>
-    ): ApiResponse
+    ): ApiResponse<String>
 
     @DELETE("/api/s3/delete-post-image/{postId}/{imageId}")
     suspend fun deletePostImage(
         @Path("postId") postId: Long,
         @Path("imageId") imageId: Long
-    ): ApiResponse
+    ): ApiResponse<String>
 
     @GET("/api/search-history")
-    suspend fun getSearchHistory(): SearchHistoryResponse
+    suspend fun getSearchHistory(): ApiResponse<List<SearchedKeywordDto>>
 
     @DELETE("/api/search-history")
     suspend fun deleteSearchHistory(
         @Query("keyword") keyword: String
-    ): ApiResponse
+    ): ApiResponse<String>
 
     @DELETE("/api/search-history/all")
-    suspend fun deleteAllSearchHistory(): ApiResponse
+    suspend fun deleteAllSearchHistory(): ApiResponse<String>
+
+    @POST("/api/report/post/{postId}}")
+    suspend fun reportPost(
+        @Path ("postId") postId: Long,
+        @Body report: ReportDto
+    ): ApiResponse<String>
 }

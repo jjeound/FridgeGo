@@ -1,7 +1,5 @@
 package com.example.untitled_capstone.domain.model
 
-import com.example.untitled_capstone.domain.use_case.post.PostImage
-
 data class Post(
     val category: String,
     val content: String,

@@ -21,4 +21,5 @@ sealed interface PostEvent{
     data class DeleteSearchHistory(val keyword: String): PostEvent
     data object DeleteAllSearchHistory: PostEvent
     data class AddSearchHistory(val word: Keyword): PostEvent
+    data class ReportPost(val postId: Long, val reportType: String, val content: String): PostEvent
 }

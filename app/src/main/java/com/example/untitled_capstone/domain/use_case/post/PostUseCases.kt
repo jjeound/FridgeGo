@@ -15,4 +15,5 @@ data class PostUseCases(
     val getSearchHistory: GetSearchHistory,
     val deleteSearchHistory: DeleteSearchHistory,
     val deleteAllSearchHistory: DeleteAllSearchHistory,
+    val reportPost: ReportPostUseCase,
 )

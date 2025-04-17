@@ -1,4 +1,4 @@
-package com.example.untitled_capstone.presentation.feature.my
+package com.example.untitled_capstone.presentation.feature.my.screen
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -30,7 +30,6 @@ import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.domain.model.PostRaw
 import com.example.untitled_capstone.presentation.feature.post.PostEvent
-import com.example.untitled_capstone.presentation.feature.post.PostState
 import com.example.untitled_capstone.presentation.feature.post.composable.PostListContainer
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
@@ -42,7 +41,7 @@ fun MyLikedPostScreen(navigate: (Long) -> Unit, postItems: LazyPagingItems<PostR
         containerColor = CustomTheme.colors.surface,
         topBar = {
             CenterAlignedTopAppBar(
-                modifier = Modifier.padding(Dimens.topBarPadding),
+                modifier = Modifier.Companion.padding(Dimens.topBarPadding),
                 title = {
                     Text(
                         text = "좋아요한 글",
@@ -52,10 +51,10 @@ fun MyLikedPostScreen(navigate: (Long) -> Unit, postItems: LazyPagingItems<PostR
                 },
                 navigationIcon = {
                     IconButton(
-                        onClick = {navigateToBack()}
+                        onClick = { navigateToBack() }
                     ) {
                         Icon(
-                            imageVector = ImageVector.vectorResource(R.drawable.chevron_left),
+                            imageVector = ImageVector.Companion.vectorResource(R.drawable.chevron_left),
                             tint = CustomTheme.colors.iconSelected,
                             contentDescription = "back",
                         )
@@ -66,39 +65,44 @@ fun MyLikedPostScreen(navigate: (Long) -> Unit, postItems: LazyPagingItems<PostR
                 )
             )
         }
-    ){ innerPadding ->
+    ) { innerPadding ->
         Column(
-            Modifier
+            Modifier.Companion
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
             HorizontalDivider(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.Companion.fillMaxWidth(),
                 thickness = 1.dp,
                 color = CustomTheme.colors.borderLight
             )
             Box(
-                modifier = Modifier.padding(horizontal = Dimens.surfaceHorizontalPadding,
-                    vertical = Dimens.surfaceVerticalPadding)
-            ){
+                modifier = Modifier.Companion.padding(
+                    horizontal = Dimens.surfaceHorizontalPadding,
+                    vertical = Dimens.surfaceVerticalPadding
+                )
+            ) {
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding)
                 ) {
                     items(postItems.itemCount) { index ->
                         val post = postItems[index]
-                        if(post != null){
+                        if (post != null) {
                             Box(
-                                modifier = Modifier.clickable {
+                                modifier = Modifier.Companion.clickable {
                                     navigate(post.id)
                                 }
-                            ){
+                            ) {
                                 PostListContainer(post, onEvent = onEvent)
                             }
                         }
                     }
                     item {
                         if (postItems.loadState.append is LoadState.Loading && postItems.itemCount > 10) {
-                            CircularProgressIndicator(modifier = Modifier.fillMaxWidth().wrapContentWidth(Alignment.CenterHorizontally))
+                            CircularProgressIndicator(
+                                modifier = Modifier.Companion.fillMaxWidth()
+                                    .wrapContentWidth(Alignment.Companion.CenterHorizontally)
+                            )
                         }
                     }
                 }

@@ -1,4 +1,4 @@
-package com.example.untitled_capstone.presentation.feature.my
+package com.example.untitled_capstone.presentation.feature.my.screen
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -19,7 +19,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -31,7 +30,6 @@ import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.domain.model.PostRaw
 import com.example.untitled_capstone.presentation.feature.post.PostEvent
-import com.example.untitled_capstone.presentation.feature.post.PostState
 import com.example.untitled_capstone.presentation.feature.post.composable.PostListContainer
 import com.example.untitled_capstone.ui.theme.CustomTheme
 

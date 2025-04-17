@@ -30,7 +30,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.navigation.Graph
-import com.example.untitled_capstone.navigation.NavigationV2
+import com.example.untitled_capstone.navigation.Navigation
 import com.example.untitled_capstone.navigation.Screen
 import com.example.untitled_capstone.presentation.feature.my.composable.MyTopBar
 import com.example.untitled_capstone.presentation.feature.fridge.composable.FridgeTopBar
@@ -56,11 +56,7 @@ fun MainScreen(viewModel: MainViewModel){
     val authState = viewModel.authState.collectAsStateWithLifecycle()
     LaunchedEffect(authState) {
         if(authState.value is AuthState.Logout){
-            navController.navigate(route = Graph.LoginGraph){
-                popUpTo(Graph.LoginGraph){
-                    inclusive = true
-                }
-            }
+            navController.navigate(route = Graph.LoginGraph)
         }
     }
 
@@ -130,10 +126,10 @@ fun MainScreen(viewModel: MainViewModel){
             Box(
                 modifier = Modifier.fillMaxSize().padding(innerPadding)
             ){
-                NavigationV2(navController = navController, viewModel, snackbarHostState)
+                Navigation(navController = navController, viewModel, snackbarHostState)
             }
         }else{
-            NavigationV2(navController = navController, viewModel, snackbarHostState)
+            Navigation(navController = navController, viewModel, snackbarHostState)
         }
     }
 }

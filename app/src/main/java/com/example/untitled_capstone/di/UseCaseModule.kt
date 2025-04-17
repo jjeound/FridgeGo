@@ -3,7 +3,7 @@ package com.example.untitled_capstone.di
 import com.example.untitled_capstone.domain.repository.ChatRepository
 import com.example.untitled_capstone.domain.repository.FridgeRepository
 import com.example.untitled_capstone.domain.repository.HomeRepository
-import com.example.untitled_capstone.domain.repository.LocalUserManger
+import com.example.untitled_capstone.domain.repository.LocalUserRepository
 import com.example.untitled_capstone.domain.repository.LoginRepository
 import com.example.untitled_capstone.domain.repository.MyRepository
 import com.example.untitled_capstone.domain.repository.PostRepository
@@ -32,7 +32,7 @@ import com.example.untitled_capstone.domain.use_case.fridge.FridgeUseCases
 import com.example.untitled_capstone.domain.use_case.fridge.GetFridgeItemById
 import com.example.untitled_capstone.domain.use_case.fridge.GetFridgeItems
 import com.example.untitled_capstone.domain.use_case.fridge.GetFridgeItemsByDate
-import com.example.untitled_capstone.domain.use_case.fridge.ModifyFridgeItems
+import com.example.untitled_capstone.domain.use_case.fridge.ModifyFridgeItem
 import com.example.untitled_capstone.domain.use_case.fridge.ToggleNotification
 import com.example.untitled_capstone.domain.use_case.home.AddRecipe
 import com.example.untitled_capstone.domain.use_case.home.DeleteRecipe
@@ -59,6 +59,7 @@ import com.example.untitled_capstone.domain.use_case.login.SetLocation
 import com.example.untitled_capstone.domain.use_case.my.Logout
 import com.example.untitled_capstone.domain.use_case.login.SetNickname
 import com.example.untitled_capstone.domain.use_case.my.MyUseCases
+import com.example.untitled_capstone.domain.use_case.my.ReportUserUseCase
 import com.example.untitled_capstone.domain.use_case.my.UploadProfileImage
 import com.example.untitled_capstone.domain.use_case.post.AddPost
 import com.example.untitled_capstone.domain.use_case.post.DeleteAllSearchHistory
@@ -72,6 +73,7 @@ import com.example.untitled_capstone.domain.use_case.post.GetPostById
 import com.example.untitled_capstone.domain.use_case.post.GetSearchHistory
 import com.example.untitled_capstone.domain.use_case.post.ModifyPost
 import com.example.untitled_capstone.domain.use_case.post.PostUseCases
+import com.example.untitled_capstone.domain.use_case.post.ReportPostUseCase
 import com.example.untitled_capstone.domain.use_case.post.SearchPosts
 import com.example.untitled_capstone.domain.use_case.post.ToggleLikePost
 import com.example.untitled_capstone.domain.use_case.post.UploadPostImages
@@ -91,7 +93,7 @@ object UseCaseModule {
             addFridgeItem = AddFridgeItem(repository),
             deleteFridgeItem = DeleteFridgeItem(repository),
             toggleNotification = ToggleNotification(repository),
-            modifyFridgeItems = ModifyFridgeItems(repository),
+            modifyFridgeItems = ModifyFridgeItem(repository),
             getFridgeItems = GetFridgeItems(repository),
             getFridgeItemById = GetFridgeItemById(repository),
             getFridgeItemsByDate = GetFridgeItemsByDate(repository),
@@ -110,12 +112,12 @@ object UseCaseModule {
     }
 
     @Provides
-    fun provideReadAppEntry(localUserManger: LocalUserManger): ReadAppEntry {
+    fun provideReadAppEntry(localUserManger: LocalUserRepository): ReadAppEntry {
         return ReadAppEntry(localUserManger)
     }
 
     @Provides
-    fun provideSaveAppEntry(localUserManger: LocalUserManger): SaveAppEntry {
+    fun provideSaveAppEntry(localUserManger: LocalUserRepository): SaveAppEntry {
         return SaveAppEntry(localUserManger)
     }
 
@@ -126,7 +128,8 @@ object UseCaseModule {
             getOtherProfile = GetOtherProfile(repository),
             logout = Logout(repository),
             getAccessToken = GetAccessToken(tokenRepository),
-            uploadProfileImage = UploadProfileImage(repository)
+            uploadProfileImage = UploadProfileImage(repository),
+            reportUser = ReportUserUseCase(repository)
         )
     }
 
@@ -165,7 +168,8 @@ object UseCaseModule {
             deletePostImage = DeletePostImage(repository),
             getSearchHistory = GetSearchHistory(repository),
             deleteSearchHistory = DeleteSearchHistory(repository),
-            deleteAllSearchHistory = DeleteAllSearchHistory(repository)
+            deleteAllSearchHistory = DeleteAllSearchHistory(repository),
+            reportPost = ReportPostUseCase(repository)
         )
     }
 

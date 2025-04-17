@@ -113,54 +113,54 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideFridgeApi(okHttpClient: OkHttpClient): FridgeApi {
+    fun provideFridgeApi(gson: Gson, okHttpClient: OkHttpClient): FridgeApi {
         return Retrofit.Builder()
             .baseUrl(BASE_URL)
             .client(okHttpClient)
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
             .create(FridgeApi::class.java)
     }
 
     @Provides
     @Singleton
-    fun provideLoginApi(): LoginApi {
+    fun provideLoginApi(gson: Gson): LoginApi {
         return Retrofit.Builder()
             .baseUrl(BASE_URL)
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
             .create(LoginApi::class.java)
     }
 
     @Provides
     @Singleton
-    fun provideMyApi(okHttpClient: OkHttpClient): MyApi {
+    fun provideMyApi(gson: Gson, okHttpClient: OkHttpClient): MyApi {
         return Retrofit.Builder()
             .baseUrl(BASE_URL)
             .client(okHttpClient)
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
             .create(MyApi::class.java)
     }
 
     @Provides
     @Singleton
-    fun provideHomeApi(okHttpClient: OkHttpClient): HomeApi {
+    fun provideHomeApi(gson: Gson, okHttpClient: OkHttpClient): HomeApi {
         return Retrofit.Builder()
             .baseUrl(BASE_URL)
             .client(okHttpClient)
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
             .create(HomeApi::class.java)
     }
 
     @Provides
     @Singleton
-    fun providePostApi(okHttpClient: OkHttpClient): PostApi {
+    fun providePostApi(gson: Gson, okHttpClient: OkHttpClient): PostApi {
         return Retrofit.Builder()
             .baseUrl(BASE_URL)
             .client(okHttpClient)
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
             .create(PostApi::class.java)
     }
@@ -177,10 +177,10 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideTokenApi(): TokenApi {
+    fun provideTokenApi(gson: Gson): TokenApi {
         return Retrofit.Builder()
             .baseUrl(BASE_URL)
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
             .create(TokenApi::class.java)
     }

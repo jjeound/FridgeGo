@@ -17,7 +17,7 @@ import com.example.untitled_capstone.data.remote.service.PostApi
 import com.example.untitled_capstone.data.repository.ChatRepositoryImpl
 import com.example.untitled_capstone.data.repository.FridgeRepositoryImpl
 import com.example.untitled_capstone.data.repository.HomeRepositoryImpl
-import com.example.untitled_capstone.data.repository.LocalUserMangerImpl
+import com.example.untitled_capstone.data.repository.LocalUserRepositoryImpl
 import com.example.untitled_capstone.data.repository.LoginRepositoryImpl
 import com.example.untitled_capstone.data.repository.MyRepositoryImpl
 import com.example.untitled_capstone.data.repository.PostRepositoryImpl
@@ -25,7 +25,7 @@ import com.example.untitled_capstone.data.repository.WebSocketRepositoryImpl
 import com.example.untitled_capstone.domain.repository.ChatRepository
 import com.example.untitled_capstone.domain.repository.FridgeRepository
 import com.example.untitled_capstone.domain.repository.HomeRepository
-import com.example.untitled_capstone.domain.repository.LocalUserManger
+import com.example.untitled_capstone.domain.repository.LocalUserRepository
 import com.example.untitled_capstone.domain.repository.LoginRepository
 import com.example.untitled_capstone.domain.repository.MyRepository
 import com.example.untitled_capstone.domain.repository.PostRepository
@@ -75,8 +75,8 @@ object RepositoryModule {
 
     @Provides
     @Singleton
-    fun provideLocalUserManager(application: Application): LocalUserManger{
-        return LocalUserMangerImpl(application)
+    fun provideLocalUserRepository(application: Application): LocalUserRepository{
+        return LocalUserRepositoryImpl(application)
     }
 
     @Provides

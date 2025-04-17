@@ -226,6 +226,7 @@ class ChatViewModel @Inject constructor(
         viewModelScope.launch {
             getAccessToken().collect{ token->
                 if(!token.isNullOrEmpty()){ // null뿐만 아니라 빈 값도 확인
+                    Log.d("token", token)
                     chatUseCases.connectChatSocket(token, roomId, onConnected = {
                         subscribe(roomId)
                     }, onError = {

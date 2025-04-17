@@ -1,6 +1,6 @@
 package com.example.untitled_capstone.data.util
 
-import com.example.untitled_capstone.data.remote.dto.ApiResponseTest
+import com.example.untitled_capstone.data.remote.dto.ApiResponse
 import com.google.gson.JsonParser
 import com.google.gson.TypeAdapter
 import com.google.gson.stream.JsonReader
@@ -9,15 +9,15 @@ import com.google.gson.stream.JsonWriter
 
 class ApiResponseTypeAdapter<T>(
     private val resultAdapter: TypeAdapter<T>
-) : TypeAdapter<ApiResponseTest<T>>() {
+) : TypeAdapter<ApiResponse<T>>() {
     override fun write(
         out: JsonWriter?,
-        value: ApiResponseTest<T>?
+        value: ApiResponse<T>?
     ) {
         throw UnsupportedOperationException("Serialization not supported")
     }
 
-    override fun read(`in`: JsonReader?): ApiResponseTest<T>? {
+    override fun read(`in`: JsonReader?): ApiResponse<T>? {
         val jsonObject = JsonParser.parseReader(`in`).asJsonObject
 
         val isSuccess = jsonObject["isSuccess"]?.asBoolean == true
@@ -31,6 +31,6 @@ class ApiResponseTypeAdapter<T>(
             null
         }
 
-        return ApiResponseTest(isSuccess, code, message, result)
+        return ApiResponse(isSuccess, code, message, result)
     }
 }

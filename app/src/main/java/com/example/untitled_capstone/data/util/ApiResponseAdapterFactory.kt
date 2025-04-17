@@ -1,6 +1,6 @@
 package com.example.untitled_capstone.data.util
 
-import com.example.untitled_capstone.data.remote.dto.ApiResponseTest
+import com.example.untitled_capstone.data.remote.dto.ApiResponse
 import com.google.gson.Gson
 import com.google.gson.TypeAdapter
 import com.google.gson.TypeAdapterFactory
@@ -12,7 +12,7 @@ class ApiResponseAdapterFactory : TypeAdapterFactory {
         val rawType = type.rawType
 
         // ApiResponse<T> 타입만 처리
-        if (rawType != ApiResponseTest::class.java) return null
+        if (rawType != ApiResponse::class.java) return null
 
         val resultType = (type.type as? ParameterizedType)?.actualTypeArguments?.firstOrNull()
             ?: throw IllegalArgumentException("ApiResponse must be parameterized")

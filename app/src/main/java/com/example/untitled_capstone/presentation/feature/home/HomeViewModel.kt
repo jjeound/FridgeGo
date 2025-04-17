@@ -102,7 +102,7 @@ class HomeViewModel @Inject constructor(
                         recipeState.apply{
                             isLoading = false
                         }
-                        _event.emit(UIEvent.ShowSnackbar(result.data.result!!))
+                        _event.emit(UIEvent.ShowSnackbar(result.data))
                     }
                 }
                 is Resource.Error -> {
@@ -123,6 +123,7 @@ class HomeViewModel @Inject constructor(
                 is Resource.Success -> {
                     result.data?.let {
                         recipeState.isLoading = false
+
                         //_event.emit(UIEvent.ShowSnackbar(result.data.result!!))
                         getRecipes()
                     }
@@ -212,14 +213,14 @@ class HomeViewModel @Inject constructor(
                         _recipePagingData.update { pagingData ->
                             pagingData.map {
                                 if(it.id == id){
-                                    it.copy(liked = result.data.liked)
+                                    it.copy(liked = result.data)
                                 }else{
                                     it
                                 }
                             }
                         }
                         recipeState.recipe = recipeState.recipe?.copy(
-                            liked = result.data.liked
+                            liked = result.data
                         )
                     }
                 }

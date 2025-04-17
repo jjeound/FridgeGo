@@ -1,7 +1,6 @@
 package com.example.untitled_capstone.data.repository
 
 import android.content.Context
-import android.util.Log
 import androidx.paging.ExperimentalPagingApi
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
@@ -10,7 +9,6 @@ import com.example.untitled_capstone.core.util.Resource
 import com.example.untitled_capstone.data.local.db.RecipeItemDatabase
 import com.example.untitled_capstone.data.local.entity.RecipeItemEntity
 import com.example.untitled_capstone.data.pagination.RecipePagingSource
-import com.example.untitled_capstone.data.remote.dto.ApiResponse
 import com.example.untitled_capstone.data.remote.dto.PreferenceDto
 import com.example.untitled_capstone.data.remote.dto.RecipeReqDto
 import com.example.untitled_capstone.data.remote.service.HomeApi
@@ -45,9 +43,9 @@ class HomeRepositoryImpl @Inject constructor(
             } else{
                 val response = api.getTastePreference()
                 if(response.isSuccess){
-                    Resource.Success(response.toTastePreference())
+                    Resource.Success(response.result!!.toTastePreference())
                 }else {
-                    Resource.Error(message = response.toString())
+                    Resource.Error(message = response.message)
                 }
             }
         } catch (e: IOException) {
@@ -57,15 +55,15 @@ class HomeRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun setTastePreference(tastePreference: PreferenceDto): Resource<ApiResponse> {
+    override suspend fun setTastePreference(tastePreference: TastePreference): Resource<String> {
         return try {
             Resource.Loading(data = null)
-            val response = api.setTastePreference(tastePreference)
+            val response = api.setTastePreference(tastePreference.toPreferenceDto())
             if(response.isSuccess){
                 prefs.edit { putString(TASTE_PREFERENCE, tastePreference.tastePreference) }
-                Resource.Success(response)
+                Resource.Success(response.result)
             }else {
-                Resource.Error(message = response.toString())
+                Resource.Error(message = response.message)
             }
         } catch (e: IOException) {
             Resource.Error(e.toString())
@@ -90,7 +88,7 @@ class HomeRepositoryImpl @Inject constructor(
             if(response.isSuccess){
                 Resource.Success(response.result!!.toRecipe())
             }else {
-                Resource.Error(message = response.toString())
+                Resource.Error(message = response.message)
             }
         } catch (e: IOException) {
             Resource.Error(e.toString())
@@ -99,14 +97,14 @@ class HomeRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun toggleLike(id: Long, liked: Boolean): Resource<RecipeLikedDto> {
+    override suspend fun toggleLike(id: Long, liked: Boolean): Resource<Boolean> {
         return try {
             Resource.Loading(data = null)
             val response = api.toggleLike(id)
             if(response.isSuccess){
-                Resource.Success(response.result!!)
+                Resource.Success(response.result!!.liked)
             }else {
-                Resource.Error(message = response.toString())
+                Resource.Error(message = response.message)
             }
         } catch (e: IOException) {
             Resource.Error(e.toString())
@@ -116,14 +114,14 @@ class HomeRepositoryImpl @Inject constructor(
     }
 
 
-    override suspend fun addRecipe(recipe: String): Resource<ApiResponse> {
+    override suspend fun addRecipe(recipe: String): Resource<String> {
         return try {
             Resource.Loading(data = null)
             val response = api.addRecipe(RecipeReqDto(recipe))
             if(response.isSuccess){
-                Resource.Success(response)
+                Resource.Success(response.result)
             }else {
-                Resource.Error(message = response.toString())
+                Resource.Error(message = response.message)
             }
         } catch (e: IOException) {
             Resource.Error(e.toString())
@@ -132,14 +130,14 @@ class HomeRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun deleteRecipe(id: Long): Resource<ApiResponse> {
+    override suspend fun deleteRecipe(id: Long): Resource<String> {
         return try {
             Resource.Loading(data = null)
             val response = api.deleteRecipe(id)
             if(response.isSuccess){
-                Resource.Success(response)
+                Resource.Success(response.result)
             }else {
-                Resource.Error(message = response.toString())
+                Resource.Error(message = response.message)
             }
         } catch (e: IOException) {
             Resource.Error(e.toString())
@@ -148,15 +146,15 @@ class HomeRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun modifyRecipe(recipe: Recipe): Resource<ApiResponse> {
+    override suspend fun modifyRecipe(recipe: Recipe): Resource<String> {
         return try {
             Resource.Loading(data = null)
             val response = api.modifyRecipe(recipe.id, ModifyRecipeBody(title = recipe.title,
                 instructions = recipe.instructions, ingredients = recipe.ingredients))
             if(response.isSuccess){
-                Resource.Success(response)
+                Resource.Success(response.result)
             }else {
-                Resource.Error(message = response.toString())
+                Resource.Error(message = response.message)
             }
         } catch (e: IOException) {
             Resource.Error(e.toString())
@@ -172,7 +170,7 @@ class HomeRepositoryImpl @Inject constructor(
             if(response.isSuccess){
                 Resource.Success(response.result!!.reply)
             }else {
-                Resource.Error(message = response.toString())
+                Resource.Error(message = response.message)
             }
         } catch (e: IOException) {
             Resource.Error(e.toString())
@@ -188,7 +186,7 @@ class HomeRepositoryImpl @Inject constructor(
             if(response.isSuccess){
                 Resource.Success(response.result!!.reply)
             }else {
-                Resource.Error(message = response.toString())
+                Resource.Error(message = response.message)
             }
         } catch (e: IOException) {
             Resource.Error(e.toString())
@@ -205,14 +203,14 @@ class HomeRepositoryImpl @Inject constructor(
         prefs.edit { putBoolean("isFirstSelection", isFirst) }
     }
 
-    override suspend fun uploadImage(id: Long, image: MultipartBody.Part): Resource<ApiResponse> {
+    override suspend fun uploadImage(id: Long, image: MultipartBody.Part): Resource<String> {
         return try {
             Resource.Loading(data = null)
             val response = api.uploadImage(id, image)
             if(response.isSuccess){
-                Resource.Success(response)
+                Resource.Success(response.result)
             }else {
-                Resource.Error(message = response.toString())
+                Resource.Error(message = response.message)
             }
         } catch (e: IOException) {
             Resource.Error(e.toString())

@@ -6,7 +6,8 @@ import com.example.untitled_capstone.domain.model.RecipeRaw
 
 @Entity
 data class RecipeItemEntity(
-    @PrimaryKey val id: Long,
+    @PrimaryKey(autoGenerate = true) val key: Long = 0,
+    val id: Long,
     val title: String,
     val imageUrl: String?,
     val liked: Boolean,

@@ -1,14 +1,13 @@
 package com.example.untitled_capstone.data.remote.service
 
 import com.example.untitled_capstone.data.remote.dto.ApiResponse
-import com.example.untitled_capstone.data.remote.dto.ChatbotResponse
-import com.example.untitled_capstone.data.remote.dto.GetRecipeByIdResponse
+import com.example.untitled_capstone.data.remote.dto.ChatbotResultDto
 import com.example.untitled_capstone.data.remote.dto.ModifyRecipeBody
 import com.example.untitled_capstone.data.remote.dto.PreferenceDto
-import com.example.untitled_capstone.data.remote.dto.PreferenceResponse
-import com.example.untitled_capstone.data.remote.dto.RecipeLikedResponse
+import com.example.untitled_capstone.data.remote.dto.RecipeDto
+import com.example.untitled_capstone.data.remote.dto.RecipeLikedDto
 import com.example.untitled_capstone.data.remote.dto.RecipeReqDto
-import com.example.untitled_capstone.data.remote.dto.RecipeResponse
+import com.example.untitled_capstone.data.remote.dto.RecipeResultDto
 import okhttp3.MultipartBody
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -22,55 +21,55 @@ import retrofit2.http.Query
 
 interface HomeApi {
     @GET("/api/user/taste-preference")
-    suspend fun getTastePreference(): PreferenceResponse
+    suspend fun getTastePreference(): ApiResponse<PreferenceDto>
 
     @POST("/api/user/taste-preference")
     suspend fun setTastePreference(
         @Body tastePreference: PreferenceDto
-    ): ApiResponse
+    ): ApiResponse<String>
 
     @GET("/api/recipe")
     suspend fun getRecipe(
         @Query("page") page: Int = 1,
         @Query("size") size: Int = 10,
-    ): RecipeResponse
+    ): ApiResponse<RecipeResultDto>
 
     @POST("/api/recipe")
     suspend fun addRecipe(
         @Body recipe: RecipeReqDto
-    ): ApiResponse
+    ): ApiResponse<String>
 
     @GET("/api/recipe/{recipeId}")
     suspend fun getRecipeById(
         @Path("recipeId") recipeId: Long
-    ): GetRecipeByIdResponse
+    ): ApiResponse<RecipeDto>
 
     @PATCH("/api/recipe/like/{recipeId}")
     suspend fun toggleLike(
         @Path("recipeId") ingredientId: Long,
-    ): RecipeLikedResponse
+    ): ApiResponse<RecipeLikedDto>
 
     @GET("/api/chatbot/recommend")
-    suspend fun getFirstRecommendation(): ChatbotResponse
+    suspend fun getFirstRecommendation(): ApiResponse<ChatbotResultDto>
 
     @GET("/api/chatbot/recommend/another")
-    suspend fun getAnotherRecommendation(): ChatbotResponse
+    suspend fun getAnotherRecommendation(): ApiResponse<ChatbotResultDto>
 
     @DELETE("/api/recipe/{recipeId}")
     suspend fun deleteRecipe(
         @Path("recipeId") recipeId: Long
-    ): ApiResponse
+    ): ApiResponse<String>
 
     @PATCH("/api/recipe/{recipeId}")
     suspend fun modifyRecipe(
         @Path("recipeId") recipeId: Long,
         @Body recipe: ModifyRecipeBody
-    ): ApiResponse
+    ): ApiResponse<String>
 
     @Multipart
     @POST("/api/s3/update-recipe/{recipeId}")
     suspend fun uploadImage(
         @Path("recipeId") recipeId: Long,
         @Part recipeImage: MultipartBody.Part
-    ): ApiResponse
+    ): ApiResponse<String>
 }

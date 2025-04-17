@@ -5,12 +5,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -29,9 +25,9 @@ import com.example.untitled_capstone.presentation.feature.login.LoginViewModel
 import com.example.untitled_capstone.presentation.feature.login.screen.LoginScreen
 import com.example.untitled_capstone.presentation.feature.login.screen.SetNickNameScreen
 import com.example.untitled_capstone.presentation.feature.main.MainViewModel
-import com.example.untitled_capstone.presentation.feature.my.MyScreen
+import com.example.untitled_capstone.presentation.feature.my.screen.MyScreen
 import com.example.untitled_capstone.presentation.feature.my.MyViewModel
-import com.example.untitled_capstone.presentation.feature.my.ProfileScreen
+import com.example.untitled_capstone.presentation.feature.my.screen.ProfileScreen
 import com.example.untitled_capstone.presentation.feature.notification.screen.NotificationScreen
 import com.example.untitled_capstone.presentation.feature.onBoardiing.OnBoarding
 import com.example.untitled_capstone.presentation.feature.fridge.FridgeViewModel
@@ -40,8 +36,8 @@ import com.example.untitled_capstone.presentation.feature.fridge.screen.AddFridg
 import com.example.untitled_capstone.presentation.feature.fridge.screen.RefrigeratorScreen
 import com.example.untitled_capstone.presentation.feature.home.screen.RecipeModifyScreen
 import com.example.untitled_capstone.presentation.feature.login.screen.SetLocationScreen
-import com.example.untitled_capstone.presentation.feature.my.MyLikedPostScreen
-import com.example.untitled_capstone.presentation.feature.my.MyPostScreen
+import com.example.untitled_capstone.presentation.feature.my.screen.MyLikedPostScreen
+import com.example.untitled_capstone.presentation.feature.my.screen.MyPostScreen
 import com.example.untitled_capstone.presentation.feature.post.PostEvent
 import com.example.untitled_capstone.presentation.feature.post.PostViewModel
 import com.example.untitled_capstone.presentation.feature.post.screen.PostDetailScreen
@@ -49,12 +45,10 @@ import com.example.untitled_capstone.presentation.feature.post.screen.PostScreen
 import com.example.untitled_capstone.presentation.feature.post.screen.PostSearchScreen
 import com.example.untitled_capstone.presentation.feature.post.screen.WritingNewPostScreen
 import com.example.untitled_capstone.presentation.util.UIEvent
-import kotlin.collections.remove
-import kotlin.text.get
 
 
 @Composable
-fun NavigationV2(
+fun Navigation(
     navController: NavHostController,
     mainViewModel: MainViewModel,
     snackbarHostState: SnackbarHostState
@@ -288,7 +282,7 @@ fun NavigationV2(
                     id = args.id,
                     state = state,
                     onAction = viewModel::onAction,
-                    initSavedState = {
+                    initSavedDate = {
                         navController.currentBackStackEntry?.savedStateHandle?.remove<String>("date")
                     },
                     getSavedDate = {
@@ -457,9 +451,7 @@ fun NavigationV2(
                     onEvent = viewModel::onEvent,
                     popBackStack = {navController.popBackStack()},
                     navigateToHome = {
-                        navController.navigate(Graph.HomeGraph) {
-                            popUpTo(0) { inclusive = true }
-                        }
+                        navController.navigate(Graph.HomeGraph)
                     },
                     from = false
                 )

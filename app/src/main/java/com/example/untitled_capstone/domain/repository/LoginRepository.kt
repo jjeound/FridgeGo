@@ -9,13 +9,13 @@ import com.example.untitled_capstone.domain.model.Address
 
 interface LoginRepository {
 
-    suspend fun kakaoLogin(accessToken: KakaoAccessTokenRequest): Resource<AccountInfo>
+    suspend fun kakaoLogin(accessToken: String): Resource<AccountInfo>
 
-    suspend fun setNickname(nickname: String): Resource<ApiResponse>
+    suspend fun setNickname(nickname: String): Resource<String>
 
     suspend fun getAddressByCoord(x: String, y: String): Resource<Address>
 
-    suspend fun setLocation(location: LocationDto): Resource<ApiResponse>
+    suspend fun setLocation(district: String, neighborhood: String): Resource<String>
 
-    suspend fun modifyNickname(nickname: String): Resource<ApiResponse>
+    suspend fun modifyNickname(nickname: String): Resource<String>
 }

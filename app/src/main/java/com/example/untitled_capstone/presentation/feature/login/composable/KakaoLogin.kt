@@ -2,7 +2,6 @@ package com.example.untitled_capstone.presentation.feature.login.composable
 
 import android.content.Context
 import android.util.Log
-import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -30,8 +29,6 @@ import com.example.untitled_capstone.navigation.Graph
 import com.example.untitled_capstone.navigation.Screen
 import com.example.untitled_capstone.presentation.feature.login.LoginEvent
 import com.example.untitled_capstone.presentation.feature.login.state.LoginState
-import com.example.untitled_capstone.presentation.util.AuthEvent
-import com.example.untitled_capstone.presentation.util.AuthEventBus
 import com.kakao.sdk.auth.model.OAuthToken
 import com.kakao.sdk.common.model.ClientError
 import com.kakao.sdk.common.model.ClientErrorCause
@@ -70,10 +67,9 @@ fun KakaoLogin(state: LoginState, onAction: (LoginEvent) -> Unit, navController:
             modifier = Modifier.width(600.dp).height(90.dp).padding(
                 Dimens.largePadding
             ).clickable {
-                onAction(LoginEvent.KakaoLogin(KakaoAccessTokenRequest(accessToken = "3")))
-//                kakaoLogin(context){ code ->
-//                    onAction(LoginEvent.KakaoLogin(KakaoAccessTokenRequest(accessToken = code)))
-//                }
+                kakaoLogin(context){ code ->
+                    onAction(LoginEvent.KakaoLogin(code))
+                }
             },
             painter = painterResource(id = R.drawable.kakao_login_large_wide),
             contentDescription = "kakao_login"

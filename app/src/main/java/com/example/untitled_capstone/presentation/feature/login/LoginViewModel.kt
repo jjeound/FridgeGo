@@ -69,7 +69,7 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-    private fun login(accessToken: KakaoAccessTokenRequest) {
+    private fun login(accessToken: String) {
         viewModelScope.launch {
             val result = loginUseCases.kakaoLogin(accessToken)
             when(result){

@@ -31,11 +31,10 @@ class LoginRepositoryImpl @Inject constructor(
 ): LoginRepository {
     val dataStore = context.dataStore
 
-    override suspend fun kakaoLogin(accessToken: KakaoAccessTokenRequest): Resource<AccountInfo> {
+    override suspend fun kakaoLogin(accessToken: String): Resource<AccountInfo> {
         return try {
             Resource.Loading(data = null)
-            //val response = api.kakaoLogin(accessToken)
-            val response = api.loginTest(EmailReq("1"))
+            val response = api.kakaoLogin(KakaoAccessTokenRequest(accessToken))
             if(response.isSuccess){
                 tokenRepository.saveAccessToken(response.result!!.accessToken)
                 tokenRepository.saveRefreshToken(response.result.refreshToken)
@@ -54,7 +53,7 @@ class LoginRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun setNickname(nickname: String): Resource<ApiResponse> {
+    override suspend fun setNickname(nickname: String): Resource<String> {
         return try {
             Resource.Loading(data = null)
             val token = tokenRepository.getAccessToken().first()
@@ -63,7 +62,7 @@ class LoginRepositoryImpl @Inject constructor(
                 dataStore.edit { prefs ->
                     prefs[NICKNAME] = nickname
                 }
-                Resource.Success(response)
+                Resource.Success(response.result)
             } else {
                 Resource.Error(response.message)
             }
@@ -74,7 +73,7 @@ class LoginRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun modifyNickname(nickname: String): Resource<ApiResponse> {
+    override suspend fun modifyNickname(nickname: String): Resource<String> {
         return try {
             Resource.Loading(data = null)
             val token = tokenRepository.getAccessToken().first()
@@ -83,9 +82,9 @@ class LoginRepositoryImpl @Inject constructor(
                 dataStore.edit { prefs ->
                     prefs[NICKNAME] = nickname
                 }
-                Resource.Success(response)
+                Resource.Success(response.result)
             }else {
-                Resource.Error(message = response.toString())
+                Resource.Error(message = response.message)
             }
         } catch (e: IOException) {
             Resource.Error(e.toString())
@@ -113,13 +112,13 @@ class LoginRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun setLocation(location: LocationDto): Resource<ApiResponse> {
+    override suspend fun setLocation(district: String, neighborhood: String): Resource<String> {
         return try {
             Resource.Loading(data = null)
             val token = tokenRepository.getAccessToken().first()
-            val response = api.setLocation(token?: "", location)
+            val response = api.setLocation(token?: "", LocationDto(district, neighborhood))
             if(response.isSuccess){
-                Resource.Success(response)
+                Resource.Success(response.result)
             }else{
                 Resource.Error(response.message)
             }

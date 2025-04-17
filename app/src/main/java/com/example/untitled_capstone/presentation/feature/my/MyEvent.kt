@@ -8,4 +8,5 @@ sealed interface MyEvent{
     data object GetMyProfile: MyEvent
     data class UploadProfileImage(val file: File): MyEvent
     data class GetOtherProfile(val nickname: String): MyEvent
+    data class ReportUser(val id: Long, val reportType: String, val content: String): MyEvent
 }

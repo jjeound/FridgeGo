@@ -1,4 +1,4 @@
-package com.example.untitled_capstone.presentation.feature.my
+package com.example.untitled_capstone.presentation.feature.my.screen
 
 import android.Manifest
 import android.content.Context
@@ -31,6 +31,8 @@ import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.navigation.Screen
 import com.example.untitled_capstone.presentation.feature.fridge.composable.PermissionDialog
+import com.example.untitled_capstone.presentation.feature.my.MyEvent
+import com.example.untitled_capstone.presentation.feature.my.MyState
 import com.example.untitled_capstone.presentation.feature.my.composable.MyAccountContainer
 import com.example.untitled_capstone.presentation.feature.my.composable.MyContainer
 import com.example.untitled_capstone.ui.theme.CustomTheme
@@ -140,7 +142,7 @@ fun MyScreen(navController: NavHostController, onEvent: (MyEvent) -> Unit, state
             showDialog.value = false
             context.startActivity(
                 Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                    data = Uri.fromParts("package", packageName, null)
+                    data = Uri.fromParts("package", context.packageName, null)
                 }
             )
         }

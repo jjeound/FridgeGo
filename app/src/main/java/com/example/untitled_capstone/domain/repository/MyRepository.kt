@@ -7,13 +7,10 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody
 
 interface MyRepository {
-    suspend fun logout(): Resource<ApiResponse>
-
+    suspend fun logout(): Resource<String>
     suspend fun getMyProfile(): Resource<Profile>
-
     suspend fun getOtherProfile(nickname: String): Resource<Profile>
-
     suspend fun getLocation(): Resource<String>
-
-    suspend fun uploadProfileImage(profileImage: MultipartBody.Part): Resource<ApiResponse>
+    suspend fun uploadProfileImage(profileImage: MultipartBody.Part): Resource<String>
+    suspend fun repostUser(targetUserId: Long, reportType: String, content: String): Resource<String>
 }

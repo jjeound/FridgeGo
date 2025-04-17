@@ -5,5 +5,6 @@ data class MyUseCases(
     val getOtherProfile: GetOtherProfile,
     val getAccessToken: GetAccessToken,
     val logout: Logout,
-    val uploadProfileImage: UploadProfileImage
+    val uploadProfileImage: UploadProfileImage,
+    val reportUser: ReportUserUseCase,
 )

@@ -6,8 +6,8 @@ import com.example.untitled_capstone.core.util.PrefKeys.EMAIL
 import com.example.untitled_capstone.core.util.PrefKeys.IMAGE_URL
 import com.example.untitled_capstone.core.util.PrefKeys.NICKNAME
 import com.example.untitled_capstone.core.util.Resource
-import com.example.untitled_capstone.data.remote.dto.ApiResponse
 import com.example.untitled_capstone.data.remote.dto.ProfileDto
+import com.example.untitled_capstone.data.remote.dto.ReportDto
 import com.example.untitled_capstone.data.remote.service.MyApi
 import com.example.untitled_capstone.domain.model.Profile
 import com.example.untitled_capstone.domain.repository.MyRepository
@@ -28,16 +28,16 @@ class MyRepositoryImpl @Inject constructor(
 
     val dataStore = context.dataStore
 
-    override suspend fun logout(): Resource<ApiResponse> {
+    override suspend fun logout(): Resource<String> {
         return try {
             Resource.Loading(data = null)
             val response = api.logout()
             if(response.isSuccess){
                 tokenRepository.deleteTokens()
                 deleteProfile()
-                Resource.Success(response)
+                Resource.Success(response.result)
             }else {
-                Resource.Error(message = response.toString())
+                Resource.Error(message = response.message)
             }
         } catch (e: IOException) {
             Resource.Error(e.toString())
@@ -91,7 +91,7 @@ class MyRepositoryImpl @Inject constructor(
             if(response.isSuccess){
                 Resource.Success(response.result!!.neighborhood)
             }else {
-                Resource.Error(message = response.toString())
+                Resource.Error(message = response.message)
             }
         } catch (e: IOException) {
             Resource.Error(e.toString())
@@ -100,14 +100,34 @@ class MyRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun uploadProfileImage(profileImage: MultipartBody.Part): Resource<ApiResponse> {
+    override suspend fun uploadProfileImage(profileImage: MultipartBody.Part): Resource<String> {
         return try {
             Resource.Loading(data = null)
             val response = api.uploadProfileImage(profileImage)
             if(response.isSuccess){
-                Resource.Success(response)
+                Resource.Success(response.result)
             }else {
-                Resource.Error(message = response.toString())
+                Resource.Error(message = response.message)
+            }
+        } catch (e: IOException) {
+            Resource.Error(e.toString())
+        } catch (e: HttpException) {
+            Resource.Error(e.toString())
+        }
+    }
+
+    override suspend fun repostUser(
+        targetUserId: Long,
+        reportType: String,
+        content: String
+    ): Resource<String> {
+        return try {
+            Resource.Loading(data = null)
+            val response = api.reportUser(targetUserId, ReportDto(reportType, content))
+            if(response.isSuccess){
+                Resource.Success(response.result)
+            }else {
+                Resource.Error(message = response.message)
             }
         } catch (e: IOException) {
             Resource.Error(e.toString())

@@ -1,37 +1,42 @@
 package com.example.untitled_capstone.data.remote.service
 
-import com.example.untitled_capstone.data.remote.dto.AddressResponse
 import com.example.untitled_capstone.data.remote.dto.ApiResponse
-import com.example.untitled_capstone.data.remote.dto.ProfileResponse
+import com.example.untitled_capstone.data.remote.dto.LocationDto
+import com.example.untitled_capstone.data.remote.dto.ProfileDto
+import com.example.untitled_capstone.data.remote.dto.ReportDto
 import okhttp3.MultipartBody
-import okhttp3.RequestBody
 import retrofit2.http.Body
 import retrofit2.http.GET
-import retrofit2.http.Header
 import retrofit2.http.Multipart
-import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.Part
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface MyApi {
     @GET("/api/user/profile")
-    suspend fun getProfile(): ProfileResponse
+    suspend fun getProfile(): ApiResponse<ProfileDto>
 
     @GET("/api/user/profile/other")
     suspend fun getOtherProfile(
         @Query("nickname") nickname: String
-    ): ProfileResponse
+    ): ApiResponse<ProfileDto>
 
     @POST("/api/user/logout")
-    suspend fun logout(): ApiResponse
+    suspend fun logout(): ApiResponse<String>
 
     @GET("/api/user/location")
-    suspend fun getLocation(): AddressResponse
+    suspend fun getLocation(): ApiResponse<LocationDto>
 
     @Multipart
     @POST("/api/s3/update-profile")
     suspend fun uploadProfileImage(
         @Part profileImage: MultipartBody.Part
-    ): ApiResponse
+    ): ApiResponse<String>
+
+    @POST("/api/report/user/{targetUserId}")
+    suspend fun reportUser(
+        @Path ("targetUserId") targetUserId: Long,
+        @Body report: ReportDto
+    ): ApiResponse<String>
 }

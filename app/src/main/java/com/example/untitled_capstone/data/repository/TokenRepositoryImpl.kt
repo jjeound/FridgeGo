@@ -10,7 +10,8 @@ import com.example.untitled_capstone.BuildConfig
 import com.example.untitled_capstone.core.util.PrefKeys.ACCESS_TOKEN_KEY
 import com.example.untitled_capstone.core.util.PrefKeys.REFRESH_TOKEN_KEY
 import com.example.untitled_capstone.core.util.Resource
-import com.example.untitled_capstone.data.remote.dto.RefreshTokenResponse
+import com.example.untitled_capstone.data.remote.dto.ApiResponse
+import com.example.untitled_capstone.data.remote.dto.TokenDto
 import com.example.untitled_capstone.data.remote.service.TokenApi
 import com.example.untitled_capstone.domain.repository.TokenRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -59,7 +60,7 @@ class TokenRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun refreshToken(refreshToken: String): Resource<RefreshTokenResponse> {
+    override suspend fun refreshToken(refreshToken: String): Resource<ApiResponse<TokenDto>> {
         return try {
             Resource.Loading(data = null)
             val response = api.refreshToken(refreshToken)

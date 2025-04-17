@@ -1,5 +1,6 @@
 package com.example.untitled_capstone.domain.use_case.token
 
+import android.util.Log
 import com.example.untitled_capstone.data.remote.dto.TokenDto
 import com.example.untitled_capstone.data.util.ErrorCode.JWT4004
 import com.example.untitled_capstone.domain.repository.TokenRepository
@@ -51,12 +52,12 @@ class AuthAuthenticator @Inject constructor(
 
     private suspend fun requestNewToken(refreshToken: String): TokenDto? {
         val response = tokenManager.refreshToken(refreshToken)
-
-        if (response.data?.code == JWT4004) { // 리프레시 토큰도 만료됨
+        Log.d("token", "response: ${response.message} ${response.data.toString()}")
+        if (response.data == null || response.data.code == JWT4004) { // 리프레시 토큰도 만료됨
             handleTokenExpired()
             return null
         }
-        return response.data?.result
+        return response.data.result
     }
 
     private fun responseCount(response: Response): Int {
@@ -71,7 +72,6 @@ class AuthAuthenticator @Inject constructor(
 
     @OptIn(DelicateCoroutinesApi::class)
     private suspend fun handleTokenExpired() {
-        // 로그아웃 처리 (예: 토큰 삭제 & 로그인 화면 이동)
         AuthEventBus.send(AuthEvent.Logout)
         tokenManager.deleteTokens()
     }

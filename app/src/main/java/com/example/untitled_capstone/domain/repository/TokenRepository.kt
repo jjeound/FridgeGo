@@ -1,7 +1,8 @@
 package com.example.untitled_capstone.domain.repository
 
 import com.example.untitled_capstone.core.util.Resource
-import com.example.untitled_capstone.data.remote.dto.RefreshTokenResponse
+import com.example.untitled_capstone.data.remote.dto.ApiResponse
+import com.example.untitled_capstone.data.remote.dto.TokenDto
 import kotlinx.coroutines.flow.Flow
 
 interface TokenRepository {
@@ -15,5 +16,5 @@ interface TokenRepository {
 
     suspend fun deleteTokens()
 
-    suspend fun refreshToken(refreshToken: String): Resource<RefreshTokenResponse>
+    suspend fun refreshToken(refreshToken: String): Resource<ApiResponse<TokenDto>>
 }

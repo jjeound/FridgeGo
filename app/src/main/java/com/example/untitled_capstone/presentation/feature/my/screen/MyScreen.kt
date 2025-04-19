@@ -142,7 +142,7 @@ fun MyScreen(navController: NavHostController, onEvent: (MyEvent) -> Unit, state
             showDialog.value = false
             context.startActivity(
                 Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                    data = Uri.fromParts("package", context.packageName, null)
+                    data = Uri.fromParts("package", packageName, null)
                 }
             )
         }

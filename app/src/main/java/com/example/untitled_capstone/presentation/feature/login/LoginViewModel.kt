@@ -3,7 +3,6 @@ package com.example.untitled_capstone.presentation.feature.login
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.untitled_capstone.core.util.Resource
-import com.example.untitled_capstone.data.remote.dto.KakaoAccessTokenRequest
 import com.example.untitled_capstone.domain.model.Address
 import com.example.untitled_capstone.domain.use_case.app_entry.SaveAppEntry
 import com.example.untitled_capstone.domain.use_case.login.LoginUseCases

@@ -149,52 +149,103 @@ fun Navigation(
             startDestination = Screen.Post
         ){
             composable<Screen.Post>{
-                val parentEntry = navController.getBackStackEntry(Graph.PostGraph)
-                val viewModel: PostViewModel = hiltViewModel(parentEntry)
-                val state by viewModel.state.collectAsStateWithLifecycle()
-                val postItems = viewModel.postItemState.collectAsLazyPagingItems()
-                PostScreen(navigate = { id ->
-                    navController.navigate(
-                        Screen.PostDetailNav(
-                            id = id
-                        )
-                    )
-                }, postItems = postItems, state = state, onEvent = viewModel::onEvent)
+                val viewModel: PostViewModel = hiltViewModel()
+                val postPagingData = viewModel.postPagingData.collectAsLazyPagingItems()
+                LaunchedEffect(true) {
+                    viewModel.event.collect { event ->
+                        when (event) {
+                            is UIEvent.ShowSnackbar -> {
+                                snackbarHostState.showSnackbar(event.message)
+                            }
+                            is UIEvent.Navigate -> {
+                                navController.navigate(event.route)
+                            }
+                            is UIEvent.PopBackStack -> {
+                                navController.popBackStack()
+                            }
+                        }
+                    }
+                }
+                PostScreen(
+                    postPagingData = postPagingData,
+                    onEvent = viewModel::onEvent
+                )
             }
             composable<Screen.PostDetailNav>{
                 val parentEntry = navController.getBackStackEntry(Graph.PostGraph)
                 val viewModel: PostViewModel = hiltViewModel(parentEntry)
-                val state by viewModel.state.collectAsStateWithLifecycle()
+                val state = remember { viewModel.state }
+                val nickname = remember { viewModel.nickname }
                 val args = it.toRoute<Screen.PostDetailNav>()
+                LaunchedEffect(true) {
+                    viewModel.event.collect { event ->
+                        when (event) {
+                            is UIEvent.ShowSnackbar -> {
+                                snackbarHostState.showSnackbar(event.message)
+                            }
+                            is UIEvent.Navigate -> {
+                                navController.navigate(event.route)
+                            }
+                            is UIEvent.PopBackStack -> {
+                                navController.popBackStack()
+                            }
+                        }
+                    }
+                }
                 PostDetailScreen(
-                    args.id,
-                    viewModel.nickname,
-                    state, viewModel::onEvent, navController
+                    id = args.id,
+                    nickname = nickname,
+                    state = state,
+                    onEvent = viewModel::onEvent
                 )
             }
             composable<Screen.WritingNav> {
                 val parentEntry = navController.getBackStackEntry(Graph.PostGraph)
                 val viewModel: PostViewModel = hiltViewModel(parentEntry)
-                val state by viewModel.state.collectAsStateWithLifecycle()
-                val uploadState by viewModel.uploadState.collectAsStateWithLifecycle()
-                WritingNewPostScreen(navController, state, uploadState, viewModel::onEvent)
+                val state = remember { viewModel.state }
+                LaunchedEffect(true) {
+                    viewModel.event.collect { event ->
+                        when (event) {
+                            is UIEvent.ShowSnackbar -> {
+                                snackbarHostState.showSnackbar(event.message)
+                            }
+                            is UIEvent.Navigate -> {
+                                navController.navigate(event.route)
+                            }
+                            is UIEvent.PopBackStack -> {
+                                navController.popBackStack()
+                            }
+                        }
+                    }
+                }
+                WritingNewPostScreen(
+                    state = state,
+                    onEvent = viewModel::onEvent
+                )
             }
             composable<Screen.PostSearchNav> {
                 val viewModel: PostViewModel = hiltViewModel()
-                val searchState by viewModel.searchState
-                val searchHistory by remember { viewModel.keyword }
-                PostSearchScreen(
-                    searchState = searchState,
-                    searchHistory = searchHistory,
-                    navigateToBack = {navController.popBackStack()},
-                    onEvent = viewModel::onEvent,
-                    navigateToDetail = { id ->
-                        navController.navigate(
-                            Screen.PostDetailNav(
-                                id = id
-                            )
-                        )
+                val searchPagingData = viewModel.searchPagingData.collectAsLazyPagingItems()
+                val searchHistoryState = remember { viewModel.keywords }
+                LaunchedEffect(true) {
+                    viewModel.event.collect { event ->
+                        when (event) {
+                            is UIEvent.ShowSnackbar -> {
+                                snackbarHostState.showSnackbar(event.message)
+                            }
+                            is UIEvent.Navigate -> {
+                                navController.navigate(event.route)
+                            }
+                            is UIEvent.PopBackStack -> {
+                                navController.popBackStack()
+                            }
+                        }
                     }
+                }
+                PostSearchScreen(
+                    searchPagingData = searchPagingData,
+                    searchHistoryState = searchHistoryState,
+                    onEvent = viewModel::onEvent,
                 )
             }
             composable<Screen.ChattingRoomNav>{
@@ -390,7 +441,7 @@ fun Navigation(
             }
             composable<Screen.MyLikedPostNav> {
                 val viewModel: PostViewModel = hiltViewModel()
-                val postItems = viewModel.postItemState.collectAsLazyPagingItems()
+                val postItems = viewModel.postPagingData.collectAsLazyPagingItems()
                 viewModel.onEvent(PostEvent.GetLikedPosts)
                 MyLikedPostScreen(navigate = { id ->
                     navController.navigate(
@@ -403,7 +454,7 @@ fun Navigation(
             }
             composable<Screen.MyPostNav> {
                 val viewModel: PostViewModel = hiltViewModel()
-                val postItems = viewModel.postItemState.collectAsLazyPagingItems()
+                val postItems = viewModel.postPagingData.collectAsLazyPagingItems()
                 viewModel.onEvent(PostEvent.GetMyPosts)
                 MyPostScreen(navigate = { id ->
                     navController.navigate(

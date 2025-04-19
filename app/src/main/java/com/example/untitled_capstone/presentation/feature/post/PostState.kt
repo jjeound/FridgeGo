@@ -1,10 +1,11 @@
 package com.example.untitled_capstone.presentation.feature.post
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import com.example.untitled_capstone.domain.model.Post
 
-data class PostState(
-    val post : Post? = null,
-    val isSuccess: Boolean = false,
-    val isLoading: Boolean = false,
-    val error: String? = null
-)
+class PostState{
+    var post by mutableStateOf<Post?>(null)
+    var isLoading by mutableStateOf(false)
+}

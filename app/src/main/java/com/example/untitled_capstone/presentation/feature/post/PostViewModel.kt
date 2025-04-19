@@ -1,11 +1,14 @@
 package com.example.untitled_capstone.presentation.feature.post
 
-import androidx.compose.runtime.State
+import android.util.Log
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
+import androidx.paging.filter
 import androidx.paging.map
 import com.example.untitled_capstone.core.util.Resource
 import com.example.untitled_capstone.data.util.PostFetchType
@@ -13,10 +16,14 @@ import com.example.untitled_capstone.domain.model.Keyword
 import com.example.untitled_capstone.domain.model.NewPost
 import com.example.untitled_capstone.domain.model.PostRaw
 import com.example.untitled_capstone.domain.use_case.post.PostUseCases
+import com.example.untitled_capstone.navigation.Screen
+import com.example.untitled_capstone.presentation.util.UIEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -28,20 +35,23 @@ class PostViewModel @Inject constructor(
     private val postUseCases: PostUseCases,
 ): ViewModel() {
 
-    private val _state = MutableStateFlow(PostState())
-    val state: StateFlow<PostState> = _state.asStateFlow()
+    var state by mutableStateOf(PostState())
+        private set
 
-    private val _postItemState: MutableStateFlow<PagingData<PostRaw>> = MutableStateFlow(PagingData.empty())
-    val postItemState = _postItemState.asStateFlow()
+    private val _postPagingData: MutableStateFlow<PagingData<PostRaw>> = MutableStateFlow(PagingData.empty())
+    val postPagingData = _postPagingData.asStateFlow()
 
-    private val _searchState = mutableStateOf(SearchState())
-    val searchState: State<SearchState> = _searchState
+    private val _searchPagingData: MutableStateFlow<PagingData<PostRaw>> = MutableStateFlow(PagingData.empty())
+    val searchPagingData = _searchPagingData.asStateFlow()
 
-    private val _uploadState = MutableStateFlow(UploadState())
-    val uploadState: StateFlow<UploadState> = _uploadState.asStateFlow()
+    var nickname by mutableStateOf("")
+        private set
 
-    val nickname = mutableStateOf("")
-    val keyword = mutableStateOf<List<Keyword>>(emptyList())
+    var keywords by mutableStateOf<List<Keyword>>(emptyList())
+        private set
+
+    private val _event = MutableSharedFlow<UIEvent>()
+    val event = _event.asSharedFlow()
 
     fun onEvent(action: PostEvent){
         when(action){
@@ -62,6 +72,9 @@ class PostViewModel @Inject constructor(
             is PostEvent.DeleteAllSearchHistory -> deleteAllSearchHistory()
             is PostEvent.AddSearchHistory -> addSearchHistory(action.word)
             is PostEvent.ReportPost -> reportPost(action.postId, action.reportType, action.content)
+            is PostEvent.NavigateUp -> navigateUp(action.route)
+            is PostEvent.PopBackStack -> popBackStack()
+            is PostEvent.ShowSnackBar -> showSnackbar(action.message)
         }
     }
 
@@ -73,7 +86,7 @@ class PostViewModel @Inject constructor(
     private fun getNickname(){
         viewModelScope.launch {
             val result = postUseCases.getNickname()
-            nickname.value = result!!
+            nickname = result!!
         }
     }
 
@@ -85,14 +98,18 @@ class PostViewModel @Inject constructor(
             when(result){
                 is Resource.Success -> {
                     result.data?.let{
-                        loadItems()
+                        state.isLoading = false
+                        _postPagingData.update { pagingData ->
+                            pagingData.filter { it.id != id }
+                        }
                     }
                 }
                 is Resource.Error -> {
-                    _state.update { it.copy(isLoading = false, error = result.message ?: "An unexpected error occurred") }
+                    state.isLoading = false
+                    _event.emit(UIEvent.ShowSnackbar(result.message ?: "Unknown error"))
                 }
                 is Resource.Loading -> {
-                    _state.update { it.copy(isLoading = true) }
+                    state.isLoading = true
                 }
             }
         }
@@ -104,20 +121,19 @@ class PostViewModel @Inject constructor(
             when(result){
                 is Resource.Success -> {
                     result.data?.let{
-                        _state.update {
-                            it.copy(
-                                post = result.data,
-                                isLoading = false,
-                                error = null
-                            )
+                        state.apply {
+                            post = it
+                            isLoading = false
                         }
+
                     }
                 }
                 is Resource.Error -> {
-                    _state.update { it.copy(isLoading = false, error = result.message ?: "An unexpected error occurred") }
+                    state.isLoading = false
+                    _event.emit(UIEvent.ShowSnackbar(result.message ?: "Unknown error"))
                 }
                 is Resource.Loading -> {
-                    _state.update { it.copy(isLoading = true) }
+                    state.isLoading = true
                 }
             }
         }
@@ -128,30 +144,29 @@ class PostViewModel @Inject constructor(
             val result = postUseCases.modifyPost(id, newPost)
             when(result){
                 is Resource.Success -> {
-                    _postItemState.update { pagingData->
-                        pagingData.map {
-                            if(it.id == id){
-                                it.copy(
-                                    title = newPost.title,
-                                    memberCount = newPost.memberCount,
-                                    price = newPost.price,
-                                )
-                            }else{
-                                it
+                    result.data?.let{
+                        _postPagingData.update { pagingData->
+                            pagingData.map {
+                                if(it.id == id){
+                                    it.copy(
+                                        title = newPost.title,
+                                        memberCount = newPost.memberCount,
+                                        price = newPost.price,
+                                    )
+                                }else{
+                                    it
+                                }
                             }
                         }
-                    }
-                    _uploadState.update {
-                        it.copy(
-                            id = id
-                        )
+                        state.isLoading = false
                     }
                 }
                 is Resource.Error -> {
-                    _uploadState.update { it.copy(isLoading = false, error = result.message ?: "An unexpected error occurred") }
+                    state.isLoading = false
+                    _event.emit(UIEvent.ShowSnackbar(result.message ?: "Unknown error"))
                 }
                 is Resource.Loading -> {
-                    _uploadState.update { it.copy(isLoading = true) }
+                    state.isLoading = true
                 }
             }
         }
@@ -163,13 +178,7 @@ class PostViewModel @Inject constructor(
                 .distinctUntilChanged()
                 .cachedIn(viewModelScope)
                 .collect { pagingData ->
-                    _postItemState.value = pagingData
-                    _state.update {
-                        it.copy(
-                            isLoading = false,
-                            error = null
-                        )
-                    }
+                    _postPagingData.value = pagingData
                 }
         }
     }
@@ -180,27 +189,19 @@ class PostViewModel @Inject constructor(
                 .distinctUntilChanged()
                 .cachedIn(viewModelScope)
                 .collect { pagingData ->
-                    _postItemState.value = pagingData
-                    _state.update {
-                        it.copy(
-                            isLoading = false,
-                            error = null
-                        )
-                    }
+                    _postPagingData.value = pagingData
                 }
         }
     }
 
     private fun searchPost(keyword: String){
         viewModelScope.launch {
-            _searchState.value.isLoading.value = true
             postUseCases.searchPosts(PostFetchType.Search(keyword))
                 .distinctUntilChanged()
                 .cachedIn(viewModelScope)
-                .collect { pagingData ->
-                    _searchState.value.searchResult.value = pagingData
+                .collectLatest { pagingData ->
+                    _searchPagingData.value = pagingData
                 }
-            _searchState.value.isLoading.value = false
         }
     }
 
@@ -210,13 +211,7 @@ class PostViewModel @Inject constructor(
                 .distinctUntilChanged()
                 .cachedIn(viewModelScope)
                 .collect { pagingData ->
-                    _postItemState.value = pagingData
-                    _state.update {
-                        it.copy(
-                            isLoading = false,
-                            error = null
-                        )
-                    }
+                    _postPagingData.value = pagingData
                 }
         }
     }
@@ -227,19 +222,13 @@ class PostViewModel @Inject constructor(
             when(result){
                 is Resource.Success -> {
                     loadItems()
-                    _uploadState.update {
-                        it.copy(
-                            isSuccess = true,
-                            isLoading = false,
-                            error = null
-                        )
-                    }
                 }
                 is Resource.Error -> {
-                    _uploadState.update { it.copy(isLoading = false, error = result.message ?: "An unexpected error occurred") }
+                    state.isLoading = false
+                    _event.emit(UIEvent.ShowSnackbar(result.message ?: "Unknown error"))
                 }
                 is Resource.Loading -> {
-                    _uploadState.update { it.copy(isLoading = true) }
+                    state.isLoading = true
                 }
             }
         }
@@ -251,53 +240,37 @@ class PostViewModel @Inject constructor(
             when(result){
                 is Resource.Success -> {
                     result.data?.let{
-                        _postItemState.update { pagingData ->
+                        state.isLoading = false
+                        _postPagingData.update { pagingData ->
                             pagingData.map {
                                 if(it.id == id){
-                                    it.copy( likeCount = if(result.data) it.likeCount + 1 else it.likeCount - 1, liked = result.data)
+                                    it.copy(
+                                        liked = result.data,
+                                        likeCount = if(it.liked) it.likeCount - 1 else it.likeCount + 1
+                                    )
                                 }else{
                                     it
                                 }
                             }
                         }
-                        _state.update {
-                            it.copy(
-                                post = it.post?.copy(
-                                    likeCount = if(result.data) it.post.likeCount + 1 else it.post.likeCount - 1,
-                                    liked = result.data
-                                ),
-                                isLoading = false,
-                                error = null
-                            )
-                        }
+                        state.post = state.post?.copy(
+                            liked = result.data,
+                        )
                     }
                 }
                 is Resource.Error -> {
-                    _state.update { it.copy(isLoading = false, error = result.message ?: "An unexpected error occurred") }
+                    state.isLoading = false
+                    _event.emit(UIEvent.ShowSnackbar(result.message ?: "Unknown error"))
                 }
                 is Resource.Loading -> {
-                    _state.update { it.copy(isLoading = true) }
+                    state.isLoading = true
                 }
             }
         }
     }
 
     private fun initState(){
-        _state.update {
-            it.copy(
-                post = null,
-                isLoading = false,
-                error = null
-            )
-        }
-        _uploadState.update {
-            it.copy(
-                id = null,
-                isSuccess = false,
-                isLoading = false,
-                error = null
-            )
-        }
+        state = PostState()
     }
 
     private fun uploadPostImages(id: Long, images: List<File>){
@@ -305,21 +278,17 @@ class PostViewModel @Inject constructor(
             val result = postUseCases.uploadPostImages(id, images)
             when(result){
                 is Resource.Success -> {
-                    result.data.let{
-                        _uploadState.update {
-                            it.copy(
-                                isSuccess = true,
-                                isLoading = false,
-                                error = null
-                            )
-                        }
+                    result.data?.let {
+                        state.isLoading = false
+                        _event.emit(UIEvent.ShowSnackbar(result.data))
                     }
                 }
                 is Resource.Error -> {
-                    _uploadState.update { it.copy(isLoading = false, error = result.message ?: "An unexpected error occurred") }
+                    state.isLoading = false
+                    _event.emit(UIEvent.ShowSnackbar(result.message ?: "Unknown error"))
                 }
                 is Resource.Loading -> {
-                    _uploadState.update { it.copy(isLoading = true) }
+                    state.isLoading = true
                 }
             }
         }
@@ -330,21 +299,17 @@ class PostViewModel @Inject constructor(
             val result = postUseCases.deletePostImage(id, imageId)
             when(result){
                 is Resource.Success -> {
-                    result.data?.let{
-                        _state.update {
-                            it.copy(
-                                isSuccess = true,
-                                isLoading = false,
-                                error = null
-                            )
-                        }
+                    result.data?.let {
+                        state.isLoading = false
+                        _event.emit(UIEvent.ShowSnackbar(result.data))
                     }
                 }
                 is Resource.Error -> {
-                    _state.update { it.copy(isLoading = false, error = result.message ?: "An unexpected error occurred") }
+                    state.isLoading = false
+                    _event.emit(UIEvent.ShowSnackbar(result.message ?: "Unknown error"))
                 }
                 is Resource.Loading -> {
-                    _state.update { it.copy(isLoading = true) }
+                    state.isLoading = true
                 }
             }
         }
@@ -356,21 +321,16 @@ class PostViewModel @Inject constructor(
             when(result){
                 is Resource.Success -> {
                     result.data?.let{
-                        keyword.value = it
-                        _state.update {
-                            it.copy(
-                                isSuccess = true,
-                                isLoading = false,
-                                error = null
-                            )
-                        }
+                        keywords = it
+                        state.isLoading = false
                     }
                 }
                 is Resource.Error -> {
-                    _state.update { it.copy(isLoading = false, error = result.message ?: "An unexpected error occurred") }
+                    state.isLoading = false
+                    _event.emit(UIEvent.ShowSnackbar(result.message ?: "Unknown error"))
                 }
                 is Resource.Loading -> {
-                    _state.update { it.copy(isLoading = true) }
+                    state.isLoading = true
                 }
             }
         }
@@ -382,21 +342,16 @@ class PostViewModel @Inject constructor(
             when(result){
                 is Resource.Success -> {
                     result.data?.let{
-                        keyword.value = keyword.value.filter { it.keyword != word }
-                        _state.update {
-                            it.copy(
-                                isSuccess = true,
-                                isLoading = false,
-                                error = null
-                            )
-                        }
+                        keywords = keywords.filter { it.keyword != word }
+                        state.isLoading = false
                     }
                 }
                 is Resource.Error -> {
-                    _state.update { it.copy(isLoading = false, error = result.message ?: "An unexpected error occurred") }
+                    state.isLoading = false
+                    _event.emit(UIEvent.ShowSnackbar(result.message ?: "Unknown error"))
                 }
                 is Resource.Loading -> {
-                    _state.update { it.copy(isLoading = true) }
+                    state.isLoading = true
                 }
             }
         }
@@ -407,28 +362,23 @@ class PostViewModel @Inject constructor(
             when(result){
                 is Resource.Success -> {
                     result.data?.let{
-                        keyword.value = emptyList()
-                        _state.update {
-                            it.copy(
-                                isSuccess = true,
-                                isLoading = false,
-                                error = null
-                            )
-                        }
+                        keywords = emptyList()
+                        state.isLoading = false
                     }
                 }
                 is Resource.Error -> {
-                    _state.update { it.copy(isLoading = false, error = result.message ?: "An unexpected error occurred") }
+                    state.isLoading = false
+                    _event.emit(UIEvent.ShowSnackbar(result.message ?: "Unknown error"))
                 }
                 is Resource.Loading -> {
-                    _state.update { it.copy(isLoading = true) }
+                    state.isLoading = true
                 }
             }
         }
     }
 
-    private fun addSearchHistory(word: Keyword){
-        keyword.value = listOf(word) + keyword.value
+    private fun addSearchHistory(word: String){
+        keywords = listOf(Keyword(word)) + keywords
     }
 
     private fun reportPost(id: Long, reportType: String, content: String) {
@@ -437,16 +387,36 @@ class PostViewModel @Inject constructor(
             when(result){
                 is Resource.Success -> {
                     result.data?.let{
-                        _state.update { it.copy(isLoading = false, error = null) }
+                        state.isLoading = false
+                        _event.emit(UIEvent.ShowSnackbar(result.data))
                     }
                 }
                 is Resource.Error -> {
-                    _state.update { it.copy(isLoading = false, error = result.message ?: "An unexpected error occurred") }
+                    state.isLoading = false
+                    _event.emit(UIEvent.ShowSnackbar(result.message ?: "Unknown error"))
                 }
                 is Resource.Loading -> {
-                    _state.update { it.copy(isLoading = true) }
+                    state.isLoading = true
                 }
             }
+        }
+    }
+
+    private fun navigateUp(route: Screen) {
+        viewModelScope.launch {
+            _event.emit(UIEvent.Navigate(route))
+        }
+    }
+
+    private fun popBackStack() {
+        viewModelScope.launch {
+            _event.emit(UIEvent.PopBackStack)
+        }
+    }
+
+    private fun showSnackbar(message: String) {
+        viewModelScope.launch {
+            _event.emit(UIEvent.ShowSnackbar(message))
         }
     }
 }

@@ -36,7 +36,7 @@ import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @Composable
 fun PostContainer(post: Post, goToProfile: () -> Unit){
-    val category = Category.entries.find { it.eng == post.category }?.kor ?: Category.VEGETABLE.kor
+    val category = Category.fromString(post.category) ?: "채소"
     val pagerState = rememberPagerState(pageCount = {
         post.image?.size ?: 1
     })

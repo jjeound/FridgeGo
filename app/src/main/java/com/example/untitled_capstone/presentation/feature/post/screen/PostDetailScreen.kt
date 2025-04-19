@@ -50,7 +50,12 @@ import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PostDetailScreen(id: Long, nickname: MutableState<String>, state: PostState, onEvent: (PostEvent) -> Unit, navController: NavHostController){
+fun PostDetailScreen(
+    id: Long,
+    nickname: String,
+    state: PostState,
+    onEvent: (PostEvent) -> Unit,
+){
     var expanded by remember { mutableStateOf(false) }
     var menuItem by remember { mutableStateOf(emptyList<String>()) }
     LaunchedEffect(Unit) {
@@ -58,18 +63,22 @@ fun PostDetailScreen(id: Long, nickname: MutableState<String>, state: PostState,
     }
     LaunchedEffect(state.post) {
         if(state.post != null){
-            menuItem = if(nickname.value == state.post.nickname) listOf("수정", "삭제") else listOf("신고")
+            menuItem = if(nickname == state.post!!.nickname) listOf("수정", "삭제") else listOf("신고")
             Log.d("gi", state.post.toString())
         }
     }
     if(state.isLoading){
-        CircularProgressIndicator(
+        Box(
             modifier = Modifier.fillMaxSize(),
-            color = CustomTheme.colors.primary
-        )
+            contentAlignment = Alignment.Center
+        ){
+            CircularProgressIndicator(
+                color = CustomTheme.colors.primary
+            )
+        }
     }
     if(state.post != null){
-        val post = state.post
+        val post = state.post!!
         Scaffold(
             containerColor = CustomTheme.colors.onSurface,
             topBar = {
@@ -78,7 +87,7 @@ fun PostDetailScreen(id: Long, nickname: MutableState<String>, state: PostState,
                     navigationIcon = {
                         IconButton(
                             onClick = {
-                                navController.popBackStack()
+                                onEvent(PostEvent.PopBackStack)
                                 onEvent(PostEvent.InitState)
                             }
                         ) {
@@ -133,10 +142,11 @@ fun PostDetailScreen(id: Long, nickname: MutableState<String>, state: PostState,
                                             //신고
                                         }else if(menuItem.size == 2){
                                             when(option){
-                                                menuItem[0] -> navController.navigate(Screen.WritingNav)
+                                                menuItem[0] -> onEvent(PostEvent.NavigateUp(Screen.WritingNav))
                                                 menuItem[1] -> {
                                                     onEvent(PostEvent.DeletePost(post.id))
-                                                    navController.popBackStack()
+                                                    onEvent(PostEvent.PopBackStack)
+                                                    onEvent(PostEvent.InitState)
                                                 }
                                             }
                                         }
@@ -203,9 +213,9 @@ fun PostDetailScreen(id: Long, nickname: MutableState<String>, state: PostState,
                                 Button(
                                     modifier = Modifier.padding(end = 4.dp),
                                     onClick = {
-                                        navController.navigate(
+                                        onEvent(PostEvent.NavigateUp(
                                             Screen.ChattingRoomNav(post.chatRoomId)
-                                        )
+                                        ))
                                     },
                                     enabled = post.roomActive && post.currentParticipants < post.memberCount,
                                     shape = RoundedCornerShape(Dimens.cornerRadius),
@@ -243,9 +253,18 @@ fun PostDetailScreen(id: Long, nickname: MutableState<String>, state: PostState,
                     .padding(horizontal = Dimens.surfaceHorizontalPadding,
                         vertical = Dimens.surfaceVerticalPadding),
             ){
-                PostContainer(post= post, goToProfile = {navController.navigate(Screen.Profile(
-                    post.nickname
-                ))})
+                PostContainer(
+                    post= post,
+                    goToProfile = {
+                        onEvent(
+                            PostEvent.NavigateUp(
+                                Screen.Profile(
+                                    post.nickname
+                                )
+                            )
+                        )
+                    }
+                )
             }
         }
     }

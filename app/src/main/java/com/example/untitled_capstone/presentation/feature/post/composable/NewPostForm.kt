@@ -23,7 +23,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -70,24 +69,23 @@ import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
-import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.untitled_capstone.MainActivity
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.domain.model.NewPost
-import com.example.untitled_capstone.navigation.Screen
 import com.example.untitled_capstone.presentation.feature.fridge.composable.PermissionDialog
-import com.example.untitled_capstone.presentation.feature.home.HomeEvent
 import com.example.untitled_capstone.presentation.feature.my.composable.getRealPathFromURI
 import com.example.untitled_capstone.presentation.feature.post.PostEvent
 import com.example.untitled_capstone.presentation.feature.post.PostState
-import com.example.untitled_capstone.presentation.feature.post.UploadState
 import com.example.untitled_capstone.ui.theme.CustomTheme
 import java.io.File
 
 @Composable
-fun NewPostForm(state: PostState, uploadState: UploadState, navController: NavHostController, onEvent: (PostEvent) -> Unit) {
+fun NewPostForm(
+    state: PostState,
+    onEvent: (PostEvent) -> Unit
+){
     val context = LocalContext.current
     var isExpandedPeopleMenu by remember { mutableStateOf(false) }
     var isExpandedCategoryMenu by remember { mutableStateOf(false) }
@@ -158,12 +156,12 @@ fun NewPostForm(state: PostState, uploadState: UploadState, navController: NavHo
 
     LaunchedEffect(Unit) {
         if(state.post != null){
-            title = state.post.title
-            content = state.post.content
-            category = Category.entries.find { it.eng == state.post.category }?.kor ?: Category.VEGETABLE.kor
-            price = state.post.price.toString()
-            quantity = state.post.memberCount.toString()
-            state.post.image?.forEach {
+            title = state.post!!.title
+            content = state.post!!.content
+            category = Category.fromString(state.post!!.category) ?: "채소"
+            price = state.post!!.price.toString()
+            quantity = state.post!!.memberCount.toString()
+            state.post!!.image?.forEach {
                 images.add(it.imageUrl)
             }
         }
@@ -177,11 +175,15 @@ fun NewPostForm(state: PostState, uploadState: UploadState, navController: NavHo
         },
         verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding)
     ){
-        if(state.isLoading || uploadState.isLoading){
-            CircularProgressIndicator(
+        if(state.isLoading){
+            Box(
                 modifier = Modifier.fillMaxSize(),
-                color = CustomTheme.colors.primary,
-            )
+                contentAlignment = Alignment.Center
+            ){
+                CircularProgressIndicator(
+                    color = CustomTheme.colors.primary,
+                )
+            }
         }
         Row(
             horizontalArrangement = Arrangement.spacedBy(Dimens.mediumPadding)
@@ -249,8 +251,8 @@ fun NewPostForm(state: PostState, uploadState: UploadState, navController: NavHo
                             onClick = {
                                 images.removeAt(index)
                                 if(state.post != null){
-                                    onEvent(PostEvent.DeletePostImage(state.post.id,
-                                        state.post.image!![index].id
+                                    onEvent(PostEvent.DeletePostImage(state.post!!.id,
+                                        state.post!!.image!![index].id
                                     ))
                                 }
                             }
@@ -527,23 +529,31 @@ fun NewPostForm(state: PostState, uploadState: UploadState, navController: NavHo
                 if(state.post != null){
                     onEvent(
                         PostEvent.ModifyPost(
-                            state.post.id,
+                            state.post!!.id,
                             NewPost(
                                 title = title,
                                 content = content,
-                                category = Category.entries.find { it.kor == category }?.eng ?: Category.VEGETABLE.eng,
+                                category = Category.fromKor(category) ?: "VEGETABLE",
                                 price = price.toInt(),
                                 memberCount = quantity.toInt()
                             )
                         )
                     )
+                    if(files.isNotEmpty()){
+                        onEvent(
+                            PostEvent.UploadPostImages(
+                                state.post!!.id,
+                                files.toList()
+                            )
+                        )
+                    }
                 }else{
                     onEvent(
                         PostEvent.AddNewPost(
                             NewPost(
                                 title = title,
                                 content = content,
-                                category = Category.entries.find { it.kor == category }?.eng ?: Category.VEGETABLE.eng,
+                                category = Category.fromKor(category) ?: "VEGETABLE",
                                 price = price.toInt(),
                                 memberCount = quantity.toInt()
                             ),
@@ -551,31 +561,14 @@ fun NewPostForm(state: PostState, uploadState: UploadState, navController: NavHo
                         )
                     )
                 }
+                onEvent(PostEvent.InitState)
+                onEvent(PostEvent.PopBackStack)
             }
         ) {
             Text(
                 text = if(state.post != null) "수정하기" else "등록하기",
                 style = CustomTheme.typography.button1,
             )
-        }
-        LaunchedEffect(uploadState) {
-            if(uploadState.id != null){
-                if(files.isNotEmpty()){
-                    onEvent(
-                        PostEvent.UploadPostImages(
-                            uploadState.id,
-                            files.toList()
-                        )
-                    )
-                }else{
-                    onEvent(PostEvent.InitState)
-                    navController.popBackStack()
-                }
-            }
-            if(uploadState.isSuccess){
-                onEvent(PostEvent.InitState)
-                navController.popBackStack()
-            }
         }
         PermissionDialog(
             showDialog = showDialog,
@@ -594,18 +587,26 @@ fun NewPostForm(state: PostState, uploadState: UploadState, navController: NavHo
 }
 
 enum class Category(
-    val eng: String,
     val kor: String
 ) {
-    VEGETABLE("VEGETABLE", "채소"),
-    FRUIT("FRUIT", "과일"),
-    MEAT("MEAT", "육류"),
-    SEAFOOD("SEAFOOD", "수산물"),
-    DAIRY("DAIRY", "유제품"),
-    GRAIN("GRAIN", "곡물"),
-    BEVERAGE("BEVERAGE", "음료"),
-    SNACK("SNACK", "과자"),
-    CONDIMENT("CONDIMENT", "조미료"),
-    FROZEN("FROZEN", "냉동식품"),
-    PROCESSED("PROCESSED", "가공식품")
+    VEGETABLE("채소"),
+    FRUIT("과일"),
+    MEAT("육류"),
+    SEAFOOD( "수산물"),
+    DAIRY("유제품"),
+    GRAIN("곡물"),
+    BEVERAGE("음료"),
+    SNACK("과자"),
+    CONDIMENT("조미료"),
+    FROZEN("냉동식품"),
+    PROCESSED("가공식품");
+
+    companion object {
+        fun fromKor(value: String): String? {
+            return entries.find { it.kor == value }?.name
+        }
+        fun fromString(value: String): String? {
+            return Category.entries.find { it.name == value }?.kor
+        }
+    }
 }

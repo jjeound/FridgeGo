@@ -17,19 +17,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.presentation.feature.post.PostEvent
 import com.example.untitled_capstone.presentation.feature.post.PostState
-import com.example.untitled_capstone.presentation.feature.post.UploadState
 import com.example.untitled_capstone.presentation.feature.post.composable.NewPostForm
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WritingNewPostScreen(navController: NavHostController, state: PostState, uploadState: UploadState, onEvent: (PostEvent) -> Unit){
+fun WritingNewPostScreen(
+    state: PostState,
+    onEvent: (PostEvent) -> Unit
+){
     Scaffold(
         containerColor = CustomTheme.colors.onSurface,
         topBar = {
@@ -45,7 +46,7 @@ fun WritingNewPostScreen(navController: NavHostController, state: PostState, upl
                 navigationIcon = {
                     IconButton(
                         onClick = {
-                            navController.popBackStack()
+                            onEvent(PostEvent.PopBackStack)
                             onEvent(PostEvent.InitState)
                         }
                     ) {
@@ -71,7 +72,10 @@ fun WritingNewPostScreen(navController: NavHostController, state: PostState, upl
                 .padding(horizontal = Dimens.surfaceHorizontalPadding,
                 vertical = Dimens.surfaceVerticalPadding),
         ){
-            NewPostForm(state, uploadState, navController, onEvent)
+            NewPostForm(
+                state = state,
+                onEvent = onEvent
+            )
         }
     }
 }

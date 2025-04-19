@@ -1,5 +1,7 @@
 package com.example.untitled_capstone.presentation.util
 
+import com.example.untitled_capstone.presentation.feature.post.composable.Category
+
 enum class ReportType(val value: String) {
     INAPPROPRIATE_LANGUAGE("부적절한 언어"),
     SCAM("악성"),
@@ -7,8 +9,8 @@ enum class ReportType(val value: String) {
     OTHER("기타");
 
     companion object {
-        fun fromString(value: String): ReportType? {
-            return ReportType.entries.find { it.name == value }
+        fun fromKor(value: String): String? {
+            return ReportType.entries.find { it.value == value }?.name
         }
     }
 }

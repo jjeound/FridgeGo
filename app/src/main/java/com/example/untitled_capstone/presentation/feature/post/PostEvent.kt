@@ -2,6 +2,7 @@ package com.example.untitled_capstone.presentation.feature.post
 
 import com.example.untitled_capstone.domain.model.Keyword
 import com.example.untitled_capstone.domain.model.NewPost
+import com.example.untitled_capstone.navigation.Screen
 import java.io.File
 
 sealed interface PostEvent{
@@ -20,6 +21,9 @@ sealed interface PostEvent{
     data object GetSearchHistory: PostEvent
     data class DeleteSearchHistory(val keyword: String): PostEvent
     data object DeleteAllSearchHistory: PostEvent
-    data class AddSearchHistory(val word: Keyword): PostEvent
+    data class AddSearchHistory(val word: String): PostEvent
     data class ReportPost(val postId: Long, val reportType: String, val content: String): PostEvent
+    data class NavigateUp(val route: Screen): PostEvent
+    data object PopBackStack: PostEvent
+    data class ShowSnackBar(val message: String): PostEvent
 }

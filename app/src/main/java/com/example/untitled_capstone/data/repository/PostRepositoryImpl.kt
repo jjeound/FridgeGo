@@ -82,7 +82,6 @@ class PostRepositoryImpl @Inject constructor(
             Resource.Loading(data = null)
             val response = api.deletePost(id)
             if(response.isSuccess){
-                db.dao.clearAll() //페이징 꼬여서 다 지워야 함
                 Resource.Success(response.result)
             }else {
                 Resource.Error(message = response.message)

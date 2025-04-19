@@ -39,26 +39,24 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
-import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.LazyPagingItems
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.domain.model.Keyword
+import com.example.untitled_capstone.domain.model.PostRaw
+import com.example.untitled_capstone.navigation.Screen
 import com.example.untitled_capstone.presentation.feature.post.PostEvent
-import com.example.untitled_capstone.presentation.feature.post.SearchState
 import com.example.untitled_capstone.presentation.feature.post.composable.PostListContainer
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PostSearchScreen(
-    searchState: SearchState,
-    searchHistory: List<Keyword>,
-    navigateToBack: () -> Unit,
+    searchPagingData: LazyPagingItems<PostRaw>,
+    searchHistoryState: List<Keyword>,
     onEvent: (PostEvent) -> Unit,
-    navigateToDetail: (id: Long) -> Unit
 ) {
     var keyword by remember { mutableStateOf("") }
     val focusManager = LocalFocusManager.current
@@ -87,7 +85,7 @@ fun PostSearchScreen(
                 ) {
                     IconButton(
                         onClick = {
-                            navigateToBack()
+                            onEvent(PostEvent.PopBackStack)
                         }
                     ) {
                         Icon(
@@ -102,7 +100,6 @@ fun PostSearchScreen(
                             .onFocusChanged {
                                 if (it.isFocused) {
                                     showResult = false
-                                    //onEvent(PostEvent.GetSearchHistory)
                                 }
                             },
                         value = keyword,
@@ -133,7 +130,7 @@ fun PostSearchScreen(
                             if (keyword.isNotBlank()) {
                                 onEvent(PostEvent.SearchPost(keyword))
                                 showResult = true
-                                onEvent(PostEvent.AddSearchHistory(Keyword(keyword)))
+                                onEvent(PostEvent.AddSearchHistory(keyword))
                             }
                         })
                     )
@@ -142,7 +139,9 @@ fun PostSearchScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            modifier = Modifier.clickable { navigateToBack() },
+                            modifier = Modifier.clickable {
+                                onEvent(PostEvent.PopBackStack)
+                            },
                             text = "닫기",
                             style = CustomTheme.typography.button1,
                             color = CustomTheme.colors.textPrimary,
@@ -163,7 +162,6 @@ fun PostSearchScreen(
                 .background(CustomTheme.colors.surface),
         ){
             if(showResult){
-                val posts = searchState.searchResult.collectAsLazyPagingItems()
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -176,7 +174,7 @@ fun PostSearchScreen(
                         color = CustomTheme.colors.textPrimary,
                     )
                 }
-                if(posts.itemCount == 0){
+                if(searchPagingData.itemCount == 0){
                     Box(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
@@ -191,12 +189,16 @@ fun PostSearchScreen(
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding)
                 ) {
-                    items(posts.itemCount) { index ->
-                        val post = posts[index]
+                    items(searchPagingData.itemCount) { index ->
+                        val post = searchPagingData[index]
                         if(post != null){
                             Box(
                                 modifier = Modifier.clickable {
-                                    navigateToDetail(post.id)
+                                    onEvent(PostEvent.NavigateUp(
+                                        Screen.PostDetailNav(
+                                            post.id
+                                        )
+                                    ))
                                 }
                             ){
                                 PostListContainer(post, onEvent = onEvent)
@@ -204,7 +206,7 @@ fun PostSearchScreen(
                         }
                     }
                     item {
-                        if (posts.loadState.append is LoadState.Loading && posts.itemCount > 10) {
+                        if (searchPagingData.loadState.append is LoadState.Loading && searchPagingData.itemCount > 10) {
                             CircularProgressIndicator(modifier = Modifier
                                 .fillMaxWidth()
                                 .wrapContentWidth(Alignment.CenterHorizontally))
@@ -228,7 +230,7 @@ fun PostSearchScreen(
                         )
                         Text(
                             modifier = Modifier.clickable{
-                                if(searchHistory.isNotEmpty()){
+                                if(searchHistoryState.isNotEmpty()){
                                     onEvent(PostEvent.DeleteAllSearchHistory)
                                 }
                             },
@@ -249,8 +251,8 @@ fun PostSearchScreen(
                             ),
                         verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding)
                     ) {
-                        items(searchHistory.size) { index ->
-                            val keyword = searchHistory[index]
+                        items(searchHistoryState.size) { index ->
+                            val keyword = searchHistoryState[index]
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 verticalAlignment = Alignment.CenterVertically
@@ -288,10 +290,4 @@ fun PostSearchScreen(
             }
         }
     }
-}
-
-@Preview
-@Composable
-fun PostSearchScreenPreview() {
-    PostSearchScreen(searchState = SearchState(), searchHistory = emptyList(), navigateToBack = {}, onEvent = {}, navigateToDetail = {})
 }

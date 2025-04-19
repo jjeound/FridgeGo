@@ -68,8 +68,7 @@ class FridgeViewModel @Inject constructor(
             when(result){
                 is Resource.Success -> {
                     result.data?.let{
-                        //getItems()
-                        state.isLoading = false
+                        getItems()
                     }
                 }
                 is Resource.Error -> {

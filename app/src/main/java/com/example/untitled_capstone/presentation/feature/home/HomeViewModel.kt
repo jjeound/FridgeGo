@@ -122,8 +122,6 @@ class HomeViewModel @Inject constructor(
             when(result){
                 is Resource.Success -> {
                     result.data?.let {
-                        recipeState.isLoading = false
-
                         //_event.emit(UIEvent.ShowSnackbar(result.data.result!!))
                         getRecipes()
                     }

@@ -68,6 +68,9 @@ sealed interface Screen {
 
     @Serializable
     data class ChattingDrawerNav(val id: Long, val title: String): Screen
+
+    @Serializable
+    data class ReportPostNav(val postId: Long): Screen
 }
 
 sealed interface Graph {

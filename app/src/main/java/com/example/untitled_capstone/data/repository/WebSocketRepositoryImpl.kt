@@ -35,10 +35,6 @@ class WebSocketRepositoryImpl @Inject constructor(
                 }
                 onMessage(dto) },
             onUnreadUpdate = { dto ->
-//                Log.d("WebSocketRepositoryImpl", "onUnreadUpdate: $dto")
-//                CoroutineScope(Dispatchers.IO).launch {
-//                    updateUnreadCount(dto.messageId, roomId, dto.unreadCount )
-//                }
                 onUnreadUpdate(dto)
             }
         )

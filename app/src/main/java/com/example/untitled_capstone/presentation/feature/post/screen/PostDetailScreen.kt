@@ -139,14 +139,23 @@ fun PostDetailScreen(
                                     onClick = {
                                         expanded = false
                                         if(menuItem.size == 1){
-                                            //신고
+                                            onEvent(PostEvent.NavigateUp(
+                                                Screen.ReportPostNav(
+                                                    postId = post.id
+                                                )
+                                            ))
                                         }else if(menuItem.size == 2){
                                             when(option){
                                                 menuItem[0] -> onEvent(PostEvent.NavigateUp(Screen.WritingNav))
                                                 menuItem[1] -> {
-                                                    onEvent(PostEvent.DeletePost(post.id))
-                                                    onEvent(PostEvent.PopBackStack)
-                                                    onEvent(PostEvent.InitState)
+                                                    onEvent(PostEvent.NavigateUp(
+                                                        Screen.ReportPostNav(
+                                                            postId = post.id
+                                                        )
+                                                    ))
+//                                                    onEvent(PostEvent.DeletePost(post.id))
+//                                                    onEvent(PostEvent.PopBackStack)
+//                                                    onEvent(PostEvent.InitState)
                                                 }
                                             }
                                         }

@@ -1,6 +1,5 @@
 package com.example.untitled_capstone.data.pagination
 
-import android.util.Log
 import androidx.paging.ExperimentalPagingApi
 import androidx.paging.LoadType
 import androidx.paging.PagingState
@@ -45,9 +44,6 @@ class PostPagingSource(
                 is PostFetchType.LikedPosts -> api.getLikedPosts(page = loadKey.toInt(), size = state.config.pageSize)
                 is PostFetchType.Search -> api.searchPosts(keyword = fetchType.keyword, page = loadKey.toInt(), size = state.config.pageSize)
             }
-
-            Log.d("PostPagingSource", "Response: $response")
-
 
             db.withTransaction {
                 if(loadType == LoadType.REFRESH) {

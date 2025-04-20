@@ -18,14 +18,19 @@ import com.example.untitled_capstone.domain.model.Keyword
 import com.example.untitled_capstone.domain.model.NewPost
 import com.example.untitled_capstone.domain.model.Post
 import com.example.untitled_capstone.domain.repository.PostRepository
+import com.google.gson.Gson
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
-import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import okio.IOException
 import retrofit2.HttpException
+import java.io.File
 import javax.inject.Inject
 
 class PostRepositoryImpl @Inject constructor(
@@ -35,10 +40,17 @@ class PostRepositoryImpl @Inject constructor(
 ): PostRepository {
     val dataStore = context.dataStore
 
-    override suspend fun post(newPost: RequestBody, images: List<MultipartBody.Part>?): Resource<String> {
+    override suspend fun post(newPost: NewPost, images: List<File>?): Resource<String> {
         return try {
             Resource.Loading(data = null)
-            val response = api.post(newPost, images)
+            val gson = Gson()
+            val json = gson.toJson(newPost)
+            val jsonBody = json.toRequestBody("application/json; charset=utf-8".toMediaType())
+            val requestFile = images?.map { it.asRequestBody("image/*".toMediaTypeOrNull())}
+            val body = requestFile?.mapIndexed { index, file ->
+                MultipartBody.Part.createFormData("postImages", images[index].name, file)
+            }
+            val response = api.post(jsonBody, body)
             if(response.isSuccess){
                 Resource.Success(response.result)
             }else {

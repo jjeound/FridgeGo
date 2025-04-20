@@ -1,6 +1,5 @@
 package com.example.untitled_capstone.presentation.feature.post.screen
 
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -55,7 +54,6 @@ fun PostScreen(
             ) {
                 items(postPagingData.itemCount) { index ->
                     val post = postPagingData[index]
-                    Log.d("postScreen", "post: $post")
                     if(post != null){
                         Box(
                             modifier = Modifier.clickable {

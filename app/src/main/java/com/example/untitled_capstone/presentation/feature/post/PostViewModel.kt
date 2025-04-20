@@ -321,8 +321,8 @@ class PostViewModel @Inject constructor(
             when(result){
                 is Resource.Success -> {
                     result.data?.let{
-                        keywords = it
                         state.isLoading = false
+                        keywords = it
                     }
                 }
                 is Resource.Error -> {
@@ -378,6 +378,9 @@ class PostViewModel @Inject constructor(
     }
 
     private fun addSearchHistory(word: String){
+        if(keywords.any { it.keyword == word }){
+            keywords = keywords.filter { it.keyword != word }
+        }
         keywords = listOf(Keyword(word)) + keywords
     }
 

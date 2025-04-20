@@ -58,10 +58,10 @@ fun PostSearchScreen(
     searchHistoryState: List<Keyword>,
     onEvent: (PostEvent) -> Unit,
 ) {
-    var keyword by remember { mutableStateOf("") }
+    var text by remember { mutableStateOf("") }
     val focusManager = LocalFocusManager.current
     var showResult by remember { mutableStateOf(false) }
-    LaunchedEffect(Unit) {
+    LaunchedEffect(true) {
         onEvent(PostEvent.GetSearchHistory)
     }
     Scaffold(
@@ -85,6 +85,7 @@ fun PostSearchScreen(
                 ) {
                     IconButton(
                         onClick = {
+                            onEvent(PostEvent.LoadItems)
                             onEvent(PostEvent.PopBackStack)
                         }
                     ) {
@@ -102,8 +103,8 @@ fun PostSearchScreen(
                                     showResult = false
                                 }
                             },
-                        value = keyword,
-                        onValueChange = { keyword = it },
+                        value = text,
+                        onValueChange = { text = it },
                         placeholder = {
                             Text(
                                 text = "검색",
@@ -127,10 +128,10 @@ fun PostSearchScreen(
                         maxLines = 1,
                         keyboardActions = KeyboardActions(onDone = {
                             focusManager.clearFocus()
-                            if (keyword.isNotBlank()) {
-                                onEvent(PostEvent.SearchPost(keyword))
+                            if (text.isNotBlank()) {
+                                onEvent(PostEvent.SearchPost(text))
                                 showResult = true
-                                onEvent(PostEvent.AddSearchHistory(keyword))
+                                onEvent(PostEvent.AddSearchHistory(text))
                             }
                         })
                     )
@@ -138,8 +139,8 @@ fun PostSearchScreen(
                         modifier = Modifier.size(48.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(
-                            modifier = Modifier.clickable {
+                        Text(modifier = Modifier.clickable {
+                                onEvent(PostEvent.LoadItems)
                                 onEvent(PostEvent.PopBackStack)
                             },
                             text = "닫기",
@@ -254,7 +255,13 @@ fun PostSearchScreen(
                         items(searchHistoryState.size) { index ->
                             val keyword = searchHistoryState[index]
                             Row(
-                                modifier = Modifier.fillMaxWidth(),
+                                modifier = Modifier.fillMaxWidth().clickable{
+                                    onEvent(PostEvent.SearchPost(keyword.keyword))
+                                    showResult = true
+                                    focusManager.clearFocus()
+                                    text = keyword.keyword
+                                    onEvent(PostEvent.AddSearchHistory(keyword.keyword))
+                                },
                                 verticalAlignment = Alignment.CenterVertically
                             ){
                                 Icon(

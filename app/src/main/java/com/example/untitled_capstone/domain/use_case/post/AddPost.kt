@@ -17,13 +17,6 @@ class AddPost @Inject constructor(
     private val repository: PostRepository
 ) {
     suspend operator fun invoke(post: NewPost, images: List<File>?): Resource<String> {
-        val gson = Gson()
-        val json = gson.toJson(post)
-        val jsonBody = json.toRequestBody("application/json; charset=utf-8".toMediaType())
-        val requestFile = images?.map { it.asRequestBody("image/*".toMediaTypeOrNull())}
-        val body = requestFile?.mapIndexed { index, file ->
-            MultipartBody.Part.createFormData("postImages", images[index].name, file)
-        }
-        return repository.post(jsonBody, body)
+        return repository.post(post, images)
     }
 }

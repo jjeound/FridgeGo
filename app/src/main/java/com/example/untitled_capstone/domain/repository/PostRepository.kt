@@ -9,10 +9,10 @@ import com.example.untitled_capstone.domain.model.NewPost
 import com.example.untitled_capstone.domain.model.Post
 import kotlinx.coroutines.flow.Flow
 import okhttp3.MultipartBody
-import okhttp3.RequestBody
+import java.io.File
 
 interface PostRepository {
-    suspend fun post(newPost: RequestBody, images: List<MultipartBody.Part>?): Resource<String>
+    suspend fun post(newPost: NewPost, images: List<File>?): Resource<String>
     fun getMyPosts(fetchType: PostFetchType): Flow<PagingData<PostItemEntity>>
     suspend fun getPostById(id: Long): Resource<Post>
     suspend fun deletePost(id: Long): Resource<String>

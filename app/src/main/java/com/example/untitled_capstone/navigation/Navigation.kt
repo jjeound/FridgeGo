@@ -41,6 +41,7 @@ import com.example.untitled_capstone.presentation.feature.my.screen.MyPostScreen
 import com.example.untitled_capstone.presentation.feature.post.PostEvent
 import com.example.untitled_capstone.presentation.feature.post.PostViewModel
 import com.example.untitled_capstone.presentation.feature.post.screen.PostDetailScreen
+import com.example.untitled_capstone.presentation.feature.post.screen.PostReportScreen
 import com.example.untitled_capstone.presentation.feature.post.screen.PostScreen
 import com.example.untitled_capstone.presentation.feature.post.screen.PostSearchScreen
 import com.example.untitled_capstone.presentation.feature.post.screen.WritingNewPostScreen
@@ -53,7 +54,7 @@ fun Navigation(
     mainViewModel: MainViewModel,
     snackbarHostState: SnackbarHostState
 ) {
-    NavHost(navController = navController, startDestination = mainViewModel.startDestination.value){
+    NavHost(navController = navController, startDestination = Graph.HomeGraph){
         navigation<Graph.HomeGraph>(
             startDestination = Screen.Home
         ){
@@ -149,7 +150,8 @@ fun Navigation(
             startDestination = Screen.Post
         ){
             composable<Screen.Post>{
-                val viewModel: PostViewModel = hiltViewModel()
+                val parentEntry = navController.getBackStackEntry(Graph.PostGraph)
+                val viewModel: PostViewModel = hiltViewModel(parentEntry)
                 val postPagingData = viewModel.postPagingData.collectAsLazyPagingItems()
                 LaunchedEffect(true) {
                     viewModel.event.collect { event ->
@@ -224,9 +226,10 @@ fun Navigation(
                 )
             }
             composable<Screen.PostSearchNav> {
-                val viewModel: PostViewModel = hiltViewModel()
+                val parentEntry = navController.getBackStackEntry(Graph.PostGraph)
+                val viewModel: PostViewModel = hiltViewModel(parentEntry)
                 val searchPagingData = viewModel.searchPagingData.collectAsLazyPagingItems()
-                val searchHistoryState = remember { viewModel.keywords }
+                val searchHistoryState = viewModel.keywords
                 LaunchedEffect(true) {
                     viewModel.event.collect { event ->
                         when (event) {
@@ -245,6 +248,30 @@ fun Navigation(
                 PostSearchScreen(
                     searchPagingData = searchPagingData,
                     searchHistoryState = searchHistoryState,
+                    onEvent = viewModel::onEvent,
+                )
+            }
+            composable<Screen.ReportPostNav> {
+                val parentEntry = navController.getBackStackEntry(Graph.PostGraph)
+                val viewModel: PostViewModel = hiltViewModel(parentEntry)
+                val args = it.toRoute<Screen.ReportPostNav>()
+                LaunchedEffect(true) {
+                    viewModel.event.collect { event ->
+                        when (event) {
+                            is UIEvent.ShowSnackbar -> {
+                                snackbarHostState.showSnackbar(event.message)
+                            }
+                            is UIEvent.Navigate -> {
+                                navController.navigate(event.route)
+                            }
+                            is UIEvent.PopBackStack -> {
+                                navController.popBackStack()
+                            }
+                        }
+                    }
+                }
+                PostReportScreen(
+                    postId = args.postId,
                     onEvent = viewModel::onEvent,
                 )
             }
@@ -519,3 +546,4 @@ fun Navigation(
         }
     }
 }
+

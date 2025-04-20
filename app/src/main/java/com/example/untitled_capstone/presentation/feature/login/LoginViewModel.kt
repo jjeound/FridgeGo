@@ -9,6 +9,8 @@ import com.example.untitled_capstone.domain.use_case.login.LoginUseCases
 import com.example.untitled_capstone.presentation.feature.login.state.AddressState
 import com.example.untitled_capstone.presentation.feature.login.state.LoginState
 import com.example.untitled_capstone.presentation.feature.login.state.ValidateState
+import com.example.untitled_capstone.presentation.util.AuthEvent
+import com.example.untitled_capstone.presentation.util.AuthEventBus
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -79,6 +81,7 @@ class LoginViewModel @Inject constructor(
                             loading = false,
                             error = null) }
                     }
+                    AuthEventBus.send(AuthEvent.Login)
                     saveAppEntry()
                 }
                 is Resource.Error -> {

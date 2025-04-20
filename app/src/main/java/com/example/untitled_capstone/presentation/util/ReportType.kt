@@ -1,10 +1,8 @@
 package com.example.untitled_capstone.presentation.util
 
-import com.example.untitled_capstone.presentation.feature.post.composable.Category
-
 enum class ReportType(val value: String) {
-    INAPPROPRIATE_LANGUAGE("부적절한 언어"),
-    SCAM("악성"),
+    INAPPROPRIATE_LANGUAGE("욕설"),
+    SCAM("사기"),
     HARASSMENT("혐오"),
     OTHER("기타");
 

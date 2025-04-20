@@ -8,6 +8,8 @@ import androidx.lifecycle.viewModelScope
 import com.example.untitled_capstone.core.util.Resource
 import com.example.untitled_capstone.domain.use_case.my.MyUseCases
 import com.example.untitled_capstone.domain.use_case.post.GetNickname
+import com.example.untitled_capstone.presentation.util.AuthEvent
+import com.example.untitled_capstone.presentation.util.AuthEventBus
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -98,6 +100,7 @@ class MyViewModel @Inject constructor(
                     result.data?.let{
                         loginState = false
                     }
+                    AuthEventBus.send(AuthEvent.Logout)
                 }
                 is Resource.Error -> {
                     _state.update { it.copy(loading = false, error = result.message ?: "An unexpected error occurred") }

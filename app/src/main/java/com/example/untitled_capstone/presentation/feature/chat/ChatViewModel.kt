@@ -135,12 +135,10 @@ class ChatViewModel @Inject constructor(
                         _state.update { ChatUiState.Success(null) }
                     }
                 }
-
                 is Resource.Error -> {
                     _state.update { ChatUiState.Error(result.message) }
                     _event.emit(UIEvent.ShowSnackbar(result.message ?: "Unknown error"))
                 }
-
                 is Resource.Loading -> {
                     _state.update { ChatUiState.Loading }
                 }
@@ -226,7 +224,6 @@ class ChatViewModel @Inject constructor(
         viewModelScope.launch {
             getAccessToken().collect{ token->
                 if(!token.isNullOrEmpty()){ // null뿐만 아니라 빈 값도 확인
-                    Log.d("token", token)
                     chatUseCases.connectChatSocket(token, roomId, onConnected = {
                         subscribe(roomId)
                     }, onError = {

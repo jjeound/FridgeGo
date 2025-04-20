@@ -58,6 +58,9 @@ fun MainScreen(viewModel: MainViewModel){
         if(authState.value is AuthState.Logout){
             navController.navigate(route = Graph.LoginGraph)
         }
+        if(authState.value is AuthState.Login){
+            navController.navigate(route = Graph.HomeGraph)
+        }
     }
 
     Scaffold(

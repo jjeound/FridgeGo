@@ -28,8 +28,9 @@ class MainViewModel @Inject constructor(
     private val _authState = MutableStateFlow<AuthState>(AuthState.Login)
     val authState = _authState.asStateFlow()
 
-    private val _startDestination = mutableStateOf<Graph>(Graph.OnBoardingGraph)
-    val startDestination: State<Graph> = _startDestination
+    var startDestination by mutableStateOf<Graph>(Graph.HomeGraph)
+        private set
+
 
     private val _splashCondition = mutableStateOf(true)
     val splashCondition: State<Boolean> = _splashCondition
@@ -46,9 +47,11 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch {
             readAppEntry().collect { appEntry ->
                 if (appEntry && _authState.value is AuthState.Login) {
-                    _startDestination.value = Graph.HomeGraph
+                    startDestination = Graph.HomeGraph
+                } else if(appEntry && _authState.value is AuthState.Logout) {
+                    startDestination = Graph.LoginGraph
                 } else {
-                    _startDestination.value = Graph.OnBoardingGraph
+                    startDestination = Graph.OnBoardingGraph
                 }
                 delay(800)
                 _splashCondition.value = false
@@ -76,6 +79,11 @@ class MainViewModel @Inject constructor(
                 when (event) {
                     is AuthEvent.Logout -> {
                         _authState.value = AuthState.Logout
+                        appEntry()
+                    }
+                    is AuthEvent.Login -> {
+                        _authState.value = AuthState.Login
+                        appEntry()
                     }
                 }
             }

@@ -1,5 +1,6 @@
 package com.example.untitled_capstone.data.repository
 
+import android.util.Log
 import androidx.paging.ExperimentalPagingApi
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
@@ -16,10 +17,13 @@ import com.example.untitled_capstone.domain.repository.FridgeRepository
 import com.google.gson.Gson
 import kotlinx.coroutines.flow.Flow
 import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import okio.IOException
 import retrofit2.HttpException
+import java.io.File
 
 
 class FridgeRepositoryImpl(
@@ -44,13 +48,16 @@ class FridgeRepositoryImpl(
         ).flow
     }
 
-    override suspend fun addItem(item: FridgeItem, image: MultipartBody.Part?): Resource<String> {
+    override suspend fun addItem(item: FridgeItem, image: File?): Resource<String> {
         return try {
             Resource.Loading(data = null)
-            val gson = Gson()
-            val json = gson.toJson(item.toNewFridgeItemDto())
+            val json = Gson().toJson(item.toNewFridgeItemDto())
             val jsonBody = json.toRequestBody("application/json; charset=utf-8".toMediaType())
-            val response = api.addFridgeItem(jsonBody, image)
+            val requestFile = image?.asRequestBody("image/*".toMediaTypeOrNull())
+            val body = requestFile?.let {MultipartBody.Part.createFormData("ingredientImage", image.name, requestFile)}
+            Log.d("tag", "addItem: ${item.toNewFridgeItemDto()}")
+
+            val response = api.addFridgeItem(jsonBody, body)
             if(response.isSuccess){
                 Resource.Success(response.result)
             }else{

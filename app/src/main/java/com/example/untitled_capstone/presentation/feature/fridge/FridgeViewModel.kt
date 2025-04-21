@@ -14,13 +14,12 @@ import com.example.untitled_capstone.data.util.FridgeFetchType
 import com.example.untitled_capstone.domain.model.FridgeItem
 import com.example.untitled_capstone.domain.use_case.fridge.FridgeUseCases
 import com.example.untitled_capstone.navigation.Screen
-import com.example.untitled_capstone.presentation.util.UIEvent
+import com.example.untitled_capstone.presentation.util.UiEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -38,7 +37,7 @@ class FridgeViewModel @Inject constructor(
     private val _fridgeItemState: MutableStateFlow<PagingData<FridgeItem>> = MutableStateFlow(PagingData.empty())
     val fridgeItemState = _fridgeItemState.asStateFlow()
 
-    private val _event = MutableSharedFlow<UIEvent>()
+    private val _event = MutableSharedFlow<UiEvent>()
     val event = _event.asSharedFlow()
 
     init {
@@ -73,7 +72,7 @@ class FridgeViewModel @Inject constructor(
                 }
                 is Resource.Error -> {
                     state.isLoading = false
-                    _event.emit(UIEvent.ShowSnackbar(result.message ?: "Unknown error"))
+                    _event.emit(UiEvent.ShowSnackbar(result.message ?: "Unknown error"))
                 }
                 is Resource.Loading -> {
                     state.isLoading = true
@@ -103,7 +102,7 @@ class FridgeViewModel @Inject constructor(
                 }
                 is Resource.Error -> {
                     state.isLoading = false
-                    _event.emit(UIEvent.ShowSnackbar(result.message ?: "Unknown error"))
+                    _event.emit(UiEvent.ShowSnackbar(result.message ?: "Unknown error"))
                 }
                 is Resource.Loading -> {
                     state.isLoading = true
@@ -130,7 +129,7 @@ class FridgeViewModel @Inject constructor(
                 }
                 is Resource.Error -> {
                     state.isLoading = false
-                    _event.emit(UIEvent.ShowSnackbar(result.message ?: "Unknown error"))
+                    _event.emit(UiEvent.ShowSnackbar(result.message ?: "Unknown error"))
                 }
                 is Resource.Loading -> {
                     state.isLoading = true
@@ -151,7 +150,7 @@ class FridgeViewModel @Inject constructor(
                 }
                 is Resource.Error -> {
                     state.isLoading = false
-                    _event.emit(UIEvent.ShowSnackbar(result.message ?: "Unknown error"))
+                    _event.emit(UiEvent.ShowSnackbar(result.message ?: "Unknown error"))
                 }
                 is Resource.Loading -> {
                     state.isLoading = true
@@ -174,7 +173,7 @@ class FridgeViewModel @Inject constructor(
                 }
                 is Resource.Error -> {
                     state.isLoading = false
-                    _event.emit(UIEvent.ShowSnackbar(result.message ?: "Unknown error"))
+                    _event.emit(UiEvent.ShowSnackbar(result.message ?: "Unknown error"))
                 }
                 is Resource.Loading -> {
                     state.isLoading = true
@@ -207,19 +206,19 @@ class FridgeViewModel @Inject constructor(
 
     fun navigateUp(route: Screen) {
         viewModelScope.launch {
-            _event.emit(UIEvent.Navigate(route))
+            _event.emit(UiEvent.Navigate(route))
         }
     }
 
     fun popBackStack() {
         viewModelScope.launch {
-            _event.emit(UIEvent.PopBackStack)
+            _event.emit(UiEvent.PopBackStack)
         }
     }
 
     fun showSnackbar(message: String) {
         viewModelScope.launch {
-            _event.emit(UIEvent.ShowSnackbar(message))
+            _event.emit(UiEvent.ShowSnackbar(message))
         }
     }
 }

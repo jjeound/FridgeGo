@@ -44,7 +44,7 @@ import com.example.untitled_capstone.presentation.feature.chat.ChatViewModel
 import com.example.untitled_capstone.presentation.feature.chat.composable.MessageCard
 import com.example.untitled_capstone.presentation.feature.chat.composable.NewMessageForm
 import com.example.untitled_capstone.presentation.feature.chat.state.ChatUiState
-import com.example.untitled_capstone.presentation.util.UIEvent
+import com.example.untitled_capstone.presentation.util.UiEvent
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -76,13 +76,13 @@ fun ChattingDetailScreen(
     LaunchedEffect(true) {
         viewModel.event.collect { event ->
             when (event) {
-                is UIEvent.ShowSnackbar -> {
+                is UiEvent.ShowSnackbar -> {
                     snackbarHostState.showSnackbar(event.message)
                 }
-                is UIEvent.Navigate -> {
+                is UiEvent.Navigate -> {
                     navController.navigate(event.route)
                 }
-                is UIEvent.PopBackStack -> {
+                is UiEvent.PopBackStack -> {
                     navController.popBackStack()
                 }
             }

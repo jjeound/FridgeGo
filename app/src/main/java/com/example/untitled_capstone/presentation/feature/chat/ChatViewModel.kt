@@ -20,7 +20,7 @@ import com.example.untitled_capstone.domain.use_case.my.GetAccessToken
 import com.example.untitled_capstone.domain.use_case.post.GetNickname
 import com.example.untitled_capstone.navigation.Screen
 import com.example.untitled_capstone.presentation.feature.chat.state.ChatUiState
-import com.example.untitled_capstone.presentation.util.UIEvent
+import com.example.untitled_capstone.presentation.util.UiEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -56,7 +56,7 @@ class ChatViewModel @Inject constructor(
     var name by mutableStateOf<String>("")
         private set
 
-    private val _event = MutableSharedFlow<UIEvent>()
+    private val _event = MutableSharedFlow<UiEvent>()
     val event = _event.asSharedFlow()
 
     fun readChats(id: Long) {
@@ -65,13 +65,13 @@ class ChatViewModel @Inject constructor(
             when (result) {
                 is Resource.Success -> {
                     result.data?.let {
-                        _state.update { ChatUiState.Success(null) }
+                        _state.update { ChatUiState.Success }
                     }
                 }
 
                 is Resource.Error -> {
                     _state.update { ChatUiState.Error(result.message) }
-                    _event.emit(UIEvent.ShowSnackbar(result.message ?: "Unknown error"))
+                    _event.emit(UiEvent.ShowSnackbar(result.message ?: "Unknown error"))
                 }
 
                 is Resource.Loading -> {
@@ -87,14 +87,14 @@ class ChatViewModel @Inject constructor(
             when (result) {
                 is Resource.Success -> {
                     result.data?.let {
-                        _state.update { ChatUiState.Success(null) }
+                        _state.update { ChatUiState.Success }
                         chattingRoomList = it
                     }
                 }
 
                 is Resource.Error -> {
                     _state.update { ChatUiState.Error(result.message) }
-                    _event.emit(UIEvent.ShowSnackbar(result.message ?: "Unknown error"))
+                    _event.emit(UiEvent.ShowSnackbar(result.message ?: "Unknown error"))
                 }
 
                 is Resource.Loading -> {
@@ -110,13 +110,13 @@ class ChatViewModel @Inject constructor(
             when (result) {
                 is Resource.Success -> {
                     result.data?.let {
-                        _state.update { ChatUiState.Success(null) }
+                        _state.update { ChatUiState.Success }
                     }
                 }
 
                 is Resource.Error -> {
                     _state.update { ChatUiState.Error(result.message) }
-                    _event.emit(UIEvent.ShowSnackbar(result.message ?: "Unknown error"))
+                    _event.emit(UiEvent.ShowSnackbar(result.message ?: "Unknown error"))
                 }
 
                 is Resource.Loading -> {
@@ -132,12 +132,12 @@ class ChatViewModel @Inject constructor(
             when (result) {
                 is Resource.Success -> {
                     result.data?.let {
-                        _state.update { ChatUiState.Success(null) }
+                        _state.update { ChatUiState.Success }
                     }
                 }
                 is Resource.Error -> {
                     _state.update { ChatUiState.Error(result.message) }
-                    _event.emit(UIEvent.ShowSnackbar(result.message ?: "Unknown error"))
+                    _event.emit(UiEvent.ShowSnackbar(result.message ?: "Unknown error"))
                 }
                 is Resource.Loading -> {
                     _state.update { ChatUiState.Loading }
@@ -152,13 +152,13 @@ class ChatViewModel @Inject constructor(
             when (result) {
                 is Resource.Success -> {
                     result.data?.let {
-                        _state.update { ChatUiState.Success(null) }
+                        _state.update { ChatUiState.Success }
                     }
                 }
 
                 is Resource.Error -> {
                     _state.update { ChatUiState.Error(result.message) }
-                    _event.emit(UIEvent.ShowSnackbar(result.message ?: "Unknown error"))
+                    _event.emit(UiEvent.ShowSnackbar(result.message ?: "Unknown error"))
                 }
 
                 is Resource.Loading -> {
@@ -174,14 +174,14 @@ class ChatViewModel @Inject constructor(
             when (result) {
                 is Resource.Success -> {
                     result.data?.let {
-                        _state.update { ChatUiState.Success(null) }
+                        _state.update { ChatUiState.Success }
                         member = it
                     }
                 }
 
                 is Resource.Error -> {
                     _state.update { ChatUiState.Error(result.message) }
-                    _event.emit(UIEvent.ShowSnackbar(result.message ?: "Unknown error"))
+                    _event.emit(UiEvent.ShowSnackbar(result.message ?: "Unknown error"))
                 }
 
                 is Resource.Loading -> {
@@ -197,14 +197,14 @@ class ChatViewModel @Inject constructor(
             when (result) {
                 is Resource.Success -> {
                     result.data?.let {
-                        _state.update { ChatUiState.Success(null) }
+                        _state.update { ChatUiState.Success }
                         chattingRoom.value = it
                     }
                 }
 
                 is Resource.Error -> {
                     _state.update { ChatUiState.Error(result.message) }
-                    _event.emit(UIEvent.ShowSnackbar(result.message ?: "Unknown error"))
+                    _event.emit(UiEvent.ShowSnackbar(result.message ?: "Unknown error"))
                 }
 
                 is Resource.Loading -> {
@@ -216,7 +216,7 @@ class ChatViewModel @Inject constructor(
 
     fun navigateUp(route: Screen) {
         viewModelScope.launch {
-            _event.emit(UIEvent.Navigate(route))
+            _event.emit(UiEvent.Navigate(route))
         }
     }
 

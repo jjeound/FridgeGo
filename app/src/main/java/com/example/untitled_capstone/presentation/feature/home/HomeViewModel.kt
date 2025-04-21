@@ -1,6 +1,5 @@
 package com.example.untitled_capstone.presentation.feature.home
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -18,7 +17,7 @@ import com.example.untitled_capstone.domain.use_case.home.HomeUseCases
 import com.example.untitled_capstone.navigation.Screen
 import com.example.untitled_capstone.presentation.feature.home.state.AiState
 import com.example.untitled_capstone.presentation.feature.home.state.RecipeState
-import com.example.untitled_capstone.presentation.util.UIEvent
+import com.example.untitled_capstone.presentation.util.UiEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -44,7 +43,7 @@ class HomeViewModel @Inject constructor(
     private val _recipePagingData: MutableStateFlow<PagingData<RecipeRaw>> = MutableStateFlow(PagingData.empty<RecipeRaw>())
     val recipePagingData = _recipePagingData.asStateFlow()
 
-    private val _event = MutableSharedFlow<UIEvent>()
+    private val _event = MutableSharedFlow<UiEvent>()
     val event = _event.asSharedFlow()
 
     init {
@@ -85,7 +84,7 @@ class HomeViewModel @Inject constructor(
                 }
                 is Resource.Error -> {
                     recipeState.isLoading = false
-                    _event.emit(UIEvent.ShowSnackbar(result.message ?: "Unknown error"))
+                    _event.emit(UiEvent.ShowSnackbar(result.message ?: "Unknown error"))
                 }
                 is Resource.Loading -> {
                     recipeState.isLoading = true
@@ -103,12 +102,12 @@ class HomeViewModel @Inject constructor(
                         recipeState.apply{
                             isLoading = false
                         }
-                        _event.emit(UIEvent.ShowSnackbar(result.data))
+                        _event.emit(UiEvent.ShowSnackbar(result.data))
                     }
                 }
                 is Resource.Error -> {
                     recipeState.isLoading = false
-                    _event.emit(UIEvent.ShowSnackbar(result.message ?: "Unknown error"))
+                    _event.emit(UiEvent.ShowSnackbar(result.message ?: "Unknown error"))
                 }
                 is Resource.Loading -> {
                     recipeState.isLoading = true
@@ -129,7 +128,7 @@ class HomeViewModel @Inject constructor(
                 }
                 is Resource.Error -> {
                     recipeState.isLoading = false
-                    _event.emit(UIEvent.ShowSnackbar(result.message ?: "Unknown error"))
+                    _event.emit(UiEvent.ShowSnackbar(result.message ?: "Unknown error"))
                 }
                 is Resource.Loading -> {
                     recipeState.isLoading = true
@@ -193,7 +192,7 @@ class HomeViewModel @Inject constructor(
                 }
                 is Resource.Error -> {
                     recipeState.isLoading = false
-                    _event.emit(UIEvent.ShowSnackbar(result.message ?: "Unknown error"))
+                    _event.emit(UiEvent.ShowSnackbar(result.message ?: "Unknown error"))
                 }
                 is Resource.Loading -> {
                     recipeState.isLoading = true
@@ -225,7 +224,7 @@ class HomeViewModel @Inject constructor(
                 }
                 is Resource.Error -> {
                     recipeState.isLoading = false
-                    _event.emit(UIEvent.ShowSnackbar(result.message ?: "Unknown error"))
+                    _event.emit(UiEvent.ShowSnackbar(result.message ?: "Unknown error"))
                 }
                 is Resource.Loading -> {
                     recipeState.isLoading = true
@@ -248,7 +247,7 @@ class HomeViewModel @Inject constructor(
                 }
                 is Resource.Error -> {
                     recipeState.isLoading = false
-                    _event.emit(UIEvent.ShowSnackbar(result.message ?: "Unknown error"))
+                    _event.emit(UiEvent.ShowSnackbar(result.message ?: "Unknown error"))
                 }
                 is Resource.Loading -> {
                     recipeState.isLoading = true
@@ -262,7 +261,7 @@ class HomeViewModel @Inject constructor(
             imageFile?.let {
                 val uploadResult = homeUseCases.uploadImage(recipe.id, it)
                 if (uploadResult is Resource.Error) {
-                    _event.emit(UIEvent.ShowSnackbar(uploadResult.message ?: "이미지 업로드 실패했지만 계속 진행합니다."))
+                    _event.emit(UiEvent.ShowSnackbar(uploadResult.message ?: "이미지 업로드 실패했지만 계속 진행합니다."))
                     // 실패해도 넘어감
                 }
             }
@@ -271,7 +270,7 @@ class HomeViewModel @Inject constructor(
                 is Resource.Success -> {
                     result.data?.let {
                         recipeState.isLoading = false
-                        _event.emit(UIEvent.PopBackStack)
+                        _event.emit(UiEvent.PopBackStack)
                         _recipePagingData.update { pagingData ->
                             pagingData.map {
                                 if(it.id == recipe.id) {
@@ -288,7 +287,7 @@ class HomeViewModel @Inject constructor(
                 }
                 is Resource.Error -> {
                     recipeState.isLoading = false
-                    _event.emit(UIEvent.ShowSnackbar(result.message ?: "Unknown error"))
+                    _event.emit(UiEvent.ShowSnackbar(result.message ?: "Unknown error"))
                 }
                 is Resource.Loading -> {
                     recipeState.isLoading = true
@@ -299,19 +298,19 @@ class HomeViewModel @Inject constructor(
 
     fun navigateUp(route: Screen) {
         viewModelScope.launch {
-            _event.emit(UIEvent.Navigate(route))
+            _event.emit(UiEvent.Navigate(route))
         }
     }
 
     fun popBackStack() {
         viewModelScope.launch {
-            _event.emit(UIEvent.PopBackStack)
+            _event.emit(UiEvent.PopBackStack)
         }
     }
 
     fun showSnackbar(message: String) {
         viewModelScope.launch {
-            _event.emit(UIEvent.ShowSnackbar(message))
+            _event.emit(UiEvent.ShowSnackbar(message))
         }
     }
 }

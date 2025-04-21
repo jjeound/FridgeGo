@@ -19,16 +19,18 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
+import com.example.untitled_capstone.domain.model.Post
 import com.example.untitled_capstone.presentation.feature.post.PostEvent
-import com.example.untitled_capstone.presentation.feature.post.PostState
 import com.example.untitled_capstone.presentation.feature.post.composable.NewPostForm
+import com.example.untitled_capstone.presentation.util.UiState
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WritingNewPostScreen(
-    state: PostState,
+    state: UiState,
+    post: Post?,
     onEvent: (PostEvent) -> Unit
 ){
     Scaffold(
@@ -74,6 +76,7 @@ fun WritingNewPostScreen(
         ){
             NewPostForm(
                 state = state,
+                post = post,
                 onEvent = onEvent
             )
         }

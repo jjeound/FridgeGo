@@ -36,6 +36,7 @@ import com.example.untitled_capstone.presentation.feature.fridge.screen.AddFridg
 import com.example.untitled_capstone.presentation.feature.fridge.screen.RefrigeratorScreen
 import com.example.untitled_capstone.presentation.feature.home.screen.RecipeModifyScreen
 import com.example.untitled_capstone.presentation.feature.login.screen.SetLocationScreen
+import com.example.untitled_capstone.presentation.feature.main.AuthState
 import com.example.untitled_capstone.presentation.feature.my.screen.MyLikedPostScreen
 import com.example.untitled_capstone.presentation.feature.my.screen.MyPostScreen
 import com.example.untitled_capstone.presentation.feature.post.PostEvent
@@ -54,7 +55,7 @@ fun Navigation(
     mainViewModel: MainViewModel,
     snackbarHostState: SnackbarHostState
 ) {
-    NavHost(navController = navController, startDestination = Graph.HomeGraph){
+    NavHost(navController = navController, startDestination = Graph.OnBoardingGraph){
         navigation<Graph.HomeGraph>(
             startDestination = Screen.Home
         ){
@@ -499,8 +500,7 @@ fun Navigation(
         }
         navigation<Graph.LoginGraph>(startDestination = Screen.LoginNav){
             composable<Screen.LoginNav> {
-                val parentEntry = navController.getBackStackEntry(Graph.LoginGraph)
-                val viewModel: LoginViewModel = hiltViewModel(parentEntry)
+                val viewModel: LoginViewModel = hiltViewModel()
                 val state by viewModel.state.collectAsStateWithLifecycle()
                 LoginScreen(navController, state, viewModel::onEvent)
             }
@@ -537,6 +537,19 @@ fun Navigation(
         }
         navigation<Graph.OnBoardingGraph>(startDestination = Screen.OnBoarding) {
             composable<Screen.OnBoarding>{
+                LaunchedEffect(true) {
+                    mainViewModel.authEvent.collect { event ->
+                        when (event) {
+                            is AuthState.Login -> {
+                                navController.navigate(route = Graph.HomeGraph)
+                            }
+                            is AuthState.Logout -> {
+                                navController.navigate(route = Graph.LoginGraph)
+                            }
+                            is AuthState.Idle -> {}
+                        }
+                    }
+                }
                 OnBoarding(
                     navigateToLogin = {
                         navController.navigate(Screen.LoginNav)

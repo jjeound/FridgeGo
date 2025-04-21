@@ -46,7 +46,7 @@ import com.example.untitled_capstone.presentation.feature.post.screen.PostReport
 import com.example.untitled_capstone.presentation.feature.post.screen.PostScreen
 import com.example.untitled_capstone.presentation.feature.post.screen.PostSearchScreen
 import com.example.untitled_capstone.presentation.feature.post.screen.WritingNewPostScreen
-import com.example.untitled_capstone.presentation.util.UIEvent
+import com.example.untitled_capstone.presentation.util.UiEvent
 
 
 @Composable
@@ -68,13 +68,13 @@ fun Navigation(
                 LaunchedEffect(true) {
                     viewModel.event.collect { event ->
                         when (event) {
-                            is UIEvent.ShowSnackbar -> {
+                            is UiEvent.ShowSnackbar -> {
                                 snackbarHostState.showSnackbar(event.message)
                             }
-                            is UIEvent.Navigate -> {
+                            is UiEvent.Navigate -> {
                                 navController.navigate(event.route)
                             }
-                            is UIEvent.PopBackStack -> {
+                            is UiEvent.PopBackStack -> {
                                 navController.popBackStack()
                             }
                         }
@@ -99,13 +99,13 @@ fun Navigation(
                 LaunchedEffect(true) {
                     viewModel.event.collect { event ->
                         when (event) {
-                            is UIEvent.ShowSnackbar -> {
+                            is UiEvent.ShowSnackbar -> {
                                 snackbarHostState.showSnackbar(event.message)
                             }
-                            is UIEvent.Navigate -> {
+                            is UiEvent.Navigate -> {
                                 navController.navigate(event.route)
                             }
-                            is UIEvent.PopBackStack -> {
+                            is UiEvent.PopBackStack -> {
                                 navController.popBackStack()
                             }
                         }
@@ -128,13 +128,13 @@ fun Navigation(
                 LaunchedEffect(true) {
                     viewModel.event.collect { event ->
                         when (event) {
-                            is UIEvent.ShowSnackbar -> {
+                            is UiEvent.ShowSnackbar -> {
                                 snackbarHostState.showSnackbar(event.message)
                             }
-                            is UIEvent.Navigate -> {
+                            is UiEvent.Navigate -> {
                                 navController.navigate(event.route)
                             }
-                            is UIEvent.PopBackStack -> {
+                            is UiEvent.PopBackStack -> {
                                 navController.popBackStack()
                             }
                         }
@@ -157,13 +157,13 @@ fun Navigation(
                 LaunchedEffect(true) {
                     viewModel.event.collect { event ->
                         when (event) {
-                            is UIEvent.ShowSnackbar -> {
+                            is UiEvent.ShowSnackbar -> {
                                 snackbarHostState.showSnackbar(event.message)
                             }
-                            is UIEvent.Navigate -> {
+                            is UiEvent.Navigate -> {
                                 navController.navigate(event.route)
                             }
-                            is UIEvent.PopBackStack -> {
+                            is UiEvent.PopBackStack -> {
                                 navController.popBackStack()
                             }
                         }
@@ -177,19 +177,20 @@ fun Navigation(
             composable<Screen.PostDetailNav>{
                 val parentEntry = navController.getBackStackEntry(Graph.PostGraph)
                 val viewModel: PostViewModel = hiltViewModel(parentEntry)
-                val state = remember { viewModel.state }
+                val state by viewModel.state.collectAsStateWithLifecycle()
+                val post = viewModel.post
                 val nickname = remember { viewModel.nickname }
                 val args = it.toRoute<Screen.PostDetailNav>()
                 LaunchedEffect(true) {
                     viewModel.event.collect { event ->
                         when (event) {
-                            is UIEvent.ShowSnackbar -> {
+                            is UiEvent.ShowSnackbar -> {
                                 snackbarHostState.showSnackbar(event.message)
                             }
-                            is UIEvent.Navigate -> {
+                            is UiEvent.Navigate -> {
                                 navController.navigate(event.route)
                             }
-                            is UIEvent.PopBackStack -> {
+                            is UiEvent.PopBackStack -> {
                                 navController.popBackStack()
                             }
                         }
@@ -199,23 +200,25 @@ fun Navigation(
                     id = args.id,
                     nickname = nickname,
                     state = state,
+                    post = post,
                     onEvent = viewModel::onEvent
                 )
             }
             composable<Screen.WritingNav> {
                 val parentEntry = navController.getBackStackEntry(Graph.PostGraph)
                 val viewModel: PostViewModel = hiltViewModel(parentEntry)
-                val state = remember { viewModel.state }
+                val state by viewModel.state.collectAsStateWithLifecycle()
+                val post = viewModel.post
                 LaunchedEffect(true) {
                     viewModel.event.collect { event ->
                         when (event) {
-                            is UIEvent.ShowSnackbar -> {
+                            is UiEvent.ShowSnackbar -> {
                                 snackbarHostState.showSnackbar(event.message)
                             }
-                            is UIEvent.Navigate -> {
+                            is UiEvent.Navigate -> {
                                 navController.navigate(event.route)
                             }
-                            is UIEvent.PopBackStack -> {
+                            is UiEvent.PopBackStack -> {
                                 navController.popBackStack()
                             }
                         }
@@ -223,30 +226,33 @@ fun Navigation(
                 }
                 WritingNewPostScreen(
                     state = state,
+                    post = post,
                     onEvent = viewModel::onEvent
                 )
             }
             composable<Screen.PostSearchNav> {
                 val parentEntry = navController.getBackStackEntry(Graph.PostGraph)
                 val viewModel: PostViewModel = hiltViewModel(parentEntry)
+                val state by viewModel.state.collectAsStateWithLifecycle()
                 val searchPagingData = viewModel.searchPagingData.collectAsLazyPagingItems()
                 val searchHistoryState = viewModel.keywords
                 LaunchedEffect(true) {
                     viewModel.event.collect { event ->
                         when (event) {
-                            is UIEvent.ShowSnackbar -> {
+                            is UiEvent.ShowSnackbar -> {
                                 snackbarHostState.showSnackbar(event.message)
                             }
-                            is UIEvent.Navigate -> {
+                            is UiEvent.Navigate -> {
                                 navController.navigate(event.route)
                             }
-                            is UIEvent.PopBackStack -> {
+                            is UiEvent.PopBackStack -> {
                                 navController.popBackStack()
                             }
                         }
                     }
                 }
                 PostSearchScreen(
+                    state = state,
                     searchPagingData = searchPagingData,
                     searchHistoryState = searchHistoryState,
                     onEvent = viewModel::onEvent,
@@ -255,23 +261,25 @@ fun Navigation(
             composable<Screen.ReportPostNav> {
                 val parentEntry = navController.getBackStackEntry(Graph.PostGraph)
                 val viewModel: PostViewModel = hiltViewModel(parentEntry)
+                val state by viewModel.state.collectAsStateWithLifecycle()
                 val args = it.toRoute<Screen.ReportPostNav>()
                 LaunchedEffect(true) {
                     viewModel.event.collect { event ->
                         when (event) {
-                            is UIEvent.ShowSnackbar -> {
+                            is UiEvent.ShowSnackbar -> {
                                 snackbarHostState.showSnackbar(event.message)
                             }
-                            is UIEvent.Navigate -> {
+                            is UiEvent.Navigate -> {
                                 navController.navigate(event.route)
                             }
-                            is UIEvent.PopBackStack -> {
+                            is UiEvent.PopBackStack -> {
                                 navController.popBackStack()
                             }
                         }
                     }
                 }
                 PostReportScreen(
+                    state = state,
                     postId = args.postId,
                     onEvent = viewModel::onEvent,
                 )
@@ -315,13 +323,13 @@ fun Navigation(
                 LaunchedEffect(true) {
                     viewModel.event.collect { event ->
                         when (event) {
-                            is UIEvent.ShowSnackbar -> {
+                            is UiEvent.ShowSnackbar -> {
                                 snackbarHostState.showSnackbar(event.message)
                             }
-                            is UIEvent.Navigate -> {
+                            is UiEvent.Navigate -> {
                                 navController.navigate(event.route)
                             }
-                            is UIEvent.PopBackStack -> {
+                            is UiEvent.PopBackStack -> {
                                 navController.popBackStack()
                             }
                         }
@@ -345,13 +353,13 @@ fun Navigation(
                 LaunchedEffect(true) {
                     viewModel.event.collect { event ->
                         when (event) {
-                            is UIEvent.ShowSnackbar -> {
+                            is UiEvent.ShowSnackbar -> {
                                 snackbarHostState.showSnackbar(event.message)
                             }
-                            is UIEvent.Navigate -> {
+                            is UiEvent.Navigate -> {
                                 navController.navigate(event.route)
                             }
-                            is UIEvent.PopBackStack -> {
+                            is UiEvent.PopBackStack -> {
                                 navController.popBackStack()
                             }
                         }

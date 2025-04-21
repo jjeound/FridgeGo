@@ -4,6 +4,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,6 +15,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -29,6 +31,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -45,11 +48,13 @@ import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.presentation.feature.post.PostEvent
 import com.example.untitled_capstone.presentation.util.ReportType
+import com.example.untitled_capstone.presentation.util.UiState
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PostReportScreen(
+    state: UiState,
     postId: Long,
     onEvent: (PostEvent) -> Unit
 ) {
@@ -77,6 +82,12 @@ fun PostReportScreen(
         "• 신고된 내용은 운영진의 판단에 따라 처리되며, 처리 결과는 별도로 안내되지 않을 수 있습니다.",
         "• 신고는 익명으로 처리되며, 신고자의 정보는 상대방에게 공개되지 않습니다."
     )
+    var showDialog by remember { mutableStateOf(false) }
+    LaunchedEffect(state) {
+        if (state is UiState.Success) {
+            showDialog = true
+        }
+    }
     Scaffold(
         containerColor = CustomTheme.colors.onSurface,
         topBar = {
@@ -287,6 +298,41 @@ fun PostReportScreen(
                     style = CustomTheme.typography.button1,
                 )
             }
+            if(showDialog){
+                AlertDialog(
+                    onDismissRequest = { showDialog = false },
+                    text = {
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(
+                                Dimens.largePadding
+                            ),
+                            horizontalArrangement = Arrangement.Center,
+                        )  {
+                            Text(
+                                text = "신고가 정상적으로 접수되었습니다.",
+                                style = CustomTheme.typography.title2,
+                                color = CustomTheme.colors.textPrimary,
+                            )
+                        }
+                    },
+                    containerColor = CustomTheme.colors.onSurface,
+                    confirmButton = {
+                        Button(
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = CustomTheme.colors.primary,
+                                contentColor = CustomTheme.colors.onPrimary,
+                            ),
+                            onClick = {
+                                showDialog = false
+                                onEvent(PostEvent.PopBackStack)
+                            }
+                        ) {
+                            Text("확인")
+                        }
+                    }
+                )
+            }
         }
     }
 }
@@ -295,6 +341,7 @@ fun PostReportScreen(
 @Composable
 fun PostReportScreenPreview() {
     PostReportScreen(
+        state = UiState.Success,
         postId = 1L,
         onEvent = {}
     )

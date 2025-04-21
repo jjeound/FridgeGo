@@ -1,6 +1,5 @@
 package com.example.untitled_capstone.presentation.feature.post.screen
 
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -28,24 +27,22 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
+import com.example.untitled_capstone.domain.model.Post
 import com.example.untitled_capstone.navigation.Screen
 import com.example.untitled_capstone.presentation.feature.post.composable.PostContainer
 import com.example.untitled_capstone.presentation.feature.post.PostEvent
-import com.example.untitled_capstone.presentation.feature.post.PostState
+import com.example.untitled_capstone.presentation.util.UiState
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -53,21 +50,21 @@ import com.example.untitled_capstone.ui.theme.CustomTheme
 fun PostDetailScreen(
     id: Long,
     nickname: String,
-    state: PostState,
+    state: UiState,
+    post: Post?,
     onEvent: (PostEvent) -> Unit,
 ){
     var expanded by remember { mutableStateOf(false) }
     var menuItem by remember { mutableStateOf(emptyList<String>()) }
-    LaunchedEffect(Unit) {
+    LaunchedEffect(true) {
         onEvent(PostEvent.GetPostById(id))
     }
-    LaunchedEffect(state.post) {
-        if(state.post != null){
-            menuItem = if(nickname == state.post!!.nickname) listOf("수정", "삭제") else listOf("신고")
-            Log.d("gi", state.post.toString())
+    LaunchedEffect(post) {
+        if(post != null){
+            menuItem = if(nickname == post.nickname) listOf("수정", "삭제") else listOf("신고")
         }
     }
-    if(state.isLoading){
+    if(state is UiState.Loading){
         Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
@@ -77,8 +74,7 @@ fun PostDetailScreen(
             )
         }
     }
-    if(state.post != null){
-        val post = state.post!!
+    if(post != null){
         Scaffold(
             containerColor = CustomTheme.colors.onSurface,
             topBar = {
@@ -148,14 +144,9 @@ fun PostDetailScreen(
                                             when(option){
                                                 menuItem[0] -> onEvent(PostEvent.NavigateUp(Screen.WritingNav))
                                                 menuItem[1] -> {
-                                                    onEvent(PostEvent.NavigateUp(
-                                                        Screen.ReportPostNav(
-                                                            postId = post.id
-                                                        )
-                                                    ))
-//                                                    onEvent(PostEvent.DeletePost(post.id))
-//                                                    onEvent(PostEvent.PopBackStack)
-//                                                    onEvent(PostEvent.InitState)
+                                                    onEvent(PostEvent.DeletePost(post.id))
+                                                    onEvent(PostEvent.PopBackStack)
+                                                    onEvent(PostEvent.InitState)
                                                 }
                                             }
                                         }
@@ -209,7 +200,7 @@ fun PostDetailScreen(
                                     color = CustomTheme.colors.textTertiary
                                 )
                                 Text(
-                                    text = post.price.toString(),
+                                    text = post.price.toString() + " 원",
                                     style = CustomTheme.typography.title2,
                                     color = CustomTheme.colors.textPrimary,
                                     modifier = Modifier.padding(end = 4.dp)

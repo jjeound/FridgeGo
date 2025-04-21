@@ -74,16 +74,18 @@ import com.example.untitled_capstone.MainActivity
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.domain.model.NewPost
+import com.example.untitled_capstone.domain.model.Post
 import com.example.untitled_capstone.presentation.feature.fridge.composable.PermissionDialog
 import com.example.untitled_capstone.presentation.feature.my.composable.getRealPathFromURI
 import com.example.untitled_capstone.presentation.feature.post.PostEvent
-import com.example.untitled_capstone.presentation.feature.post.PostState
+import com.example.untitled_capstone.presentation.util.UiState
 import com.example.untitled_capstone.ui.theme.CustomTheme
 import java.io.File
 
 @Composable
 fun NewPostForm(
-    state: PostState,
+    state: UiState,
+    post: Post?,
     onEvent: (PostEvent) -> Unit
 ){
     val context = LocalContext.current
@@ -154,14 +156,14 @@ fun NewPostForm(
             }
         )
 
-    LaunchedEffect(Unit) {
-        if(state.post != null){
-            title = state.post!!.title
-            content = state.post!!.content
-            category = Category.fromString(state.post!!.category) ?: "채소"
-            price = state.post!!.price.toString()
-            quantity = state.post!!.memberCount.toString()
-            state.post!!.image?.forEach {
+    LaunchedEffect(true) {
+        if(post != null){
+            title = post.title
+            content = post.content
+            category = Category.fromString(post.category) ?: "채소"
+            price = post.price.toString()
+            quantity = post.memberCount.toString()
+            post.image?.forEach {
                 images.add(it.imageUrl)
             }
         }
@@ -175,7 +177,7 @@ fun NewPostForm(
         },
         verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding)
     ){
-        if(state.isLoading){
+        if(state is UiState.Loading){
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
@@ -250,9 +252,9 @@ fun NewPostForm(
                                 .padding(Dimens.smallPadding),
                             onClick = {
                                 images.removeAt(index)
-                                if(state.post != null){
-                                    onEvent(PostEvent.DeletePostImage(state.post!!.id,
-                                        state.post!!.image!![index].id
+                                if(post != null){
+                                    onEvent(PostEvent.DeletePostImage(post.id,
+                                        post.image!![index].id
                                     ))
                                 }
                             }
@@ -526,10 +528,10 @@ fun NewPostForm(
             ),
             enabled = validator,
             onClick = {
-                if(state.post != null){
+                if(post != null){
                     onEvent(
                         PostEvent.ModifyPost(
-                            state.post!!.id,
+                            post.id,
                             NewPost(
                                 title = title,
                                 content = content,
@@ -542,7 +544,7 @@ fun NewPostForm(
                     if(files.isNotEmpty()){
                         onEvent(
                             PostEvent.UploadPostImages(
-                                state.post!!.id,
+                                post.id,
                                 files.toList()
                             )
                         )
@@ -566,7 +568,7 @@ fun NewPostForm(
             }
         ) {
             Text(
-                text = if(state.post != null) "수정하기" else "등록하기",
+                text = if(post != null) "수정하기" else "등록하기",
                 style = CustomTheme.typography.button1,
             )
         }

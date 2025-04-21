@@ -1,6 +1,5 @@
 package com.example.untitled_capstone.presentation.feature.post
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -14,10 +13,12 @@ import com.example.untitled_capstone.core.util.Resource
 import com.example.untitled_capstone.data.util.PostFetchType
 import com.example.untitled_capstone.domain.model.Keyword
 import com.example.untitled_capstone.domain.model.NewPost
+import com.example.untitled_capstone.domain.model.Post
 import com.example.untitled_capstone.domain.model.PostRaw
 import com.example.untitled_capstone.domain.use_case.post.PostUseCases
 import com.example.untitled_capstone.navigation.Screen
-import com.example.untitled_capstone.presentation.util.UIEvent
+import com.example.untitled_capstone.presentation.util.UiEvent
+import com.example.untitled_capstone.presentation.util.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -35,7 +36,10 @@ class PostViewModel @Inject constructor(
     private val postUseCases: PostUseCases,
 ): ViewModel() {
 
-    var state by mutableStateOf(PostState())
+    private val _state = MutableStateFlow<UiState>(UiState.Loading)
+    val state = _state.asStateFlow()
+
+    var post by mutableStateOf<Post?>(null)
         private set
 
     private val _postPagingData: MutableStateFlow<PagingData<PostRaw>> = MutableStateFlow(PagingData.empty())
@@ -50,7 +54,7 @@ class PostViewModel @Inject constructor(
     var keywords by mutableStateOf<List<Keyword>>(emptyList())
         private set
 
-    private val _event = MutableSharedFlow<UIEvent>()
+    private val _event = MutableSharedFlow<UiEvent>()
     val event = _event.asSharedFlow()
 
     fun onEvent(action: PostEvent){
@@ -98,18 +102,18 @@ class PostViewModel @Inject constructor(
             when(result){
                 is Resource.Success -> {
                     result.data?.let{
-                        state.isLoading = false
+                        _state.update { UiState.Success }
                         _postPagingData.update { pagingData ->
                             pagingData.filter { it.id != id }
                         }
                     }
                 }
                 is Resource.Error -> {
-                    state.isLoading = false
-                    _event.emit(UIEvent.ShowSnackbar(result.message ?: "Unknown error"))
+                    _state.update { UiState.Error(result.message) }
+                    _event.emit(UiEvent.ShowSnackbar(result.message ?: "Unknown error"))
                 }
                 is Resource.Loading -> {
-                    state.isLoading = true
+                    _state.update { UiState.Success }
                 }
             }
         }
@@ -121,19 +125,16 @@ class PostViewModel @Inject constructor(
             when(result){
                 is Resource.Success -> {
                     result.data?.let{
-                        state.apply {
-                            post = it
-                            isLoading = false
-                        }
-
+                        post = it
+                        _state.update { UiState.Success }
                     }
                 }
                 is Resource.Error -> {
-                    state.isLoading = false
-                    _event.emit(UIEvent.ShowSnackbar(result.message ?: "Unknown error"))
+                    _state.update { UiState.Error(result.message) }
+                    _event.emit(UiEvent.ShowSnackbar(result.message ?: "Unknown error"))
                 }
                 is Resource.Loading -> {
-                    state.isLoading = true
+                    _state.update { UiState.Success }
                 }
             }
         }
@@ -158,15 +159,15 @@ class PostViewModel @Inject constructor(
                                 }
                             }
                         }
-                        state.isLoading = false
+                        _state.update { UiState.Success }
                     }
                 }
                 is Resource.Error -> {
-                    state.isLoading = false
-                    _event.emit(UIEvent.ShowSnackbar(result.message ?: "Unknown error"))
+                    _state.update { UiState.Error(result.message) }
+                    _event.emit(UiEvent.ShowSnackbar(result.message ?: "Unknown error"))
                 }
                 is Resource.Loading -> {
-                    state.isLoading = true
+                    _state.update { UiState.Loading }
                 }
             }
         }
@@ -221,14 +222,15 @@ class PostViewModel @Inject constructor(
             val result = postUseCases.addPost(post, images)
             when(result){
                 is Resource.Success -> {
+                    _state.update { UiState.Success}
                     loadItems()
                 }
                 is Resource.Error -> {
-                    state.isLoading = false
-                    _event.emit(UIEvent.ShowSnackbar(result.message ?: "Unknown error"))
+                    _state.update { UiState.Error(result.message) }
+                    _event.emit(UiEvent.ShowSnackbar(result.message ?: "Unknown error"))
                 }
                 is Resource.Loading -> {
-                    state.isLoading = true
+                    _state.update { UiState.Loading }
                 }
             }
         }
@@ -240,7 +242,7 @@ class PostViewModel @Inject constructor(
             when(result){
                 is Resource.Success -> {
                     result.data?.let{
-                        state.isLoading = false
+                        _state.update { UiState.Success }
                         _postPagingData.update { pagingData ->
                             pagingData.map {
                                 if(it.id == id){
@@ -253,24 +255,24 @@ class PostViewModel @Inject constructor(
                                 }
                             }
                         }
-                        state.post = state.post?.copy(
+                        post = post?.copy(
                             liked = result.data,
                         )
                     }
                 }
                 is Resource.Error -> {
-                    state.isLoading = false
-                    _event.emit(UIEvent.ShowSnackbar(result.message ?: "Unknown error"))
+                    _state.update { UiState.Error(result.message) }
+                    _event.emit(UiEvent.ShowSnackbar(result.message ?: "Unknown error"))
                 }
                 is Resource.Loading -> {
-                    state.isLoading = true
+                    _state.update { UiState.Loading }
                 }
             }
         }
     }
 
     private fun initState(){
-        state = PostState()
+        post = null
     }
 
     private fun uploadPostImages(id: Long, images: List<File>){
@@ -279,16 +281,16 @@ class PostViewModel @Inject constructor(
             when(result){
                 is Resource.Success -> {
                     result.data?.let {
-                        state.isLoading = false
-                        _event.emit(UIEvent.ShowSnackbar(result.data))
+                        _state.update { UiState.Success }
+                        _event.emit(UiEvent.ShowSnackbar(result.data))
                     }
                 }
                 is Resource.Error -> {
-                    state.isLoading = false
-                    _event.emit(UIEvent.ShowSnackbar(result.message ?: "Unknown error"))
+                    _state.update { UiState.Error(result.message) }
+                    _event.emit(UiEvent.ShowSnackbar(result.message ?: "Unknown error"))
                 }
                 is Resource.Loading -> {
-                    state.isLoading = true
+                    _state.update { UiState.Loading }
                 }
             }
         }
@@ -300,16 +302,16 @@ class PostViewModel @Inject constructor(
             when(result){
                 is Resource.Success -> {
                     result.data?.let {
-                        state.isLoading = false
-                        _event.emit(UIEvent.ShowSnackbar(result.data))
+                        _state.update { UiState.Success }
+                        _event.emit(UiEvent.ShowSnackbar(result.data))
                     }
                 }
                 is Resource.Error -> {
-                    state.isLoading = false
-                    _event.emit(UIEvent.ShowSnackbar(result.message ?: "Unknown error"))
+                    _state.update { UiState.Error(result.message) }
+                    _event.emit(UiEvent.ShowSnackbar(result.message ?: "Unknown error"))
                 }
                 is Resource.Loading -> {
-                    state.isLoading = true
+                    _state.update { UiState.Loading }
                 }
             }
         }
@@ -321,16 +323,16 @@ class PostViewModel @Inject constructor(
             when(result){
                 is Resource.Success -> {
                     result.data?.let{
-                        state.isLoading = false
+                        _state.update { UiState.Success }
                         keywords = it
                     }
                 }
                 is Resource.Error -> {
-                    state.isLoading = false
-                    _event.emit(UIEvent.ShowSnackbar(result.message ?: "Unknown error"))
+                    _state.update { UiState.Error(result.message) }
+                    _event.emit(UiEvent.ShowSnackbar(result.message ?: "Unknown error"))
                 }
                 is Resource.Loading -> {
-                    state.isLoading = true
+                    _state.update { UiState.Loading }
                 }
             }
         }
@@ -343,15 +345,15 @@ class PostViewModel @Inject constructor(
                 is Resource.Success -> {
                     result.data?.let{
                         keywords = keywords.filter { it.keyword != word }
-                        state.isLoading = false
+                        _state.update { UiState.Success }
                     }
                 }
                 is Resource.Error -> {
-                    state.isLoading = false
-                    _event.emit(UIEvent.ShowSnackbar(result.message ?: "Unknown error"))
+                    _state.update { UiState.Error(result.message) }
+                    _event.emit(UiEvent.ShowSnackbar(result.message ?: "Unknown error"))
                 }
                 is Resource.Loading -> {
-                    state.isLoading = true
+                    _state.update { UiState.Loading }
                 }
             }
         }
@@ -363,15 +365,15 @@ class PostViewModel @Inject constructor(
                 is Resource.Success -> {
                     result.data?.let{
                         keywords = emptyList()
-                        state.isLoading = false
+                        _state.update { UiState.Success }
                     }
                 }
                 is Resource.Error -> {
-                    state.isLoading = false
-                    _event.emit(UIEvent.ShowSnackbar(result.message ?: "Unknown error"))
+                    _state.update { UiState.Error(result.message) }
+                    _event.emit(UiEvent.ShowSnackbar(result.message ?: "Unknown error"))
                 }
                 is Resource.Loading -> {
-                    state.isLoading = true
+                    _state.update { UiState.Loading }
                 }
             }
         }
@@ -390,16 +392,16 @@ class PostViewModel @Inject constructor(
             when(result){
                 is Resource.Success -> {
                     result.data?.let{
-                        state.isLoading = false
-                        _event.emit(UIEvent.ShowSnackbar(result.data))
+                        _state.update { UiState.Success }
+                        _event.emit(UiEvent.ShowSnackbar(result.data))
                     }
                 }
                 is Resource.Error -> {
-                    state.isLoading = false
-                    _event.emit(UIEvent.ShowSnackbar(result.message ?: "Unknown error"))
+                    _state.update { UiState.Error(result.message) }
+                    _event.emit(UiEvent.ShowSnackbar(result.message ?: "Unknown error"))
                 }
                 is Resource.Loading -> {
-                    state.isLoading = true
+                    _state.update { UiState.Loading }
                 }
             }
         }
@@ -407,19 +409,19 @@ class PostViewModel @Inject constructor(
 
     private fun navigateUp(route: Screen) {
         viewModelScope.launch {
-            _event.emit(UIEvent.Navigate(route))
+            _event.emit(UiEvent.Navigate(route))
         }
     }
 
     private fun popBackStack() {
         viewModelScope.launch {
-            _event.emit(UIEvent.PopBackStack)
+            _event.emit(UiEvent.PopBackStack)
         }
     }
 
     private fun showSnackbar(message: String) {
         viewModelScope.launch {
-            _event.emit(UIEvent.ShowSnackbar(message))
+            _event.emit(UiEvent.ShowSnackbar(message))
         }
     }
 }

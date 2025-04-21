@@ -22,6 +22,7 @@ import com.example.untitled_capstone.domain.model.PostRaw
 import com.example.untitled_capstone.navigation.Screen
 import com.example.untitled_capstone.presentation.feature.post.composable.PostListContainer
 import com.example.untitled_capstone.presentation.feature.post.PostEvent
+import com.example.untitled_capstone.presentation.util.UiState
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @Composable

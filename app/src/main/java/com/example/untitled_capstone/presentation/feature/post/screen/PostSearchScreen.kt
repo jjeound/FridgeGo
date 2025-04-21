@@ -49,11 +49,13 @@ import com.example.untitled_capstone.domain.model.PostRaw
 import com.example.untitled_capstone.navigation.Screen
 import com.example.untitled_capstone.presentation.feature.post.PostEvent
 import com.example.untitled_capstone.presentation.feature.post.composable.PostListContainer
+import com.example.untitled_capstone.presentation.util.UiState
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PostSearchScreen(
+    state: UiState,
     searchPagingData: LazyPagingItems<PostRaw>,
     searchHistoryState: List<Keyword>,
     onEvent: (PostEvent) -> Unit,
@@ -243,52 +245,66 @@ fun PostSearchScreen(
                     Spacer(
                         modifier = Modifier.height(Dimens.mediumPadding)
                     )
-                    LazyColumn (
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(
-                                vertical = Dimens.mediumPadding,
-                                horizontal = 6.dp
-                            ),
-                        verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding)
-                    ) {
-                        items(searchHistoryState.size) { index ->
-                            val keyword = searchHistoryState[index]
-                            Row(
-                                modifier = Modifier.fillMaxWidth().clickable{
-                                    onEvent(PostEvent.SearchPost(keyword.keyword))
-                                    showResult = true
-                                    focusManager.clearFocus()
-                                    text = keyword.keyword
-                                    onEvent(PostEvent.AddSearchHistory(keyword.keyword))
-                                },
-                                verticalAlignment = Alignment.CenterVertically
-                            ){
-                                Icon(
-                                    imageVector = ImageVector.vectorResource(R.drawable.history),
-                                    contentDescription = "search",
-                                    tint = CustomTheme.colors.iconDefault
-                                )
-                                Spacer(
-                                    modifier = Modifier.width(Dimens.mediumPadding)
-                                )
-                                Text(
-                                    modifier = Modifier.weight(1f),
-                                    text = keyword.keyword,
-                                    style = CustomTheme.typography.body1,
-                                    color = CustomTheme.colors.textPrimary,
-                                )
-                                IconButton(
-                                    onClick = {
-                                        onEvent(PostEvent.DeleteSearchHistory(keyword.keyword))
-                                    },
-                                    modifier = Modifier.size(24.dp)
-                                ){
-                                    Icon(
-                                        imageVector = ImageVector.vectorResource(R.drawable.close),
-                                        contentDescription = "close",
-                                        tint = CustomTheme.colors.iconDefault
-                                    )
+                    if(state is UiState.Loading){
+                        CircularProgressIndicator(
+                            color = CustomTheme.colors.primary
+                        )
+                    }
+                    when(state){
+                        is UiState.Loading -> {
+                            CircularProgressIndicator(
+                                color = CustomTheme.colors.primary
+                            )
+                        }
+                        is UiState.Success -> {
+                            LazyColumn (
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(
+                                        vertical = Dimens.mediumPadding,
+                                        horizontal = 6.dp
+                                    ),
+                                verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding)
+                            ) {
+                                items(searchHistoryState.size) { index ->
+                                    val keyword = searchHistoryState[index]
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth().clickable{
+                                            onEvent(PostEvent.SearchPost(keyword.keyword))
+                                            showResult = true
+                                            focusManager.clearFocus()
+                                            text = keyword.keyword
+                                            onEvent(PostEvent.AddSearchHistory(keyword.keyword))
+                                        },
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ){
+                                        Icon(
+                                            imageVector = ImageVector.vectorResource(R.drawable.history),
+                                            contentDescription = "search",
+                                            tint = CustomTheme.colors.iconDefault
+                                        )
+                                        Spacer(
+                                            modifier = Modifier.width(Dimens.mediumPadding)
+                                        )
+                                        Text(
+                                            modifier = Modifier.weight(1f),
+                                            text = keyword.keyword,
+                                            style = CustomTheme.typography.body1,
+                                            color = CustomTheme.colors.textPrimary,
+                                        )
+                                        IconButton(
+                                            onClick = {
+                                                onEvent(PostEvent.DeleteSearchHistory(keyword.keyword))
+                                            },
+                                            modifier = Modifier.size(24.dp)
+                                        ){
+                                            Icon(
+                                                imageVector = ImageVector.vectorResource(R.drawable.close),
+                                                contentDescription = "close",
+                                                tint = CustomTheme.colors.iconDefault
+                                            )
+                                        }
+                                    }
                                 }
                             }
                         }

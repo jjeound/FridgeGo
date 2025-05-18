@@ -1,12 +1,13 @@
 package com.example.untitled_capstone.data.repository
 
 import android.content.Context
+import android.util.Base64
 import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.preferencesDataStore
-import com.example.untitled_capstone.BuildConfig
+import com.example.untitled_capstone.core.util.Crypto
 import com.example.untitled_capstone.core.util.PrefKeys.ACCESS_TOKEN_KEY
 import com.example.untitled_capstone.core.util.PrefKeys.REFRESH_TOKEN_KEY
 import com.example.untitled_capstone.core.util.Resource
@@ -15,7 +16,7 @@ import com.example.untitled_capstone.data.remote.dto.TokenDto
 import com.example.untitled_capstone.data.remote.service.TokenApi
 import com.example.untitled_capstone.domain.repository.TokenRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import okio.IOException
 import retrofit2.HttpException
@@ -29,27 +30,41 @@ class TokenRepositoryImpl @Inject constructor(
     val dataStore = context.dataStore
 
 
-    override fun getAccessToken(): Flow<String?> {
-        return dataStore.data.map { prefs ->
-            prefs[ACCESS_TOKEN_KEY]
-        }
+    override suspend fun getAccessToken(): String? {
+        val base64 = dataStore.data
+            .map { prefs -> prefs[ACCESS_TOKEN_KEY] ?: return@map null }
+            .first() ?: return null
+
+        val encryptedBytes = Base64.decode(base64, Base64.DEFAULT)
+        val decryptedBytes = Crypto.decrypt(encryptedBytes)
+        return String(decryptedBytes)
     }
 
-    override fun getRefreshToken(): Flow<String?> {
-        return dataStore.data.map { prefs ->
-            prefs[REFRESH_TOKEN_KEY]
-        }
+    override suspend fun getRefreshToken(): String? {
+        val base64 = dataStore.data
+            .map { prefs -> prefs[REFRESH_TOKEN_KEY] ?: return@map null }
+            .first() ?: return null
+
+        val encryptedBytes = Base64.decode(base64, Base64.DEFAULT)
+        val decryptedBytes = Crypto.decrypt(encryptedBytes)
+        return String(decryptedBytes)
     }
 
     override suspend fun saveAccessToken(accessToken: String) {
-        dataStore.edit { preferences ->
-            preferences[ACCESS_TOKEN_KEY] = accessToken
+        val encryptedBytes = Crypto.encrypt(accessToken.toByteArray())
+        val base64 = Base64.encodeToString(encryptedBytes, Base64.DEFAULT)
+
+        dataStore.edit { prefs ->
+            prefs[ACCESS_TOKEN_KEY] = base64
         }
     }
 
     override suspend fun saveRefreshToken(refreshToken: String) {
-        dataStore.edit { preferences ->
-            preferences[REFRESH_TOKEN_KEY] = refreshToken
+        val encryptedBytes = Crypto.encrypt(refreshToken.toByteArray())
+        val base64 = Base64.encodeToString(encryptedBytes, Base64.DEFAULT)
+
+        dataStore.edit { prefs ->
+            prefs[REFRESH_TOKEN_KEY] = base64
         }
     }
 
@@ -78,4 +93,4 @@ class TokenRepositoryImpl @Inject constructor(
     }
 }
 
-val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = BuildConfig.APPLICATION_ID)
+val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "secure_prefs")

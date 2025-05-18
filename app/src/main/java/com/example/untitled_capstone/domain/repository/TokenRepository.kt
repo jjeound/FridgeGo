@@ -6,9 +6,9 @@ import com.example.untitled_capstone.data.remote.dto.TokenDto
 import kotlinx.coroutines.flow.Flow
 
 interface TokenRepository {
-    fun getAccessToken(): Flow<String?>
+    suspend fun getAccessToken(): String?
 
-    fun getRefreshToken(): Flow<String?>
+    suspend fun getRefreshToken(): String?
 
     suspend fun saveAccessToken(accessToken: String)
 

@@ -29,7 +29,7 @@ class AuthAuthenticator @Inject constructor(
         if (response.code != 401) return null
 
         val refreshToken = runBlocking {
-            tokenManager.getRefreshToken().firstOrNull()
+            tokenManager.getRefreshToken()
         }?: return null
 
         val newToken = runBlocking {

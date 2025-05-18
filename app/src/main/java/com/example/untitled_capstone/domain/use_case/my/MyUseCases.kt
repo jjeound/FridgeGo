@@ -7,4 +7,5 @@ data class MyUseCases(
     val logout: Logout,
     val uploadProfileImage: UploadProfileImage,
     val reportUser: ReportUserUseCase,
+    val getMyNicknameUseCase: GetMyNicknameUseCase
 )

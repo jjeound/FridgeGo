@@ -7,12 +7,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.untitled_capstone.core.util.Resource
 import com.example.untitled_capstone.domain.use_case.my.MyUseCases
-import com.example.untitled_capstone.domain.use_case.post.GetNickname
 import com.example.untitled_capstone.presentation.util.AuthEvent
 import com.example.untitled_capstone.presentation.util.AuthEventBus
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.io.File
@@ -21,7 +21,6 @@ import javax.inject.Inject
 @HiltViewModel
 class MyViewModel @Inject constructor(
     private val myUseCases: MyUseCases,
-    private val getNickname: GetNickname
 ): ViewModel(){
 
     private val _state = MutableStateFlow(MyState())
@@ -35,7 +34,6 @@ class MyViewModel @Inject constructor(
 
     var token: String by mutableStateOf("")
         private set
-
     init {
         getMyName()
     }
@@ -158,7 +156,9 @@ class MyViewModel @Inject constructor(
 
     private fun getMyName(){
         viewModelScope.launch {
-            _nickname.value = getNickname()
+            myUseCases.getMyNicknameUseCase().collectLatest {
+                _nickname.value = it
+            }
         }
     }
 }

@@ -1,6 +1,5 @@
-package com.example.untitled_capstone.presentation.feature.home.composable
+package com.example.untitled_capstone.presentation.feature.home
 
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
@@ -8,7 +7,6 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -47,25 +45,22 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
-import com.example.untitled_capstone.presentation.feature.home.HomeEvent
-import com.example.untitled_capstone.presentation.feature.home.state.AiState
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @Composable
 fun ChatBot(
-    aiState: AiState,
+    uiState: HomeUiState,
+    aiResponse: List<String>,
     onEvent: (HomeEvent) -> Unit,
     isExpanded: Boolean,
     expandSheet: () -> Unit,
 ) {
     val context = LocalContext.current
-    LaunchedEffect(aiState.response.isNotEmpty(), !isExpanded) {
+    LaunchedEffect(aiResponse.isNotEmpty(), !isExpanded) {
         expandSheet()
     }
-    LaunchedEffect(aiState.error) {
-        if (aiState.error != null){
-            Toast.makeText(context, aiState.error, Toast.LENGTH_SHORT).show()
-        }
+    if(uiState is HomeUiState.Error){
+        Toast.makeText(context, uiState.message, Toast.LENGTH_SHORT).show()
     }
     Column(
         modifier = Modifier
@@ -82,9 +77,9 @@ fun ChatBot(
             verticalArrangement = Arrangement.spacedBy(Dimens.largePadding)
         ) {
             items(
-                count = aiState.response.size
+                count = aiResponse.size
             ) {
-                var recipe = aiState.response[it].replace("\\n", "").replace("\"", "").replace("+", "")
+                var recipe = aiResponse[it].replace("\\n", "").replace("\"", "").replace("+", "")
                 val regex = "\\[(.*?)]".toRegex() // [ ] 안의 텍스트 추출 정규식
                 val parts = regex.split(recipe) // [] 기준으로 텍스트 나누기
                 val matches = regex.findAll(recipe).map { it.groupValues[1] }.toList() // [] 안의 내용 추출
@@ -167,7 +162,10 @@ fun ChatBot(
                                 )
                                 if(index == 2){
                                     Text(
-                                        text = text.trim().replace("-", "✅ ").split(",").joinToString("\n").trim(),
+                                        text = text
+                                            .split(",").joinToString("\n") {
+                                                it.trim().replaceFirst("- ", "✅ ")
+                                            },
                                         style = CustomTheme.typography.body1,
                                         color = CustomTheme.colors.textPrimary,
                                     )
@@ -203,8 +201,7 @@ fun ChatBot(
                         shape = RoundedCornerShape(Dimens.cornerRadius),
                         modifier = Modifier.wrapContentSize()
                     ){
-                        Log.d("loading", aiState.isLoading.toString())
-                        if(aiState.isLoading){
+                        if(uiState == HomeUiState.AILoading){
                             DotLoadingAnimation(
                                 modifier = Modifier.padding(Dimens.mediumPadding)
                             )
@@ -223,7 +220,7 @@ fun ChatBot(
                 onClick = {
                     onEvent(HomeEvent.GetRecipeByAi)
                 },
-                enabled = !aiState.isLoading,
+                enabled = uiState != HomeUiState.Loading,
                 shape = ButtonDefaults.filledTonalShape,
                 elevation = ButtonDefaults.elevatedButtonElevation(),
                 colors = ButtonColors(

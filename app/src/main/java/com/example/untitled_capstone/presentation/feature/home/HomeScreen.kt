@@ -1,4 +1,4 @@
-package com.example.untitled_capstone.presentation.feature.home.screen
+package com.example.untitled_capstone.presentation.feature.home
 
 import android.util.Log
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -40,13 +40,8 @@ import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.domain.model.RecipeRaw
 import com.example.untitled_capstone.navigation.Screen
-import com.example.untitled_capstone.presentation.feature.home.composable.MyRecipe
-import com.example.untitled_capstone.presentation.feature.home.composable.SetTaste
-import com.example.untitled_capstone.presentation.feature.home.HomeEvent
-import com.example.untitled_capstone.presentation.feature.home.composable.ChatBot
-import com.example.untitled_capstone.presentation.feature.home.state.AiState
-import com.example.untitled_capstone.presentation.feature.home.state.RecipeState
 import com.example.untitled_capstone.presentation.feature.main.MainViewModel
+import com.example.untitled_capstone.presentation.util.UiState
 import com.example.untitled_capstone.ui.theme.CustomTheme
 import kotlinx.coroutines.launch
 
@@ -54,9 +49,10 @@ import kotlinx.coroutines.launch
 @Composable
 fun HomeScreen(
     mainViewModel: MainViewModel,
-    recipeState: RecipeState,
+    uiState: HomeUiState,
     recipeItems: LazyPagingItems<RecipeRaw>,
-    aiState: AiState,
+    aiResponse: List<String>,
+    tastePref: String?,
     onEvent: (HomeEvent) -> Unit,
     onNavigate: (Screen) -> Unit,
 ) {
@@ -82,7 +78,7 @@ fun HomeScreen(
                 focusManager.clearFocus()
             })}
     ) {
-        SetTaste(recipeState, onEvent)
+        SetTaste(tastePref, onEvent)
         Spacer(modifier = Modifier.height(Dimens.largePadding))
         Card (
             colors = CardDefaults.cardColors(
@@ -110,19 +106,12 @@ fun HomeScreen(
                 Box(
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    if(recipeItems.loadState.refresh is LoadState.Loading || recipeState.isLoading) {
+                    if(recipeItems.loadState.refresh is LoadState.Loading || uiState == UiState.Loading) {
                         CircularProgressIndicator(
                             modifier = Modifier.align(Alignment.Center),
                             color = CustomTheme.colors.primary
                         )
                     } else {
-                        if(recipeItems.itemCount == 0){
-                            AsyncImage(
-                                modifier = Modifier.fillMaxWidth(),
-                                model = R.drawable.home_banner,
-                                contentDescription = "home_banner",
-                            )
-                        }
                         LazyVerticalGrid(
                             columns = GridCells.Fixed(2),
                             state = scrollState,
@@ -135,7 +124,7 @@ fun HomeScreen(
                                     MyRecipe(recipe = item ,modifier = Modifier
                                         .fillMaxWidth().padding(Dimens.smallPadding), onEvent = onEvent){
                                         onNavigate(
-                                            Screen.RecipeNav(item.id)
+                                            Screen.RecipeNav(item.id),
                                         )
                                     }
                                 }
@@ -145,6 +134,13 @@ fun HomeScreen(
                                     CircularProgressIndicator(modifier = Modifier.fillMaxWidth().wrapContentWidth(Alignment.CenterHorizontally))
                                 }
                             }
+                        }
+                        if(recipeItems.itemCount == 0 && uiState != UiState.Loading){
+                            AsyncImage(
+                                modifier = Modifier.fillMaxWidth(),
+                                model = R.drawable.home_banner,
+                                contentDescription = "home_banner",
+                            )
                         }
                     }
                 }
@@ -158,7 +154,8 @@ fun HomeScreen(
                 containerColor = CustomTheme.colors.onSurface,
             ) {
                 ChatBot(
-                    aiState = aiState,
+                    uiState = uiState,
+                    aiResponse = aiResponse,
                     onEvent = onEvent,
                     isExpanded = isExpanded.value,
                     expandSheet = {

@@ -1,4 +1,4 @@
-package com.example.untitled_capstone.presentation.feature.home.composable
+package com.example.untitled_capstone.presentation.feature.home
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -28,7 +28,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import coil.compose.AsyncImage
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
-import com.example.untitled_capstone.presentation.feature.home.HomeEvent
 import com.example.untitled_capstone.ui.theme.CustomTheme
 import com.example.untitled_capstone.domain.model.RecipeRaw
 

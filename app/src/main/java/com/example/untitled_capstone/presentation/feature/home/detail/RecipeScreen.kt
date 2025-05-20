@@ -1,4 +1,4 @@
-package com.example.untitled_capstone.presentation.feature.home.screen
+package com.example.untitled_capstone.presentation.feature.home.detail
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -29,7 +29,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -45,29 +44,23 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
+import com.example.untitled_capstone.domain.model.Recipe
 import com.example.untitled_capstone.navigation.Screen
-import com.example.untitled_capstone.presentation.feature.home.HomeEvent
-import com.example.untitled_capstone.presentation.feature.home.state.RecipeState
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RecipeScreen(
-    id: Long,
-    state: RecipeState,
-    onEvent: (HomeEvent) -> Unit,
+    uiState: RecipeUiState,
+    recipe: Recipe?,
     onNavigate: (Screen) -> Unit,
-    popBackStack: () -> Unit
+    popBackStack: () -> Unit,
+    deleteRecipe: (Long) -> Unit,
+    toggleLike: (Long, Boolean) -> Unit,
 ) {
-    val isLiked = remember { derivedStateOf {
-        state.recipe?.liked == true
-    } }
     var expanded by remember { mutableStateOf(false) }
     val menuItem = listOf("수정", "삭제")
-    LaunchedEffect(Unit) {
-        onEvent(HomeEvent.GetRecipeById(id))
-    }
-    if(state.isLoading){
+    if(uiState == RecipeUiState.Loading){
         Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
@@ -77,8 +70,7 @@ fun RecipeScreen(
             )
         }
     }
-    if (state.recipe != null){
-        val recipe = state.recipe!!
+    if (recipe != null){
         Scaffold(
             containerColor = CustomTheme.colors.onSurface,
             topBar = {
@@ -88,7 +80,6 @@ fun RecipeScreen(
                         IconButton(
                             onClick = {
                                 popBackStack()
-                                onEvent(HomeEvent.InitState)
                             }
                         ) {
                             Icon(
@@ -139,12 +130,11 @@ fun RecipeScreen(
                                         when(option){
                                             menuItem[0] -> {
                                                 onNavigate(
-                                                    Screen.RecipeModifyNav
+                                                    Screen.RecipeModifyNav(recipe)
                                                 )
                                             }
                                             menuItem[1] -> {
-                                                onEvent(HomeEvent.DeleteRecipe(recipe.id))
-                                                popBackStack()
+                                                deleteRecipe(recipe.id)
                                             }
                                         }
                                     },
@@ -189,10 +179,10 @@ fun RecipeScreen(
                     }
                     IconButton(
                         onClick = {
-                            onEvent(HomeEvent.ToggleLike(recipe.id, !recipe.liked))
+                            toggleLike(recipe.id, !recipe.liked)
                         }
                     ) {
-                        if(isLiked.value){
+                        if(recipe.liked){
                             Icon(
                                 imageVector = ImageVector.vectorResource(R.drawable.heart_filled),
                                 contentDescription = "like",
@@ -227,9 +217,9 @@ fun RecipeScreen(
                             modifier = Modifier.wrapContentWidth(),
                         ) {
                             Text(
-                            text = "✅",
-                            style = CustomTheme.typography.body2,
-                            color = CustomTheme.colors.textPrimary,
+                                text = "✅",
+                                style = CustomTheme.typography.body2,
+                                color = CustomTheme.colors.textPrimary,
                             )
                             Spacer(
                                 modifier = Modifier.width(Dimens.smallPadding)

@@ -3,10 +3,10 @@ package com.example.untitled_capstone.domain.use_case.home
 import com.example.untitled_capstone.domain.repository.HomeRepository
 import javax.inject.Inject
 
-class GetIsFirstSelection @Inject constructor(
+class SetIsFirstSelectionUseCase @Inject constructor(
     private val repository: HomeRepository
 ) {
-    operator fun invoke(): Boolean {
-        return repository.isFirstSelection()
+    operator fun invoke(isFirst: Boolean) {
+        repository.setFirstSelection(isFirst)
     }
 }

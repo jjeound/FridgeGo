@@ -1,22 +1,24 @@
 package com.example.untitled_capstone.presentation.feature.home
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.Stable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import androidx.paging.filter
 import androidx.paging.map
 import com.example.untitled_capstone.core.util.Resource
-import com.example.untitled_capstone.domain.model.Recipe
 import com.example.untitled_capstone.domain.model.RecipeRaw
 import com.example.untitled_capstone.domain.model.TastePreference
-import com.example.untitled_capstone.domain.use_case.home.HomeUseCases
+import com.example.untitled_capstone.domain.use_case.home.AddRecipeUseCase
+import com.example.untitled_capstone.domain.use_case.home.GetAnotherRecommendationUseCase
+import com.example.untitled_capstone.domain.use_case.home.GetFirstRecommendationUseCase
+import com.example.untitled_capstone.domain.use_case.home.GetIsFirstSelectionUseCase
+import com.example.untitled_capstone.domain.use_case.home.GetRecipeItemsUseCase
+import com.example.untitled_capstone.domain.use_case.home.GetTastePreferenceUseCase
+import com.example.untitled_capstone.domain.use_case.home.RecipeToggleLikeUseCase
+import com.example.untitled_capstone.domain.use_case.home.SetIsFirstSelectionUseCase
+import com.example.untitled_capstone.domain.use_case.home.SetTastePreferenceUseCase
 import com.example.untitled_capstone.navigation.Screen
-import com.example.untitled_capstone.presentation.feature.home.state.AiState
-import com.example.untitled_capstone.presentation.feature.home.state.RecipeState
 import com.example.untitled_capstone.presentation.util.UiEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -26,19 +28,28 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.io.File
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val homeUseCases: HomeUseCases,
+    private val getTastePreferenceUseCase: GetTastePreferenceUseCase,
+    private val setTastePreferenceUseCase: SetTastePreferenceUseCase,
+    private val addRecipeUseCase: AddRecipeUseCase,
+    private val getRecipeItemsUseCase: GetRecipeItemsUseCase,
+    private val getFirstRecommendationUseCase: GetFirstRecommendationUseCase,
+    private val getAnotherRecommendationUseCase: GetAnotherRecommendationUseCase,
+    private val getIsFirstSelectionUseCase: GetIsFirstSelectionUseCase,
+    private val setIsFirstSelectionUseCase: SetIsFirstSelectionUseCase,
+    private val recipeToggleLikeUseCase: RecipeToggleLikeUseCase,
 ): ViewModel(){
 
-    var recipeState by mutableStateOf(RecipeState())
-        private set
+    val uiState = MutableStateFlow<HomeUiState>(HomeUiState.Loading)
 
-    var aiState by mutableStateOf(AiState())
-        private set
+    private val _tastePref = MutableStateFlow<String?>(null)
+    val tastePref = _tastePref.asStateFlow()
+
+    private val _aiResponse = MutableStateFlow<List<String>>(emptyList())
+    val aiResponse = _aiResponse.asStateFlow()
 
     private val _recipePagingData: MutableStateFlow<PagingData<RecipeRaw>> = MutableStateFlow(PagingData.empty<RecipeRaw>())
     val recipePagingData = _recipePagingData.asStateFlow()
@@ -56,38 +67,30 @@ class HomeViewModel @Inject constructor(
             is HomeEvent.ToggleLike -> toggleLike(event.id, event.liked)
             is HomeEvent.GetRecipes -> getRecipes()
             is HomeEvent.GetRecipeByAi -> getRecipeByAI()
-            is HomeEvent.GetRecipeById -> getRecipeById(event.id)
             is HomeEvent.AddRecipe -> addRecipe(event.recipe)
             is HomeEvent.SetTastePreference -> setTastePreference(event.tastePreference)
             is HomeEvent.GetTastePreference -> getTastePreference()
-            is HomeEvent.InitState -> initState()
-            is HomeEvent.DeleteRecipe -> deleteRecipe(event.id)
-            is HomeEvent.UploadImageThenModifyRecipe -> uploadImageThenModify(event.recipe, event.file)
         }
     }
 
-    private fun initState(){
-        //recipeState = RecipeState()
-    }
 
     private fun getTastePreference() {
         viewModelScope.launch {
-            val result = homeUseCases.getTastePreference()
-            when(result){
-                is Resource.Success -> {
-                    result.data?.let{
-                        recipeState.apply{
-                            tastePreference = it.tastePreference
-                            isLoading = false
+            getTastePreferenceUseCase().collectLatest {
+                when(it){
+                    is Resource.Success -> {
+                        uiState.tryEmit(HomeUiState.Idle)
+                        it.data?.let {
+                            _tastePref.value = it.tastePreference
                         }
                     }
-                }
-                is Resource.Error -> {
-                    recipeState.isLoading = false
-                    _event.emit(UiEvent.ShowSnackbar(result.message ?: "Unknown error"))
-                }
-                is Resource.Loading -> {
-                    recipeState.isLoading = true
+                    is Resource.Error -> {
+                        uiState.tryEmit(HomeUiState.Error(it.message))
+                        _event.emit(UiEvent.ShowSnackbar(it.message ?: "Unknown error"))
+                    }
+                    is Resource.Loading -> {
+                        uiState.tryEmit(HomeUiState.Loading)
+                    }
                 }
             }
         }
@@ -95,22 +98,21 @@ class HomeViewModel @Inject constructor(
 
     private fun setTastePreference(tastePreference: String) {
         viewModelScope.launch {
-            val result = homeUseCases.setTastePreference(TastePreference(tastePreference))
-            when(result){
-                is Resource.Success -> {
-                    result.data?.let{
-                        recipeState.apply{
-                            isLoading = false
+            setTastePreferenceUseCase(TastePreference(tastePreference)).collectLatest {
+                when(it){
+                    is Resource.Success -> {
+                        it.data?.let{
+                            uiState.tryEmit(HomeUiState.Idle)
+                            _event.emit(UiEvent.ShowSnackbar(it))
                         }
-                        _event.emit(UiEvent.ShowSnackbar(result.data))
                     }
-                }
-                is Resource.Error -> {
-                    recipeState.isLoading = false
-                    _event.emit(UiEvent.ShowSnackbar(result.message ?: "Unknown error"))
-                }
-                is Resource.Loading -> {
-                    recipeState.isLoading = true
+                    is Resource.Error -> {
+                        uiState.tryEmit(HomeUiState.Error(it.message))
+                        _event.emit(UiEvent.ShowSnackbar(it.message ?: "Unknown error"))
+                    }
+                    is Resource.Loading -> {
+                        uiState.tryEmit(HomeUiState.Loading)
+                    }
                 }
             }
         }
@@ -118,20 +120,21 @@ class HomeViewModel @Inject constructor(
 
     private fun addRecipe(recipe: String) {
         viewModelScope.launch {
-            val result = homeUseCases.addRecipe(recipe)
-            when(result){
-                is Resource.Success -> {
-                    result.data?.let {
-                        //_event.emit(UIEvent.ShowSnackbar(result.data.result!!))
-                        getRecipes()
+            addRecipeUseCase(recipe).collectLatest {
+                when(it){
+                    is Resource.Success -> {
+                        uiState.tryEmit(HomeUiState.Idle)
+                        it.data?.let{
+                            getRecipes()
+                        }
                     }
-                }
-                is Resource.Error -> {
-                    recipeState.isLoading = false
-                    _event.emit(UiEvent.ShowSnackbar(result.message ?: "Unknown error"))
-                }
-                is Resource.Loading -> {
-                    recipeState.isLoading = true
+                    is Resource.Error -> {
+                        uiState.tryEmit(HomeUiState.Error(it.message))
+                        _event.emit(UiEvent.ShowSnackbar(it.message ?: "Unknown error"))
+                    }
+                    is Resource.Loading -> {
+                        uiState.tryEmit(HomeUiState.Loading)
+                    }
                 }
             }
         }
@@ -139,30 +142,27 @@ class HomeViewModel @Inject constructor(
 
     private fun getRecipeByAI() {
         viewModelScope.launch {
-            aiState.isLoading = true
-            val isFirstSelection = homeUseCases.getIsFirstSelection()
-            val result = if (isFirstSelection) {
-                homeUseCases.getFirstRecommendation()
+            val isFirstSelection = getIsFirstSelectionUseCase()
+            if (isFirstSelection) {
+                getFirstRecommendationUseCase()
             } else {
-                homeUseCases.getAnotherRecommendation()
-            }
-            when (result) {
-                is Resource.Success -> {
-                    result.data?.let {
-                        aiState.apply {
-                            response += it
-                            isLoading = false
+                getAnotherRecommendationUseCase()
+            }.collectLatest {
+                when (it) {
+                    is Resource.Success -> {
+                        it.data?.let { response ->
+                            uiState.tryEmit(HomeUiState.Idle)
+                            _aiResponse.update { it + response }
+                            setIsFirstSelectionUseCase(false)
                         }
-                        homeUseCases.setIsFirstSelection(false) // 첫 선택 완료 처리
                     }
-                }
-                is Resource.Error -> {
-                    aiState.isLoading = false
-                    aiState.error = result.message
-                    //_event.emit(UIEvent.ShowSnackbar(result.message ?: "다시 시도해주세요."))
-                }
-                is Resource.Loading -> {
-                    aiState.isLoading = true
+                    is Resource.Error -> {
+                        uiState.tryEmit(HomeUiState.Error(it.message))
+                        _event.emit(UiEvent.ShowSnackbar(it.message ?: "Unknown error"))
+                    }
+                    is Resource.Loading -> {
+                        uiState.tryEmit(HomeUiState.AILoading)
+                    }
                 }
             }
         }
@@ -170,7 +170,7 @@ class HomeViewModel @Inject constructor(
 
     private fun getRecipes(){
         viewModelScope.launch {
-            homeUseCases.getRecipeItems()
+            getRecipeItemsUseCase()
                 .cachedIn(viewModelScope)
                 .collectLatest { pagingData ->
                     _recipePagingData.value = pagingData
@@ -178,139 +178,47 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private fun getRecipeById(id: Long){
-        viewModelScope.launch {
-            val result = homeUseCases.getRecipeById(id)
-            when(result){
-                is Resource.Success -> {
-                    result.data?.let{
-                        recipeState.apply {
-                            recipe = it
-                            isLoading = false
-                        }
-                    }
-                }
-                is Resource.Error -> {
-                    recipeState.isLoading = false
-                    _event.emit(UiEvent.ShowSnackbar(result.message ?: "Unknown error"))
-                }
-                is Resource.Loading -> {
-                    recipeState.isLoading = true
-                }
-            }
-        }
-    }
-
     private fun toggleLike(id: Long, liked: Boolean){
         viewModelScope.launch {
-            val result = homeUseCases.toggleLike(id, liked)
-            when(result){
-                is Resource.Success -> {
-                    result.data?.let{
-                        recipeState.isLoading = false
-                        _recipePagingData.update { pagingData ->
-                            pagingData.map {
-                                if(it.id == id){
-                                    it.copy(liked = result.data)
-                                }else{
-                                    it
-                                }
-                            }
-                        }
-                        recipeState.recipe = recipeState.recipe?.copy(
-                            liked = result.data
-                        )
-                    }
-                }
-                is Resource.Error -> {
-                    recipeState.isLoading = false
-                    _event.emit(UiEvent.ShowSnackbar(result.message ?: "Unknown error"))
-                }
-                is Resource.Loading -> {
-                    recipeState.isLoading = true
-                }
-            }
-        }
-    }
-
-    private fun deleteRecipe(id: Long){
-        viewModelScope.launch {
-            val result = homeUseCases.deleteRecipe(id)
-            when(result){
-                is Resource.Success -> {
-                    result.data?.let{
-                        recipeState.isLoading = false
-                        _recipePagingData.update { pagingData ->
-                            pagingData.filter { it.id != id }
-                        }
-                    }
-                }
-                is Resource.Error -> {
-                    recipeState.isLoading = false
-                    _event.emit(UiEvent.ShowSnackbar(result.message ?: "Unknown error"))
-                }
-                is Resource.Loading -> {
-                    recipeState.isLoading = true
-                }
-            }
-        }
-    }
-
-    private fun uploadImageThenModify(recipe: Recipe, imageFile: File?){
-        viewModelScope.launch {
-            imageFile?.let {
-                val uploadResult = homeUseCases.uploadImage(recipe.id, it)
-                if (uploadResult is Resource.Error) {
-                    _event.emit(UiEvent.ShowSnackbar(uploadResult.message ?: "이미지 업로드 실패했지만 계속 진행합니다."))
-                    // 실패해도 넘어감
-                }
-            }
-            val result = homeUseCases.modifyRecipe(recipe)
-            when(result){
-                is Resource.Success -> {
-                    result.data?.let {
-                        recipeState.isLoading = false
-                        _event.emit(UiEvent.PopBackStack)
-                        _recipePagingData.update { pagingData ->
-                            pagingData.map {
-                                if(it.id == recipe.id) {
-                                    it.copy(
-                                        title = recipe.title,
-                                        imageUrl = recipe.imageUrl
-                                    )
-                                }else{
-                                    it
+            recipeToggleLikeUseCase(id, liked).collectLatest {
+                when(it){
+                    is Resource.Success -> {
+                        uiState.tryEmit(HomeUiState.Idle)
+                        it.data?.let { result ->
+                            _recipePagingData.update { pagingData ->
+                                pagingData.map {
+                                    if(it.id == id){
+                                        it.copy(liked = result)
+                                    }else{
+                                        it
+                                    }
                                 }
                             }
                         }
                     }
-                }
-                is Resource.Error -> {
-                    recipeState.isLoading = false
-                    _event.emit(UiEvent.ShowSnackbar(result.message ?: "Unknown error"))
-                }
-                is Resource.Loading -> {
-                    recipeState.isLoading = true
+                    is Resource.Error -> {
+                        uiState.tryEmit(HomeUiState.Error(it.message))
+                        _event.emit(UiEvent.ShowSnackbar(it.message ?: "Unknown error"))
+                    }
+                    is Resource.Loading -> {
+                        uiState.tryEmit(HomeUiState.Loading)
+                    }
                 }
             }
         }
     }
 
-    fun navigateUp(route: Screen) {
+    fun navigateUp(route: Screen){
         viewModelScope.launch {
             _event.emit(UiEvent.Navigate(route))
         }
     }
+}
 
-    fun popBackStack() {
-        viewModelScope.launch {
-            _event.emit(UiEvent.PopBackStack)
-        }
-    }
-
-    fun showSnackbar(message: String) {
-        viewModelScope.launch {
-            _event.emit(UiEvent.ShowSnackbar(message))
-        }
-    }
+@Stable
+interface HomeUiState{
+    data object Idle: HomeUiState
+    data object Loading: HomeUiState
+    data object AILoading: HomeUiState
+    data class Error(val message: String?): HomeUiState
 }

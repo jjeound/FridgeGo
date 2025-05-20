@@ -1,6 +1,7 @@
 package com.example.untitled_capstone.data.repository
 
 import android.content.Context
+import androidx.annotation.WorkerThread
 import androidx.paging.ExperimentalPagingApi
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
@@ -21,179 +22,194 @@ import javax.inject.Inject
 import androidx.core.content.edit
 import com.example.untitled_capstone.core.util.Constants.NETWORK_PAGE_SIZE
 import com.example.untitled_capstone.core.util.Constants.TASTE_PREFERENCE
+import com.example.untitled_capstone.data.AppDispatchers
+import com.example.untitled_capstone.data.Dispatcher
 import com.example.untitled_capstone.data.remote.dto.ModifyRecipeBody
 import com.example.untitled_capstone.data.remote.dto.RecipeLikedDto
 import com.example.untitled_capstone.domain.model.Recipe
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import okhttp3.MultipartBody
 
 class HomeRepositoryImpl @Inject constructor(
     private val api: HomeApi,
     private val db: RecipeItemDatabase,
-    @ApplicationContext context: Context
+    @ApplicationContext context: Context,
+    @Dispatcher(AppDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
 ): HomeRepository {
 
     private val prefs = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
 
-    override suspend fun getTastePreference(): Resource<TastePreference> {
-        return try {
-            Resource.Loading(data = null)
-            if(prefs.getString(TASTE_PREFERENCE, null) != null){
-                return Resource.Success(TastePreference(prefs.getString(TASTE_PREFERENCE, null)!!))
-            } else{
+    @WorkerThread
+    override suspend fun getTastePreference(): Flow<Resource<TastePreference>> = flow {
+        emit(Resource.Loading())
+        if(prefs.getString(TASTE_PREFERENCE, null) != null){
+            emit(Resource.Success(TastePreference(prefs.getString(TASTE_PREFERENCE, null)!!)))
+        }else{
+            try {
                 val response = api.getTastePreference()
                 if(response.isSuccess){
-                    Resource.Success(response.result!!.toTastePreference())
+                    emit(Resource.Success(response.result!!.toTastePreference()))
                 }else {
-                    Resource.Error(message = response.message)
+                    emit(Resource.Error(message = response.message))
                 }
+            } catch (e: IOException) {
+                emit(Resource.Error(e.toString()))
+            } catch (e: HttpException) {
+                emit(Resource.Error(e.toString()))
             }
-        } catch (e: IOException) {
-            Resource.Error(e.toString())
-        } catch (e: HttpException) {
-            Resource.Error(e.toString())
         }
-    }
+    }.flowOn(ioDispatcher)
 
-    override suspend fun setTastePreference(tastePreference: TastePreference): Resource<String> {
-        return try {
-            Resource.Loading(data = null)
+    @WorkerThread
+    override suspend fun setTastePreference(tastePreference: TastePreference): Flow<Resource<String>> = flow {
+        emit(Resource.Loading())
+        try {
             val response = api.setTastePreference(tastePreference.toPreferenceDto())
             if(response.isSuccess){
                 prefs.edit { putString(TASTE_PREFERENCE, tastePreference.tastePreference) }
-                Resource.Success(response.result)
+                emit(Resource.Success(response.result))
             }else {
-                Resource.Error(message = response.message)
+                emit(Resource.Error(message = response.message))
             }
         } catch (e: IOException) {
-            Resource.Error(e.toString())
+            emit(Resource.Error(e.toString()))
         } catch (e: HttpException) {
-            Resource.Error(e.toString())
+            emit(Resource.Error(e.toString()))
         }
-    }
+    }.flowOn(ioDispatcher)
 
+    @WorkerThread
     @OptIn(ExperimentalPagingApi::class)
     override fun getRecipes(): Flow<PagingData<RecipeItemEntity>> {
         return Pager(
             config = PagingConfig(pageSize = NETWORK_PAGE_SIZE, enablePlaceholders = false),
             remoteMediator = RecipePagingSource(api, db),
             pagingSourceFactory = { db.dao.getRecipeItems() }
-        ).flow
+        ).flow.flowOn(ioDispatcher)
     }
 
-    override suspend fun getRecipeById(id: Long): Resource<Recipe> {
-        return try {
-            Resource.Loading(data = null)
+    @WorkerThread
+    override suspend fun getRecipeById(id: Long): Flow<Resource<Recipe>> = flow {
+        emit(Resource.Loading())
+        try {
             val response = api.getRecipeById(id)
             if(response.isSuccess){
-                Resource.Success(response.result!!.toRecipe())
+                emit(Resource.Success(response.result!!.toRecipe()))
             }else {
-                Resource.Error(message = response.message)
+                emit(Resource.Error(message = response.message))
             }
         } catch (e: IOException) {
-            Resource.Error(e.toString())
+            emit(Resource.Error(e.toString()))
         } catch (e: HttpException) {
-            Resource.Error(e.toString())
+            emit(Resource.Error(e.toString()))
         }
-    }
+    }.flowOn(ioDispatcher)
 
-    override suspend fun toggleLike(id: Long, liked: Boolean): Resource<Boolean> {
-        return try {
-            Resource.Loading(data = null)
+    @WorkerThread
+    override suspend fun toggleLike(id: Long, liked: Boolean): Flow<Resource<Boolean>> = flow {
+        emit(Resource.Loading())
+        try {
             val response = api.toggleLike(id)
             if(response.isSuccess){
-                Resource.Success(response.result!!.liked)
+                emit(Resource.Success(response.result!!.liked))
             }else {
-                Resource.Error(message = response.message)
+                emit(Resource.Error(message = response.message))
             }
         } catch (e: IOException) {
-            Resource.Error(e.toString())
+            emit(Resource.Error(e.toString()))
         } catch (e: HttpException) {
-            Resource.Error(e.toString())
+            emit(Resource.Error(e.toString()))
         }
-    }
+    }.flowOn(ioDispatcher)
 
-
-    override suspend fun addRecipe(recipe: String): Resource<String> {
-        return try {
-            Resource.Loading(data = null)
+    @WorkerThread
+    override suspend fun addRecipe(recipe: String): Flow<Resource<String>> = flow {
+        emit(Resource.Loading())
+        try {
             val response = api.addRecipe(RecipeReqDto(recipe))
             if(response.isSuccess){
-                Resource.Success(response.result)
+                emit(Resource.Success(response.result))
             }else {
-                Resource.Error(message = response.message)
+                emit(Resource.Error(message = response.message))
             }
         } catch (e: IOException) {
-            Resource.Error(e.toString())
+            emit(Resource.Error(e.toString()))
         } catch (e: HttpException) {
-            Resource.Error(e.toString())
+            emit(Resource.Error(e.toString()))
         }
-    }
+    }.flowOn(ioDispatcher)
 
-    override suspend fun deleteRecipe(id: Long): Resource<String> {
-        return try {
-            Resource.Loading(data = null)
+    @WorkerThread
+    override suspend fun deleteRecipe(id: Long): Flow<Resource<String>> = flow {
+        emit(Resource.Loading())
+        try {
             val response = api.deleteRecipe(id)
             if(response.isSuccess){
-                Resource.Success(response.result)
+                emit(Resource.Success(response.result))
             }else {
-                Resource.Error(message = response.message)
+                emit(Resource.Error(message = response.message))
             }
         } catch (e: IOException) {
-            Resource.Error(e.toString())
+            emit(Resource.Error(e.toString()))
         } catch (e: HttpException) {
-            Resource.Error(e.toString())
+            emit(Resource.Error(e.toString()))
         }
-    }
+    }.flowOn(ioDispatcher)
 
-    override suspend fun modifyRecipe(recipe: Recipe): Resource<String> {
-        return try {
-            Resource.Loading(data = null)
+    @WorkerThread
+    override suspend fun modifyRecipe(recipe: Recipe): Flow<Resource<String>> = flow {
+        emit(Resource.Loading())
+        try {
             val response = api.modifyRecipe(recipe.id, ModifyRecipeBody(title = recipe.title,
                 instructions = recipe.instructions, ingredients = recipe.ingredients))
             if(response.isSuccess){
-                Resource.Success(response.result)
+                emit(Resource.Success(response.result))
             }else {
-                Resource.Error(message = response.message)
+                emit(Resource.Error(message = response.message))
             }
         } catch (e: IOException) {
-            Resource.Error(e.toString())
+            emit(Resource.Error(e.toString()))
         } catch (e: HttpException) {
-            Resource.Error(e.toString())
+            emit(Resource.Error(e.toString()))
         }
-    }
+    }.flowOn(ioDispatcher)
 
-    override suspend fun getFirstRecommendation(): Resource<String> {
-        return try {
-            Resource.Loading(data = null)
+    @WorkerThread
+    override suspend fun getFirstRecommendation(): Flow<Resource<String>> = flow {
+        emit(Resource.Loading())
+        try {
             val response = api.getFirstRecommendation()
             if(response.isSuccess){
-                Resource.Success(response.result!!.reply)
+                emit(Resource.Success(response.result!!.reply))
             }else {
-                Resource.Error(message = response.message)
+                emit(Resource.Error(message = response.message))
             }
         } catch (e: IOException) {
-            Resource.Error(e.toString())
+            emit(Resource.Error(e.toString()))
         } catch (e: HttpException) {
-            Resource.Error(e.toString())
+            emit(Resource.Error(e.toString()))
         }
-    }
+    }.flowOn(ioDispatcher)
 
-    override suspend fun getAnotherRecommendation(): Resource<String> {
-        return try {
-            Resource.Loading(data = null)
+    @WorkerThread
+    override suspend fun getAnotherRecommendation(): Flow<Resource<String>> = flow {
+        emit(Resource.Loading())
+        try {
             val response = api.getAnotherRecommendation()
             if(response.isSuccess){
-                Resource.Success(response.result!!.reply)
+                emit(Resource.Success(response.result!!.reply))
             }else {
-                Resource.Error(message = response.message)
+                emit(Resource.Error(message = response.message))
             }
         } catch (e: IOException) {
-            Resource.Error(e.toString())
+            emit(Resource.Error(e.toString()))
         } catch (e: HttpException) {
-            Resource.Error(e.toString())
+            emit(Resource.Error(e.toString()))
         }
-    }
+    }.flowOn(ioDispatcher)
 
     override fun isFirstSelection(): Boolean {
         return prefs.getBoolean("isFirstSelection", true)
@@ -203,19 +219,20 @@ class HomeRepositoryImpl @Inject constructor(
         prefs.edit { putBoolean("isFirstSelection", isFirst) }
     }
 
-    override suspend fun uploadImage(id: Long, image: MultipartBody.Part): Resource<String> {
-        return try {
-            Resource.Loading(data = null)
+    @WorkerThread
+    override suspend fun uploadImage(id: Long, image: MultipartBody.Part): Flow<Resource<String>> = flow {
+        emit(Resource.Loading())
+        try {
             val response = api.uploadImage(id, image)
             if(response.isSuccess){
-                Resource.Success(response.result)
+                emit(Resource.Success(response.result))
             }else {
-                Resource.Error(message = response.message)
+                emit(Resource.Error(message = response.message))
             }
         } catch (e: IOException) {
-            Resource.Error(e.toString())
+            emit(Resource.Error(e.toString()))
         } catch (e: HttpException) {
-            Resource.Error(e.toString())
+            emit(Resource.Error(e.toString()))
         }
-    }
+    }.flowOn(ioDispatcher)
 }

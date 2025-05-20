@@ -1,4 +1,4 @@
-package com.example.untitled_capstone.presentation.feature.home.screen
+package com.example.untitled_capstone.presentation.feature.home.modify
 
 import android.Manifest
 import android.app.Activity
@@ -74,8 +74,6 @@ import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.domain.model.Recipe
 import com.example.untitled_capstone.presentation.feature.fridge.composable.PermissionDialog
-import com.example.untitled_capstone.presentation.feature.home.HomeEvent
-import com.example.untitled_capstone.presentation.feature.home.state.RecipeState
 import com.example.untitled_capstone.presentation.feature.my.composable.getRealPathFromURI
 import com.example.untitled_capstone.ui.theme.CustomTheme
 import kotlinx.coroutines.launch
@@ -84,13 +82,13 @@ import java.io.File
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RecipeModifyScreen(
-    recipeState: RecipeState,
-    onEvent: (HomeEvent) -> Unit,
+    uiState: RecipeModifyUiState,
+    recipe: Recipe,
+    uploadImageThenModifyRecipe: (Recipe, File?) -> Unit,
     popBackStack: () -> Unit,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
-    //val state = remember { viewModel.recipeState }
-    var recipe by remember { mutableStateOf(recipeState.recipe!!) }
+    var recipe by remember { mutableStateOf(recipe) }
     val focusManager = LocalFocusManager.current
     var title by remember { mutableStateOf( recipe.title)}
     val ingredients = remember {
@@ -158,6 +156,11 @@ fun RecipeModifyScreen(
             listState.animateScrollToItem(ingredients.size + 3)
         }
     }
+    LaunchedEffect(uiState) {
+        if(uiState == RecipeModifyUiState.Success){
+            popBackStack
+        }
+    }
     Scaffold(
         containerColor = CustomTheme.colors.onSurface,
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
@@ -168,7 +171,6 @@ fun RecipeModifyScreen(
                     IconButton(
                         onClick = {
                             popBackStack()
-                            onEvent(HomeEvent.InitState)
                         }
                     ) {
                         Icon(
@@ -211,7 +213,7 @@ fun RecipeModifyScreen(
                 )
             }
         )
-        if(recipeState.isLoading){
+        if(uiState == RecipeModifyUiState.Loading){
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
@@ -503,7 +505,7 @@ fun RecipeModifyScreen(
                     ),
                     enabled = validator,
                     onClick = {
-                        onEvent(HomeEvent.UploadImageThenModifyRecipe(
+                        uploadImageThenModifyRecipe(
                             Recipe(
                                 id = recipe.id,
                                 title = title,
@@ -513,7 +515,7 @@ fun RecipeModifyScreen(
                                 liked = recipe.liked
                             ),
                             imageFile
-                        ))
+                        )
                     }
                 ) {
                     Text(

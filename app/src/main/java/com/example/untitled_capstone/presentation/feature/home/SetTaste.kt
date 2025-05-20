@@ -1,4 +1,4 @@
-package com.example.untitled_capstone.presentation.feature.home.composable
+package com.example.untitled_capstone.presentation.feature.home
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -22,13 +22,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import com.example.untitled_capstone.core.util.Dimens
-import com.example.untitled_capstone.presentation.feature.home.HomeEvent
-import com.example.untitled_capstone.presentation.feature.home.state.RecipeState
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @Composable
-fun SetTaste(recipeState: RecipeState, onEvent: (HomeEvent) -> Unit) {
-    var text by rememberSaveable { mutableStateOf(recipeState.tastePreference) }
+fun SetTaste(tastePref: String?, onEvent: (HomeEvent) -> Unit) {
+    var text by rememberSaveable { mutableStateOf(tastePref ?: "") }
     val focusManager = LocalFocusManager.current
 
     Card(

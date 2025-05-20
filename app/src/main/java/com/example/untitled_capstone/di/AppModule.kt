@@ -10,6 +10,7 @@ import com.example.untitled_capstone.core.util.Constants.KAKAO_BASE_URL
 import com.example.untitled_capstone.data.local.db.FridgeItemDatabase
 import com.example.untitled_capstone.data.local.db.MessageItemDatabase
 import com.example.untitled_capstone.data.local.db.PostItemDatabase
+import com.example.untitled_capstone.data.local.db.ProfileDatabase
 import com.example.untitled_capstone.data.local.db.RecipeItemDatabase
 import com.example.untitled_capstone.data.local.entity.FridgeItemEntity
 import com.example.untitled_capstone.data.local.entity.MessageItemEntity
@@ -18,6 +19,7 @@ import com.example.untitled_capstone.data.local.entity.RecipeItemEntity
 import com.example.untitled_capstone.data.local.remote.FridgeItemDao
 import com.example.untitled_capstone.data.local.remote.MessageDao
 import com.example.untitled_capstone.data.local.remote.PostItemDao
+import com.example.untitled_capstone.data.local.remote.ProfileDao
 import com.example.untitled_capstone.data.local.remote.RecipeItemDao
 import com.example.untitled_capstone.data.pagination.FridgePagingSource
 import com.example.untitled_capstone.data.pagination.MessagePagingSource
@@ -101,6 +103,18 @@ object AppModule {
     @Provides
     @Singleton
     fun provideMessageDao(db: MessageItemDatabase): MessageDao = db.dao
+
+    @Provides
+    @Singleton
+    fun provideProfileDatabase(@ApplicationContext context: Context): ProfileDatabase{
+        return Room.databaseBuilder(
+            context, ProfileDatabase::class.java, "profile_database"
+        ).build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideProfileDao(db: ProfileDatabase): ProfileDao = db.dao
 
     @Provides
     @Singleton

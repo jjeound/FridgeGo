@@ -5,7 +5,9 @@ import android.content.Context
 import com.example.untitled_capstone.data.local.db.FridgeItemDatabase
 import com.example.untitled_capstone.data.local.db.MessageItemDatabase
 import com.example.untitled_capstone.data.local.db.PostItemDatabase
+import com.example.untitled_capstone.data.local.db.ProfileDatabase
 import com.example.untitled_capstone.data.local.db.RecipeItemDatabase
+import com.example.untitled_capstone.data.local.remote.ProfileDao
 import com.example.untitled_capstone.data.remote.manager.WebSocketManager
 import com.example.untitled_capstone.data.remote.service.ChatApi
 import com.example.untitled_capstone.data.remote.service.FridgeApi
@@ -45,14 +47,8 @@ object RepositoryModule {
 
     @Provides
     @Singleton
-    fun provideHomeRepository(db: RecipeItemDatabase, api: HomeApi, @ApplicationContext context: Context): HomeRepository{
-        return HomeRepositoryImpl(api, db, context)
-    }
-
-    @Provides
-    @Singleton
-    fun providePostRepository(db: PostItemDatabase,api: PostApi, @ApplicationContext context: Context): PostRepository{
-        return PostRepositoryImpl(api, db, context)
+    fun providePostRepository(db: PostItemDatabase,api: PostApi): PostRepository{
+        return PostRepositoryImpl(api, db)
     }
 
     @Provides
@@ -63,14 +59,14 @@ object RepositoryModule {
 
     @Provides
     @Singleton
-    fun provideLoginRepository(api: LoginApi, mapApi: MapApi, tokenRepository: TokenRepository, @ApplicationContext context: Context): LoginRepository{
-        return LoginRepositoryImpl(api, mapApi, tokenRepository, context)
+    fun provideLoginRepository(api: LoginApi, mapApi: MapApi, tokenRepository: TokenRepository, db: ProfileDatabase, @ApplicationContext context: Context): LoginRepository{
+        return LoginRepositoryImpl(api, mapApi, tokenRepository, db, context)
     }
 
     @Provides
     @Singleton
-    fun provideMyRepository(api: MyApi, tokenRepository: TokenRepository, @ApplicationContext context: Context): MyRepository{
-        return MyRepositoryImpl(api, tokenRepository, context)
+    fun provideMyRepository(api: MyApi, tokenRepository: TokenRepository, dao: ProfileDao, @ApplicationContext context: Context): MyRepository{
+        return MyRepositoryImpl(api, tokenRepository, dao, context)
     }
 
     @Provides

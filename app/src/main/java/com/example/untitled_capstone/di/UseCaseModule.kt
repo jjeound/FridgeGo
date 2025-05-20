@@ -2,7 +2,6 @@ package com.example.untitled_capstone.di
 
 import com.example.untitled_capstone.domain.repository.ChatRepository
 import com.example.untitled_capstone.domain.repository.FridgeRepository
-import com.example.untitled_capstone.domain.repository.HomeRepository
 import com.example.untitled_capstone.domain.repository.LocalUserRepository
 import com.example.untitled_capstone.domain.repository.LoginRepository
 import com.example.untitled_capstone.domain.repository.MyRepository
@@ -34,20 +33,6 @@ import com.example.untitled_capstone.domain.use_case.fridge.GetFridgeItems
 import com.example.untitled_capstone.domain.use_case.fridge.GetFridgeItemsByDate
 import com.example.untitled_capstone.domain.use_case.fridge.ModifyFridgeItem
 import com.example.untitled_capstone.domain.use_case.fridge.ToggleNotification
-import com.example.untitled_capstone.domain.use_case.home.AddRecipe
-import com.example.untitled_capstone.domain.use_case.home.DeleteRecipe
-import com.example.untitled_capstone.domain.use_case.home.GetAnotherRecommendation
-import com.example.untitled_capstone.domain.use_case.home.GetFirstRecommendation
-import com.example.untitled_capstone.domain.use_case.home.GetIsFirstSelection
-import com.example.untitled_capstone.domain.use_case.home.GetRecipeById
-import com.example.untitled_capstone.domain.use_case.home.GetRecipeItems
-import com.example.untitled_capstone.domain.use_case.home.GetTastePreference
-import com.example.untitled_capstone.domain.use_case.home.HomeUseCases
-import com.example.untitled_capstone.domain.use_case.home.ModifyRecipe
-import com.example.untitled_capstone.domain.use_case.home.SetIsFirstSelection
-import com.example.untitled_capstone.domain.use_case.home.SetTastePreference
-import com.example.untitled_capstone.domain.use_case.home.ToggleLike
-import com.example.untitled_capstone.domain.use_case.home.UploadRecipeImage
 import com.example.untitled_capstone.domain.use_case.login.GetAddressByCoord
 import com.example.untitled_capstone.domain.use_case.my.GetAccessToken
 import com.example.untitled_capstone.domain.use_case.my.GetMyProfile
@@ -58,6 +43,7 @@ import com.example.untitled_capstone.domain.use_case.login.ModifyNickname
 import com.example.untitled_capstone.domain.use_case.login.SetLocation
 import com.example.untitled_capstone.domain.use_case.my.Logout
 import com.example.untitled_capstone.domain.use_case.login.SetNickname
+import com.example.untitled_capstone.domain.use_case.my.GetMyNicknameUseCase
 import com.example.untitled_capstone.domain.use_case.my.MyUseCases
 import com.example.untitled_capstone.domain.use_case.my.ReportUserUseCase
 import com.example.untitled_capstone.domain.use_case.my.UploadProfileImage
@@ -68,7 +54,6 @@ import com.example.untitled_capstone.domain.use_case.post.DeletePostImage
 import com.example.untitled_capstone.domain.use_case.post.DeleteSearchHistory
 import com.example.untitled_capstone.domain.use_case.post.GetLikedPosts
 import com.example.untitled_capstone.domain.use_case.post.GetMyPosts
-import com.example.untitled_capstone.domain.use_case.post.GetNickname
 import com.example.untitled_capstone.domain.use_case.post.GetPostById
 import com.example.untitled_capstone.domain.use_case.post.GetSearchHistory
 import com.example.untitled_capstone.domain.use_case.post.ModifyPost
@@ -129,26 +114,8 @@ object UseCaseModule {
             logout = Logout(repository),
             getAccessToken = GetAccessToken(tokenRepository),
             uploadProfileImage = UploadProfileImage(repository),
-            reportUser = ReportUserUseCase(repository)
-        )
-    }
-
-    @Provides
-    fun provideHomeUseCases(repository: HomeRepository): HomeUseCases {
-        return HomeUseCases(
-            getRecipeItems = GetRecipeItems(repository),
-            addRecipe = AddRecipe(repository),
-            getFirstRecommendation = GetFirstRecommendation(repository),
-            getAnotherRecommendation = GetAnotherRecommendation(repository),
-            getTastePreference = GetTastePreference(repository),
-            setTastePreference = SetTastePreference(repository),
-            getIsFirstSelection = GetIsFirstSelection(repository),
-            setIsFirstSelection = SetIsFirstSelection(repository),
-            getRecipeById = GetRecipeById(repository),
-            toggleLike = ToggleLike(repository),
-            deleteRecipe = DeleteRecipe(repository),
-            modifyRecipe = ModifyRecipe(repository),
-            uploadImage = UploadRecipeImage(repository)
+            reportUser = ReportUserUseCase(repository),
+            getMyNicknameUseCase = GetMyNicknameUseCase(repository)
         )
     }
 
@@ -163,7 +130,6 @@ object UseCaseModule {
             deletePost = DeletePost(repository),
             modifyPost = ModifyPost(repository),
             searchPosts = SearchPosts(repository),
-            getNickname = GetNickname(repository),
             uploadPostImages = UploadPostImages(repository),
             deletePostImage = DeletePostImage(repository),
             getSearchHistory = GetSearchHistory(repository),

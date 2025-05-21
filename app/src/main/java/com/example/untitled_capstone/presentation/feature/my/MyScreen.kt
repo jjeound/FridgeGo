@@ -1,4 +1,4 @@
-package com.example.untitled_capstone.presentation.feature.my.screen
+package com.example.untitled_capstone.presentation.feature.my
 
 import android.Manifest
 import android.content.Context
@@ -29,16 +29,16 @@ import androidx.navigation.NavHostController
 import com.example.untitled_capstone.MainActivity
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
+import com.example.untitled_capstone.domain.model.Profile
 import com.example.untitled_capstone.navigation.Screen
-import com.example.untitled_capstone.presentation.feature.fridge.composable.PermissionDialog
-import com.example.untitled_capstone.presentation.feature.my.MyEvent
-import com.example.untitled_capstone.presentation.feature.my.MyState
-import com.example.untitled_capstone.presentation.feature.my.composable.MyAccountContainer
-import com.example.untitled_capstone.presentation.feature.my.composable.MyContainer
+import com.example.untitled_capstone.presentation.feature.fridge.crud.PermissionDialog
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @Composable
-fun MyScreen(navController: NavHostController, onEvent: (MyEvent) -> Unit, state: MyState, nickname: String?) {
+fun MyScreen(
+    profile: Profile?,
+    navigateUp: (Screen) -> Unit,
+) {
     val locationPermissions = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)
     val requestPermissionLauncher =
         rememberLauncherForActivityResult(
@@ -61,8 +61,9 @@ fun MyScreen(navController: NavHostController, onEvent: (MyEvent) -> Unit, state
         verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding),
     ) {
         MyAccountContainer(
-            navigateTo = { navController.navigate(route = Screen.Profile(null)) },
-            nickname = nickname ?: ""
+            navigateUp = { navigateUp(Screen.Profile(null)) },
+            nickname = profile?.nickname,
+            image = profile?.imageUrl
         )
         Card(
             shape = RoundedCornerShape(Dimens.cornerRadius),
@@ -80,8 +81,8 @@ fun MyScreen(navController: NavHostController, onEvent: (MyEvent) -> Unit, state
                     style = CustomTheme.typography.title2,
                     color = CustomTheme.colors.textPrimary,
                 )
-                MyContainer("좋아요한 글", R.drawable.heart, {navController.navigate(Screen.MyLikedPostNav)})
-                MyContainer("나의 게시물", R.drawable.article, {navController.navigate(Screen.MyPostNav)})
+                MyContainer("좋아요한 글", R.drawable.heart) { navigateUp(Screen.MyLikedPostNav) }
+                MyContainer("나의 게시물", R.drawable.article) { navigateUp(Screen.MyPostNav) }
             }
         }
         Card(
@@ -104,7 +105,7 @@ fun MyScreen(navController: NavHostController, onEvent: (MyEvent) -> Unit, state
                 MyContainer("내 동네 설정", R.drawable.location){
                     checkPermission(locationPermissions, context, showDialog){
                         if(it){
-                            navController.navigate(Screen.LocationNav)
+                            navigateUp(Screen.LocationNav)
                         }else{
                             requestPermissionLauncher.launch(locationPermissions)
                         }
@@ -129,8 +130,8 @@ fun MyScreen(navController: NavHostController, onEvent: (MyEvent) -> Unit, state
                     style = CustomTheme.typography.title2,
                     color = CustomTheme.colors.textPrimary,
                 )
-                MyContainer("고객센터", R.drawable.headset, {})
-                MyContainer("약관 및 정책", R.drawable.setting, {})
+                MyContainer("고객센터", R.drawable.headset) {}
+                MyContainer("약관 및 정책", R.drawable.setting) {}
             }
         }
     }

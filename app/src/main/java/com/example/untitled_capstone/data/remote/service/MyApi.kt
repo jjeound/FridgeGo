@@ -35,7 +35,7 @@ interface MyApi {
     ): ApiResponse<String>
 
     @POST("/api/report/user/{targetUserId}")
-    suspend fun reportUser(
+        suspend fun reportUser(
         @Path ("targetUserId") targetUserId: Long,
         @Body report: ReportDto
     ): ApiResponse<String>

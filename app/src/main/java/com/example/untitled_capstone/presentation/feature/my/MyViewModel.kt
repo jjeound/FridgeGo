@@ -1,12 +1,18 @@
 package com.example.untitled_capstone.presentation.feature.my
 
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.untitled_capstone.core.util.Resource
-import com.example.untitled_capstone.domain.use_case.my.MyUseCases
+import com.example.untitled_capstone.domain.model.Profile
+import com.example.untitled_capstone.domain.use_case.my.GetMyNicknameUseCase
+import com.example.untitled_capstone.domain.use_case.my.GetMyProfileUseCase
+import com.example.untitled_capstone.navigation.Screen
+import com.example.untitled_capstone.presentation.feature.my.profile.ProfileEvent
+import com.example.untitled_capstone.presentation.feature.my.profile.ProfileUiState
 import com.example.untitled_capstone.presentation.util.AuthEvent
 import com.example.untitled_capstone.presentation.util.AuthEventBus
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,145 +26,43 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MyViewModel @Inject constructor(
-    private val myUseCases: MyUseCases,
+    private val getMyProfileUseCase: GetMyProfileUseCase,
 ): ViewModel(){
 
-    private val _state = MutableStateFlow(MyState())
-    val state = _state.asStateFlow()
+    val uiState: MutableStateFlow<MyUiState> = MutableStateFlow<MyUiState>(MyUiState.Loading)
 
-    private val _nickname = MutableStateFlow<String?>(null)
-    val nickname = _nickname.asStateFlow()
+    private val _profile = MutableStateFlow<Profile?>(null)
+    val profile = _profile.asStateFlow()
 
-    var loginState by mutableStateOf(true)
-        private set
-
-    var token: String by mutableStateOf("")
-        private set
     init {
-        getMyName()
-    }
-
-    fun onEvent(event: MyEvent){
-        when(event){
-            is MyEvent.Logout -> logout()
-            is MyEvent.GetMyProfile -> getMyProfile()
-            is MyEvent.GetOtherProfile -> getOtherProfile(event.nickname)
-            is MyEvent.UploadProfileImage -> uploadProfileImage(event.file)
-            is MyEvent.ReportUser -> reportUser(event.id, event.reportType, event.content)
-        }
-    }
-
-    private fun reportUser(id: Long, reportType: String, content: String) {
-        viewModelScope.launch {
-            val result = myUseCases.reportUser(id, reportType, content)
-            when(result){
-                is Resource.Success -> {
-                    result.data?.let{
-                        _state.update { it.copy(
-                            loading = false,
-                            error = null) }
-                    }
-                }
-                is Resource.Error -> {
-                    _state.update { it.copy(loading = false, error = result.message ?: "An unexpected error occurred") }
-                }
-                is Resource.Loading -> {
-                    _state.update { it.copy(loading = true) }
-                }
-            }
-        }
-    }
-
-    private fun uploadProfileImage(file: File) {
-        viewModelScope.launch {
-            val result = myUseCases.uploadProfileImage(file)
-            when(result){
-                is Resource.Success -> {
-                    result.data?.let{
-                        _state.update { it.copy(
-                            loading = false,
-                            error = null) }
-                    }
-                }
-                is Resource.Error -> {
-                    _state.update { it.copy(loading = false, error = result.message ?: "An unexpected error occurred") }
-                }
-                is Resource.Loading -> {
-                    _state.update { it.copy(loading = true) }
-                }
-            }
-        }
-    }
-
-    private fun logout() {
-        viewModelScope.launch {
-            val result = myUseCases.logout()
-            when(result){
-                is Resource.Success -> {
-                    result.data?.let{
-                        loginState = false
-                    }
-                    AuthEventBus.send(AuthEvent.Logout)
-                }
-                is Resource.Error -> {
-                    _state.update { it.copy(loading = false, error = result.message ?: "An unexpected error occurred") }
-                }
-                is Resource.Loading -> {
-                    _state.update { it.copy(loading = true) }
-                }
-            }
-        }
+        getMyProfile()
     }
 
     private fun getMyProfile(){
         viewModelScope.launch {
-            val result = myUseCases.getMyProfile()
-            when(result){
-                is Resource.Success -> {
-                    result.data?.let{
-                        _state.update { it.copy(
-                            profile = result.data,
-                            loading = false,
-                            error = null) }
+            getMyProfileUseCase().collectLatest{
+                when(it){
+                    is Resource.Success -> {
+                        it.data?.let{
+                            _profile.value = it
+                            uiState.tryEmit(MyUiState.Idle)
+                        }
+                    }
+                    is Resource.Error -> {
+                        uiState.tryEmit(MyUiState.Error(it.message))
+                    }
+                    is Resource.Loading -> {
+                        uiState.tryEmit(MyUiState.Loading)
                     }
                 }
-                is Resource.Error -> {
-                    _state.update { it.copy(loading = false, error = result.message ?: "An unexpected error occurred") }
-                }
-                is Resource.Loading -> {
-                    _state.update { it.copy(loading = true) }
-                }
             }
         }
     }
+}
 
-    private fun getOtherProfile(nickname: String){
-        viewModelScope.launch {
-            val result = myUseCases.getOtherProfile(nickname)
-            when(result){
-                is Resource.Success -> {
-                    result.data?.let{
-                        _state.update { it.copy(
-                            profile = result.data,
-                            loading = false,
-                            error = null) }
-                    }
-                }
-                is Resource.Error -> {
-                    _state.update { it.copy(loading = false, error = result.message ?: "An unexpected error occurred") }
-                }
-                is Resource.Loading -> {
-                    _state.update { it.copy(loading = true) }
-                }
-            }
-        }
-    }
-
-    private fun getMyName(){
-        viewModelScope.launch {
-            myUseCases.getMyNicknameUseCase().collectLatest {
-                _nickname.value = it
-            }
-        }
-    }
+@Stable
+interface MyUiState {
+    data object Idle: MyUiState
+    data object Loading: MyUiState
+    data class Error(val message: String?): MyUiState
 }

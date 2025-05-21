@@ -1,4 +1,4 @@
-package com.example.untitled_capstone.presentation.feature.my.composable
+package com.example.untitled_capstone.presentation.feature.my.profile
 
 import android.app.Activity
 import android.content.Context
@@ -23,7 +23,6 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,22 +34,29 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.domain.model.Profile
 import com.example.untitled_capstone.navigation.Graph
 import com.example.untitled_capstone.navigation.Screen
-import com.example.untitled_capstone.presentation.feature.my.MyEvent
-import com.example.untitled_capstone.presentation.feature.my.MyState
 import com.example.untitled_capstone.ui.theme.CustomTheme
 import java.io.File
 
 @Composable
-fun ProfileDetail(loginState: Boolean, profile: Profile, onEvent: (MyEvent) -> Unit, navController: NavHostController){
+fun ProfileDetail(
+    uiState: ProfileUiState,
+    profile: Profile,
+    uploadProfileImage: (File) -> Unit,
+    clearBackStack: () -> Unit,
+    navigateUp: (Screen) -> Unit,
+    logout: () -> Unit,
+){
     val context = LocalContext.current
     var image by remember { mutableStateOf(profile.imageUrl?.toUri()) }
     val albumLauncher =
@@ -62,7 +68,7 @@ fun ProfileDetail(loginState: Boolean, profile: Profile, onEvent: (MyEvent) -> U
                             image = uri
                             val filePath = context.getRealPathFromURI(it)
                             if (filePath != null) {
-                                onEvent(MyEvent.UploadProfileImage(File(filePath)))
+                                uploadProfileImage(File(filePath))
                             }
                             Log.d("TargetSDK", "imageUri - selected : $uri")
                         }
@@ -76,12 +82,8 @@ fun ProfileDetail(loginState: Boolean, profile: Profile, onEvent: (MyEvent) -> U
         putExtra(Intent.EXTRA_ALLOW_MULTIPLE, false)
         addCategory(Intent.CATEGORY_OPENABLE)
     }
-    if(!loginState){
-        navController.navigate(Screen.LoginNav){
-            popUpTo(Graph.LoginGraph){
-                inclusive = true
-            }
-        }
+    if(uiState == ProfileUiState.Logout){
+        clearBackStack()
     }
     Column (
         modifier = Modifier.fillMaxSize().padding(Dimens.mediumPadding),
@@ -114,14 +116,28 @@ fun ProfileDetail(loginState: Boolean, profile: Profile, onEvent: (MyEvent) -> U
                 color = CustomTheme.colors.textSecondary,
             )
         }
-        Text(
-            modifier = Modifier.clickable{
-                onEvent(MyEvent.Logout)
-            },
-            text = "로그아웃",
-            style = CustomTheme.typography.button2,
-            color = CustomTheme.colors.textPrimary,
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(
+                horizontal = Dimens.mediumPadding,
+                vertical = Dimens.smallPadding
+            ),
+            horizontalArrangement = Arrangement.spacedBy(Dimens.smallPadding),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            profile.trustLevelImageUrl?.let {
+                AsyncImage(
+                    modifier = Modifier.size(28.dp),
+                    model = it,
+                    contentScale = ContentScale.Crop,
+                    contentDescription = "trust level",
+                )
+            }
+            Text(
+                text = levelToKor(profile.trustLevel),
+                style = CustomTheme.typography.title1,
+                color = CustomTheme.colors.textPrimary,
+            )
+        }
         Spacer(
             modifier = Modifier.height(Dimens.mediumPadding)
         )
@@ -138,7 +154,32 @@ fun ProfileDetail(loginState: Boolean, profile: Profile, onEvent: (MyEvent) -> U
             Column {
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(vertical = Dimens.smallPadding).clickable {
-                        navController.navigate(Screen.NicknameNav)
+                        logout()
+                    },
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "로그아웃",
+                        style = CustomTheme.typography.body1,
+                        color = CustomTheme.colors.textPrimary,
+                    )
+                    Icon(
+                        imageVector = ImageVector.vectorResource(R.drawable.chevron_right),
+                        contentDescription = "navigate",
+                        tint = CustomTheme.colors.iconDefault
+                    )
+                }
+                HorizontalDivider(
+                    modifier = Modifier.fillMaxWidth(),
+                    thickness = 1.dp,
+                    color = CustomTheme.colors.borderLight
+                )
+            }
+            Column {
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(vertical = Dimens.smallPadding).clickable {
+                        navigateUp(Screen.NicknameNav)
                     },
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
@@ -221,4 +262,36 @@ fun Context.getRealPathFromURI(uri: Uri): String? {
         }
     }
     return filePath
+}
+
+fun levelToKor(level: String? = null): String{
+    return when(level){
+        "BeginnerChef" -> "초보 요리사"
+        "HomeCook" -> "집밥러"
+        "SousChef" -> "수셰프"
+        "HeadChef" -> "헤드셰프"
+        "MasterChef" -> "마스터 셰프"
+        else -> "초보 요리사"
+    }
+}
+
+
+@Preview(showBackground = true)
+@Composable
+fun ProfileDetailPreview() {
+    ProfileDetail(
+        profile = Profile(
+            id = 1,
+            nickname = "닉네임",
+            email = "이메일",
+            imageUrl = null,
+            trustLevelImageUrl = null,
+            trustLevel = null,
+        ),
+        uiState = ProfileUiState.Idle,
+        uploadProfileImage = {},
+        clearBackStack = {},
+        navigateUp = {},
+        logout = {}
+    )
 }

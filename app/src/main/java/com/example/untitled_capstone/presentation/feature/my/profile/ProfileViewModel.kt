@@ -1,0 +1,144 @@
+package com.example.untitled_capstone.presentation.feature.my.profile
+
+import android.util.Log
+import androidx.compose.runtime.Stable
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.untitled_capstone.core.util.Resource
+import com.example.untitled_capstone.domain.model.Profile
+import com.example.untitled_capstone.domain.use_case.my.GetMyProfileUseCase
+import com.example.untitled_capstone.domain.use_case.my.GetOtherProfileUseCase
+import com.example.untitled_capstone.domain.use_case.my.LogoutUseCase
+import com.example.untitled_capstone.domain.use_case.my.UploadProfileImageUseCase
+import com.example.untitled_capstone.navigation.Screen
+import com.example.untitled_capstone.presentation.util.AuthEvent
+import com.example.untitled_capstone.presentation.util.AuthEventBus
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
+import java.io.File
+import javax.inject.Inject
+
+@HiltViewModel
+class ProfileViewModel @Inject constructor(
+    private val getMyProfileUseCase: GetMyProfileUseCase,
+    private val getOtherProfileUseCase: GetOtherProfileUseCase,
+    private val uploadProfileImageUseCase: UploadProfileImageUseCase,
+    private val logoutUseCase: LogoutUseCase,
+): ViewModel() {
+
+    val uiState: MutableStateFlow<ProfileUiState> =
+        MutableStateFlow<ProfileUiState>(ProfileUiState.Loading)
+
+    private val _profile = MutableStateFlow<Profile?>(null)
+    val profile = _profile.asStateFlow()
+
+    private val _event = MutableSharedFlow<ProfileEvent>()
+    val event = _event.asSharedFlow()
+
+    fun getMyProfile(){
+        viewModelScope.launch {
+            getMyProfileUseCase().collectLatest{
+                when(it){
+                    is Resource.Success -> {
+                        it.data?.let{
+                            _profile.value = it
+                            uiState.tryEmit(ProfileUiState.Idle)
+                        }
+                    }
+                    is Resource.Error -> {
+                        uiState.tryEmit(ProfileUiState.Error(it.message))
+                        _event.emit(ProfileEvent.ShowSnackbar(it.message ?: "Unknown error"))
+                    }
+                    is Resource.Loading -> {
+                        uiState.tryEmit(ProfileUiState.Loading)
+                    }
+                }
+            }
+        }
+    }
+
+    fun getOtherProfile(nickname: String){
+        viewModelScope.launch {
+            getOtherProfileUseCase(nickname).collectLatest{
+                when(it){
+                    is Resource.Success -> {
+                        it.data?.let{
+                            _profile.value = it
+                            uiState.tryEmit(ProfileUiState.Idle)
+                        }
+                    }
+                    is Resource.Error -> {
+                        uiState.tryEmit(ProfileUiState.Error(it.message))
+                        _event.emit(ProfileEvent.ShowSnackbar(it.message ?: "Unknown error"))
+                    }
+                    is Resource.Loading -> {
+                        uiState.tryEmit(ProfileUiState.Loading)
+                    }
+                }
+            }
+        }
+    }
+
+    fun uploadProfileImage(file: File) {
+        viewModelScope.launch {
+            uploadProfileImageUseCase(file).collectLatest{
+                when(it){
+                    is Resource.Success -> {
+                        it.data?.let{
+                            uiState.tryEmit(ProfileUiState.Success)
+                        }
+                    }
+                    is Resource.Error -> {
+                        uiState.tryEmit(ProfileUiState.Error(it.message))
+                        _event.emit(ProfileEvent.ShowSnackbar(it.message ?: "Unknown error"))
+                    }
+                    is Resource.Loading -> {
+                        uiState.tryEmit(ProfileUiState.Loading)
+                    }
+                }
+            }
+        }
+    }
+
+    fun logout() {
+        viewModelScope.launch {
+            logoutUseCase().collectLatest{
+                when(it){
+                    is Resource.Success -> {
+                        it.data?.let{
+                            AuthEventBus.send(AuthEvent.Logout)
+                            uiState.tryEmit(ProfileUiState.Logout)
+                        }
+                    }
+                    is Resource.Error -> {
+                        uiState.tryEmit(ProfileUiState.Error(it.message))
+                        _event.emit(ProfileEvent.ShowSnackbar(it.message ?: "Unknown error"))
+                    }
+                    is Resource.Loading -> {
+                        uiState.tryEmit(ProfileUiState.Loading)
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Stable
+interface ProfileUiState {
+    data object Idle: ProfileUiState
+    data object Success: ProfileUiState
+    data object Loading: ProfileUiState
+    data object Logout: ProfileUiState
+    data class Error(val message: String?): ProfileUiState
+}
+
+interface ProfileEvent{
+    data class ShowSnackbar(val message: String) : ProfileEvent
+    data class Navigate(val route: Screen) : ProfileEvent
+    object PopBackStack : ProfileEvent
+}

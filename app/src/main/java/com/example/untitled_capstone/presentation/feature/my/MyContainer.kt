@@ -1,4 +1,4 @@
-package com.example.untitled_capstone.presentation.feature.my.composable
+package com.example.untitled_capstone.presentation.feature.my
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -18,10 +18,14 @@ import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @Composable
-fun MyContainer(content: String, icon: Int, navigateTo: () -> Unit){
+fun MyContainer(
+    content: String,
+    icon: Int,
+    navigateUp: () -> Unit
+){
     Row(
         modifier = Modifier.fillMaxWidth().clickable {
-            navigateTo()
+            navigateUp()
         },
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically

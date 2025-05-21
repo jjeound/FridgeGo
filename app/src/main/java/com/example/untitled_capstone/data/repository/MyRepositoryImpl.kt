@@ -1,8 +1,13 @@
 package com.example.untitled_capstone.data.repository
 
 import android.content.Context
+import androidx.annotation.WorkerThread
+import androidx.datastore.preferences.core.edit
+import com.example.untitled_capstone.core.util.PrefKeys.MY_PROFILE
 import com.example.untitled_capstone.core.util.PrefKeys.NICKNAME
 import com.example.untitled_capstone.core.util.Resource
+import com.example.untitled_capstone.data.AppDispatchers
+import com.example.untitled_capstone.data.Dispatcher
 import com.example.untitled_capstone.data.local.remote.ProfileDao
 import com.example.untitled_capstone.data.remote.dto.ReportDto
 import com.example.untitled_capstone.data.remote.service.MyApi
@@ -10,7 +15,11 @@ import com.example.untitled_capstone.domain.model.Profile
 import com.example.untitled_capstone.domain.repository.MyRepository
 import com.example.untitled_capstone.domain.repository.TokenRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import okhttp3.MultipartBody
 import okio.IOException
@@ -21,119 +30,121 @@ class MyRepositoryImpl @Inject constructor(
     private val api: MyApi,
     private val tokenRepository: TokenRepository,
     private val dao: ProfileDao,
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    @Dispatcher(AppDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
 ): MyRepository {
     val dataStore = context.dataStore
 
-    override suspend fun logout(): Resource<String> {
-        return try {
-            Resource.Loading(data = null)
+    @WorkerThread
+    override suspend fun logout(): Flow<Resource<String>> = flow {
+        emit(Resource.Loading())
+        try {
             val response = api.logout()
             if(response.isSuccess){
                 tokenRepository.deleteTokens()
-                Resource.Success(response.result)
+                emit(Resource.Success(response.result))
             }else {
-                Resource.Error(message = response.message)
+                emit(Resource.Error(message = response.message))
             }
         } catch (e: IOException) {
-            Resource.Error(e.toString())
+            emit(Resource.Error(e.toString()))
         } catch (e: HttpException) {
-            Resource.Error(e.toString())
+            emit(Resource.Error(e.toString()))
         }
-    }
+    }.flowOn(ioDispatcher)
 
-    override suspend fun getMyProfile(): Resource<Profile> {
-        return try {
-            Resource.Loading(data = null)
-            val profile = dao.getProfile()
-            if(profile != null){
-                return Resource.Success(profile.toProfile())
-            }else{
-                val response = api.getProfile()
-                if(response.isSuccess){
-                    Resource.Success(response.result!!.toProfile())
-                } else {
-                    Resource.Error(response.message)
-                }
+    @WorkerThread
+    override suspend fun getMyProfile(): Flow<Resource<Profile>> = flow {
+        emit(Resource.Loading())
+        try {
+            val response = api.getProfile()
+            if(response.isSuccess){
+                emit(Resource.Success(response.result!!.toProfile()))
+            }else {
+                emit(Resource.Error(message = response.message))
             }
         } catch (e: IOException) {
-            Resource.Error(e.toString())
+            emit(Resource.Error(e.toString()))
         } catch (e: HttpException) {
-            Resource.Error(e.toString())
+            emit(Resource.Error(e.toString()))
         }
-    }
+    }.flowOn(ioDispatcher)
 
-    override suspend fun getNickname(): Flow<String> {
+    override suspend fun getNickname(): String? {
         return dataStore.data.map { prefs ->
-            prefs[NICKNAME] ?: "User"
-        }
+            prefs[NICKNAME]
+        }.first()
     }
 
-    override suspend fun getOtherProfile(nickname: String): Resource<Profile> {
-        return try {
-            Resource.Loading(data = null)
+    @WorkerThread
+    override suspend fun getOtherProfile(nickname: String): Flow<Resource<Profile>> = flow {
+        emit(Resource.Loading())
+        try {
             val response = api.getOtherProfile(nickname)
             if(response.isSuccess){
-                Resource.Success(response.result!!.toProfile())
-            } else {
-                Resource.Error(response.message)
+                emit(Resource.Success(response.result!!.toProfile()))
+            }else {
+                emit(Resource.Error(message = response.message))
             }
         } catch (e: IOException) {
-            Resource.Error(e.toString())
+            emit(Resource.Error(e.toString()))
         } catch (e: HttpException) {
-            Resource.Error(e.toString())
+            emit(Resource.Error(e.toString()))
         }
-    }
+    }.flowOn(ioDispatcher)
 
-    override suspend fun getLocation(): Resource<String> {
-        return try {
-            Resource.Loading(data = null)
+    @WorkerThread
+    override suspend fun getLocation(): Flow<Resource<String>> = flow {
+        emit(Resource.Loading())
+        try {
             val response = api.getLocation()
             if(response.isSuccess){
-                Resource.Success(response.result!!.neighborhood)
+                emit(Resource.Success(response.result!!.neighborhood))
             }else {
-                Resource.Error(message = response.message)
+                emit(Resource.Error(message = response.message))
             }
         } catch (e: IOException) {
-            Resource.Error(e.toString())
+            emit(Resource.Error(e.toString()))
         } catch (e: HttpException) {
-            Resource.Error(e.toString())
+            emit(Resource.Error(e.toString()))
         }
-    }
+    }.flowOn(ioDispatcher)
 
-    override suspend fun uploadProfileImage(profileImage: MultipartBody.Part): Resource<String> {
-        return try {
-            Resource.Loading(data = null)
+    @WorkerThread
+    override suspend fun uploadProfileImage(profileImage: MultipartBody.Part): Flow<Resource<String>> = flow {
+        emit(Resource.Loading())
+        try {
             val response = api.uploadProfileImage(profileImage)
             if(response.isSuccess){
-                Resource.Success(response.result)
+                emit(Resource.Success(response.result))
             }else {
-                Resource.Error(message = response.message)
+                emit(Resource.Error(message = response.message))
             }
         } catch (e: IOException) {
-            Resource.Error(e.toString())
+            emit(Resource.Error(e.toString()))
         } catch (e: HttpException) {
-            Resource.Error(e.toString())
+            emit(Resource.Error(e.toString()))
         }
-    }
+    }.flowOn(ioDispatcher)
 
+    @WorkerThread
     override suspend fun repostUser(
         targetUserId: Long,
         reportType: String,
         content: String
-    ): Resource<String> {
-        return try {
-            Resource.Loading(data = null)
+    ): Flow<Resource<String>> = flow {
+        emit(Resource.Loading())
+        try {
             val response = api.reportUser(targetUserId, ReportDto(reportType, content))
             if(response.isSuccess){
-                Resource.Success(response.result)
+                emit(Resource.Success(response.result))
             }else {
-                Resource.Error(message = response.message)
+                emit(Resource.Error(message = response.message))
             }
         } catch (e: IOException) {
-            Resource.Error(e.toString())
+            emit(Resource.Error(e.toString()))
         } catch (e: HttpException) {
-            Resource.Error(e.toString())
+            emit(Resource.Error(e.toString()))
         }
-    }
+    }.flowOn(ioDispatcher)
 }

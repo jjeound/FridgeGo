@@ -1,4 +1,4 @@
-package com.example.untitled_capstone.presentation.feature.my.composable
+package com.example.untitled_capstone.presentation.feature.my
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -19,7 +19,7 @@ import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MyTopBar(navController: NavHostController) {
+fun MyTopBar() {
     TopAppBar(
         modifier = Modifier.padding(horizontal = Dimens.topBarPadding),
         title = {

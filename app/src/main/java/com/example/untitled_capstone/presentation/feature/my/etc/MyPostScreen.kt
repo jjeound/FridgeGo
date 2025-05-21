@@ -1,4 +1,4 @@
-package com.example.untitled_capstone.presentation.feature.my.screen
+package com.example.untitled_capstone.presentation.feature.my.etc
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -29,14 +29,18 @@ import androidx.paging.compose.LazyPagingItems
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.domain.model.PostRaw
-import com.example.untitled_capstone.presentation.feature.post.PostEvent
-import com.example.untitled_capstone.presentation.feature.post.composable.PostListContainer
+import com.example.untitled_capstone.navigation.Screen
+import com.example.untitled_capstone.presentation.feature.post.PostListContainer
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MyPostScreen(navigate: (Long) -> Unit, postItems: LazyPagingItems<PostRaw>,
-                 onEvent: (PostEvent) -> Unit, navigateToBack: () -> Unit){
+fun MyPostScreen(
+    navigateUp: (Screen) -> Unit,
+    postItems: LazyPagingItems<PostRaw>,
+    popBackStack: () -> Unit,
+    toggleLike: (Long) -> Unit
+){
     Scaffold(
         containerColor = CustomTheme.colors.surface,
         topBar = {
@@ -51,7 +55,7 @@ fun MyPostScreen(navigate: (Long) -> Unit, postItems: LazyPagingItems<PostRaw>,
                 },
                 navigationIcon = {
                     IconButton(
-                        onClick = {navigateToBack()}
+                        onClick = {popBackStack()}
                     ) {
                         Icon(
                             imageVector = ImageVector.vectorResource(R.drawable.chevron_left),
@@ -88,10 +92,10 @@ fun MyPostScreen(navigate: (Long) -> Unit, postItems: LazyPagingItems<PostRaw>,
                         if(post != null){
                             Box(
                                 modifier = Modifier.clickable {
-                                    navigate(post.id)
+                                    navigateUp(Screen.PostDetailNav((post.id)))
                                 }
                             ){
-                                PostListContainer(post, onEvent = onEvent)
+                                PostListContainer(post, toggleLike = toggleLike)
                             }
                         }
                     }

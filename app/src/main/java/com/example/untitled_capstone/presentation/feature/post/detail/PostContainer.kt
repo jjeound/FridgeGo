@@ -1,4 +1,4 @@
-package com.example.untitled_capstone.presentation.feature.post.composable
+package com.example.untitled_capstone.presentation.feature.post.detail
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -32,6 +32,7 @@ import coil.compose.AsyncImage
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.domain.model.Post
+import com.example.untitled_capstone.presentation.feature.post.crud.Category
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @Composable

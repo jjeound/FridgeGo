@@ -1,4 +1,4 @@
-package com.example.untitled_capstone.presentation.feature.post.screen
+package com.example.untitled_capstone.presentation.feature.post.detail
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -27,6 +27,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -40,31 +41,34 @@ import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.domain.model.Post
 import com.example.untitled_capstone.navigation.Screen
-import com.example.untitled_capstone.presentation.feature.post.composable.PostContainer
-import com.example.untitled_capstone.presentation.feature.post.PostEvent
-import com.example.untitled_capstone.presentation.util.UiState
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PostDetailScreen(
     id: Long,
-    nickname: String,
-    state: UiState,
+    nickname: String?,
+    uiState: PostDetailUiState,
     post: Post?,
-    onEvent: (PostEvent) -> Unit,
+    getPostById: (Long) -> Unit,
+    navigateUp: (Screen) -> Unit,
+    deletePost: (Long) -> Unit,
+    toggleLike: (Long) -> Unit,
+    clearBackStack: () -> Unit,
+    savePost: (Post) -> Unit,
 ){
     var expanded by remember { mutableStateOf(false) }
-    var menuItem by remember { mutableStateOf(emptyList<String>()) }
-    LaunchedEffect(true) {
-        onEvent(PostEvent.GetPostById(id))
-    }
-    LaunchedEffect(post) {
-        if(post != null){
-            menuItem = if(nickname == post.nickname) listOf("수정", "삭제") else listOf("신고")
+    val menuItem by remember { derivedStateOf {
+        if(nickname == post?.nickname) {
+            listOf("수정", "삭제")
+        } else {
+            listOf("신고")
         }
+    } }
+    LaunchedEffect(true) {
+        getPostById(id)
     }
-    if(state is UiState.Loading){
+    if(uiState == PostDetailUiState.Loading){
         Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
@@ -83,8 +87,7 @@ fun PostDetailScreen(
                     navigationIcon = {
                         IconButton(
                             onClick = {
-                                onEvent(PostEvent.PopBackStack)
-                                onEvent(PostEvent.InitState)
+                                clearBackStack()
                             }
                         ) {
                             Icon(
@@ -135,18 +138,20 @@ fun PostDetailScreen(
                                     onClick = {
                                         expanded = false
                                         if(menuItem.size == 1){
-                                            onEvent(PostEvent.NavigateUp(
-                                                Screen.ReportPostNav(
-                                                    postId = post.id
+                                            navigateUp(
+                                                Screen.ReportNav(
+                                                    id = post.id,
+                                                    isPost = true
                                                 )
-                                            ))
+                                            )
                                         }else if(menuItem.size == 2){
                                             when(option){
-                                                menuItem[0] -> onEvent(PostEvent.NavigateUp(Screen.WritingNav))
+                                                menuItem[0] -> {
+                                                    savePost(post)
+                                                    navigateUp(Screen.WritingNav)
+                                                }
                                                 menuItem[1] -> {
-                                                    onEvent(PostEvent.DeletePost(post.id))
-                                                    onEvent(PostEvent.PopBackStack)
-                                                    onEvent(PostEvent.InitState)
+                                                    deletePost(post.id)
                                                 }
                                             }
                                         }
@@ -177,7 +182,7 @@ fun PostDetailScreen(
                             ){
                                 IconButton(
                                     onClick = {
-                                        onEvent(PostEvent.ToggleLike(post.id))
+                                        toggleLike(post.id)
                                     }
                                 ) {
                                     if(post.liked){
@@ -213,9 +218,9 @@ fun PostDetailScreen(
                                 Button(
                                     modifier = Modifier.padding(end = 4.dp),
                                     onClick = {
-                                        onEvent(PostEvent.NavigateUp(
+                                        navigateUp(
                                             Screen.ChattingRoomNav(post.chatRoomId)
-                                        ))
+                                        )
                                     },
                                     enabled = post.roomActive && post.currentParticipants < post.memberCount,
                                     shape = RoundedCornerShape(Dimens.cornerRadius),
@@ -256,13 +261,7 @@ fun PostDetailScreen(
                 PostContainer(
                     post= post,
                     goToProfile = {
-                        onEvent(
-                            PostEvent.NavigateUp(
-                                Screen.Profile(
-                                    post.nickname
-                                )
-                            )
-                        )
+                        navigateUp(Screen.Profile(post.nickname))
                     }
                 )
             }

@@ -1,5 +1,6 @@
-package com.example.untitled_capstone.presentation.feature.post.screen
+package com.example.untitled_capstone.presentation.feature.post.search
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -27,7 +28,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,25 +47,25 @@ import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.domain.model.Keyword
 import com.example.untitled_capstone.domain.model.PostRaw
 import com.example.untitled_capstone.navigation.Screen
-import com.example.untitled_capstone.presentation.feature.post.PostEvent
-import com.example.untitled_capstone.presentation.feature.post.composable.PostListContainer
-import com.example.untitled_capstone.presentation.util.UiState
+import com.example.untitled_capstone.presentation.feature.post.PostListContainer
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PostSearchScreen(
-    state: UiState,
+    uiState: SearchUiState,
     searchPagingData: LazyPagingItems<PostRaw>,
     searchHistoryState: List<Keyword>,
-    onEvent: (PostEvent) -> Unit,
+    clearBackStack: () -> Unit,
+    searchPost: (String) -> Unit,
+    navigateUp: (Screen) -> Unit,
+    toggleLike: (Long) -> Unit,
+    deleteAllSearchHistory: () -> Unit,
+    deleteSearchHistory: (String) -> Unit,
 ) {
     var text by remember { mutableStateOf("") }
     val focusManager = LocalFocusManager.current
     var showResult by remember { mutableStateOf(false) }
-    LaunchedEffect(true) {
-        onEvent(PostEvent.GetSearchHistory)
-    }
     Scaffold(
         containerColor = CustomTheme.colors.surface,
         topBar = {
@@ -87,8 +87,7 @@ fun PostSearchScreen(
                 ) {
                     IconButton(
                         onClick = {
-                            onEvent(PostEvent.LoadItems)
-                            onEvent(PostEvent.PopBackStack)
+                            clearBackStack()
                         }
                     ) {
                         Icon(
@@ -131,9 +130,8 @@ fun PostSearchScreen(
                         keyboardActions = KeyboardActions(onDone = {
                             focusManager.clearFocus()
                             if (text.isNotBlank()) {
-                                onEvent(PostEvent.SearchPost(text))
+                                searchPost(text)
                                 showResult = true
-                                onEvent(PostEvent.AddSearchHistory(text))
                             }
                         })
                     )
@@ -142,8 +140,7 @@ fun PostSearchScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(modifier = Modifier.clickable {
-                                onEvent(PostEvent.LoadItems)
-                                onEvent(PostEvent.PopBackStack)
+                                clearBackStack()
                             },
                             text = "닫기",
                             style = CustomTheme.typography.button1,
@@ -197,14 +194,17 @@ fun PostSearchScreen(
                         if(post != null){
                             Box(
                                 modifier = Modifier.clickable {
-                                    onEvent(PostEvent.NavigateUp(
+                                    navigateUp(
                                         Screen.PostDetailNav(
                                             post.id
                                         )
-                                    ))
+                                    )
                                 }
                             ){
-                                PostListContainer(post, onEvent = onEvent)
+                                PostListContainer(
+                                    post = post,
+                                    toggleLike = toggleLike
+                                )
                             }
                         }
                     }
@@ -218,7 +218,8 @@ fun PostSearchScreen(
                 }
             }else{
                 Column(
-                    modifier = Modifier.fillMaxHeight()
+                    modifier = Modifier.fillMaxHeight(),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Row(
                         modifier = Modifier
@@ -234,7 +235,7 @@ fun PostSearchScreen(
                         Text(
                             modifier = Modifier.clickable{
                                 if(searchHistoryState.isNotEmpty()){
-                                    onEvent(PostEvent.DeleteAllSearchHistory)
+                                    deleteAllSearchHistory()
                                 }
                             },
                             text = "전체 삭제",
@@ -245,18 +246,13 @@ fun PostSearchScreen(
                     Spacer(
                         modifier = Modifier.height(Dimens.mediumPadding)
                     )
-                    if(state is UiState.Loading){
-                        CircularProgressIndicator(
-                            color = CustomTheme.colors.primary
-                        )
-                    }
-                    when(state){
-                        is UiState.Loading -> {
+                    when(uiState){
+                        is SearchUiState.Loading -> {
                             CircularProgressIndicator(
                                 color = CustomTheme.colors.primary
                             )
                         }
-                        is UiState.Success -> {
+                        is SearchUiState.Idle -> {
                             LazyColumn (
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -270,11 +266,10 @@ fun PostSearchScreen(
                                     val keyword = searchHistoryState[index]
                                     Row(
                                         modifier = Modifier.fillMaxWidth().clickable{
-                                            onEvent(PostEvent.SearchPost(keyword.keyword))
+                                            searchPost(keyword.keyword)
                                             showResult = true
                                             focusManager.clearFocus()
                                             text = keyword.keyword
-                                            onEvent(PostEvent.AddSearchHistory(keyword.keyword))
                                         },
                                         verticalAlignment = Alignment.CenterVertically
                                     ){
@@ -294,7 +289,7 @@ fun PostSearchScreen(
                                         )
                                         IconButton(
                                             onClick = {
-                                                onEvent(PostEvent.DeleteSearchHistory(keyword.keyword))
+                                                deleteSearchHistory(keyword.keyword)
                                             },
                                             modifier = Modifier.size(24.dp)
                                         ){

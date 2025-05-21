@@ -1,5 +1,9 @@
 package com.example.untitled_capstone.domain.model
 
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
+@Parcelize
 data class Post(
     val category: String,
     val content: String,
@@ -19,4 +23,4 @@ data class Post(
     val chatRoomId: Long,
     val currentParticipants: Int,
     val roomActive: Boolean
-)
+): Parcelable

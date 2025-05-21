@@ -1,4 +1,4 @@
-package com.example.untitled_capstone.presentation.feature.post.screen
+package com.example.untitled_capstone.presentation.feature.post
 
 import android.widget.Toast
 import androidx.compose.foundation.clickable
@@ -20,15 +20,13 @@ import androidx.paging.compose.LazyPagingItems
 import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.domain.model.PostRaw
 import com.example.untitled_capstone.navigation.Screen
-import com.example.untitled_capstone.presentation.feature.post.composable.PostListContainer
-import com.example.untitled_capstone.presentation.feature.post.PostEvent
-import com.example.untitled_capstone.presentation.util.UiState
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @Composable
 fun PostScreen(
     postPagingData: LazyPagingItems<PostRaw>,
-    onEvent: (PostEvent) -> Unit
+    navigateUp: (Screen) -> Unit,
+    toggleLike: (Long) -> Unit,
 ) {
     val context = LocalContext.current
     LaunchedEffect(key1 = postPagingData.loadState) {
@@ -58,14 +56,17 @@ fun PostScreen(
                     if(post != null){
                         Box(
                             modifier = Modifier.clickable {
-                                onEvent(PostEvent.NavigateUp(
+                                navigateUp(
                                     Screen.PostDetailNav(
                                         post.id
                                     )
-                                ))
+                                )
                             }
                         ){
-                            PostListContainer(post, onEvent = onEvent)
+                            PostListContainer(
+                                post = post,
+                                toggleLike = toggleLike
+                            )
                         }
                     }
                 }

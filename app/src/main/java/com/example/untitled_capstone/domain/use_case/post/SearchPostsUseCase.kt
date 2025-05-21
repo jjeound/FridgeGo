@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
-class SearchPosts @Inject constructor(
+class SearchPostsUseCase @Inject constructor(
     private val repository: PostRepository
 ) {
     operator fun invoke(fetchType: PostFetchType): Flow<PagingData<PostRaw>> {

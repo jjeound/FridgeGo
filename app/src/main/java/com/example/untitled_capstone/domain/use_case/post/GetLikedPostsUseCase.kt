@@ -9,11 +9,11 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
-class GetMyPosts @Inject constructor(
+class GetLikedPostsUseCase @Inject constructor(
     private val repository: PostRepository
 ) {
     operator fun invoke(fetchType: PostFetchType): Flow<PagingData<PostRaw>> {
-        return repository.getMyPosts(fetchType).map { pagingData ->
+        return repository.getLikedPosts(fetchType).map { pagingData ->
             pagingData.map { it.toPostRaw() }
         }
     }

@@ -1,4 +1,4 @@
-package com.example.untitled_capstone.presentation.feature.post.screen
+package com.example.untitled_capstone.presentation.feature.post.detail
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
@@ -42,21 +42,20 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
-import com.example.untitled_capstone.presentation.feature.post.PostEvent
+import com.example.untitled_capstone.presentation.feature.post.PostUiState
 import com.example.untitled_capstone.presentation.util.ReportType
-import com.example.untitled_capstone.presentation.util.UiState
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PostReportScreen(
-    state: UiState,
+    uiState: PostDetailUiState,
     postId: Long,
-    onEvent: (PostEvent) -> Unit
+    repostPost: (Long, String, String) -> Unit,
+    popBackStack: () -> Unit,
 ) {
     var isExpanded by remember { mutableStateOf(false) }
     val reportType = listOf(
@@ -83,13 +82,13 @@ fun PostReportScreen(
         "• 신고는 익명으로 처리되며, 신고자의 정보는 상대방에게 공개되지 않습니다."
     )
     var showDialog by remember { mutableStateOf(false) }
-    LaunchedEffect(state) {
-        if (state is UiState.Success) {
+    LaunchedEffect(uiState) {
+        if (uiState == PostDetailUiState.Success) {
             showDialog = true
         }
     }
     Scaffold(
-        containerColor = CustomTheme.colors.onSurface,
+        containerColor = if(showDialog) CustomTheme.colors.border else CustomTheme.colors.onSurface,
         topBar = {
             CenterAlignedTopAppBar(
                 modifier = Modifier.padding(horizontal = Dimens.topBarPadding),
@@ -103,7 +102,7 @@ fun PostReportScreen(
                 navigationIcon = {
                     IconButton(
                         onClick = {
-                            onEvent(PostEvent.PopBackStack)
+                            popBackStack()
                         }
                     ) {
                         Icon(
@@ -114,7 +113,7 @@ fun PostReportScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = CustomTheme.colors.onSurface
+                    containerColor = if(showDialog) CustomTheme.colors.border else CustomTheme.colors.onSurface
                 )
             )
         },
@@ -166,10 +165,10 @@ fun PostReportScreen(
                     },
                     textStyle = CustomTheme.typography.body2,
                     colors = TextFieldDefaults.colors(
-                        focusedContainerColor = CustomTheme.colors.onSurface,
+                        focusedContainerColor = if(showDialog) CustomTheme.colors.border else CustomTheme.colors.onSurface,
                         focusedIndicatorColor = CustomTheme.colors.border,
                         unfocusedTextColor = CustomTheme.colors.textPrimary,
-                        unfocusedContainerColor = CustomTheme.colors.onSurface,
+                        unfocusedContainerColor = if(showDialog) CustomTheme.colors.border else CustomTheme.colors.onSurface,
                         unfocusedIndicatorColor = CustomTheme.colors.border,
                         unfocusedTrailingIconColor = CustomTheme.colors.iconSelected,
                     ),
@@ -233,8 +232,8 @@ fun PostReportScreen(
                         unfocusedBorderColor = CustomTheme.colors.border,
                         focusedTextColor = CustomTheme.colors.textPrimary,
                         unfocusedTextColor = CustomTheme.colors.textPrimary,
-                        focusedContainerColor = CustomTheme.colors.onSurface,
-                        unfocusedContainerColor = CustomTheme.colors.onSurface,
+                        focusedContainerColor = if(showDialog) CustomTheme.colors.border else CustomTheme.colors.onSurface,
+                        unfocusedContainerColor = if(showDialog) CustomTheme.colors.border else CustomTheme.colors.onSurface,
                         cursorColor = CustomTheme.colors.textPrimary,
                         errorCursorColor = CustomTheme.colors.error,
                     ),
@@ -284,13 +283,7 @@ fun PostReportScreen(
                 ),
                 enabled = reportTypeText.isNotBlank() && content.isNotBlank(),
                 onClick = {
-                    onEvent(
-                        PostEvent.ReportPost(
-                            postId = postId,
-                            reportType = ReportType.fromKor(reportTypeText) ?: "OTHER",
-                            content = content
-                        )
-                    )
+                    repostPost(postId, ReportType.fromKor(reportTypeText) ?: "OTHER", content)
                 }
             ) {
                 Text(
@@ -325,7 +318,7 @@ fun PostReportScreen(
                             ),
                             onClick = {
                                 showDialog = false
-                                onEvent(PostEvent.PopBackStack)
+                                popBackStack()
                             }
                         ) {
                             Text("확인")
@@ -335,14 +328,4 @@ fun PostReportScreen(
             }
         }
     }
-}
-
-@Preview
-@Composable
-fun PostReportScreenPreview() {
-    PostReportScreen(
-        state = UiState.Success,
-        postId = 1L,
-        onEvent = {}
-    )
 }

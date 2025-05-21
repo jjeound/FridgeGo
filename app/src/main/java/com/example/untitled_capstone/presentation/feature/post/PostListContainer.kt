@@ -1,4 +1,4 @@
-package com.example.untitled_capstone.presentation.feature.post.composable
+package com.example.untitled_capstone.presentation.feature.post
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -29,12 +29,14 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
-import com.example.untitled_capstone.presentation.feature.post.PostEvent
 import com.example.untitled_capstone.ui.theme.CustomTheme
 import com.example.untitled_capstone.domain.model.PostRaw
 
 @Composable
-fun PostListContainer(post: PostRaw, onEvent: (PostEvent) -> Unit){
+fun PostListContainer(
+    post: PostRaw,
+    toggleLike: (Long) -> Unit,
+){
     Card(
         colors = CardDefaults.cardColors(
             containerColor = CustomTheme.colors.onSurface,
@@ -116,7 +118,7 @@ fun PostListContainer(post: PostRaw, onEvent: (PostEvent) -> Unit){
                 IconButton(
                     modifier = Modifier.then(Modifier.size(24.dp)),
                     onClick = {
-                        onEvent(PostEvent.ToggleLike(post.id))
+                        toggleLike(post.id)
                     }
                 ) {
                     if(post.liked){

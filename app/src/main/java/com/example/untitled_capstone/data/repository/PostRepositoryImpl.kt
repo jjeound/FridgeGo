@@ -1,13 +1,15 @@
 package com.example.untitled_capstone.data.repository
 
-import android.content.Context
+import android.util.Log
+import androidx.annotation.WorkerThread
 import androidx.paging.ExperimentalPagingApi
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import com.example.untitled_capstone.core.util.Constants.NETWORK_PAGE_SIZE
-import com.example.untitled_capstone.core.util.PrefKeys.NICKNAME
 import com.example.untitled_capstone.core.util.Resource
+import com.example.untitled_capstone.data.AppDispatchers
+import com.example.untitled_capstone.data.Dispatcher
 import com.example.untitled_capstone.data.local.db.PostItemDatabase
 import com.example.untitled_capstone.data.local.entity.PostItemEntity
 import com.example.untitled_capstone.data.pagination.PostPagingSource
@@ -19,10 +21,10 @@ import com.example.untitled_capstone.domain.model.NewPost
 import com.example.untitled_capstone.domain.model.Post
 import com.example.untitled_capstone.domain.repository.PostRepository
 import com.google.gson.Gson
-import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
@@ -36,13 +38,12 @@ import javax.inject.Inject
 class PostRepositoryImpl @Inject constructor(
     private val api: PostApi,
     private val db: PostItemDatabase,
-    @ApplicationContext context: Context
-): PostRepository {
-    val dataStore = context.dataStore
-
-    override suspend fun post(newPost: NewPost, images: List<File>?): Resource<String> {
-        return try {
-            Resource.Loading(data = null)
+    @Dispatcher(AppDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
+): PostRepository{
+    @WorkerThread
+    override suspend fun post(newPost: NewPost, images: List<File>?): Flow<Resource<String>> = flow {
+        emit(Resource.Loading())
+        try {
             val gson = Gson()
             val json = gson.toJson(newPost)
             val jsonBody = json.toRequestBody("application/json; charset=utf-8".toMediaType())
@@ -52,221 +53,228 @@ class PostRepositoryImpl @Inject constructor(
             }
             val response = api.post(jsonBody, body)
             if(response.isSuccess){
-                Resource.Success(response.result)
+                emit(Resource.Success(response.result))
             }else {
-                Resource.Error(message = response.message)
+                emit(Resource.Error(message = response.message))
             }
         } catch (e: IOException) {
-            Resource.Error(e.toString())
+            emit(Resource.Error(e.toString()))
         } catch (e: HttpException) {
-            Resource.Error(e.toString())
+            emit(Resource.Error(e.toString()))
         }
-
-    }
+    }.flowOn(ioDispatcher)
 
     @OptIn(ExperimentalPagingApi::class)
+    @WorkerThread
     override fun getMyPosts(fetchType: PostFetchType): Flow<PagingData<PostItemEntity>> {
         return Pager(
             config = PagingConfig(pageSize = NETWORK_PAGE_SIZE, enablePlaceholders = false),
             remoteMediator = PostPagingSource(api, db, fetchType),
             pagingSourceFactory = { db.dao.getPostItems() }
-        ).flow
+        ).flow.flowOn(ioDispatcher)
     }
 
-    override suspend fun getPostById(id: Long): Resource<Post> {
-        return try {
-            Resource.Loading(data = null)
+    @WorkerThread
+    override suspend fun getPostById(id: Long): Flow<Resource<Post>> = flow {
+        emit(Resource.Loading())
+        try {
             val response = api.getPostById(id)
             if(response.isSuccess){
-                Resource.Success(response.result!!.toPost())
+                emit(Resource.Success(response.result!!.toPost()))
             }else {
-                Resource.Error(message = response.message)
+                emit(Resource.Error(message = response.message))
             }
         } catch (e: IOException) {
-            Resource.Error(e.toString())
+            emit(Resource.Error(e.toString()))
         } catch (e: HttpException) {
-            Resource.Error(e.toString())
+            emit(Resource.Error(e.toString()))
         }
-    }
+    }.flowOn(ioDispatcher)
 
-    override suspend fun deletePost(id: Long): Resource<String> {
-        return try {
-            Resource.Loading(data = null)
+    @WorkerThread
+    override suspend fun deletePost(id: Long): Flow<Resource<String>> = flow {
+        emit(Resource.Loading())
+        try {
             val response = api.deletePost(id)
             if(response.isSuccess){
-                Resource.Success(response.result)
+                emit(Resource.Success(response.result))
             }else {
-                Resource.Error(message = response.message)
+                emit(Resource.Error(message = response.message))
             }
         } catch (e: IOException) {
-            Resource.Error(e.toString())
+            emit(Resource.Error(e.toString()))
         } catch (e: HttpException) {
-            Resource.Error(e.toString())
+            emit(Resource.Error(e.toString()))
         }
-    }
+    }.flowOn(ioDispatcher)
 
+    @WorkerThread
     override suspend fun modifyPost(
         id: Long,
-        newPost: NewPost
-    ): Resource<String> {
-        return try {
-            Resource.Loading(data = null)
+        newPost: NewPost,
+    ): Flow<Resource<String>> = flow {
+        emit(Resource.Loading())
+        try {
             val response = api.modifyPost(id, newPost.toNewPostDto())
             if(response.isSuccess){
-                Resource.Success(response.result)
+                emit(Resource.Success(response.result))
             }else {
-                Resource.Error(message = response.message)
+                emit(Resource.Error(message = response.message))
             }
         } catch (e: IOException) {
-            Resource.Error(e.toString())
+            emit(Resource.Error(e.toString()))
         } catch (e: HttpException) {
-            Resource.Error(e.toString())
+            emit(Resource.Error(e.toString()))
         }
-    }
+    }.flowOn(ioDispatcher)
 
     @OptIn(ExperimentalPagingApi::class)
+    @WorkerThread
     override fun searchPosts(fetchType: PostFetchType): Flow<PagingData<PostItemEntity>> {
         return Pager(
             config = PagingConfig(pageSize = NETWORK_PAGE_SIZE, enablePlaceholders = false),
             remoteMediator = PostPagingSource(api, db, fetchType),
             pagingSourceFactory = { db.dao.getPostItems() }
-        ).flow
+        ).flow.flowOn(ioDispatcher)
     }
 
-    override suspend fun toggleLike(id: Long): Resource<Boolean> {
-        return try {
-            Resource.Loading(data = null)
+    @WorkerThread
+    override suspend fun toggleLike(id: Long): Flow<Resource<Boolean>> = flow {
+        emit(Resource.Loading())
+        try {
             val response = api.toggleLike(id)
             if(response.isSuccess){
-                Resource.Success(response.result!!.liked)
+                emit(Resource.Success(response.result!!.liked))
             }else {
-                Resource.Error(message = response.message)
+                emit(Resource.Error(message = response.message))
             }
         } catch (e: IOException) {
-            Resource.Error(e.toString())
+            emit(Resource.Error(e.toString()))
         } catch (e: HttpException) {
-            Resource.Error(e.toString())
+            emit(Resource.Error(e.toString()))
         }
-    }
+    }.flowOn(ioDispatcher)
 
     @OptIn(ExperimentalPagingApi::class)
+    @WorkerThread
     override fun getLikedPosts(fetchType: PostFetchType): Flow<PagingData<PostItemEntity>> {
         return Pager(
             config = PagingConfig(pageSize = NETWORK_PAGE_SIZE, enablePlaceholders = false),
             remoteMediator = PostPagingSource(api, db, fetchType),
             pagingSourceFactory = { db.dao.getPostItems() }
-        ).flow
+        ).flow.flowOn(ioDispatcher)
     }
 
-    override suspend fun getNickname(): String? {
-        return dataStore.data.map { prefs ->
-            prefs[NICKNAME]
-        }.first()
-    }
-
+    @WorkerThread
     override suspend fun uploadImages(
         id: Long,
         images: List<MultipartBody.Part>
-    ): Resource<String> {
-        return try {
-            Resource.Loading(data = null)
+    ): Flow<Resource<String>> = flow {
+        emit(Resource.Loading())
+        try {
             val response = api.uploadPostImages(id, images)
             if(response.isSuccess){
-                Resource.Success(response.result)
+                emit(Resource.Success(response.result))
             }else {
-                Resource.Error(message = response.message)
+                emit(Resource.Error(message = response.message))
             }
         } catch (e: IOException) {
-            Resource.Error(e.toString())
+            emit(Resource.Error(e.toString()))
         } catch (e: HttpException) {
-            Resource.Error(e.toString())
+            emit(Resource.Error(e.toString()))
         }
-    }
+    }.flowOn(ioDispatcher)
 
+    @WorkerThread
     override suspend fun deleteImage(
         id: Long,
         imageId: Long
-    ): Resource<String> {
-        return try {
-            Resource.Loading(data = null)
+    ): Flow<Resource<String>> = flow {
+        emit(Resource.Loading())
+        try {
             val response = api.deletePostImage(id, imageId)
             if(response.isSuccess){
-                Resource.Success(response.result)
+                emit(Resource.Success(response.result))
             }else {
-                Resource.Error(message = response.message)
+                emit(Resource.Error(message = response.message))
             }
         } catch (e: IOException) {
-            Resource.Error(e.toString())
+            emit(Resource.Error(e.toString()))
         } catch (e: HttpException) {
-            Resource.Error(e.toString())
+            emit(Resource.Error(e.toString()))
         }
-    }
+    }.flowOn(ioDispatcher)
 
-    override suspend fun getSearchHistory(): Resource<List<Keyword>> {
-        return try {
-            Resource.Loading(data = null)
+    @WorkerThread
+    override suspend fun getSearchHistory(): Flow<Resource<List<Keyword>>> = flow {
+        emit(Resource.Loading())
+        try {
             val response = api.getSearchHistory()
             if(response.isSuccess){
-                Resource.Success(response.result?.map { it.toKeyword() })
+                Log.d("response", response.toString())
+                emit(Resource.Success(response.result?.map { it.toKeyword() }))
             }else {
-                Resource.Error(message = response.toString())
+                emit(Resource.Error(message = response.toString()))
             }
         } catch (e: IOException) {
-            Resource.Error(e.toString())
+            emit(Resource.Error(e.toString()))
         } catch (e: HttpException) {
-            Resource.Error(e.toString())
+            emit(Resource.Error(e.toString()))
         }
-    }
+    }.flowOn(ioDispatcher)
 
-    override suspend fun deleteSearchHistory(keyword: String): Resource<String> {
-        return try {
-            Resource.Loading(data = null)
+    @WorkerThread
+    override suspend fun deleteSearchHistory(keyword: String): Flow<Resource<String>> = flow {
+        emit(Resource.Loading())
+        try {
             val response = api.deleteSearchHistory(keyword)
             if(response.isSuccess){
-                Resource.Success(response.result)
+                emit(Resource.Success(response.result))
             }else {
-                Resource.Error(message = response.message)
+                emit(Resource.Error(message = response.message))
             }
         } catch (e: IOException) {
-            Resource.Error(e.toString())
+            emit(Resource.Error(e.toString()))
         } catch (e: HttpException) {
-            Resource.Error(e.toString())
+            emit(Resource.Error(e.toString()))
         }
     }
 
-    override suspend fun deleteAllSearchHistory(): Resource<String> {
-        return try {
-            Resource.Loading(data = null)
+    @WorkerThread
+    override suspend fun deleteAllSearchHistory(): Flow<Resource<String>> = flow {
+        emit(Resource.Loading())
+        try {
             val response = api.deleteAllSearchHistory()
             if(response.isSuccess){
-                Resource.Success(response.result)
+                emit(Resource.Success(response.result))
             }else {
-                Resource.Error(message = response.message)
+                emit(Resource.Error(message = response.message))
             }
         } catch (e: IOException) {
-            Resource.Error(e.toString())
+            emit(Resource.Error(e.toString()))
         } catch (e: HttpException) {
-            Resource.Error(e.toString())
+            emit(Resource.Error(e.toString()))
         }
-    }
+    }.flowOn(ioDispatcher)
 
+    @WorkerThread
     override suspend fun reportPost(
         postId: Long,
         reportType: String,
         content: String
-    ): Resource<String> {
-        return try {
-            Resource.Loading(data = null)
+    ): Flow<Resource<String>> = flow {
+        emit(Resource.Loading())
+        try {
             val response = api.reportPost(postId, ReportDto(reportType, content))
             if(response.isSuccess){
-                Resource.Success(response.result)
+                emit(Resource.Success(response.result))
             }else {
-                Resource.Error(message = response.message)
+                emit(Resource.Error(message = response.message))
             }
         } catch (e: IOException) {
-            Resource.Error(e.toString())
+            emit(Resource.Error(e.toString()))
         } catch (e: HttpException) {
-            Resource.Error(e.toString())
+            emit(Resource.Error(e.toString()))
         }
-    }
+    }.flowOn(ioDispatcher)
 }

@@ -1,4 +1,4 @@
-package com.example.untitled_capstone.presentation.feature.post.composable
+package com.example.untitled_capstone.presentation.feature.post.crud
 
 import android.Manifest
 import android.app.Activity
@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -36,7 +35,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
@@ -48,7 +46,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -74,19 +71,14 @@ import com.example.untitled_capstone.MainActivity
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.domain.model.NewPost
-import com.example.untitled_capstone.domain.model.Post
-import com.example.untitled_capstone.presentation.feature.fridge.composable.PermissionDialog
-import com.example.untitled_capstone.presentation.feature.my.composable.getRealPathFromURI
-import com.example.untitled_capstone.presentation.feature.post.PostEvent
-import com.example.untitled_capstone.presentation.util.UiState
+import com.example.untitled_capstone.presentation.feature.fridge.crud.PermissionDialog
+import com.example.untitled_capstone.presentation.feature.my.profile.getRealPathFromURI
 import com.example.untitled_capstone.ui.theme.CustomTheme
 import java.io.File
 
 @Composable
 fun NewPostForm(
-    state: UiState,
-    post: Post?,
-    onEvent: (PostEvent) -> Unit
+    addNewPost: (NewPost, List<File>?) -> Unit,
 ){
     val context = LocalContext.current
     var isExpandedPeopleMenu by remember { mutableStateOf(false) }
@@ -150,24 +142,11 @@ fun NewPostForm(
             onResult = { permissions ->
                 galleryPermissions.forEach { permission ->
                     if (permissions[permission] == true){
-                        Log.d("gallery", "gallery permission granted")
+                        Log.d("gallery", "$permission granted")
                     }
                 }
             }
         )
-
-    LaunchedEffect(true) {
-        if(post != null){
-            title = post.title
-            content = post.content
-            category = Category.fromString(post.category) ?: "채소"
-            price = post.price.toString()
-            quantity = post.memberCount.toString()
-            post.image?.forEach {
-                images.add(it.imageUrl)
-            }
-        }
-    }
     validator = price.isNotBlank() && title.isNotBlank() && content.isNotBlank()
     Column(
         modifier = Modifier.pointerInput(Unit) {
@@ -177,16 +156,6 @@ fun NewPostForm(
         },
         verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding)
     ){
-        if(state is UiState.Loading){
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ){
-                CircularProgressIndicator(
-                    color = CustomTheme.colors.primary,
-                )
-            }
-        }
         Row(
             horizontalArrangement = Arrangement.spacedBy(Dimens.mediumPadding)
         ) {
@@ -252,11 +221,6 @@ fun NewPostForm(
                                 .padding(Dimens.smallPadding),
                             onClick = {
                                 images.removeAt(index)
-                                if(post != null){
-                                    onEvent(PostEvent.DeletePostImage(post.id,
-                                        post.image!![index].id
-                                    ))
-                                }
                             }
                         ) {
                             Icon(
@@ -407,7 +371,6 @@ fun NewPostForm(
             }
         }
         OutlinedTextField(
-            // add validator
             value = price,
             onValueChange = {price = it},
             placeholder = {
@@ -528,47 +491,20 @@ fun NewPostForm(
             ),
             enabled = validator,
             onClick = {
-                if(post != null){
-                    onEvent(
-                        PostEvent.ModifyPost(
-                            post.id,
-                            NewPost(
-                                title = title,
-                                content = content,
-                                category = Category.fromKor(category) ?: "VEGETABLE",
-                                price = price.toInt(),
-                                memberCount = quantity.toInt()
-                            )
-                        )
-                    )
-                    if(files.isNotEmpty()){
-                        onEvent(
-                            PostEvent.UploadPostImages(
-                                post.id,
-                                files.toList()
-                            )
-                        )
-                    }
-                }else{
-                    onEvent(
-                        PostEvent.AddNewPost(
-                            NewPost(
-                                title = title,
-                                content = content,
-                                category = Category.fromKor(category) ?: "VEGETABLE",
-                                price = price.toInt(),
-                                memberCount = quantity.toInt()
-                            ),
-                            if(files.isNotEmpty()) files.toList() else null
-                        )
-                    )
-                }
-                onEvent(PostEvent.InitState)
-                onEvent(PostEvent.PopBackStack)
+                addNewPost(
+                    NewPost(
+                        title = title,
+                        content = content,
+                        category = Category.fromKor(category) ?: "VEGETABLE",
+                        price = price.toInt(),
+                        memberCount = quantity.toInt()
+                    ),
+                    if(files.isNotEmpty()) files.toList() else null
+                )
             }
         ) {
             Text(
-                text = if(post != null) "수정하기" else "등록하기",
+                text = "등록하기",
                 style = CustomTheme.typography.button1,
             )
         }

@@ -43,7 +43,7 @@ class HomeViewModel @Inject constructor(
     private val recipeToggleLikeUseCase: RecipeToggleLikeUseCase,
 ): ViewModel(){
 
-    val uiState = MutableStateFlow<HomeUiState>(HomeUiState.Loading)
+    val uiState = MutableStateFlow<HomeUiState>(HomeUiState.Idle)
 
     private val _tastePref = MutableStateFlow<String?>(null)
     val tastePref = _tastePref.asStateFlow()
@@ -123,10 +123,10 @@ class HomeViewModel @Inject constructor(
             addRecipeUseCase(recipe).collectLatest {
                 when(it){
                     is Resource.Success -> {
-                        uiState.tryEmit(HomeUiState.Idle)
                         it.data?.let{
                             getRecipes()
                         }
+                        uiState.tryEmit(HomeUiState.Idle)
                     }
                     is Resource.Error -> {
                         uiState.tryEmit(HomeUiState.Error(it.message))
@@ -183,7 +183,6 @@ class HomeViewModel @Inject constructor(
             recipeToggleLikeUseCase(id, liked).collectLatest {
                 when(it){
                     is Resource.Success -> {
-                        uiState.tryEmit(HomeUiState.Idle)
                         it.data?.let { result ->
                             _recipePagingData.update { pagingData ->
                                 pagingData.map {
@@ -195,6 +194,7 @@ class HomeViewModel @Inject constructor(
                                 }
                             }
                         }
+                        uiState.tryEmit(HomeUiState.Idle)
                     }
                     is Resource.Error -> {
                         uiState.tryEmit(HomeUiState.Error(it.message))

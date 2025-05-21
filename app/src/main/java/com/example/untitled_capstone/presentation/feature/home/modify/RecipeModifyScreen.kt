@@ -73,8 +73,8 @@ import com.example.untitled_capstone.MainActivity
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.domain.model.Recipe
-import com.example.untitled_capstone.presentation.feature.fridge.composable.PermissionDialog
-import com.example.untitled_capstone.presentation.feature.my.composable.getRealPathFromURI
+import com.example.untitled_capstone.presentation.feature.fridge.crud.PermissionDialog
+import com.example.untitled_capstone.presentation.feature.my.profile.getRealPathFromURI
 import com.example.untitled_capstone.ui.theme.CustomTheme
 import kotlinx.coroutines.launch
 import java.io.File
@@ -154,11 +154,6 @@ fun RecipeModifyScreen(
     LaunchedEffect(ingredients.size) {
         if (ingredients.isNotEmpty()) {
             listState.animateScrollToItem(ingredients.size + 3)
-        }
-    }
-    LaunchedEffect(uiState) {
-        if(uiState == RecipeModifyUiState.Success){
-            popBackStack
         }
     }
     Scaffold(

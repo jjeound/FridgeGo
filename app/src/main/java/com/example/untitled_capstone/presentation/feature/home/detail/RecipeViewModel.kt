@@ -9,7 +9,6 @@ import com.example.untitled_capstone.domain.use_case.home.DeleteRecipeUseCase
 import com.example.untitled_capstone.domain.use_case.home.GetRecipeByIdUseCase
 import com.example.untitled_capstone.domain.use_case.home.RecipeToggleLikeUseCase
 import com.example.untitled_capstone.navigation.Screen
-import com.example.untitled_capstone.presentation.util.UiEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -30,7 +29,6 @@ class RecipeViewModel @Inject constructor(
 ): ViewModel() {
     val uiState: MutableStateFlow<RecipeUiState> =
         MutableStateFlow(RecipeUiState.Loading)
-
 
     private val _recipe = MutableStateFlow<Recipe?>(null)
     val recipe: StateFlow<Recipe?> = _recipe.asStateFlow()

@@ -1,4 +1,4 @@
-package com.example.untitled_capstone.presentation.feature.fridge.composable
+package com.example.untitled_capstone.presentation.feature.fridge
 
 import android.Manifest
 import android.content.pm.PackageManager
@@ -50,13 +50,17 @@ import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.presentation.util.cancelExpirationAlarm
 import com.example.untitled_capstone.presentation.util.scheduleExpirationAlarms
 import com.example.untitled_capstone.domain.model.FridgeItem
-import com.example.untitled_capstone.presentation.feature.fridge.FridgeAction
 import com.example.untitled_capstone.ui.theme.CustomTheme
-import androidx.core.net.toUri
+import com.example.untitled_capstone.presentation.feature.fridge.crud.convertMillisToDate
 
 @Composable
-fun FridgeItemContainer(item: FridgeItem, onAction: (FridgeAction) -> Unit, onShowDialog: () -> Unit,
-                        navigateToModifyItemScreen: () -> Unit) {
+fun FridgeItemContainer(
+    item: FridgeItem,
+    toggleNotification: (Long, Boolean) -> Unit,
+    onShowDialog: () -> Unit,
+    navigateUp: () -> Unit,
+    deleteItem: (Long) -> Unit,
+) {
     val context = LocalContext.current
     val isNotification = remember { mutableStateOf(item.notification) }
     val expirationDate = convertMillisToDate(item.expirationDate)
@@ -66,7 +70,7 @@ fun FridgeItemContainer(item: FridgeItem, onAction: (FridgeAction) -> Unit, onSh
         contract = ActivityResultContracts.RequestPermission(),
         onResult = { isGranted ->
             if (isGranted) {
-                onAction(FridgeAction.ToggleNotification(item.id, item.notification)) // 알림 토글
+                toggleNotification(item.id, item.notification) // 알림 토글
                 isNotification.value = !isNotification.value
                 Log.d("Alarm", "알람 등록")
             }
@@ -167,8 +171,8 @@ fun FridgeItemContainer(item: FridgeItem, onAction: (FridgeAction) -> Unit, onSh
                                 onClick = {
                                     expanded = false
                                     when(option){
-                                        menuItem[0] -> navigateToModifyItemScreen()
-                                        menuItem[1] -> onAction(FridgeAction.DeleteItem(item.id))
+                                        menuItem[0] -> navigateUp()
+                                        menuItem[1] -> deleteItem(item.id)
                                     }
                                 },
                             )
@@ -183,7 +187,7 @@ fun FridgeItemContainer(item: FridgeItem, onAction: (FridgeAction) -> Unit, onSh
                                 context,
                                 Manifest.permission.POST_NOTIFICATIONS
                             ) == PackageManager.PERMISSION_GRANTED -> {
-                                onAction(FridgeAction.ToggleNotification(item.id, item.notification)) // 알림 토글
+                                toggleNotification(item.id, item.notification) // 알림 토글
                                 isNotification.value = !isNotification.value
                                 if(isNotification.value){
                                     scheduleExpirationAlarms(context, item.name, item.expirationDate)

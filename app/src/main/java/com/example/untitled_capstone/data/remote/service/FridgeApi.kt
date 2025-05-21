@@ -40,7 +40,8 @@ interface FridgeApi {
     @PATCH("/api/ingredient/{ingredientId}")
     suspend fun modifyItem(
         @Path("ingredientId") ingredientId: Long,
-        @Body fridgeItem: ModifyFridgeReqDto
+        @Body fridgeItem: ModifyFridgeReqDto,
+        @Part ingredientImage: MultipartBody.Part? = null
     ): ApiResponse<String>
 
     @DELETE("/api/ingredient/{ingredientId}")

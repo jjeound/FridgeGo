@@ -1,8 +1,5 @@
 package com.example.untitled_capstone.presentation.feature.fridge
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
@@ -12,213 +9,138 @@ import androidx.paging.map
 import com.example.untitled_capstone.core.util.Resource
 import com.example.untitled_capstone.data.util.FridgeFetchType
 import com.example.untitled_capstone.domain.model.FridgeItem
-import com.example.untitled_capstone.domain.use_case.fridge.FridgeUseCases
+import com.example.untitled_capstone.domain.use_case.fridge.DeleteFridgeItemUseCase
+import com.example.untitled_capstone.domain.use_case.fridge.GetFridgeItemsByDateUseCase
+import com.example.untitled_capstone.domain.use_case.fridge.GetFridgeItemsUseCase
+import com.example.untitled_capstone.domain.use_case.fridge.ToggleNotificationUseCase
 import com.example.untitled_capstone.navigation.Screen
-import com.example.untitled_capstone.presentation.util.UiEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.io.File
 import javax.inject.Inject
 
 @HiltViewModel
 class FridgeViewModel @Inject constructor(
-    private val fridgeUseCases: FridgeUseCases
+    private val toggleNotificationUseCase: ToggleNotificationUseCase,
+    private val deleteFridgeItemUseCase: DeleteFridgeItemUseCase,
+    private val getFridgeItemsUseCase: GetFridgeItemsUseCase,
+    private val getFridgeItemsByDateUseCase: GetFridgeItemsByDateUseCase
 ): ViewModel() {
 
-    var state by mutableStateOf(FridgeState())
-        private set
+    val uiState: MutableStateFlow<FridgeUiState> = MutableStateFlow<FridgeUiState>(FridgeUiState.Idle)
 
-    private val _fridgeItemState: MutableStateFlow<PagingData<FridgeItem>> = MutableStateFlow(PagingData.empty())
-    val fridgeItemState = _fridgeItemState.asStateFlow()
+    private val _fridgeItemPaged: MutableStateFlow<PagingData<FridgeItem>> = MutableStateFlow(PagingData.empty())
+    val fridgeItemPaged = _fridgeItemPaged.asStateFlow()
 
-    private val _event = MutableSharedFlow<UiEvent>()
+    private val _event = MutableSharedFlow<FridgeEvent>()
     val event = _event.asSharedFlow()
 
-    init {
-        getItems()
-    }
-
-    fun onAction(action: FridgeAction){
-        when(action){
-            is FridgeAction.GetItems -> getItems()
-            is FridgeAction.AddItem -> addItem(action.item, action.image)
-            is FridgeAction.GetItemsByDate -> getItemsByDate()
-            is FridgeAction.ToggleNotification -> toggleNotification(action.id, action.alarmStatus)
-            is FridgeAction.ModifyItem -> modifyItem(action.item)
-            is FridgeAction.DeleteItem -> deleteItem(action.id)
-            is FridgeAction.GetItemById -> getItemById(action.id)
-            is FridgeAction.InitState -> initState()
-        }
-    }
-
-    private fun initState(){
-        state = FridgeState()
-    }
-
-    private fun addItem(item: FridgeItem, image: File?) {
+    fun toggleNotification(id: Long, alarmStatus: Boolean) {
         viewModelScope.launch {
-            val result = fridgeUseCases.addFridgeItem(item, image)
-            when(result){
-                is Resource.Success -> {
-                    result.data?.let{
-                        getItems()
-                    }
-                }
-                is Resource.Error -> {
-                    state.isLoading = false
-                    _event.emit(UiEvent.ShowSnackbar(result.message ?: "Unknown error"))
-                }
-                is Resource.Loading -> {
-                    state.isLoading = true
-                }
-            }
-
-        }
-    }
-
-    private fun toggleNotification(id: Long, alarmStatus: Boolean) {
-        viewModelScope.launch {
-            val result = fridgeUseCases.toggleNotification(id, !alarmStatus)
-            when(result){
-                is Resource.Success -> {
-                    result.data?.let{
-                        state.isLoading = false
-                        _fridgeItemState.update { pagingData ->
-                            pagingData.map {
-                                if(it.id == id){
-                                    it.copy(notification = !alarmStatus)
-                                }else{
-                                    it
+            toggleNotificationUseCase(id, !alarmStatus).collectLatest{
+                when(it){
+                    is Resource.Success -> {
+                        it.data?.let { item ->
+                            _fridgeItemPaged.update { pagingData ->
+                                pagingData.map {
+                                    if(it.id == id){
+                                        it.copy(notification = !alarmStatus)
+                                    }else{
+                                        it
+                                    }
                                 }
                             }
                         }
+                        uiState.tryEmit(FridgeUiState.Idle)
                     }
-                }
-                is Resource.Error -> {
-                    state.isLoading = false
-                    _event.emit(UiEvent.ShowSnackbar(result.message ?: "Unknown error"))
-                }
-                is Resource.Loading -> {
-                    state.isLoading = true
+                    is Resource.Error -> {
+                        uiState.tryEmit(FridgeUiState.Error(it.message))
+                    }
+                    is Resource.Loading -> {
+                        uiState.tryEmit(FridgeUiState.Loading)
+                    }
                 }
             }
         }
     }
 
-    private fun modifyItem(item: FridgeItem) {
+
+
+    fun deleteItem(id: Long) {
         viewModelScope.launch {
-            val result = fridgeUseCases.modifyFridgeItems(item)
-            when(result){
-                is Resource.Success -> {
-                    _fridgeItemState.update { pagingData->
-                        pagingData.map {
-                            if(it.id == item.id){
-                                item
-                            }else{
-                                it
+            deleteFridgeItemUseCase(id).collectLatest{
+                when(it){
+                    is Resource.Success -> {
+                        it.data?.let { message ->
+                            _fridgeItemPaged.update { pagingData ->
+                                pagingData.filter { it.id != id }
                             }
                         }
+                        uiState.tryEmit(FridgeUiState.Idle)
                     }
-                    state.isLoading = false
-                }
-                is Resource.Error -> {
-                    state.isLoading = false
-                    _event.emit(UiEvent.ShowSnackbar(result.message ?: "Unknown error"))
-                }
-                is Resource.Loading -> {
-                    state.isLoading = true
+                    is Resource.Error -> {
+                        uiState.tryEmit(FridgeUiState.Error(it.message))
+                    }
+                    is Resource.Loading -> {
+                        uiState.tryEmit(FridgeUiState.Loading)
+                    }
                 }
             }
         }
     }
 
-    private fun deleteItem(id: Long) {
-        viewModelScope.launch {
-            val result = fridgeUseCases.deleteFridgeItem(id)
-            when(result){
-                is Resource.Success -> {
-                    state.isLoading = false
-                    _fridgeItemState.update { pagingData ->
-                        pagingData.filter { it.id != id }
-                    }
-                }
-                is Resource.Error -> {
-                    state.isLoading = false
-                    _event.emit(UiEvent.ShowSnackbar(result.message ?: "Unknown error"))
-                }
-                is Resource.Loading -> {
-                    state.isLoading = true
-                }
-            }
-        }
-    }
 
-    private fun getItemById(id: Long) {
-        viewModelScope.launch {
-            val result = fridgeUseCases.getFridgeItemById(id)
-            when(result){
-                is Resource.Success -> {
-                    result.data?.let{
-                        state.apply {
-                            response = it
-                            isLoading = false
-                        }
-                    }
-                }
-                is Resource.Error -> {
-                    state.isLoading = false
-                    _event.emit(UiEvent.ShowSnackbar(result.message ?: "Unknown error"))
-                }
-                is Resource.Loading -> {
-                    state.isLoading = true
-                }
-            }
-        }
-    }
 
-    private fun getItems() {
+    fun getItems() {
         viewModelScope.launch {
-            fridgeUseCases.getFridgeItems(FridgeFetchType.OrderByCreated)
+            getFridgeItemsUseCase(FridgeFetchType.OrderByCreated)
                 .distinctUntilChanged()
                 .cachedIn(viewModelScope)
                 .collect { pagingData ->
-                    _fridgeItemState.value = pagingData
+                    _fridgeItemPaged.value = pagingData
                 }
         }
     }
 
-    private fun getItemsByDate() {
+    fun getItemsByDate() {
         viewModelScope.launch {
-            fridgeUseCases.getFridgeItemsByDate(FridgeFetchType.OrderByDate)
+            getFridgeItemsByDateUseCase(FridgeFetchType.OrderByDate)
                 .distinctUntilChanged()
                 .cachedIn(viewModelScope)
                 .collect { pagingData ->
-                    _fridgeItemState.value = pagingData
+                    _fridgeItemPaged.value = pagingData
                 }
         }
     }
 
     fun navigateUp(route: Screen) {
         viewModelScope.launch {
-            _event.emit(UiEvent.Navigate(route))
+            _event.emit(FridgeEvent.Navigate(route))
         }
     }
 
     fun popBackStack() {
         viewModelScope.launch {
-            _event.emit(UiEvent.PopBackStack)
+            _event.emit(FridgeEvent.PopBackStack)
         }
     }
+}
 
-    fun showSnackbar(message: String) {
-        viewModelScope.launch {
-            _event.emit(UiEvent.ShowSnackbar(message))
-        }
-    }
+interface FridgeUiState {
+    data object Idle : FridgeUiState
+    data object Loading : FridgeUiState
+    data class Error(val message: String?) : FridgeUiState
+}
+
+interface FridgeEvent{
+    data class ShowSnackbar(val message: String) : FridgeEvent
+    data class Navigate(val route: Screen) : FridgeEvent
+    object PopBackStack : FridgeEvent
+    object ClearBackStack : FridgeEvent
 }

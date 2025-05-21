@@ -1,4 +1,4 @@
-package com.example.untitled_capstone.presentation.feature.fridge.composable
+package com.example.untitled_capstone.presentation.feature.fridge.crud
 
 import android.Manifest
 import android.app.Activity
@@ -49,7 +49,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -70,9 +69,7 @@ import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.domain.model.FridgeItem
 import com.example.untitled_capstone.navigation.Screen
-import com.example.untitled_capstone.presentation.feature.fridge.FridgeAction
-import com.example.untitled_capstone.presentation.feature.fridge.FridgeState
-import com.example.untitled_capstone.presentation.feature.my.composable.getRealPathFromURI
+import com.example.untitled_capstone.presentation.feature.my.profile.getRealPathFromURI
 import com.example.untitled_capstone.ui.theme.CustomTheme
 import java.io.File
 import java.text.SimpleDateFormat
@@ -82,39 +79,45 @@ import java.util.Locale
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NewFridgeItemForm(
-    id: Long?,
-    state: FridgeState,
-    onAction: (FridgeAction) -> Unit,
+    fridgeItem: FridgeItem?,
+    uiState: FridgeCRUDUiState,
     initSavedDate: () -> Unit,
     getSavedDate: () -> String?,
-    onNavigate: (Screen) -> Unit,
+    navigateUp: (Screen) -> Unit,
     popBackStack: () -> Unit,
     showSnackbar: (String) -> Unit,
+    modifyFridgeItem: (FridgeItem, File?) -> Unit,
+    addFridgeItem : (FridgeItem, File?) -> Unit,
 ){
     val context = LocalContext.current
     val packageName = context.packageName
     val focusManager = LocalFocusManager.current
     val showDialog = remember { mutableStateOf(false) }
 
-    var image by remember { mutableStateOf(state.response?.image) }
+    var image by remember { mutableStateOf<String?>(null) }
     var imageFile by remember { mutableStateOf<File?>(null) }
-    var name by rememberSaveable { mutableStateOf("") }
-    var quantity by rememberSaveable { mutableStateOf("") }
+    var name by remember { mutableStateOf("") }
+    var quantity by remember { mutableStateOf("") }
 
     var showDatePicker by remember { mutableStateOf(false) }
     val datePickerState = rememberDatePickerState()
-    var expirationDate by remember { mutableLongStateOf(0L) }
+    var expirationDate by remember { mutableLongStateOf(fridgeItem?.expirationDate ?: 0L) }
     val scannedDate = getSavedDate()
     var selectedDate = datePickerState.selectedDateMillis?.let {
         expirationDate = it
         convertMillisToDate(it)
-    } ?: if (state.response != null) {
-        state.response!!.expirationDate.let {
-            expirationDate = it // 기존 데이터가 있으면 expirationDate 설정
-            convertMillisToDate(it)
+    } ?: (fridgeItem?.expirationDate?.let {
+        expirationDate = it // 기존 데이터가 있으면 expirationDate 설정
+        convertMillisToDate(it)
+    }
+        ?: "")
+
+    LaunchedEffect(fridgeItem) {
+        fridgeItem?.let {
+            image = it.image
+            name = it.name
+            quantity = it.quantity
         }
-    }  else {
-        ""
     }
 
     scannedDate?.let {
@@ -128,15 +131,10 @@ fun NewFridgeItemForm(
     var validator by remember { mutableStateOf(false) }
     var isQuantityInt by remember { mutableStateOf(true) }
     validator = name.isNotBlank() && selectedDate.isNotBlank()
-    LaunchedEffect(Unit) {
-        id?.let { onAction(FridgeAction.GetItemById(it)) }
-    }
-    LaunchedEffect(state.response) {
-        state.response?.let {
-            name = it.name
-            image = it.image
-            quantity = it.quantity
-            expirationDate = it.expirationDate
+
+    LaunchedEffect(uiState) {
+        if(uiState == FridgeCRUDUiState.Success){
+            popBackStack()
         }
     }
 
@@ -198,7 +196,7 @@ fun NewFridgeItemForm(
             .fillMaxSize().imePadding(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        if(state.isLoading){
+        if(uiState == FridgeCRUDUiState.Loading){
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
@@ -436,7 +434,7 @@ fun NewFridgeItemForm(
                             context,
                             Manifest.permission.CAMERA
                         ) == PackageManager.PERMISSION_GRANTED ->  {
-                            onNavigate(
+                            navigateUp(
                                 Screen.ScanNav
                             )
                         }
@@ -495,10 +493,8 @@ fun NewFridgeItemForm(
             enabled = validator,
             onClick = {
                 if(quantity.all { it.isDigit() }){
-                    popBackStack()
-                    initSavedDate()
-                    state.response?.let {
-                        onAction(FridgeAction.ModifyItem(
+                    fridgeItem?.let {
+                        modifyFridgeItem(
                             FridgeItem(
                                 id = it.id,
                                 name = name,
@@ -508,10 +504,10 @@ fun NewFridgeItemForm(
                                 notification = it.notification,
                                 isFridge = it.isFridge
                             ),
-                        ))
-                        onAction(FridgeAction.InitState)
+                            imageFile
+                        )
                     } ?: run {
-                        onAction(FridgeAction.AddItem(
+                        addFridgeItem(
                             FridgeItem(
                                 id = 0L,
                                 name = name,
@@ -522,8 +518,9 @@ fun NewFridgeItemForm(
                                 isFridge = true
                             ),
                             imageFile
-                        ))
+                        )
                     }
+                    initSavedDate()
                 }else{
                     isQuantityInt = false
                     showSnackbar("수량은 숫자만 입력하세요.")
@@ -531,7 +528,7 @@ fun NewFridgeItemForm(
             }
         ) {
             Text(
-                text = if(state.response != null) "수정하기" else "등록하기",
+                text = if(fridgeItem != null) "수정하기" else "등록하기",
                 style = CustomTheme.typography.button1,
             )
         }

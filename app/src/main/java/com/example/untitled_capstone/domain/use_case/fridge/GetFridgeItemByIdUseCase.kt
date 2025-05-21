@@ -1,13 +1,15 @@
 package com.example.untitled_capstone.domain.use_case.fridge
 
 import com.example.untitled_capstone.core.util.Resource
+import com.example.untitled_capstone.domain.model.FridgeItem
 import com.example.untitled_capstone.domain.repository.FridgeRepository
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
-class ToggleNotification @Inject constructor(
+class GetFridgeItemByIdUseCase @Inject constructor(
     private val fridgeRepository: FridgeRepository
 ) {
-    suspend operator fun invoke(id: Long, alarmStatus: Boolean): Resource<String> {
-        return fridgeRepository.toggleNotification(id, alarmStatus)
+    suspend operator fun invoke(id: Long): Flow<Resource<FridgeItem>>{
+        return fridgeRepository.getFridgeItemById(id)
     }
 }

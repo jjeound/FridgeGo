@@ -1,4 +1,4 @@
-package com.example.untitled_capstone.presentation.feature.fridge.composable
+package com.example.untitled_capstone.presentation.feature.fridge
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row

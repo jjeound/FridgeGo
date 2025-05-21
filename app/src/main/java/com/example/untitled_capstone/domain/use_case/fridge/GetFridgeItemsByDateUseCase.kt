@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
-class GetFridgeItemsByDate @Inject constructor(
+class GetFridgeItemsByDateUseCase @Inject constructor(
     private val fridgeRepository: FridgeRepository
 ) {
     operator fun invoke(fetchType: FridgeFetchType): Flow<PagingData<FridgeItem>> {

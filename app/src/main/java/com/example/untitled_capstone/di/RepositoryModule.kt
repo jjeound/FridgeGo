@@ -47,26 +47,8 @@ object RepositoryModule {
 
     @Provides
     @Singleton
-    fun providePostRepository(db: PostItemDatabase,api: PostApi): PostRepository{
-        return PostRepositoryImpl(api, db)
-    }
-
-    @Provides
-    @Singleton
-    fun provideFridgeRepository(db: FridgeItemDatabase, api: FridgeApi): FridgeRepository{
-        return FridgeRepositoryImpl(api, db)
-    }
-
-    @Provides
-    @Singleton
     fun provideLoginRepository(api: LoginApi, mapApi: MapApi, tokenRepository: TokenRepository, db: ProfileDatabase, @ApplicationContext context: Context): LoginRepository{
         return LoginRepositoryImpl(api, mapApi, tokenRepository, db, context)
-    }
-
-    @Provides
-    @Singleton
-    fun provideMyRepository(api: MyApi, tokenRepository: TokenRepository, dao: ProfileDao, @ApplicationContext context: Context): MyRepository{
-        return MyRepositoryImpl(api, tokenRepository, dao, context)
     }
 
     @Provides
@@ -74,17 +56,4 @@ object RepositoryModule {
     fun provideLocalUserRepository(application: Application): LocalUserRepository{
         return LocalUserRepositoryImpl(application)
     }
-
-    @Provides
-    @Singleton
-    fun provideChatRepository(api: ChatApi, db: MessageItemDatabase): ChatRepository{
-        return ChatRepositoryImpl(api, db)
-    }
-
-    @Provides
-    @Singleton
-    fun provideWebSocketRepository(
-        webSocketManager: WebSocketManager,
-        db: MessageItemDatabase
-    ): WebSocketRepository = WebSocketRepositoryImpl(webSocketManager, db)
 }

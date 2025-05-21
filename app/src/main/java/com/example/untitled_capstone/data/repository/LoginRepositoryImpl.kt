@@ -2,10 +2,13 @@ package com.example.untitled_capstone.data.repository
 
 
 import android.content.Context
+import android.util.Log
 import androidx.datastore.preferences.core.edit
-import com.example.untitled_capstone.core.util.PrefKeys.EMAIL
 import com.example.untitled_capstone.core.util.PrefKeys.NICKNAME
 import com.example.untitled_capstone.core.util.Resource
+import com.example.untitled_capstone.data.local.db.ProfileDatabase
+import com.example.untitled_capstone.data.local.entity.ProfileEntity
+import com.example.untitled_capstone.data.remote.dto.EmailReq
 import com.example.untitled_capstone.data.remote.dto.KakaoAccessTokenRequest
 import com.example.untitled_capstone.data.remote.dto.LocationDto
 import com.example.untitled_capstone.data.remote.service.LoginApi
@@ -15,7 +18,6 @@ import com.example.untitled_capstone.domain.model.Address
 import com.example.untitled_capstone.domain.repository.LoginRepository
 import com.example.untitled_capstone.domain.repository.TokenRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.flow.first
 import okio.IOException
 import retrofit2.HttpException
 import javax.inject.Inject
@@ -25,21 +27,26 @@ class LoginRepositoryImpl @Inject constructor(
     private val api: LoginApi,
     private val mapApi: MapApi,
     private val tokenRepository: TokenRepository,
-    @ApplicationContext context: Context
+    private val db: ProfileDatabase,
+    @ApplicationContext private val context: Context
 ): LoginRepository {
     val dataStore = context.dataStore
 
     override suspend fun kakaoLogin(accessToken: String): Resource<AccountInfo> {
         return try {
             Resource.Loading(data = null)
-            val response = api.kakaoLogin(KakaoAccessTokenRequest(accessToken))
+            //val response = api.kakaoLogin(KakaoAccessTokenRequest(accessToken))
+            val response = api.loginTest(EmailReq(accessToken))
             if(response.isSuccess){
                 tokenRepository.saveAccessToken(response.result!!.accessToken)
                 tokenRepository.saveRefreshToken(response.result.refreshToken)
-                dataStore.edit { prefs ->
-                    prefs[NICKNAME] = response.result.nickname ?: ""
-                    prefs[EMAIL] = response.result.email
-                }
+                db.dao.insertProfile(
+                    ProfileEntity(
+                        id = response.result.id,
+                        email = response.result.email,
+                        nickname = response.result.nickname,
+                    )
+                )
                 Resource.Success(response.result.toAccountInfo())
             }else{
                 Resource.Error(response.message)
@@ -54,12 +61,13 @@ class LoginRepositoryImpl @Inject constructor(
     override suspend fun setNickname(nickname: String): Resource<String> {
         return try {
             Resource.Loading(data = null)
-            val token = tokenRepository.getAccessToken().first()
+            val token = tokenRepository.getAccessToken()
             val response = api.setNickname(token = token?: "", nickname = nickname)
             if(response.isSuccess){
-                dataStore.edit { prefs ->
-                    prefs[NICKNAME] = nickname
-                }
+                db.dao.updateNickname(
+                    nickname = nickname
+                )
+                saveNickname(nickname)
                 Resource.Success(response.result)
             } else {
                 Resource.Error(response.message)
@@ -74,12 +82,13 @@ class LoginRepositoryImpl @Inject constructor(
     override suspend fun modifyNickname(nickname: String): Resource<String> {
         return try {
             Resource.Loading(data = null)
-            val token = tokenRepository.getAccessToken().first()
+            val token = tokenRepository.getAccessToken()
             val response = api.modifyNickname(token?: "", nickname)
             if(response.isSuccess){
-                dataStore.edit { prefs ->
-                    prefs[NICKNAME] = nickname
-                }
+                db.dao.updateNickname(
+                    nickname = nickname
+                )
+                saveNickname(nickname)
                 Resource.Success(response.result)
             }else {
                 Resource.Error(message = response.message)
@@ -88,6 +97,12 @@ class LoginRepositoryImpl @Inject constructor(
             Resource.Error(e.toString())
         } catch (e: HttpException) {
             Resource.Error(e.toString())
+        }
+    }
+
+    private suspend fun saveNickname(nickname: String) {
+        dataStore.edit { prefs ->
+            prefs[NICKNAME] = nickname
         }
     }
 
@@ -113,7 +128,7 @@ class LoginRepositoryImpl @Inject constructor(
     override suspend fun setLocation(district: String, neighborhood: String): Resource<String> {
         return try {
             Resource.Loading(data = null)
-            val token = tokenRepository.getAccessToken().first()
+            val token = tokenRepository.getAccessToken()
             val response = api.setLocation(token?: "", LocationDto(district, neighborhood))
             if(response.isSuccess){
                 Resource.Success(response.result)

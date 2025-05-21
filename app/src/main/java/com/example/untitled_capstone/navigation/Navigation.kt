@@ -4,7 +4,6 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
@@ -13,39 +12,52 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import androidx.navigation.toRoute
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.example.untitled_capstone.presentation.feature.notification.NotificationViewModel
+import com.example.untitled_capstone.domain.model.Post
+import com.example.untitled_capstone.presentation.feature.chat.ChatEvent
 import com.example.untitled_capstone.presentation.feature.chat.ChatViewModel
-import com.example.untitled_capstone.presentation.feature.chat.screen.ChattingDetailScreen
-import com.example.untitled_capstone.presentation.feature.chat.screen.ChattingRoomDrawer
-import com.example.untitled_capstone.presentation.feature.chat.screen.ChattingScreen
-import com.example.untitled_capstone.presentation.feature.home.screen.HomeScreen
+import com.example.untitled_capstone.presentation.feature.chat.detail.ChattingDetailScreen
+import com.example.untitled_capstone.presentation.feature.chat.detail.ChattingRoomDrawer
+import com.example.untitled_capstone.presentation.feature.chat.ChattingScreen
+import com.example.untitled_capstone.presentation.feature.chat.detail.ChatDetailViewModel
+import com.example.untitled_capstone.presentation.feature.fridge.FridgeEvent
+import com.example.untitled_capstone.presentation.feature.fridge.FridgeViewModel
+import com.example.untitled_capstone.presentation.feature.fridge.crud.ScanExpirationDate
+import com.example.untitled_capstone.presentation.feature.fridge.crud.AddFridgeItemScreen
+import com.example.untitled_capstone.presentation.feature.fridge.RefrigeratorScreen
+import com.example.untitled_capstone.presentation.feature.fridge.crud.FridgeCRUDViewModel
+import com.example.untitled_capstone.presentation.feature.home.HomeScreen
 import com.example.untitled_capstone.presentation.feature.home.HomeViewModel
-import com.example.untitled_capstone.presentation.feature.home.screen.RecipeScreen
+import com.example.untitled_capstone.presentation.feature.home.detail.RecipeEvent
+import com.example.untitled_capstone.presentation.feature.home.detail.RecipeScreen
+import com.example.untitled_capstone.presentation.feature.home.detail.RecipeViewModel
+import com.example.untitled_capstone.presentation.feature.home.modify.RecipeModifyScreen
+import com.example.untitled_capstone.presentation.feature.home.modify.RecipeModifyViewModel
 import com.example.untitled_capstone.presentation.feature.login.LoginViewModel
 import com.example.untitled_capstone.presentation.feature.login.screen.LoginScreen
+import com.example.untitled_capstone.presentation.feature.login.screen.SetLocationScreen
 import com.example.untitled_capstone.presentation.feature.login.screen.SetNickNameScreen
+import com.example.untitled_capstone.presentation.feature.main.AuthState
 import com.example.untitled_capstone.presentation.feature.main.MainViewModel
-import com.example.untitled_capstone.presentation.feature.my.screen.MyScreen
 import com.example.untitled_capstone.presentation.feature.my.MyViewModel
-import com.example.untitled_capstone.presentation.feature.my.screen.ProfileScreen
+import com.example.untitled_capstone.presentation.feature.my.etc.MyLikedPostScreen
+import com.example.untitled_capstone.presentation.feature.my.etc.MyPostScreen
+import com.example.untitled_capstone.presentation.feature.my.MyScreen
+import com.example.untitled_capstone.presentation.feature.my.profile.ProfileEvent
+import com.example.untitled_capstone.presentation.feature.my.profile.ProfileScreen
+import com.example.untitled_capstone.presentation.feature.my.profile.ProfileViewModel
+import com.example.untitled_capstone.presentation.feature.notification.NotificationViewModel
 import com.example.untitled_capstone.presentation.feature.notification.screen.NotificationScreen
 import com.example.untitled_capstone.presentation.feature.onBoardiing.OnBoarding
-import com.example.untitled_capstone.presentation.feature.fridge.FridgeViewModel
-import com.example.untitled_capstone.presentation.feature.fridge.composable.ScanExpirationDate
-import com.example.untitled_capstone.presentation.feature.fridge.screen.AddFridgeItemScreen
-import com.example.untitled_capstone.presentation.feature.fridge.screen.RefrigeratorScreen
-import com.example.untitled_capstone.presentation.feature.home.screen.RecipeModifyScreen
-import com.example.untitled_capstone.presentation.feature.login.screen.SetLocationScreen
-import com.example.untitled_capstone.presentation.feature.main.AuthState
-import com.example.untitled_capstone.presentation.feature.my.screen.MyLikedPostScreen
-import com.example.untitled_capstone.presentation.feature.my.screen.MyPostScreen
 import com.example.untitled_capstone.presentation.feature.post.PostEvent
+import com.example.untitled_capstone.presentation.feature.post.detail.PostReportScreen
+import com.example.untitled_capstone.presentation.feature.post.PostScreen
 import com.example.untitled_capstone.presentation.feature.post.PostViewModel
-import com.example.untitled_capstone.presentation.feature.post.screen.PostDetailScreen
-import com.example.untitled_capstone.presentation.feature.post.screen.PostReportScreen
-import com.example.untitled_capstone.presentation.feature.post.screen.PostScreen
-import com.example.untitled_capstone.presentation.feature.post.screen.PostSearchScreen
-import com.example.untitled_capstone.presentation.feature.post.screen.WritingNewPostScreen
+import com.example.untitled_capstone.presentation.feature.post.crud.PostCRUDViewModel
+import com.example.untitled_capstone.presentation.feature.post.crud.WritingNewPostScreen
+import com.example.untitled_capstone.presentation.feature.post.detail.PostDetailScreen
+import com.example.untitled_capstone.presentation.feature.post.detail.PostDetailViewModel
+import com.example.untitled_capstone.presentation.feature.post.search.PostSearchScreen
+import com.example.untitled_capstone.presentation.feature.post.search.PostSearchViewModel
 import com.example.untitled_capstone.presentation.util.UiEvent
 
 
@@ -60,10 +72,10 @@ fun Navigation(
             startDestination = Screen.Home
         ){
             composable<Screen.Home> {
-                val parentEntry = navController.getBackStackEntry(Graph.HomeGraph)
-                val viewModel: HomeViewModel = hiltViewModel(parentEntry)
-                val recipeState = remember { viewModel.recipeState }
-                val aiState = remember { viewModel.aiState }
+                val viewModel: HomeViewModel = hiltViewModel()
+                val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+                val aiResponse by viewModel.aiResponse.collectAsStateWithLifecycle()
+                val tastePref by viewModel.tastePref.collectAsStateWithLifecycle()
                 val recipeItems = viewModel.recipePagingData.collectAsLazyPagingItems()
                 LaunchedEffect(true) {
                     viewModel.event.collect { event ->
@@ -82,9 +94,10 @@ fun Navigation(
                 }
                 HomeScreen(
                     mainViewModel = mainViewModel,
-                    recipeState = recipeState,
+                    uiState = uiState,
                     recipeItems = recipeItems,
-                    aiState = aiState,
+                    aiResponse = aiResponse,
+                    tastePref = tastePref,
                     onEvent = viewModel::onEvent,
                     onNavigate = { route ->
                         viewModel.navigateUp(route)
@@ -92,39 +105,51 @@ fun Navigation(
                 )
             }
             composable<Screen.RecipeNav>{
-                val parentEntry = navController.getBackStackEntry(Graph.HomeGraph)
-                val viewModel: HomeViewModel = hiltViewModel(parentEntry)
-                val recipeState = remember { viewModel.recipeState }
+                val viewModel: RecipeViewModel = hiltViewModel()
+                val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+                val recipe by viewModel.recipe.collectAsStateWithLifecycle()
                 val args = it.toRoute<Screen.RecipeNav>()
                 LaunchedEffect(true) {
                     viewModel.event.collect { event ->
                         when (event) {
-                            is UiEvent.ShowSnackbar -> {
+                            is RecipeEvent.ShowSnackbar -> {
                                 snackbarHostState.showSnackbar(event.message)
                             }
-                            is UiEvent.Navigate -> {
+                            is RecipeEvent.Navigate -> {
                                 navController.navigate(event.route)
                             }
-                            is UiEvent.PopBackStack -> {
+                            is RecipeEvent.PopBackStack -> {
                                 navController.popBackStack()
+                            }
+                            is RecipeEvent.ClearBackStack -> {
+                                navController.navigate(Graph.HomeGraph) {
+                                    popUpTo(0) { inclusive = true } // 모든 백스택 제거
+                                    launchSingleTop = true          // 중복 방지
+                                }
                             }
                         }
                     }
                 }
+                LaunchedEffect(true) {
+                    viewModel.getRecipeById(args.id)
+                }
                 RecipeScreen(
-                    id = args.id,
-                    state = recipeState,
-                    onEvent = viewModel::onEvent,
+                    uiState = uiState,
+                    recipe = recipe,
                     onNavigate = { route ->
                         viewModel.navigateUp(route)
                     },
-                    popBackStack = { viewModel.popBackStack() }
+                    popBackStack = { viewModel.popBackStack() },
+                    deleteRecipe = viewModel::deleteRecipe,
+                    toggleLike = viewModel::toggleLike
                 )
             }
-            composable<Screen.RecipeModifyNav>{
-                val parentEntry = navController.getBackStackEntry(Graph.HomeGraph)
-                val viewModel: HomeViewModel = hiltViewModel(parentEntry)
-                val recipeState = remember { viewModel.recipeState }
+            composable<Screen.RecipeModifyNav>(
+                typeMap = Screen.RecipeModifyNav.typeMap
+            ){
+                val viewModel: RecipeModifyViewModel = hiltViewModel()
+                val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+                val args = it.toRoute<Screen.RecipeModifyNav>()
                 LaunchedEffect(true) {
                     viewModel.event.collect { event ->
                         when (event) {
@@ -141,9 +166,10 @@ fun Navigation(
                     }
                 }
                 RecipeModifyScreen(
-                    recipeState = recipeState,
-                    onEvent = viewModel::onEvent,
-                    popBackStack = {viewModel.popBackStack()}
+                    uiState = uiState,
+                    recipe = args.recipe,
+                    uploadImageThenModifyRecipe = viewModel::uploadImageThenModify,
+                    popBackStack = viewModel::popBackStack,
                 )
             }
         }
@@ -151,19 +177,21 @@ fun Navigation(
             startDestination = Screen.Post
         ){
             composable<Screen.Post>{
-                val parentEntry = navController.getBackStackEntry(Graph.PostGraph)
-                val viewModel: PostViewModel = hiltViewModel(parentEntry)
+                val viewModel: PostViewModel = hiltViewModel()
                 val postPagingData = viewModel.postPagingData.collectAsLazyPagingItems()
+                LaunchedEffect(true) {
+                    viewModel.fetchPosts()
+                }
                 LaunchedEffect(true) {
                     viewModel.event.collect { event ->
                         when (event) {
-                            is UiEvent.ShowSnackbar -> {
+                            is PostEvent.ShowSnackbar -> {
                                 snackbarHostState.showSnackbar(event.message)
                             }
-                            is UiEvent.Navigate -> {
+                            is PostEvent.Navigate -> {
                                 navController.navigate(event.route)
                             }
-                            is UiEvent.PopBackStack -> {
+                            is PostEvent.PopBackStack -> {
                                 navController.popBackStack()
                             }
                         }
@@ -171,27 +199,33 @@ fun Navigation(
                 }
                 PostScreen(
                     postPagingData = postPagingData,
-                    onEvent = viewModel::onEvent
+                    navigateUp = viewModel::navigateUp,
+                    toggleLike = viewModel::toggleLike
                 )
             }
             composable<Screen.PostDetailNav>{
-                val parentEntry = navController.getBackStackEntry(Graph.PostGraph)
-                val viewModel: PostViewModel = hiltViewModel(parentEntry)
-                val state by viewModel.state.collectAsStateWithLifecycle()
-                val post = viewModel.post
-                val nickname = remember { viewModel.nickname }
+                val viewModel: PostDetailViewModel = hiltViewModel()
+                val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+                val post by viewModel.post.collectAsStateWithLifecycle()
+                val nickname by viewModel.nickname.collectAsStateWithLifecycle()
                 val args = it.toRoute<Screen.PostDetailNav>()
                 LaunchedEffect(true) {
                     viewModel.event.collect { event ->
                         when (event) {
-                            is UiEvent.ShowSnackbar -> {
+                            is PostEvent.ShowSnackbar -> {
                                 snackbarHostState.showSnackbar(event.message)
                             }
-                            is UiEvent.Navigate -> {
+                            is PostEvent.Navigate -> {
                                 navController.navigate(event.route)
                             }
-                            is UiEvent.PopBackStack -> {
+                            is PostEvent.PopBackStack -> {
                                 navController.popBackStack()
+                            }
+                            is PostEvent.ClearBackStack -> {
+                                navController.navigate(Graph.PostGraph) {
+                                    popUpTo(0) { inclusive = true } // 모든 백스택 제거
+                                    launchSingleTop = true          // 중복 방지
+                                }
                             }
                         }
                     }
@@ -199,116 +233,251 @@ fun Navigation(
                 PostDetailScreen(
                     id = args.id,
                     nickname = nickname,
-                    state = state,
+                    uiState = uiState,
                     post = post,
-                    onEvent = viewModel::onEvent
+                    getPostById = viewModel::getPostById,
+                    toggleLike = viewModel::toggleLike,
+                    navigateUp = {
+                        navController.navigate(it)
+                    },
+                    deletePost = viewModel::deletePost,
+                    clearBackStack = viewModel::clearBackStack,
+                    savePost = { post ->
+                        navController.currentBackStackEntry?.savedStateHandle["post"] = post
+                    }
                 )
             }
-            composable<Screen.WritingNav> {
-                val parentEntry = navController.getBackStackEntry(Graph.PostGraph)
-                val viewModel: PostViewModel = hiltViewModel(parentEntry)
-                val state by viewModel.state.collectAsStateWithLifecycle()
-                val post = viewModel.post
+            composable<Screen.WritingNav>{
+                val viewModel: PostCRUDViewModel = hiltViewModel()
+                val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+                val post: Post? = navController.previousBackStackEntry?.savedStateHandle["post"]
                 LaunchedEffect(true) {
                     viewModel.event.collect { event ->
                         when (event) {
-                            is UiEvent.ShowSnackbar -> {
+                            is PostEvent.ShowSnackbar -> {
                                 snackbarHostState.showSnackbar(event.message)
                             }
-                            is UiEvent.Navigate -> {
+                            is PostEvent.Navigate -> {
                                 navController.navigate(event.route)
                             }
-                            is UiEvent.PopBackStack -> {
+                            is PostEvent.PopBackStack -> {
                                 navController.popBackStack()
+                            }
+                            is PostEvent.ClearBackStack -> {
+                                navController.navigate(Graph.PostGraph) {
+                                    popUpTo(0) { inclusive = true } // 모든 백스택 제거
+                                    launchSingleTop = true          // 중복 방지
+                                }
                             }
                         }
                     }
                 }
                 WritingNewPostScreen(
-                    state = state,
+                    uiState = uiState,
                     post = post,
-                    onEvent = viewModel::onEvent
+                    deletePostImage = viewModel::deletePostImage,
+                    modifyPost = viewModel::modifyPost,
+                    addNewPost = viewModel::addNewPost,
+                    popBackStack = viewModel::popBackStack,
                 )
             }
             composable<Screen.PostSearchNav> {
-                val parentEntry = navController.getBackStackEntry(Graph.PostGraph)
-                val viewModel: PostViewModel = hiltViewModel(parentEntry)
-                val state by viewModel.state.collectAsStateWithLifecycle()
+                val viewModel: PostSearchViewModel = hiltViewModel()
+                val uiState by viewModel.uiState.collectAsStateWithLifecycle()
                 val searchPagingData = viewModel.searchPagingData.collectAsLazyPagingItems()
-                val searchHistoryState = viewModel.keywords
+                val searchHistoryState by viewModel.keywords.collectAsStateWithLifecycle()
+                LaunchedEffect(true) {
+                    viewModel.getSearchHistory()
+                }
                 LaunchedEffect(true) {
                     viewModel.event.collect { event ->
                         when (event) {
-                            is UiEvent.ShowSnackbar -> {
+                            is PostEvent.ShowSnackbar -> {
                                 snackbarHostState.showSnackbar(event.message)
                             }
-                            is UiEvent.Navigate -> {
+                            is PostEvent.Navigate -> {
                                 navController.navigate(event.route)
                             }
-                            is UiEvent.PopBackStack -> {
+                            is PostEvent.PopBackStack -> {
                                 navController.popBackStack()
+                            }
+                            is PostEvent.ClearBackStack -> {
+                                navController.navigate(Graph.PostGraph) {
+                                    popUpTo(0) { inclusive = true } // 모든 백스택 제거
+                                    launchSingleTop = true          // 중복 방지
+                                }
                             }
                         }
                     }
                 }
                 PostSearchScreen(
-                    state = state,
+                    uiState = uiState,
                     searchPagingData = searchPagingData,
                     searchHistoryState = searchHistoryState,
-                    onEvent = viewModel::onEvent,
+                    searchPost = viewModel::searchPost,
+                    deleteSearchHistory = viewModel::deleteSearchHistory,
+                    navigateUp = viewModel::navigateUp,
+                    deleteAllSearchHistory = viewModel::deleteAllSearchHistory,
+                    toggleLike = viewModel::toggleLike,
+                    clearBackStack = viewModel::clearBackStack
                 )
             }
-            composable<Screen.ReportPostNav> {
+            composable<Screen.ReportNav> {
                 val parentEntry = navController.getBackStackEntry(Graph.PostGraph)
-                val viewModel: PostViewModel = hiltViewModel(parentEntry)
-                val state by viewModel.state.collectAsStateWithLifecycle()
-                val args = it.toRoute<Screen.ReportPostNav>()
+                val viewModel: PostDetailViewModel = hiltViewModel(parentEntry)
+                val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+                val args = it.toRoute<Screen.ReportNav>()
                 LaunchedEffect(true) {
                     viewModel.event.collect { event ->
                         when (event) {
-                            is UiEvent.ShowSnackbar -> {
+                            is PostEvent.ShowSnackbar -> {
                                 snackbarHostState.showSnackbar(event.message)
                             }
-                            is UiEvent.Navigate -> {
+                            is PostEvent.Navigate -> {
                                 navController.navigate(event.route)
                             }
-                            is UiEvent.PopBackStack -> {
+                            is PostEvent.PopBackStack -> {
                                 navController.popBackStack()
                             }
                         }
                     }
                 }
                 PostReportScreen(
-                    state = state,
-                    postId = args.postId,
-                    onEvent = viewModel::onEvent,
+                    uiState = uiState,
+                    postId = args.id,
+                    repostPost = if(args.isPost)viewModel::reportPost else viewModel::reportUser,
+                    popBackStack = {navController.popBackStack()},
                 )
             }
             composable<Screen.ChattingRoomNav>{
-                val viewModel: ChatViewModel = hiltViewModel()
-                val state by viewModel.state.collectAsStateWithLifecycle()
+                val viewModel: ChatDetailViewModel = hiltViewModel()
+                val uiState by viewModel.uiState.collectAsStateWithLifecycle()
                 val messages = viewModel.message.collectAsLazyPagingItems()
+                val members by viewModel.member.collectAsStateWithLifecycle()
+                val chattingRoom by viewModel.chattingRoom.collectAsStateWithLifecycle()
+                val chattingRoomList by viewModel.chattingRoomList.collectAsStateWithLifecycle()
+                val name by viewModel.name.collectAsStateWithLifecycle()
                 val args = it.toRoute<Screen.ChattingRoomNav>()
+                LaunchedEffect(Unit) {
+                    viewModel.enterChatRoom(args.id)
+                    viewModel.getMessages(args.id)
+                    viewModel.readChats(args.id)
+                    viewModel.connectSocket(args.id)
+                    viewModel.getMyName()
+                    val isJoined = chattingRoomList.any{it.roomId == args.id}
+                    if(!isJoined){
+                        viewModel.joinChatRoom(args.id)
+                    }
+                }
+                LaunchedEffect(messages.itemCount) {
+                    viewModel.sendRead(args.id)
+                }
+                LaunchedEffect(true) {
+                    viewModel.event.collect { event ->
+                        when (event) {
+                            is ChatEvent.ShowSnackbar -> {
+                                snackbarHostState.showSnackbar(event.message)
+                            }
+                            is ChatEvent.Navigate -> {
+                                navController.navigate(event.route)
+                            }
+                            is ChatEvent.PopBackStack -> {
+                                navController.popBackStack()
+                            }
+                        }
+                    }
+                }
                 ChattingDetailScreen(
-                    viewModel = viewModel,
                     messages = messages,
-                    state = state,
+                    uiState = uiState,
                     roomId = args.id,
-                    navController = navController
+                    name = name,
+                    members = members,
+                    chattingRoom = chattingRoom,
+                    clearBackStack = {
+                        navController.navigate(Graph.ChatGraph) {
+                            popUpTo(0) { inclusive = true } // 모든 백스택 제거
+                            launchSingleTop = true          // 중복 방지
+                        }
+                     },
+                    sendMessage = viewModel::sendMessage,
+                    disconnect = viewModel::disconnect,
+                    navigateUp = { route ->
+                        navController.navigate(route)
+                    }
+                )
+            }
+            composable<Screen.ChattingDrawerNav>{
+                val parentEntry = navController.getBackStackEntry(Graph.ChatGraph)
+                val viewModel: ChatDetailViewModel = hiltViewModel(parentEntry)
+                val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+                val members by viewModel.member.collectAsStateWithLifecycle()
+                val myName by viewModel.name.collectAsStateWithLifecycle()
+                val args = it.toRoute<Screen.ChattingDrawerNav>()
+                LaunchedEffect(Unit) {
+                    viewModel.checkWhoIsIn(args.id)
+                    viewModel.getMyName()
+                }
+                LaunchedEffect(true) {
+                    viewModel.event.collect { event ->
+                        when (event) {
+                            is ChatEvent.ShowSnackbar -> {
+                                snackbarHostState.showSnackbar(event.message)
+                            }
+                            is ChatEvent.Navigate -> {
+                                navController.navigate(event.route)
+                            }
+                            is ChatEvent.PopBackStack -> {
+                                navController.popBackStack()
+                            }
+                        }
+                    }
+                }
+                ChattingRoomDrawer(
+                    uiState = uiState,
+                    roomId = args.id,
+                    title = args.title,
+                    popBackStack = {navController.popBackStack()},
+                    members = members,
+                    myName = myName,
+                    clearBackStack = {
+                        navController.navigate(Graph.ChatGraph) {
+                            popUpTo(0) { inclusive = true } // 모든 백스택 제거
+                            launchSingleTop = true          // 중복 방지
+                        }
+                    },
+                    closeChatRoom = viewModel::closeChatRoom,
+                    exitChatRoom = viewModel::exitChatRoom
                 )
             }
             composable<Screen.Profile>{
-                val viewModel: MyViewModel = hiltViewModel()
-                val state by viewModel.state.collectAsStateWithLifecycle()
-                val loginState = viewModel.loginState
+                val viewModel: ProfileViewModel = hiltViewModel()
+                val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+                val profile by viewModel.profile.collectAsStateWithLifecycle()
                 val args = it.toRoute<Screen.Profile>()
+                LaunchedEffect(true) {
+                    if (args.nickname != null) {
+                        viewModel.getOtherProfile(args.nickname)
+                    } else {
+                        viewModel.getMyProfile()
+                    }
+                }
                 ProfileScreen(
-                    navController,
-                    state,
-                    viewModel::onEvent,
-                    {navController.popBackStack()},
-                    loginState,
-                    args.nickname
+                    uiState = uiState,
+                    isMe = args.nickname == null,
+                    popBackStack = {navController.popBackStack()},
+                    profile = profile,
+                    navigateUp = {
+                        navController.navigate(it)
+                    },
+                    logout = viewModel::logout,
+                    uploadProfileImage = viewModel::uploadProfileImage,
+                    clearBackStack = {
+                        navController.navigate(Graph.LoginGraph) {
+                            popUpTo(0) { inclusive = true } // 모든 백스택 제거
+                            launchSingleTop = true          // 중복 방지
+                        }
+                    }
                 )
             }
         }
@@ -316,59 +485,68 @@ fun Navigation(
             startDestination = Screen.Fridge
         ){
             composable<Screen.Fridge>{
-                val parentEntry = navController.getBackStackEntry(Graph.FridgeGraph)
-                val viewModel: FridgeViewModel = hiltViewModel(parentEntry)
-                val state = remember { viewModel.state }
-                val fridgeItems = viewModel.fridgeItemState.collectAsLazyPagingItems()
+                val viewModel: FridgeViewModel = hiltViewModel()
+                val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+                val fridgeItems = viewModel.fridgeItemPaged.collectAsLazyPagingItems()
                 LaunchedEffect(true) {
                     viewModel.event.collect { event ->
                         when (event) {
-                            is UiEvent.ShowSnackbar -> {
+                            is FridgeEvent.ShowSnackbar -> {
                                 snackbarHostState.showSnackbar(event.message)
                             }
-                            is UiEvent.Navigate -> {
+                            is FridgeEvent.Navigate -> {
                                 navController.navigate(event.route)
                             }
-                            is UiEvent.PopBackStack -> {
+                            is FridgeEvent.PopBackStack -> {
                                 navController.popBackStack()
                             }
                         }
                     }
                 }
+                LaunchedEffect(true) {
+                    viewModel.getItems()
+                }
                 RefrigeratorScreen(
                     fridgeItems = fridgeItems,
-                    state = state,
+                    uiState = uiState,
                     topSelector = mainViewModel.topSelector,
-                    onAction = viewModel::onAction,
-                    onNavigate = { route ->
+                    navigateUp = { route ->
                         viewModel.navigateUp(route)
-                    }
+                    },
+                    toggleNotification = viewModel::toggleNotification,
+                    deleteItem = viewModel::deleteItem,
+                    getItems = viewModel::getItems,
+                    getItemsByDate = viewModel::getItemsByDate,
                 )
             }
             composable<Screen.AddFridgeItemNav>{
-                val parentEntry = navController.getBackStackEntry(Graph.FridgeGraph)
-                val viewModel: FridgeViewModel = hiltViewModel(parentEntry)
-                val state = remember { viewModel.state }
+                val viewModel: FridgeCRUDViewModel = hiltViewModel()
+                val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+                val fridgeItem by viewModel.fridgeItem.collectAsStateWithLifecycle()
                 val args = it.toRoute<Screen.AddFridgeItemNav>()
                 LaunchedEffect(true) {
                     viewModel.event.collect { event ->
                         when (event) {
-                            is UiEvent.ShowSnackbar -> {
+                            is FridgeEvent.ShowSnackbar -> {
                                 snackbarHostState.showSnackbar(event.message)
                             }
-                            is UiEvent.Navigate -> {
+                            is FridgeEvent.Navigate -> {
                                 navController.navigate(event.route)
                             }
-                            is UiEvent.PopBackStack -> {
+                            is FridgeEvent.PopBackStack -> {
                                 navController.popBackStack()
                             }
                         }
                     }
                 }
+                LaunchedEffect(true) {
+                    if(args.id != null){
+                        viewModel.getItemById(args.id)
+                    }
+                }
                 AddFridgeItemScreen(
-                    id = args.id,
-                    state = state,
-                    onAction = viewModel::onAction,
+                    fridgeItem = fridgeItem,
+                    uiState = uiState,
                     initSavedDate = {
                         navController.currentBackStackEntry?.savedStateHandle?.remove<String>("date")
                     },
@@ -381,7 +559,9 @@ fun Navigation(
                     popBackStack = {navController.popBackStack()},
                     showSnackbar = { message ->
                         viewModel.showSnackbar(message)
-                    }
+                    },
+                    addFridgeItem = viewModel::addItem,
+                    modifyFridgeItem = viewModel::modifyItem,
                 )
             }
             composable<Screen.ScanNav> {
@@ -394,41 +574,200 @@ fun Navigation(
             startDestination = Screen.Chat
         ){
             composable<Screen.Chat>{
-                val parentEntry = navController.getBackStackEntry(Graph.ChatGraph)
-                val viewModel: ChatViewModel = hiltViewModel(parentEntry)
-                val state by viewModel.state.collectAsStateWithLifecycle()
+                val viewModel: ChatViewModel = hiltViewModel()
+                val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+                val chattingRoomList by viewModel.chattingRoomList.collectAsStateWithLifecycle()
+                LaunchedEffect(true) {
+                    viewModel.event.collect { event ->
+                        when (event) {
+                            is ChatEvent.ShowSnackbar -> {
+                                snackbarHostState.showSnackbar(event.message)
+                            }
+                        }
+                    }
+                }
                 ChattingScreen(
-                    snackbarHostState = snackbarHostState,
-                    viewModel = viewModel,
-                    state = state,
-                    navController = navController,
+                    uiState = uiState,
+                    chattingRoomList = chattingRoomList,
+                    navigateUp = { route ->
+                        navController.navigate(route)
+                    }
                 )
             }
             composable<Screen.ChattingRoomNav>{
-                val parentEntry = navController.getBackStackEntry(Graph.ChatGraph)
-                val viewModel: ChatViewModel = hiltViewModel(parentEntry)
-                val state by viewModel.state.collectAsStateWithLifecycle()
+                val viewModel: ChatDetailViewModel = hiltViewModel()
+                val uiState by viewModel.uiState.collectAsStateWithLifecycle()
                 val messages = viewModel.message.collectAsLazyPagingItems()
+                val members by viewModel.member.collectAsStateWithLifecycle()
+                val chattingRoom by viewModel.chattingRoom.collectAsStateWithLifecycle()
+                val chattingRoomList by viewModel.chattingRoomList.collectAsStateWithLifecycle()
+                val name by viewModel.name.collectAsStateWithLifecycle()
                 val args = it.toRoute<Screen.ChattingRoomNav>()
+                LaunchedEffect(Unit) {
+                    viewModel.enterChatRoom(args.id)
+                    viewModel.getMessages(args.id)
+                    viewModel.readChats(args.id)
+                    viewModel.connectSocket(args.id)
+                    viewModel.getMyName()
+                    val isJoined = chattingRoomList.any{it.roomId == args.id}
+                    if(!isJoined){
+                        viewModel.joinChatRoom(args.id)
+                    }
+                }
+                LaunchedEffect(messages.itemCount) {
+                    viewModel.sendRead(args.id)
+                }
+                LaunchedEffect(true) {
+                    viewModel.event.collect { event ->
+                        when (event) {
+                            is ChatEvent.ShowSnackbar -> {
+                                snackbarHostState.showSnackbar(event.message)
+                            }
+                            is ChatEvent.Navigate -> {
+                                navController.navigate(event.route)
+                            }
+                            is ChatEvent.PopBackStack -> {
+                                navController.popBackStack()
+                            }
+                        }
+                    }
+                }
                 ChattingDetailScreen(
-                    viewModel = viewModel,
                     messages = messages,
-                    state = state,
+                    uiState = uiState,
                     roomId = args.id,
-                    navController = navController
+                    name = name,
+                    members = members,
+                    chattingRoom = chattingRoom,
+                    clearBackStack = {
+                        navController.navigate(Graph.ChatGraph) {
+                            popUpTo(0) { inclusive = true } // 모든 백스택 제거
+                            launchSingleTop = true          // 중복 방지
+                        }
+                    },
+                    sendMessage = viewModel::sendMessage,
+                    disconnect = viewModel::disconnect,
+                    navigateUp = { route ->
+                        navController.navigate(route)
+                    }
                 )
             }
             composable<Screen.ChattingDrawerNav>{
                 val parentEntry = navController.getBackStackEntry(Graph.ChatGraph)
-                val viewModel: ChatViewModel = hiltViewModel(parentEntry)
-                val state by viewModel.state.collectAsStateWithLifecycle()
+                val viewModel: ChatDetailViewModel = hiltViewModel(parentEntry)
+                val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+                val members by viewModel.member.collectAsStateWithLifecycle()
+                val myName by viewModel.name.collectAsStateWithLifecycle()
                 val args = it.toRoute<Screen.ChattingDrawerNav>()
+                LaunchedEffect(Unit) {
+                    viewModel.checkWhoIsIn(args.id)
+                    viewModel.getMyName()
+                }
+                LaunchedEffect(true) {
+                    viewModel.event.collect { event ->
+                        when (event) {
+                            is ChatEvent.ShowSnackbar -> {
+                                snackbarHostState.showSnackbar(event.message)
+                            }
+                            is ChatEvent.Navigate -> {
+                                navController.navigate(event.route){
+                                    popUpTo(Screen.Chat){
+                                        inclusive = true
+                                    }
+                                }
+                            }
+                            is ChatEvent.PopBackStack -> {
+                                navController.popBackStack()
+                            }
+                        }
+                    }
+                }
                 ChattingRoomDrawer(
-                    viewModel = viewModel,
-                    state = state,
+                    uiState = uiState,
                     roomId = args.id,
                     title = args.title,
-                    navController = navController
+                    popBackStack = {navController.popBackStack()},
+                    members = members,
+                    myName = myName,
+                    clearBackStack = {
+                        navController.navigate(Graph.ChatGraph) {
+                            popUpTo(0) { inclusive = true } // 모든 백스택 제거
+                            launchSingleTop = true          // 중복 방지
+                        }
+                    },
+                    closeChatRoom = viewModel::closeChatRoom,
+                    exitChatRoom = viewModel::exitChatRoom
+                )
+            }
+            composable<Screen.Profile>{
+                val viewModel: ProfileViewModel = hiltViewModel()
+                val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+                val profile by viewModel.profile.collectAsStateWithLifecycle()
+                val args = it.toRoute<Screen.Profile>()
+                LaunchedEffect(true) {
+                    if (args.nickname != null) {
+                        viewModel.getOtherProfile(args.nickname)
+                    } else {
+                        viewModel.getMyProfile()
+                    }
+                }
+                LaunchedEffect(true) {
+                    viewModel.event.collect { event ->
+                        when (event) {
+                            is ProfileEvent.ShowSnackbar -> {
+                                snackbarHostState.showSnackbar(event.message)
+                            }
+                            is ProfileEvent.Navigate -> {
+                                navController.navigate(event.route)
+                            }
+                            is ProfileEvent.PopBackStack -> {
+                                navController.popBackStack()
+                            }
+                        }
+                    }
+                }
+                ProfileScreen(
+                    uiState = uiState,
+                    isMe = args.nickname == null,
+                    popBackStack = {navController.popBackStack()},
+                    profile = profile,
+                    navigateUp = {
+                        navController.navigate(it)
+                    },
+                    logout = viewModel::logout,
+                    uploadProfileImage = viewModel::uploadProfileImage,
+                    clearBackStack = {
+                        navController.navigate(Graph.LoginGraph) {
+                            popUpTo(0) { inclusive = true } // 모든 백스택 제거
+                            launchSingleTop = true          // 중복 방지
+                        }
+                    },
+                )
+            }
+            composable<Screen.ReportNav> {
+                val viewModel: PostDetailViewModel = hiltViewModel()
+                val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+                val args = it.toRoute<Screen.ReportNav>()
+                LaunchedEffect(true) {
+                    viewModel.event.collect { event ->
+                        when (event) {
+                            is PostEvent.ShowSnackbar -> {
+                                snackbarHostState.showSnackbar(event.message)
+                            }
+                            is PostEvent.Navigate -> {
+                                navController.navigate(event.route)
+                            }
+                            is PostEvent.PopBackStack -> {
+                                navController.popBackStack()
+                            }
+                        }
+                    }
+                }
+                PostReportScreen(
+                    uiState = uiState,
+                    postId = args.id,
+                    repostPost = if(args.isPost)viewModel::reportPost else viewModel::reportUser,
+                    popBackStack = {navController.popBackStack()},
                 )
             }
         }
@@ -436,18 +775,59 @@ fun Navigation(
             startDestination = Screen.My
         ){
             composable<Screen.My>{
-                val parentEntry = navController.getBackStackEntry(Graph.MyGraph)
-                val viewModel: MyViewModel = hiltViewModel(parentEntry)
-                val state by viewModel.state.collectAsStateWithLifecycle()
-                val nickname by viewModel.nickname.collectAsStateWithLifecycle()
-                MyScreen(navController, viewModel::onEvent, state, nickname)
+                val viewModel: MyViewModel = hiltViewModel()
+                val profile by viewModel.profile.collectAsStateWithLifecycle()
+                MyScreen(
+                    profile = profile,
+                    navigateUp = {
+                        navController.navigate(it)
+                    }
+                )
             }
             composable<Screen.Profile>{
-                val parentEntry = navController.getBackStackEntry(Graph.MyGraph)
-                val viewModel: MyViewModel = hiltViewModel(parentEntry)
-                val state by viewModel.state.collectAsStateWithLifecycle()
-                val loginState = viewModel.loginState
-                ProfileScreen(navController, state, viewModel::onEvent, {navController.popBackStack()}, loginState)
+                val viewModel: ProfileViewModel = hiltViewModel()
+                val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+                val profile by viewModel.profile.collectAsStateWithLifecycle()
+                val args = it.toRoute<Screen.Profile>()
+                LaunchedEffect(true) {
+                    if (args.nickname != null) {
+                        viewModel.getOtherProfile(args.nickname)
+                    } else {
+                        viewModel.getMyProfile()
+                    }
+                }
+                LaunchedEffect(true) {
+                    viewModel.event.collect { event ->
+                        when (event) {
+                            is ProfileEvent.ShowSnackbar -> {
+                                snackbarHostState.showSnackbar(event.message)
+                            }
+                            is ProfileEvent.Navigate -> {
+                                navController.navigate(event.route)
+                            }
+                            is ProfileEvent.PopBackStack -> {
+                                navController.popBackStack()
+                            }
+                        }
+                    }
+                }
+                ProfileScreen(
+                    uiState = uiState,
+                    isMe = args.nickname == null,
+                    popBackStack = {navController.popBackStack()},
+                    profile = profile,
+                    navigateUp = {
+                        navController.navigate(it)
+                    },
+                    logout = viewModel::logout,
+                    uploadProfileImage = viewModel::uploadProfileImage,
+                    clearBackStack = {
+                        navController.navigate(Graph.LoginGraph) {
+                            popUpTo(0) { inclusive = true } // 모든 백스택 제거
+                            launchSingleTop = true          // 중복 방지
+                        }
+                    },
+                )
             }
             composable<Screen.NicknameNav>{
                 val viewModel: LoginViewModel = hiltViewModel()
@@ -478,28 +858,58 @@ fun Navigation(
             composable<Screen.MyLikedPostNav> {
                 val viewModel: PostViewModel = hiltViewModel()
                 val postItems = viewModel.postPagingData.collectAsLazyPagingItems()
-                viewModel.onEvent(PostEvent.GetLikedPosts)
-                MyLikedPostScreen(navigate = { id ->
-                    navController.navigate(
-                        Screen.PostDetailNav(
-                            id = id
-                        )
-                    )
-                }, postItems = postItems,onEvent = viewModel::onEvent,
-                    navigateToBack = {navController.popBackStack()})
+                LaunchedEffect(true) {
+                    viewModel.getLikedPosts()
+                }
+                LaunchedEffect(true) {
+                    viewModel.event.collect { event ->
+                        when (event) {
+                            is PostEvent.ShowSnackbar -> {
+                                snackbarHostState.showSnackbar(event.message)
+                            }
+                            is PostEvent.Navigate -> {
+                                navController.navigate(event.route)
+                            }
+                            is PostEvent.PopBackStack -> {
+                                navController.popBackStack()
+                            }
+                        }
+                    }
+                }
+                MyLikedPostScreen(
+                    navigateUp = viewModel::navigateUp,
+                    postItems = postItems,
+                    popBackStack = viewModel::popBackStack,
+                    toggleLike = viewModel::toggleLike,
+                )
             }
             composable<Screen.MyPostNav> {
                 val viewModel: PostViewModel = hiltViewModel()
                 val postItems = viewModel.postPagingData.collectAsLazyPagingItems()
-                viewModel.onEvent(PostEvent.GetMyPosts)
-                MyPostScreen(navigate = { id ->
-                    navController.navigate(
-                        Screen.PostDetailNav(
-                            id = id
-                        )
-                    )
-                }, postItems = postItems, onEvent = viewModel::onEvent,
-                    navigateToBack = {navController.popBackStack()})
+                LaunchedEffect(true) {
+                    viewModel.getMyPosts()
+                }
+                LaunchedEffect(true) {
+                    viewModel.event.collect { event ->
+                        when (event) {
+                            is PostEvent.ShowSnackbar -> {
+                                snackbarHostState.showSnackbar(event.message)
+                            }
+                            is PostEvent.Navigate -> {
+                                navController.navigate(event.route)
+                            }
+                            is PostEvent.PopBackStack -> {
+                                navController.popBackStack()
+                            }
+                        }
+                    }
+                }
+                MyPostScreen(
+                    navigateUp = viewModel::navigateUp,
+                    postItems = postItems,
+                    popBackStack = viewModel::popBackStack,
+                    toggleLike = viewModel::toggleLike,
+                )
             }
         }
         composable<Screen.NotificationNav> {

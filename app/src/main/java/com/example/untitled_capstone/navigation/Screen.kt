@@ -1,6 +1,8 @@
 package com.example.untitled_capstone.navigation
 
+import com.example.untitled_capstone.domain.model.Recipe
 import kotlinx.serialization.Serializable
+import kotlin.reflect.typeOf
 
 sealed interface Screen {
     @Serializable
@@ -22,7 +24,7 @@ sealed interface Screen {
     data object OnBoarding: Screen
 
     @Serializable
-    data class AddFridgeItemNav(val id: Long?): Screen
+    data class AddFridgeItemNav(val id: Long? = null): Screen
 
     @Serializable
     data object  LoginNav: Screen
@@ -64,13 +66,17 @@ sealed interface Screen {
     data object PostSearchNav: Screen
 
     @Serializable
-    data object RecipeModifyNav: Screen
+    data class RecipeModifyNav(val recipe: Recipe): Screen{
+        companion object {
+            val typeMap = mapOf(typeOf<Recipe>() to RecipeType)
+        }
+    }
 
     @Serializable
     data class ChattingDrawerNav(val id: Long, val title: String): Screen
 
     @Serializable
-    data class ReportPostNav(val postId: Long): Screen
+    data class ReportNav(val id: Long, val isPost: Boolean): Screen
 }
 
 sealed interface Graph {

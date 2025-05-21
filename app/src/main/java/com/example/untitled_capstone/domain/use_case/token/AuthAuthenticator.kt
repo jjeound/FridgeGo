@@ -9,7 +9,6 @@ import com.example.untitled_capstone.presentation.util.AuthEventBus
 import com.kakao.sdk.common.Constants.AUTHORIZATION
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import okhttp3.Authenticator

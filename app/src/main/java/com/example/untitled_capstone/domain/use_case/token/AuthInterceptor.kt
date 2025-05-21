@@ -4,18 +4,13 @@ import android.util.Log
 import com.example.untitled_capstone.core.util.Constants.NETWORK_ERROR
 import com.example.untitled_capstone.domain.repository.TokenRepository
 import com.kakao.sdk.common.Constants.AUTHORIZATION
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.OkHttpClient
 import okhttp3.Protocol
 import okhttp3.Request
 import okhttp3.Response
 import okhttp3.ResponseBody.Companion.toResponseBody
-import okhttp3.logging.HttpLoggingInterceptor
-import java.net.HttpURLConnection.HTTP_OK
 import javax.inject.Inject
 
 class AuthInterceptor @Inject constructor(

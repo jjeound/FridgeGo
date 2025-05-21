@@ -66,9 +66,10 @@ fun KakaoLogin(state: LoginState, onAction: (LoginEvent) -> Unit, navController:
             modifier = Modifier.width(600.dp).height(90.dp).padding(
                 Dimens.largePadding
             ).clickable {
-                kakaoLogin(context){ code ->
-                    onAction(LoginEvent.KakaoLogin(code))
-                }
+                onAction(LoginEvent.KakaoLogin("2"))
+//                kakaoLogin(context){ code ->
+//                    onAction(LoginEvent.KakaoLogin(code))
+//                }
             },
             painter = painterResource(id = R.drawable.kakao_login_large_wide),
             contentDescription = "kakao_login"

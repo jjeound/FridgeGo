@@ -58,7 +58,7 @@ class MainViewModel @Inject constructor(
     private fun checkToken(){
         viewModelScope.launch {
             val refreshToken = runBlocking {
-                tokenRepository.getRefreshToken().firstOrNull()
+                tokenRepository.getRefreshToken()
             }
             if (refreshToken.isNullOrEmpty()) {
                 _authEvent.emit(AuthState.Logout)

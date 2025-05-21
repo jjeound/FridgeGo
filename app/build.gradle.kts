@@ -7,6 +7,7 @@ plugins {
     id("kotlin-kapt")
     alias(libs.plugins.ksp)
     alias(libs.plugins.dagger.hilt)
+    id("kotlin-parcelize")
     kotlin("plugin.serialization") version "2.0.21"
 }
 
@@ -94,6 +95,7 @@ dependencies {
     // login
     implementation (libs.v2.user)
     implementation (libs.androidx.datastore.preferences)
+    implementation (libs.androidx.security.crypto)
     implementation (libs.android)
     implementation (libs.play.services.location)
     implementation (libs.play.services.maps)

@@ -1,4 +1,4 @@
-package com.example.untitled_capstone.presentation.feature.fridge.composable
+package com.example.untitled_capstone.presentation.feature.fridge.crud
 
 import android.util.Log
 import androidx.annotation.OptIn

@@ -1,4 +1,4 @@
-package com.example.untitled_capstone.presentation.feature.chat.composable
+package com.example.untitled_capstone.presentation.feature.chat.detail
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -31,7 +31,10 @@ import com.example.untitled_capstone.presentation.feature.chat.ChatViewModel
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @Composable
-fun NewMessageForm(roomId: Long, viewModel: ChatViewModel){
+fun NewMessageForm(
+    roomId: Long,
+    sendMessage: (Long, String) -> Unit,
+){
     var text by remember { mutableStateOf("") }
     val focusManager = LocalFocusManager.current
     Row(
@@ -88,7 +91,7 @@ fun NewMessageForm(roomId: Long, viewModel: ChatViewModel){
             modifier = Modifier.padding(bottom = 16.dp).then(Modifier.size(24.dp)),
             enabled = text.isNotEmpty(),
             onClick = {
-                viewModel.sendMessage(roomId, text)
+                sendMessage(roomId, text)
                 text = ""
             }
         ) {

@@ -1,6 +1,7 @@
 package com.example.untitled_capstone.data.remote.manager
 
 import android.annotation.SuppressLint
+import android.util.Log
 import com.example.untitled_capstone.core.util.Constants.WS_URL
 import com.example.untitled_capstone.data.remote.dto.MessageDto
 import com.example.untitled_capstone.data.remote.dto.UnreadBroadcastDto
@@ -54,11 +55,13 @@ class WebSocketManager @Inject constructor() {
     fun subscribeRoom(roomId: Long, onMessage: (MessageDto) -> Unit, onUnreadUpdate: (UnreadBroadcastDto) -> Unit) {
         stompClient?.topic("/sub/chat/room/$roomId")?.subscribe { stompMessage ->
             val message = Gson().fromJson(stompMessage.payload, MessageDto::class.java)
+            Log.d("onMessage", "Received message: $message")
             onMessage(message)
         }
 
         stompClient?.topic("/sub/chat/room/$roomId/unread")?.subscribe { stompMessage ->
             val unread = Gson().fromJson(stompMessage.payload, UnreadBroadcastDto::class.java)
+            Log.d("onUnreadUpdate", "Received unread update: $unread")
             onUnreadUpdate(unread)
         }
     }

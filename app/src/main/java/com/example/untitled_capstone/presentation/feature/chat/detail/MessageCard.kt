@@ -1,5 +1,6 @@
-package com.example.untitled_capstone.presentation.feature.chat.composable
+package com.example.untitled_capstone.presentation.feature.chat.detail
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,10 +28,18 @@ import coil.compose.AsyncImage
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.domain.model.Message
+import com.example.untitled_capstone.navigation.Screen
+import com.example.untitled_capstone.presentation.feature.chat.formatLocaleDateTimeToKoreanDateTime
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @Composable
-fun MessageCard(message: Message, isMe: Boolean, profileImage: String?, isActive: Boolean) {
+fun MessageCard(
+    message: Message,
+    isMe: Boolean,
+    profileImage: String?,
+    isActive: Boolean,
+    navigateUp: (Screen) -> Unit,
+) {
     if(isMe){
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -96,9 +105,19 @@ fun MessageCard(message: Message, isMe: Boolean, profileImage: String?, isActive
                     modifier = Modifier
                         .size(36.dp)
                         .clip(shape = RoundedCornerShape(36.dp))
+                        .clickable {
+                            navigateUp(Screen.Profile(
+                                message.senderNickname
+                            ))
+                        }
                 )
             } else {
                 Icon(
+                    modifier = Modifier.clickable{
+                        navigateUp(Screen.Profile(
+                            message.senderNickname
+                        ))
+                    },
                     imageVector = ImageVector.vectorResource(R.drawable.profile),
                     contentDescription = "get image",
                     tint = CustomTheme.colors.iconDefault,
@@ -154,7 +173,9 @@ fun MessageCard(message: Message, isMe: Boolean, profileImage: String?, isActive
                 }
             } else {
                 Text(
-                    modifier = Modifier.weight(1f).align(Alignment.Bottom),
+                    modifier = Modifier
+                        .weight(1f)
+                        .align(Alignment.Bottom),
                     text = formatLocaleDateTimeToKoreanDateTime(message.sentAt),
                     style = CustomTheme.typography.caption2,
                     color = CustomTheme.colors.textSecondary,

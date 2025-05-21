@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
-class GetChatMessagesUseCase @Inject constructor(
+class GetPagedMessagesUseCase @Inject constructor(
     private val repository: ChatRepository
 ) {
     operator fun invoke(roomId: Long): Flow<PagingData<Message>> {

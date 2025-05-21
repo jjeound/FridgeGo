@@ -1,11 +1,14 @@
 package com.example.untitled_capstone.data.repository
 
+import androidx.annotation.WorkerThread
 import androidx.paging.ExperimentalPagingApi
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import com.example.untitled_capstone.core.util.Constants.MESSAGE_PAGE_SIZE
 import com.example.untitled_capstone.core.util.Resource
+import com.example.untitled_capstone.data.AppDispatchers
+import com.example.untitled_capstone.data.Dispatcher
 import com.example.untitled_capstone.data.local.db.MessageItemDatabase
 import com.example.untitled_capstone.data.local.entity.MessageItemEntity
 import com.example.untitled_capstone.data.pagination.MessagePagingSource
@@ -15,150 +18,166 @@ import com.example.untitled_capstone.domain.model.ChattingRoom
 import com.example.untitled_capstone.domain.model.ChattingRoomRaw
 import com.example.untitled_capstone.domain.model.Message
 import com.example.untitled_capstone.domain.repository.ChatRepository
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import okio.IOException
 import retrofit2.HttpException
 import javax.inject.Inject
 
 class ChatRepositoryImpl @Inject constructor(
     private val api: ChatApi,
-    private val db: MessageItemDatabase
+    private val db: MessageItemDatabase,
+    @Dispatcher(AppDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
 ): ChatRepository {
 
-    override suspend fun readChats(id: Long): Resource<Int> {
-        return try {
-            Resource.Loading(data = null)
+    @WorkerThread
+    override suspend fun readChats(id: Long): Flow<Resource<Int>> = flow {
+        emit(Resource.Loading())
+        try {
             val response = api.readChats(id)
             if(response.isSuccess){
-                Resource.Success(response.result)
+                emit(Resource.Success(response.result))
             }else{
-                Resource.Error(response.message)
+                emit(Resource.Error(response.message))
             }
         } catch (e: IOException) {
-            Resource.Error(e.toString())
+            emit(Resource.Error(e.toString()))
         } catch (e: HttpException) {
-            Resource.Error(e.toString())
+            emit(Resource.Error(e.toString()))
         }
-    }
+    }.flowOn(ioDispatcher)
 
-    override suspend fun joinChatRoom(id: Long): Resource<ChattingRoom> {
-        return try {
-            Resource.Loading(data = null)
+    @WorkerThread
+    override suspend fun joinChatRoom(id: Long): Flow<Resource<ChattingRoom>> = flow {
+        emit(Resource.Loading())
+        try {
             val response = api.joinChatRoom(id)
             if(response.isSuccess){
-                Resource.Success(response.result!!.toChattingRoom())
+                emit(Resource.Success(response.result!!.toChattingRoom()))
             }else{
-                Resource.Error(response.message)
+                emit(Resource.Error(response.message))
             }
         } catch (e: IOException) {
-            Resource.Error(e.toString())
+            emit(Resource.Error(e.toString()))
         } catch (e: HttpException) {
-            Resource.Error(e.toString())
+            emit(Resource.Error(e.toString()))
         }
-    }
+    }.flowOn(ioDispatcher)
 
-    override suspend fun closeChatRoom(id: Long): Resource<String> {
-        return try {
-            Resource.Loading(data = null)
+    @WorkerThread
+    override suspend fun closeChatRoom(id: Long): Flow<Resource<String>> = flow {
+        emit(Resource.Loading())
+        try {
             val response = api.closeChatRoom(id)
             if(response.isSuccess){
-                Resource.Success(response.result)
+                emit(Resource.Success(response.result))
             }else{
-                Resource.Error(response.message)
+                emit(Resource.Error(response.message))
             }
         } catch (e: IOException) {
-            Resource.Error(e.toString())
+            emit(Resource.Error(e.toString()))
         } catch (e: HttpException) {
-            Resource.Error(e.toString())
+            emit(Resource.Error(e.toString()))
         }
-    }
+    }.flowOn(ioDispatcher)
 
-    override suspend fun enterChatRoom(id: Long): Resource<ChattingRoom> {
-        return try {
-            Resource.Loading(data = null)
+    @WorkerThread
+    override suspend fun enterChatRoom(id: Long): Flow<Resource<ChattingRoom>> = flow {
+        emit(Resource.Loading())
+        try {
             val response = api.enterChatRoom(id)
             if(response.isSuccess){
-                Resource.Success(response.result!!.toChattingRoom())
+                emit(Resource.Success(response.result!!.toChattingRoom()))
             }else{
-                Resource.Error(response.message)
+                emit(Resource.Error(response.message))
             }
         } catch (e: IOException) {
-            Resource.Error(e.toString())
+            emit(Resource.Error(e.toString()))
         } catch (e: HttpException) {
-            Resource.Error(e.toString())
+            emit(Resource.Error(e.toString()))
         }
-    }
+    }.flowOn(ioDispatcher)
 
-    override suspend fun checkWhoIsIn(id: Long): Resource<List<ChatMember>> {
-        return try {
+    @WorkerThread
+    override suspend fun checkWhoIsIn(id: Long): Flow<Resource<List<ChatMember>>> = flow {
+        emit(Resource.Loading())
+        try {
             Resource.Loading(data = null)
             val response = api.checkWhoIsIn(id)
             if(response.isSuccess){
-                Resource.Success(response.result?.map { it.toChatMember() })
+                emit(Resource.Success(response.result?.map { it.toChatMember() }))
             }else{
-                Resource.Error(response.message)
+                emit(Resource.Error(response.message))
             }
         } catch (e: IOException) {
-            Resource.Error(e.toString())
+            emit(Resource.Error(e.toString()))
         } catch (e: HttpException) {
-            Resource.Error(e.toString())
+            emit(Resource.Error(e.toString()))
         }
-    }
+    }.flowOn(ioDispatcher)
 
-    override suspend fun getMessages(id: Long, lastMessageId: Long?): Resource<List<Message>> {
-        return try {
+    @WorkerThread
+    override suspend fun getMessages(id: Long, lastMessageId: Long?): Flow<Resource<List<Message>>> = flow {
+        emit(Resource.Loading())
+        try {
             Resource.Loading(data = null)
             val response = api.getMessages(id, lastMessageId)
             if(response.isSuccess){
-                Resource.Success(response.result?.map { it.toMessage() })
+                emit(Resource.Success(response.result?.map { it.toMessage() }))
             }else{
-                Resource.Error(response.message)
+                emit(Resource.Error(response.message))
             }
         } catch (e: IOException) {
-            Resource.Error(e.toString())
+            emit(Resource.Error(e.toString()))
         } catch (e: HttpException) {
-            Resource.Error(e.toString())
+            emit(Resource.Error(e.toString()))
         }
-    }
+    }.flowOn(ioDispatcher)
 
-    override suspend fun getMyRooms(): Resource<List<ChattingRoomRaw>> {
-        return try {
-            Resource.Loading(data = null)
+    @WorkerThread
+    override suspend fun getMyRooms(): Flow<Resource<List<ChattingRoomRaw>>> = flow {
+        emit(Resource.Loading())
+        try {
             val response = api.getMyRooms()
             if(response.isSuccess){
-                Resource.Success(response.result?.map { it.toChattingRoomRaw() })
+                emit(Resource.Success(response.result?.map { it.toChattingRoomRaw() }))
             }else{
-                Resource.Error(response.message)
+                emit(Resource.Error(response.message))
             }
         } catch (e: IOException) {
-            Resource.Error(e.toString())
+            emit(Resource.Error(e.toString()))
         } catch (e: HttpException) {
-            Resource.Error(e.toString())
+            emit(Resource.Error(e.toString()))
         }
-    }
+    }.flowOn(ioDispatcher)
 
-    override suspend fun exitChatRoom(id: Long): Resource<String> {
-        return try {
+    @WorkerThread
+    override suspend fun exitChatRoom(id: Long): Flow<Resource<String>> = flow {
+        emit(Resource.Loading())
+        try {
             Resource.Loading(data = null)
             val response = api.exitChatRoom(id)
             if(response.isSuccess){
-                Resource.Success(response.result)
+                emit(Resource.Success(response.result))
             }else{
-                Resource.Error(response.message)
+                emit(Resource.Error(response.message))
             }
         } catch (e: IOException) {
-            Resource.Error(e.toString())
+            emit(Resource.Error(e.toString()))
         } catch (e: HttpException) {
-            Resource.Error(e.toString())
+            emit(Resource.Error(e.toString()))
         }
-    }
+    }.flowOn(ioDispatcher)
 
     @OptIn(ExperimentalPagingApi::class)
+    @WorkerThread
     override fun getMessagePaged(roomId: Long): Flow<PagingData<MessageItemEntity>> {
         return Pager(
             config = PagingConfig(pageSize = MESSAGE_PAGE_SIZE, enablePlaceholders = false),
             remoteMediator = MessagePagingSource(roomId, api, db),
             pagingSourceFactory = { db.dao.getMessagesPaging(roomId) }
-        ).flow
+        ).flow.flowOn(ioDispatcher)
     }
 }

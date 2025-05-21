@@ -1,5 +1,6 @@
 package com.example.untitled_capstone.domain.repository
 
+import androidx.annotation.WorkerThread
 import androidx.paging.PagingData
 import com.example.untitled_capstone.core.util.Resource
 import com.example.untitled_capstone.data.local.entity.MessageItemEntity
@@ -10,13 +11,22 @@ import com.example.untitled_capstone.domain.model.Message
 import kotlinx.coroutines.flow.Flow
 
 interface ChatRepository {
-    suspend fun readChats(id: Long): Resource<Int>
-    suspend fun joinChatRoom(id: Long): Resource<ChattingRoom>
-    suspend fun closeChatRoom(id: Long): Resource<String>
-    suspend fun enterChatRoom(id: Long): Resource<ChattingRoom>
-    suspend fun checkWhoIsIn(id: Long): Resource<List<ChatMember>>
-    suspend fun getMessages(id: Long, lastMessageId: Long?): Resource<List<Message>>
-    suspend fun getMyRooms(): Resource<List<ChattingRoomRaw>>
-    suspend fun exitChatRoom(id: Long): Resource<String>
+    @WorkerThread
+    suspend fun readChats(id: Long): Flow<Resource<Int>>
+    @WorkerThread
+    suspend fun joinChatRoom(id: Long): Flow<Resource<ChattingRoom>>
+    @WorkerThread
+    suspend fun closeChatRoom(id: Long): Flow<Resource<String>>
+    @WorkerThread
+    suspend fun enterChatRoom(id: Long): Flow<Resource<ChattingRoom>>
+    @WorkerThread
+    suspend fun checkWhoIsIn(id: Long): Flow<Resource<List<ChatMember>>>
+    @WorkerThread
+    suspend fun getMessages(id: Long, lastMessageId: Long?): Flow<Resource<List<Message>>>
+    @WorkerThread
+    suspend fun getMyRooms(): Flow<Resource<List<ChattingRoomRaw>>>
+    @WorkerThread
+    suspend fun exitChatRoom(id: Long): Flow<Resource<String>>
+    @WorkerThread
     fun getMessagePaged(roomId: Long): Flow<PagingData<MessageItemEntity>>
 }

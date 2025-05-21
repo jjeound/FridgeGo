@@ -1,11 +1,9 @@
 package com.example.untitled_capstone.data.repository
 
-import android.util.Log
 import com.example.untitled_capstone.data.local.db.MessageItemDatabase
 import com.example.untitled_capstone.data.remote.dto.MessageDto
 import com.example.untitled_capstone.data.remote.dto.UnreadBroadcastDto
 import com.example.untitled_capstone.data.remote.manager.WebSocketManager
-import com.example.untitled_capstone.domain.model.UnreadBroadcast
 import com.example.untitled_capstone.domain.repository.WebSocketRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -35,6 +33,13 @@ class WebSocketRepositoryImpl @Inject constructor(
                 }
                 onMessage(dto) },
             onUnreadUpdate = { dto ->
+                CoroutineScope(Dispatchers.IO).launch {
+                    updateUnreadCount(
+                        messageId = dto.messageId,
+                        roomId = roomId,
+                        unreadCount = dto.unreadCount
+                    )
+                }
                 onUnreadUpdate(dto)
             }
         )

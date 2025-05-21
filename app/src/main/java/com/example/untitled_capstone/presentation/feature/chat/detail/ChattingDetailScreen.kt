@@ -1,4 +1,4 @@
-package com.example.untitled_capstone.presentation.feature.chat.screen
+package com.example.untitled_capstone.presentation.feature.chat.detail
 
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
@@ -38,60 +38,33 @@ import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
+import com.example.untitled_capstone.domain.model.ChatMember
+import com.example.untitled_capstone.domain.model.ChattingRoom
 import com.example.untitled_capstone.domain.model.Message
 import com.example.untitled_capstone.navigation.Screen
 import com.example.untitled_capstone.presentation.feature.chat.ChatViewModel
-import com.example.untitled_capstone.presentation.feature.chat.composable.MessageCard
-import com.example.untitled_capstone.presentation.feature.chat.composable.NewMessageForm
-import com.example.untitled_capstone.presentation.feature.chat.state.ChatUiState
 import com.example.untitled_capstone.presentation.util.UiEvent
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChattingDetailScreen(
-    viewModel: ChatViewModel,
-    messages: LazyPagingItems<Message>,
-    state: ChatUiState,
     roomId: Long,
-    navController: NavHostController
+    messages: LazyPagingItems<Message>,
+    uiState: ChatDetailUiState,
+    chattingRoom: ChattingRoom?,
+    name: String?,
+    clearBackStack: () -> Unit,
+    disconnect: () -> Unit,
+    navigateUp: (Screen) -> Unit,
+    members: List<ChatMember>,
+    sendMessage: (Long, String) -> Unit,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
-    val chattingRoom by remember { viewModel.chattingRoom }
-    val member = viewModel.member
-    val myName = viewModel.name
-    val myRoomList = viewModel.chattingRoomList
     val listState = rememberLazyListState()
-    LaunchedEffect(Unit) {
-        viewModel.enterChatRoom(roomId)
-        viewModel.getMessages(roomId)
-        viewModel.readChats(roomId)
-        viewModel.connectSocket(roomId)
-        viewModel.getMyName()
-        val isJoined = myRoomList.any{it.roomId == roomId}
-        if(!isJoined){
-            viewModel.joinChatRoom(roomId)
-        }
-    }
-    LaunchedEffect(true) {
-        viewModel.event.collect { event ->
-            when (event) {
-                is UiEvent.ShowSnackbar -> {
-                    snackbarHostState.showSnackbar(event.message)
-                }
-                is UiEvent.Navigate -> {
-                    navController.navigate(event.route)
-                }
-                is UiEvent.PopBackStack -> {
-                    navController.popBackStack()
-                }
-            }
-        }
-    }
-    LaunchedEffect(messages.itemCount) {
-        viewModel.sendRead(roomId)
-    }
-    if(state is ChatUiState.Loading){
+    Log.d("name", name.toString())
+
+    if(uiState == ChatDetailUiState.Loading){
         Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
@@ -129,8 +102,8 @@ fun ChattingDetailScreen(
                     navigationIcon = {
                         IconButton(
                             onClick = {
-                                viewModel.disconnect()
-                                navController.popBackStack()
+                                disconnect()
+                                clearBackStack()
                             }
                         ) {
                             Icon(
@@ -143,7 +116,7 @@ fun ChattingDetailScreen(
                     actions = {
                         IconButton(
                             onClick = {
-                                viewModel.navigateUp(Screen.ChattingDrawerNav(roomId, room.name))
+                                navigateUp(Screen.ChattingDrawerNav(roomId, room.name))
                             }
                         ) {
                             Icon(
@@ -191,9 +164,15 @@ fun ChattingDetailScreen(
                             items(messages.itemCount){ index ->
                                 val message = messages[index]
                                 if (message != null) {
-                                    val isMe = message.senderNickname == myName
-                                    val profileImage = member.find { it.nickname == message.senderNickname }?.imageUrl
-                                    MessageCard(message = message, isMe, profileImage, room.active)
+                                    val isMe = message.senderNickname == name
+                                    val profileImage = members.find { it.nickname == message.senderNickname }?.imageUrl
+                                    MessageCard(
+                                        message = message,
+                                        isMe = isMe,
+                                        profileImage = profileImage,
+                                        isActive = room.active,
+                                        navigateUp = navigateUp
+                                    )
                                 }
                             }
                         }
@@ -201,7 +180,10 @@ fun ChattingDetailScreen(
                             modifier = Modifier.height(22.dp)
                         )
                         if(room.active){
-                            NewMessageForm(roomId, viewModel)
+                            NewMessageForm(
+                                roomId = roomId,
+                                sendMessage = sendMessage,
+                            )
                         }else{
                             Text(
                                 text = "채팅방이 비활성화 되었습니다.",

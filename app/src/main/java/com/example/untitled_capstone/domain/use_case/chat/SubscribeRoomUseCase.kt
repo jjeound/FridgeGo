@@ -5,7 +5,7 @@ import com.example.untitled_capstone.domain.model.UnreadBroadcast
 import com.example.untitled_capstone.domain.repository.WebSocketRepository
 import javax.inject.Inject
 
-class SubscribeRoom @Inject constructor(
+class SubscribeRoomUseCase @Inject constructor(
     private val repository: WebSocketRepository
 ) {
     suspend operator fun invoke(

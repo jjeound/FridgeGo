@@ -1,5 +1,6 @@
-package com.example.untitled_capstone.presentation.feature.chat.screen
+package com.example.untitled_capstone.presentation.feature.chat.detail
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,7 +30,6 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,14 +38,10 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
-import com.example.untitled_capstone.navigation.Screen
-import com.example.untitled_capstone.presentation.feature.chat.ChatViewModel
-import com.example.untitled_capstone.presentation.feature.chat.state.ChatUiState
-import com.example.untitled_capstone.presentation.util.UiEvent
+import com.example.untitled_capstone.domain.model.ChatMember
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -53,42 +49,25 @@ import com.example.untitled_capstone.ui.theme.CustomTheme
 fun ChattingRoomDrawer(
     roomId: Long,
     title: String,
-    viewModel: ChatViewModel,
-    state: ChatUiState,
-    navController: NavHostController
+    uiState: ChatDetailUiState,
+    popBackStack: () -> Unit,
+    members: List<ChatMember>,
+    myName: String?,
+    closeChatRoom: (Long) -> Unit,
+    exitChatRoom: (Long) -> Unit,
+    clearBackStack: () -> Unit,
 ){
     val snackbarHostState = remember { SnackbarHostState() }
-    val member =  viewModel.member
-    val myName = viewModel.name
     val scrollState = rememberScrollState()
-    LaunchedEffect(Unit) {
-        viewModel.checkWhoIsIn(roomId)
-    }
-    LaunchedEffect(true) {
-        viewModel.event.collect { event ->
-            when (event) {
-                is UiEvent.ShowSnackbar -> {
-                    snackbarHostState.showSnackbar(event.message)
-                }
-                is UiEvent.Navigate -> {
-                    navController.navigate(event.route){
-                        popUpTo(Screen.Chat){
-                            inclusive = true
-                        }
-                    }
-                }
-                is UiEvent.PopBackStack -> {
-                    navController.popBackStack()
-                }
-            }
-        }
-    }
-    if(state is ChatUiState.Loading){
+    if(uiState is ChatDetailUiState.Loading){
         CircularProgressIndicator(
             modifier = Modifier.fillMaxSize(),
             color = CustomTheme.colors.primary
         )
     }
+    Log.d("members", members.toString())
+    Log.d("myName", myName.toString())
+
     Scaffold(
         containerColor = CustomTheme.colors.surface,
         snackbarHost = {SnackbarHost(hostState = snackbarHostState)},
@@ -98,7 +77,7 @@ fun ChattingRoomDrawer(
                 title = {},
                 navigationIcon = {
                     IconButton(
-                        onClick = { navController.popBackStack()}
+                        onClick = { popBackStack()}
                     ) {
                         Icon(
                             imageVector = ImageVector.vectorResource(R.drawable.chevron_left),
@@ -153,11 +132,11 @@ fun ChattingRoomDrawer(
                         verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding)
                     ) {
                         Text(
-                            text = "참여자 ${member.size}",
+                            text = "참여자 ${members.size}",
                             style = CustomTheme.typography.title2,
                             color = CustomTheme.colors.textPrimary,
                         )
-                        member.forEach {
+                        members.forEach {
                             Column {
                                 Row(
                                     modifier = Modifier
@@ -202,7 +181,7 @@ fun ChattingRoomDrawer(
                     }
                 }
             }
-            if(member.any{it.host && it.nickname == myName}){
+            if(members.any{it.host && it.nickname == myName}){
                 Row(
                     modifier = Modifier
                         .fillMaxWidth().padding(Dimens.mediumPadding),
@@ -218,8 +197,8 @@ fun ChattingRoomDrawer(
                             contentColor = CustomTheme.colors.onPrimary,
                         ),
                         onClick = {
-                            viewModel.closeChatRoom(roomId)
-                            viewModel.navigateUp(Screen.Chat)
+                            closeChatRoom(roomId)
+                            clearBackStack()
                         }
                     ) {
                         Text(
@@ -236,8 +215,8 @@ fun ChattingRoomDrawer(
                             contentColor = CustomTheme.colors.onPrimary,
                         ),
                         onClick = {
-                            viewModel.exitChatRoom(roomId)
-                            viewModel.navigateUp(Screen.Chat)
+                            exitChatRoom(roomId)
+                            clearBackStack()
                         }
                     ) {
                         Text(
@@ -257,8 +236,8 @@ fun ChattingRoomDrawer(
                         contentColor = CustomTheme.colors.onPrimary,
                     ),
                     onClick = {
-                        viewModel.exitChatRoom(roomId)
-                        viewModel.navigateUp(Screen.Chat)
+                        exitChatRoom(roomId)
+                        clearBackStack()
                     }
                 ) {
                     Text(

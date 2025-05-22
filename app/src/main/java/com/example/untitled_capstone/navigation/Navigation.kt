@@ -32,11 +32,11 @@ import com.example.untitled_capstone.presentation.feature.home.detail.RecipeScre
 import com.example.untitled_capstone.presentation.feature.home.detail.RecipeViewModel
 import com.example.untitled_capstone.presentation.feature.home.modify.RecipeModifyScreen
 import com.example.untitled_capstone.presentation.feature.home.modify.RecipeModifyViewModel
+import com.example.untitled_capstone.presentation.feature.login.LoginEvent
 import com.example.untitled_capstone.presentation.feature.login.LoginViewModel
-import com.example.untitled_capstone.presentation.feature.login.screen.LoginScreen
-import com.example.untitled_capstone.presentation.feature.login.screen.SetLocationScreen
-import com.example.untitled_capstone.presentation.feature.login.screen.SetNickNameScreen
-import com.example.untitled_capstone.presentation.feature.main.AuthState
+import com.example.untitled_capstone.presentation.feature.login.LoginScreen
+import com.example.untitled_capstone.presentation.feature.login.SetLocationScreen
+import com.example.untitled_capstone.presentation.feature.login.SetNickNameScreen
 import com.example.untitled_capstone.presentation.feature.main.MainViewModel
 import com.example.untitled_capstone.presentation.feature.my.MyViewModel
 import com.example.untitled_capstone.presentation.feature.my.etc.MyLikedPostScreen
@@ -49,7 +49,7 @@ import com.example.untitled_capstone.presentation.feature.notification.Notificat
 import com.example.untitled_capstone.presentation.feature.notification.screen.NotificationScreen
 import com.example.untitled_capstone.presentation.feature.onBoardiing.OnBoarding
 import com.example.untitled_capstone.presentation.feature.post.PostEvent
-import com.example.untitled_capstone.presentation.feature.post.detail.PostReportScreen
+import com.example.untitled_capstone.presentation.feature.post.detail.ReportScreen
 import com.example.untitled_capstone.presentation.feature.post.PostScreen
 import com.example.untitled_capstone.presentation.feature.post.PostViewModel
 import com.example.untitled_capstone.presentation.feature.post.crud.PostCRUDViewModel
@@ -58,6 +58,7 @@ import com.example.untitled_capstone.presentation.feature.post.detail.PostDetail
 import com.example.untitled_capstone.presentation.feature.post.detail.PostDetailViewModel
 import com.example.untitled_capstone.presentation.feature.post.search.PostSearchScreen
 import com.example.untitled_capstone.presentation.feature.post.search.PostSearchViewModel
+import com.example.untitled_capstone.presentation.util.AuthEvent
 import com.example.untitled_capstone.presentation.util.UiEvent
 
 
@@ -342,11 +343,13 @@ fun Navigation(
                         }
                     }
                 }
-                PostReportScreen(
+                ReportScreen(
                     uiState = uiState,
-                    postId = args.id,
-                    repostPost = if(args.isPost)viewModel::reportPost else viewModel::reportUser,
+                    id = args.id,
+                    reportPost = viewModel::reportPost,
+                    reportUser = viewModel::reportUser,
                     popBackStack = {navController.popBackStack()},
+                    isPost = args.isPost
                 )
             }
             composable<Screen.ChattingRoomNav>{
@@ -763,11 +766,13 @@ fun Navigation(
                         }
                     }
                 }
-                PostReportScreen(
+                ReportScreen(
                     uiState = uiState,
-                    postId = args.id,
-                    repostPost = if(args.isPost)viewModel::reportPost else viewModel::reportUser,
+                    id = args.id,
+                    reportPost = viewModel::reportPost,
+                    reportUser = viewModel::reportUser,
                     popBackStack = {navController.popBackStack()},
+                    isPost = false,
                 )
             }
         }
@@ -831,27 +836,53 @@ fun Navigation(
             }
             composable<Screen.NicknameNav>{
                 val viewModel: LoginViewModel = hiltViewModel()
-                val state by viewModel.validateState.collectAsStateWithLifecycle()
+                val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+                LaunchedEffect(true) {
+                    viewModel.event.collect {
+                        when(it){
+                            is LoginEvent.ShowSnackbar -> {
+                                snackbarHostState.showSnackbar(it.message)
+                            }
+                        }
+                    }
+                }
                 SetNickNameScreen(
+                    uiState = uiState,
                     navigateToLoc = {
                         navController.navigate(Screen.LocationNav)
                     },
                     popBackStack = {
                         navController.popBackStack()
                     },
-                    onEvent = viewModel::onEvent,
-                    state = state,
+                    setNickname = viewModel::setNickname,
+                    modifyNickname = viewModel::modifyNickname,
                     from = true
                 )
             }
             composable<Screen.LocationNav> {
                 val viewModel: LoginViewModel = hiltViewModel()
-                val state by viewModel.addressState.collectAsStateWithLifecycle()
+                val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+                val address by viewModel.address.collectAsStateWithLifecycle()
+                val which by viewModel.which.collectAsStateWithLifecycle()
+                LaunchedEffect(true) {
+                    viewModel.event.collect {
+                        when(it){
+                            is LoginEvent.ShowSnackbar -> {
+                                snackbarHostState.showSnackbar(it.message)
+                            }
+                        }
+                    }
+                }
                 SetLocationScreen(
-                    state = state,
-                    onEvent = viewModel::onEvent,
+                    uiState = uiState,
+                    address = address,
+                    which = which,
                     popBackStack = {navController.popBackStack()},
-                    navigateToHome = {navController.navigate(Screen.Home)},
+                    navigateToHome = {
+                        navController.navigate(Graph.HomeGraph)
+                    },
+                    getAddressByCoord = viewModel::getAddressByCoord,
+                    setLocation = viewModel::setLocation,
                     from = true
                 )
             }
@@ -919,36 +950,72 @@ fun Navigation(
         navigation<Graph.LoginGraph>(startDestination = Screen.LoginNav){
             composable<Screen.LoginNav> {
                 val viewModel: LoginViewModel = hiltViewModel()
-                val state by viewModel.state.collectAsStateWithLifecycle()
-                LoginScreen(navController, state, viewModel::onEvent)
+                val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+                val accountInfo by viewModel.accountInfo.collectAsStateWithLifecycle()
+                LoginScreen(
+                    uiState = uiState,
+                    login = viewModel::login,
+                    accountInfo = accountInfo,
+                    navigateToHome = {
+                        navController.navigate(Graph.HomeGraph) {
+                            popUpTo(0) { inclusive = true }
+                            launchSingleTop = true
+                        }
+                    },
+                    navigateToNic = {
+                        navController.navigate(Screen.NicknameNav)
+                    },
+                )
             }
             composable<Screen.NicknameNav>{
-                val parentEntry = navController.getBackStackEntry(Graph.LoginGraph)
-                val viewModel: LoginViewModel = hiltViewModel(parentEntry)
-                val state by viewModel.validateState.collectAsStateWithLifecycle()
+                val viewModel: LoginViewModel = hiltViewModel()
+                val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+                LaunchedEffect(true) {
+                    viewModel.event.collect {
+                        when(it){
+                            is LoginEvent.ShowSnackbar -> {
+                                snackbarHostState.showSnackbar(it.message)
+                            }
+                        }
+                    }
+                }
                 SetNickNameScreen(
+                    uiState = uiState,
                     navigateToLoc = {
                         navController.navigate(Screen.LocationNav)
                     },
                     popBackStack = {
                         navController.popBackStack()
                     },
-                    onEvent = viewModel::onEvent,
-                    state = state,
+                    setNickname = viewModel::setNickname,
+                    modifyNickname = viewModel::modifyNickname,
                     from = false
                 )
             }
             composable<Screen.LocationNav> {
-                val parentEntry = navController.getBackStackEntry(Graph.LoginGraph)
-                val viewModel: LoginViewModel = hiltViewModel(parentEntry)
-                val state by viewModel.addressState.collectAsStateWithLifecycle()
+                val viewModel: LoginViewModel = hiltViewModel()
+                val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+                val address by viewModel.address.collectAsStateWithLifecycle()
+                val which by viewModel.which.collectAsStateWithLifecycle()
+                LaunchedEffect(true) {
+                    viewModel.event.collect {
+                        when(it){
+                            is LoginEvent.ShowSnackbar -> {
+                                snackbarHostState.showSnackbar(it.message)
+                            }
+                        }
+                    }
+                }
                 SetLocationScreen(
-                    state = state,
-                    onEvent = viewModel::onEvent,
+                    uiState = uiState,
+                    address = address,
+                    which = which,
                     popBackStack = {navController.popBackStack()},
                     navigateToHome = {
                         navController.navigate(Graph.HomeGraph)
                     },
+                    getAddressByCoord = viewModel::getAddressByCoord,
+                    setLocation = viewModel::setLocation,
                     from = false
                 )
             }
@@ -958,13 +1025,15 @@ fun Navigation(
                 LaunchedEffect(true) {
                     mainViewModel.authEvent.collect { event ->
                         when (event) {
-                            is AuthState.Login -> {
-                                navController.navigate(route = Graph.HomeGraph)
+                            is AuthEvent.Login -> {
+                                navController.navigate(route = Graph.HomeGraph){
+                                    popUpTo(0) { inclusive = true } // 모든 백스택 제거
+                                    launchSingleTop = true          // 중복 방지
+                                }
                             }
-                            is AuthState.Logout -> {
+                            is AuthEvent.Logout -> {
                                 navController.navigate(route = Graph.LoginGraph)
                             }
-                            is AuthState.Idle -> {}
                         }
                     }
                 }

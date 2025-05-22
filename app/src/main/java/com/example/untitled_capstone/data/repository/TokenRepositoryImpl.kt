@@ -14,6 +14,7 @@ import com.example.untitled_capstone.core.util.Resource
 import com.example.untitled_capstone.data.remote.dto.ApiResponse
 import com.example.untitled_capstone.data.remote.dto.TokenDto
 import com.example.untitled_capstone.data.remote.service.TokenApi
+import com.example.untitled_capstone.data.util.ErrorCode.JWT4004
 import com.example.untitled_capstone.domain.repository.TokenRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.first
@@ -77,18 +78,40 @@ class TokenRepositoryImpl @Inject constructor(
 
     override suspend fun refreshToken(refreshToken: String): Resource<ApiResponse<TokenDto>> {
         return try {
-            Resource.Loading(data = null)
             val response = api.refreshToken(refreshToken)
             if(response.isSuccess){
                 Resource.Success(response)
             }else{
-                Log.d("response error", response.toString())
                 Resource.Error(response.message)
             }
         } catch (e: IOException) {
             Resource.Error(e.toString())
         } catch (e: HttpException) {
             Resource.Error(e.toString())
+        }
+    }
+
+    override suspend fun refreshAndSaveToken(): TokenDto? {
+        val refreshToken = getRefreshToken() ?: return null
+        val response = refreshToken(refreshToken)
+
+        return when (response) {
+            is Resource.Success -> {
+                val body = response.data
+                if (body == null || body.code == JWT4004 || body.result == null) {
+                    deleteTokens()
+                    null
+                } else {
+                    saveAccessToken(body.result.accessToken)
+                    saveRefreshToken(body.result.refreshToken)
+                    body.result
+                }
+            }
+            is Resource.Error -> {
+                deleteTokens()
+                null
+            }
+            else -> null // Loading이 들어오면 무시
         }
     }
 }

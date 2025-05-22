@@ -16,4 +16,6 @@ interface TokenRepository {
     suspend fun deleteTokens()
 
     suspend fun refreshToken(refreshToken: String): Resource<ApiResponse<TokenDto>>
+
+    suspend fun refreshAndSaveToken(): TokenDto?
 }

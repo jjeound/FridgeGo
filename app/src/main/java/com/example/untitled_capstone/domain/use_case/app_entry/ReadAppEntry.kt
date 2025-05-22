@@ -8,7 +8,7 @@ class ReadAppEntry @Inject constructor(
     private val localUserRepository: LocalUserRepository
 ) {
 
-    operator fun invoke(): Flow<Boolean> {
+    suspend operator fun invoke(): Boolean {
         return localUserRepository.readAppEntry()
     }
 

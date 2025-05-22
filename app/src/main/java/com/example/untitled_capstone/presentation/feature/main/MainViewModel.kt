@@ -10,7 +10,6 @@ import com.example.untitled_capstone.data.util.ErrorCode.JWT4004
 import com.example.untitled_capstone.domain.repository.TokenRepository
 import com.example.untitled_capstone.domain.use_case.app_entry.ReadAppEntry
 import com.example.untitled_capstone.presentation.util.AuthEvent
-import com.example.untitled_capstone.presentation.util.AuthEventBus
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -29,7 +28,7 @@ class MainViewModel @Inject constructor(
     var topSelector by mutableStateOf(true)
         private set
 
-    private val _authEvent = MutableSharedFlow<AuthState>()
+    private val _authEvent = MutableSharedFlow<AuthEvent>()
     val authEvent = _authEvent.asSharedFlow()
 
     private val _splashCondition = mutableStateOf(true)
@@ -40,38 +39,26 @@ class MainViewModel @Inject constructor(
 
     init {
         appEntry()
-        observeAuthEvents()
     }
 
     private fun appEntry(){
         viewModelScope.launch {
-            readAppEntry().collect { appEntry ->
-                if (appEntry) {
-                    checkToken()
-                }
+            val hasEntered = readAppEntry()
+            if (hasEntered) {
+                checkToken()
                 delay(800)
-                _splashCondition.value = false
             }
+            _splashCondition.value = false
         }
     }
 
-    private fun checkToken(){
+    private fun checkToken() {
         viewModelScope.launch {
-            val refreshToken = runBlocking {
-                tokenRepository.getRefreshToken()
-            }
-            if (refreshToken.isNullOrEmpty()) {
-                _authEvent.emit(AuthState.Logout)
-                return@launch
-            }
-
-            val response = tokenRepository.refreshToken(refreshToken)
-            if (response.data == null || response.data.code == JWT4004) { // 리프레시 토큰도 만료됨
-                _authEvent.emit(AuthState.Logout)
+            val token = tokenRepository.refreshAndSaveToken()
+            if (token == null) {
+                _authEvent.emit(AuthEvent.Logout)
             } else {
-                tokenRepository.saveAccessToken(response.data.result!!.accessToken)
-                tokenRepository.saveRefreshToken(response.data.result.refreshToken)
-                _authEvent.emit(AuthState.Login)
+                _authEvent.emit(AuthEvent.Login)
             }
         }
     }
@@ -86,22 +73,5 @@ class MainViewModel @Inject constructor(
 
     fun hideBottomSheet() {
         showBottomSheet = false
-    }
-
-
-
-    private fun observeAuthEvents() {
-        viewModelScope.launch {
-            AuthEventBus.authEventChannel.receiveAsFlow().collect { event ->
-                when (event) {
-                    is AuthEvent.Logout -> {
-                        _authEvent.emit(AuthState.Logout)
-                    }
-                    is AuthEvent.Login -> {
-                        _authEvent.emit(AuthState.Login)
-                    }
-                }
-            }
-        }
     }
 }

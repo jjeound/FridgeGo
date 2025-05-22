@@ -3,14 +3,20 @@ package com.example.untitled_capstone.di
 import com.example.untitled_capstone.data.repository.ChatRepositoryImpl
 import com.example.untitled_capstone.data.repository.FridgeRepositoryImpl
 import com.example.untitled_capstone.data.repository.HomeRepositoryImpl
+import com.example.untitled_capstone.data.repository.LocalUserRepositoryImpl
+import com.example.untitled_capstone.data.repository.LoginRepositoryImpl
 import com.example.untitled_capstone.data.repository.MyRepositoryImpl
 import com.example.untitled_capstone.data.repository.PostRepositoryImpl
+import com.example.untitled_capstone.data.repository.TokenRepositoryImpl
 import com.example.untitled_capstone.data.repository.WebSocketRepositoryImpl
 import com.example.untitled_capstone.domain.repository.ChatRepository
 import com.example.untitled_capstone.domain.repository.FridgeRepository
 import com.example.untitled_capstone.domain.repository.HomeRepository
+import com.example.untitled_capstone.domain.repository.LocalUserRepository
+import com.example.untitled_capstone.domain.repository.LoginRepository
 import com.example.untitled_capstone.domain.repository.MyRepository
 import com.example.untitled_capstone.domain.repository.PostRepository
+import com.example.untitled_capstone.domain.repository.TokenRepository
 import com.example.untitled_capstone.domain.repository.WebSocketRepository
 import dagger.Binds
 import dagger.Module
@@ -37,4 +43,13 @@ interface DataModule {
 
     @Binds
     fun bindsMyRepository(myRepositoryImpl: MyRepositoryImpl): MyRepository
+
+    @Binds
+    fun bindsLoginRepository(loginRepositoryImpl: LoginRepositoryImpl): LoginRepository
+
+    @Binds
+    fun bindsLocalUserRepository(localUserRepositoryImpl: LocalUserRepositoryImpl): LocalUserRepository
+
+    @Binds
+    fun bindsTokenRepository(tokenRepositoryImpl: TokenRepositoryImpl): TokenRepository
 }

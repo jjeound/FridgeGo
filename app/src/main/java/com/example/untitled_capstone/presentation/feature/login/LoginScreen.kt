@@ -1,4 +1,4 @@
-package com.example.untitled_capstone.presentation.feature.login.screen
+package com.example.untitled_capstone.presentation.feature.login
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -9,17 +9,32 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavHostController
 import com.example.untitled_capstone.core.util.Dimens
-import com.example.untitled_capstone.presentation.feature.login.LoginEvent
-import com.example.untitled_capstone.presentation.feature.login.composable.KakaoLogin
-import com.example.untitled_capstone.presentation.feature.login.state.LoginState
+import com.example.untitled_capstone.domain.model.AccountInfo
+import com.example.untitled_capstone.navigation.Graph
+import com.example.untitled_capstone.navigation.Screen
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoginScreen(navController: NavHostController, state: LoginState, onAction: (LoginEvent) -> Unit){
+fun LoginScreen(
+    uiState: LoginUiState,
+    login: (String) -> Unit,
+    accountInfo: AccountInfo?,
+    navigateToHome: () -> Unit,
+    navigateToNic: () -> Unit,
+){
+    LaunchedEffect(uiState) {
+        if(uiState == LoginUiState.Success){
+            if (accountInfo?.nickname != null){
+                navigateToHome()
+            } else {
+                navigateToNic()
+            }
+        }
+    }
     Scaffold(
         containerColor = CustomTheme.colors.onSurface,
         topBar = {
@@ -43,7 +58,10 @@ fun LoginScreen(navController: NavHostController, state: LoginState, onAction: (
                 .fillMaxSize()
                 .padding(innerPadding),
         ){
-            KakaoLogin(state, onAction, navController)
+            KakaoLogin(
+                uiState = uiState,
+                login = login,
+            )
         }
     }
 }

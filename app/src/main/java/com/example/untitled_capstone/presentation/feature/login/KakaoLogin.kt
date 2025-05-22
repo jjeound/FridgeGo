@@ -1,10 +1,11 @@
-package com.example.untitled_capstone.presentation.feature.login.composable
+package com.example.untitled_capstone.presentation.feature.login
 
 import android.content.Context
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,59 +22,55 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
-import com.example.untitled_capstone.navigation.Graph
-import com.example.untitled_capstone.navigation.Screen
-import com.example.untitled_capstone.presentation.feature.login.LoginEvent
-import com.example.untitled_capstone.presentation.feature.login.state.LoginState
+import com.example.untitled_capstone.ui.theme.CustomTheme
 import com.kakao.sdk.auth.model.OAuthToken
 import com.kakao.sdk.common.model.ClientError
 import com.kakao.sdk.common.model.ClientErrorCause
 import com.kakao.sdk.user.UserApiClient
 
 @Composable
-fun KakaoLogin(state: LoginState, onAction: (LoginEvent) -> Unit, navController: NavHostController){
+fun KakaoLogin(
+    uiState: LoginUiState,
+    login: (String) -> Unit,
+){
     val context = LocalContext.current
-    LaunchedEffect(state.response) {
-        if(state.response != null){
-            if (state.response.nickname != null){
-                navController.navigate(route = Graph.HomeGraph) {
-                    popUpTo(0)
-                }
-            } else {
-                navController.navigate(Screen.NicknameNav)
-            }
-        }
-    }
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ){
-        if(state.loading){
-            CircularProgressIndicator()
+        if(uiState == LoginUiState.Loading){
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ){
+                CircularProgressIndicator(
+                    color = CustomTheme.colors.primary,
+                )
+            }
+        }else{
+            Image(
+                imageVector = ImageVector.vectorResource(R.drawable.logo),
+                contentDescription = "logo"
+            )
+            Spacer(
+                modifier = Modifier.height(Dimens.hugePadding)
+            )
+            Image(
+                modifier = Modifier.width(600.dp).height(90.dp).padding(
+                    Dimens.largePadding
+                ).clickable {
+                    //onAction(LoginEvent.KakaoLogin("2"))
+                    kakaoLogin(context){ code ->
+                        login(code)
+                    }
+                },
+                painter = painterResource(id = R.drawable.kakao_login_large_wide),
+                contentDescription = "kakao_login"
+            )
         }
-        Image(
-            imageVector = ImageVector.vectorResource(R.drawable.logo),
-            contentDescription = "logo"
-        )
-        Spacer(
-            modifier = Modifier.height(Dimens.hugePadding)
-        )
-        Image(
-            modifier = Modifier.width(600.dp).height(90.dp).padding(
-                Dimens.largePadding
-            ).clickable {
-                onAction(LoginEvent.KakaoLogin("2"))
-//                kakaoLogin(context){ code ->
-//                    onAction(LoginEvent.KakaoLogin(code))
-//                }
-            },
-            painter = painterResource(id = R.drawable.kakao_login_large_wide),
-            contentDescription = "kakao_login"
-        )
     }
 }
 

@@ -1,185 +1,178 @@
 package com.example.untitled_capstone.presentation.feature.login
 
+import androidx.compose.runtime.Stable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.untitled_capstone.core.util.Resource
+import com.example.untitled_capstone.domain.model.AccountInfo
 import com.example.untitled_capstone.domain.model.Address
 import com.example.untitled_capstone.domain.use_case.app_entry.SaveAppEntry
-import com.example.untitled_capstone.domain.use_case.login.LoginUseCases
-import com.example.untitled_capstone.presentation.feature.login.state.AddressState
-import com.example.untitled_capstone.presentation.feature.login.state.LoginState
-import com.example.untitled_capstone.presentation.feature.login.state.ValidateState
+import com.example.untitled_capstone.domain.use_case.login.GetAddressByCoordUseCase
+import com.example.untitled_capstone.domain.use_case.login.KakaoLoginUseCase
+import com.example.untitled_capstone.domain.use_case.login.ModifyNicknameUseCase
+import com.example.untitled_capstone.domain.use_case.login.SetLocationUseCase
+import com.example.untitled_capstone.domain.use_case.login.SetNicknameUseCase
 import com.example.untitled_capstone.presentation.util.AuthEvent
 import com.example.untitled_capstone.presentation.util.AuthEventBus
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    private val loginUseCases: LoginUseCases,
-    private val saveAppEntry: SaveAppEntry
+    private val saveAppEntry: SaveAppEntry,
+    private val getAddressByCoordUseCase: GetAddressByCoordUseCase,
+    private val kakaoLoginUseCase: KakaoLoginUseCase,
+    private val setNicknameUseCase: SetNicknameUseCase,
+    private val setLocationUseCase: SetLocationUseCase,
+    private val modifyNicknameUseCase: ModifyNicknameUseCase
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow(LoginState())
-    val state = _state.asStateFlow()
+    val uiState: MutableStateFlow<LoginUiState> =
+        MutableStateFlow<LoginUiState>(LoginUiState.Idle)
 
-    private val _validateState = MutableStateFlow(ValidateState())
-    val validateState = _validateState.asStateFlow()
+    private val _accountInfo = MutableStateFlow<AccountInfo?>(null)
+    val accountInfo = _accountInfo.asStateFlow()
 
-    private val _addressState = MutableStateFlow(AddressState())
-    val addressState = _addressState.asStateFlow()
+    private val _address = MutableStateFlow<Address?>(null)
+    val address = _address.asStateFlow()
 
+    private val _which = MutableStateFlow<Boolean>(false)
+    val which = _which.asStateFlow()
 
-    fun onEvent(event: LoginEvent){
-        when(event){
-            is LoginEvent.KakaoLogin -> login(event.accessToken)
-            is LoginEvent.SetNickname -> setNickname(event.nickname)
-            is LoginEvent.GetAddressByCoord -> getAddressByCoord(event.x, event.y)
-            is LoginEvent.ModifyNickname -> modifyNickname(event.nickname)
-            is LoginEvent.SetAddress -> setLocation(event.district, event.neighborhood)
-        }
-    }
+    private val _event = MutableSharedFlow<LoginEvent>()
+    val event = _event.asSharedFlow()
 
-    private fun getAddressByCoord(x: String, y: String) {
+    fun getAddressByCoord(x: String, y: String) {
         viewModelScope.launch {
-            val result = loginUseCases.getAddressByCoord(x, y)
-            when(result){
-                is Resource.Success -> {
-                    result.data?.let{
-                        _addressState.update {
-                            it.copy(
-                                address = Address(result.data.regionGu, result.data.regionDong),
-                                which = false,
-                                loading = false,
-                                error = null
-                            )
+            getAddressByCoordUseCase(x, y).collectLatest{
+                when(it){
+                    is Resource.Success -> {
+                        it.data?.let{ result ->
+                            _address.value = result
+                            _which.value = false
+                            uiState.tryEmit(LoginUiState.Idle)
                         }
                     }
-                }
-                is Resource.Error -> {
-                    _addressState.update { it.copy(loading = false, error = result.message ?: "An unexpected error occurred") }
-                }
-                is Resource.Loading -> {
-                    _addressState.update { it.copy(loading = true) }
-                }
-            }
-        }
-    }
-
-    private fun login(accessToken: String) {
-        viewModelScope.launch {
-            val result = loginUseCases.kakaoLogin(accessToken)
-            when(result){
-                is Resource.Success -> {
-                    result.data?.let{
-                        _state.update { it.copy(
-                            response = result.data,
-                            loading = false,
-                            error = null) }
+                    is Resource.Error -> {
+                        uiState.tryEmit(LoginUiState.Error(it.message))
+                        _event.emit(LoginEvent.ShowSnackbar(it.message ?: "An unexpected error occurred"))
                     }
-                    AuthEventBus.send(AuthEvent.Login)
-                    saveAppEntry()
-                }
-                is Resource.Error -> {
-                    _state.update { it.copy(loading = false, error = result.message ?: "An unexpected error occurred") }
-                }
-                is Resource.Loading -> {
-                    _state.update { it.copy(loading = true) }
+                    is Resource.Loading -> {
+                        uiState.tryEmit(LoginUiState.Loading)
+                    }
                 }
             }
         }
     }
 
-    private fun setNickname(nickname: String){
+    fun login(accessToken: String) {
         viewModelScope.launch {
-            val result = loginUseCases.setNickname(nickname)
-            when(result){
-                is Resource.Success -> {
-                    result.data?.let{
-                        _validateState.update {
-                            it.copy(
-                                validate = true,
-                                loading = false,
-                                error = null
-                            )
+            kakaoLoginUseCase(accessToken).collectLatest{
+                when(it){
+                    is Resource.Success -> {
+                        it.data?.let{ result ->
+                            _accountInfo.value = result
+                            saveAppEntry()
+                            //AuthEventBus.send(AuthEvent.Login)
+                            uiState.tryEmit(LoginUiState.Success)
                         }
                     }
-                }
-                is Resource.Error -> {
-                    _validateState.update { it.copy(
-                        validate = false,
-                        loading = false, error = result.message ?: "An unexpected error occurred") }
-                }
-                is Resource.Loading -> {
-                    _validateState.update { it.copy(
-                        validate = false,
-                        loading = true) }
+                    is Resource.Error -> {
+                        uiState.emit(LoginUiState.Error(it.message))
+                        _event.tryEmit(LoginEvent.ShowSnackbar(it.message ?: "An unexpected error occurred"))
+                    }
+                    is Resource.Loading -> {
+                        uiState.tryEmit(LoginUiState.Loading)
+                    }
                 }
             }
         }
     }
 
-    private fun modifyNickname(nickname: String){
+    fun setNickname(nickname: String){
         viewModelScope.launch {
-            val result = loginUseCases.modifyNickname(nickname)
-            when(result){
-                is Resource.Success -> {
-                    result.data?.let{
-                        _validateState.update {
-                            it.copy(
-                                validate = true,
-                                loading = false,
-                                error = null
-                            )
+            setNicknameUseCase(nickname).collectLatest{
+                when(it){
+                    is Resource.Success -> {
+                        it.data?.let{ result ->
+                            _event.emit(LoginEvent.ShowSnackbar(it.message ?: "닉네임이 설정되었습니다."))
+                            uiState.tryEmit(LoginUiState.Idle)
                         }
                     }
-                }
-                is Resource.Error -> {
-                    _validateState.update { it.copy(
-                        validate = false,
-                        loading = false, error = result.message ?: "An unexpected error occurred") }
-                }
-                is Resource.Loading -> {
-                    _validateState.update { it.copy(
-                        validate = false,
-                        loading = true) }
+                    is Resource.Error -> {
+                        _event.emit(LoginEvent.ShowSnackbar(it.message ?: "An unexpected error occurred"))
+                        uiState.tryEmit(LoginUiState.Error(it.message))
+                    }
+                    is Resource.Loading -> {
+                        uiState.tryEmit(LoginUiState.Loading)
+                    }
                 }
             }
         }
     }
 
-    private fun setLocation(district: String, neighborhood: String){
+    fun modifyNickname(nickname: String){
         viewModelScope.launch {
-            val result = loginUseCases.setLocation(district, neighborhood)
-            when(result){
-                is Resource.Success -> {
-                    result.data?.let{
-                        _addressState.update {
-                            it.copy(
-                                address = Address(district, neighborhood),
-                                which = true,
-                                loading = false,
-                                error = null
-                            )
+            modifyNicknameUseCase(nickname).collectLatest{
+                when(it){
+                    is Resource.Success -> {
+                        it.data?.let{ result ->
+                            _event.emit(LoginEvent.ShowSnackbar(it.message ?: "닉네임이 변경되었습니다."))
+                            uiState.tryEmit(LoginUiState.Success)
                         }
-                        saveAppEntry()
                     }
-                }
-                is Resource.Error -> {
-                    _validateState.update { it.copy(
-                        validate = false,
-                        loading = false, error = result.message ?: "An unexpected error occurred") }
-                }
-                is Resource.Loading -> {
-                    _validateState.update { it.copy(
-                        validate = false,
-                        loading = true) }
+                    is Resource.Error -> {
+                        _event.emit(LoginEvent.ShowSnackbar(it.message ?: "An unexpected error occurred"))
+                        uiState.tryEmit(LoginUiState.Error(it.message))
+                    }
+                    is Resource.Loading -> {
+                        uiState.tryEmit(LoginUiState.Loading)
+                    }
                 }
             }
         }
     }
+
+    fun setLocation(district: String, neighborhood: String){
+        viewModelScope.launch {
+            setLocationUseCase(district, neighborhood).collectLatest{
+                when(it){
+                    is Resource.Success -> {
+                        it.data?.let{ result ->
+                            saveAppEntry()
+                            _address.value = Address(district, neighborhood)
+                            _which.value = true
+                            _event.emit(LoginEvent.ShowSnackbar(it.message ?: "위치 설정이 완료되었습니다."))
+                            uiState.tryEmit(LoginUiState.Success)
+                        }
+                    }
+                    is Resource.Error -> {
+                        _event.emit(LoginEvent.ShowSnackbar(it.message ?: "An unexpected error occurred"))
+                        uiState.tryEmit(LoginUiState.Error(it.message))
+                    }
+                    is Resource.Loading -> {
+                        uiState.tryEmit(LoginUiState.Loading)
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Stable
+interface LoginUiState {
+    data object Idle: LoginUiState
+    data object Success: LoginUiState
+    data object Loading: LoginUiState
+    data class Error(val message: String?): LoginUiState
+}
+
+interface LoginEvent{
+    data class ShowSnackbar(val message: String) : LoginEvent
 }

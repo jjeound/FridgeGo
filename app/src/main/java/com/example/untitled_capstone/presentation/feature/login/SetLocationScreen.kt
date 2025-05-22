@@ -1,4 +1,4 @@
-package com.example.untitled_capstone.presentation.feature.login.screen
+package com.example.untitled_capstone.presentation.feature.login
 
 import android.Manifest
 import android.content.Context
@@ -10,6 +10,7 @@ import androidx.annotation.RequiresPermission
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -23,6 +24,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -32,19 +35,19 @@ import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
-import com.example.untitled_capstone.presentation.feature.login.LoginEvent
-import com.example.untitled_capstone.presentation.feature.login.state.AddressState
 import com.example.untitled_capstone.ui.theme.CustomTheme
 import androidx.compose.ui.viewinterop.AndroidView
+import com.example.untitled_capstone.domain.model.Address
+import com.example.untitled_capstone.navigation.Screen
 import com.kakao.vectormap.MapView
 import com.google.android.gms.location.LocationServices
 import com.kakao.vectormap.KakaoMap
@@ -60,9 +63,18 @@ import com.kakao.vectormap.label.LabelTextBuilder
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SetLocationScreen(state: AddressState, onEvent: (LoginEvent) -> Unit, popBackStack: ()-> Unit, navigateToHome: () -> Unit
-, from : Boolean){
+fun SetLocationScreen(
+    uiState: LoginUiState,
+    address: Address?,
+    which: Boolean,
+    getAddressByCoord: (String, String) -> Unit,
+    setLocation: (String, String) -> Unit,
+    popBackStack: ()-> Unit,
+    navigateToHome: () -> Unit,
+    from : Boolean
+){
     val context = LocalContext.current
+    val snackbarHostState = remember { SnackbarHostState() }
     val locationPermissions = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)
     val mapView = remember { MapView(context) }
     var lat by remember { mutableDoubleStateOf(0.0) }
@@ -82,12 +94,21 @@ fun SetLocationScreen(state: AddressState, onEvent: (LoginEvent) -> Unit, popBac
             getCurrentLocation(context) { latitude, longitude ->
                 lat = latitude
                 lon = longitude
-                onEvent(LoginEvent.GetAddressByCoord(lon.toString(), lat.toString()))
+                getAddressByCoord(lon.toString(), lat.toString())
             }
+        }
+    }
+    LaunchedEffect(address) {
+        if(address != null && !which ){
+            showMap = true
+        }
+        if(address != null && which && !from){
+            navigateToHome()
         }
     }
     Scaffold(
         containerColor = CustomTheme.colors.onSurface,
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = {
             CenterAlignedTopAppBar(
                 modifier = Modifier.padding(Dimens.topBarPadding),
@@ -122,11 +143,15 @@ fun SetLocationScreen(state: AddressState, onEvent: (LoginEvent) -> Unit, popBac
             ).background(CustomTheme.colors.onSurface),
             verticalArrangement = Arrangement.Bottom
         ) {
-            if(state.loading){
-                CircularProgressIndicator(
+            if(uiState == LoginUiState.Loading){
+                Box(
                     modifier = Modifier.fillMaxSize(),
-                    color = CustomTheme.colors.primary,
-                )
+                    contentAlignment = Alignment.Center
+                ){
+                    CircularProgressIndicator(
+                        color = CustomTheme.colors.primary,
+                    )
+                }
             }
             if(showMap){
                 AndroidView(
@@ -157,7 +182,7 @@ fun SetLocationScreen(state: AddressState, onEvent: (LoginEvent) -> Unit, popBac
                                         val options = LabelOptions.from(position)
                                             .setStyles(styles).setTexts(
                                                 LabelTextBuilder().setTexts(
-                                                    state.address!!.regionDong
+                                                    address!!.regionDong
                                                 )
                                             )
 
@@ -191,8 +216,8 @@ fun SetLocationScreen(state: AddressState, onEvent: (LoginEvent) -> Unit, popBac
                     color = CustomTheme.colors.border
                 ),
                 onClick = {
-                    if(state.address != null){
-                        onEvent(LoginEvent.SetAddress(state.address.regionGu, state.address.regionDong))
+                    if(address != null){
+                        setLocation(address.regionGu, address.regionDong)
                     }
                 }
             ) {
@@ -200,21 +225,6 @@ fun SetLocationScreen(state: AddressState, onEvent: (LoginEvent) -> Unit, popBac
                     text = "내 동네 설정하기",
                     style = CustomTheme.typography.button1,
                 )
-            }
-            LaunchedEffect(state) {
-                if(state.address != null && !state.which ){
-                    showMap = true
-                }
-                if(state.address != null && state.which ){
-                    if(from){
-                        Toast.makeText(context, "위치 설정이 완료되었습니다.", Toast.LENGTH_SHORT).show()
-                    }else{
-                        navigateToHome()
-                    }
-                }
-                if(state.error != null){
-                    Log.d("error", state.error.toString())
-                }
             }
         }
     }
@@ -234,11 +244,11 @@ fun getCurrentLocation(context: Context, onLocationReceived: (lat: Double, lon: 
 }
 
 
-@Preview
-@Composable
-fun SetLocationScreenPreview(){
-    SetLocationScreen(AddressState(), {}, {}, {}, false)
-}
+//@Preview
+//@Composable
+//fun SetLocationScreenPreview(){
+//    SetLocationScreen(AddressState(), {}, {}, {}, false)
+//}
 
 
 

@@ -84,7 +84,7 @@ fun NewPostForm(
     var isExpandedPeopleMenu by remember { mutableStateOf(false) }
     var isExpandedCategoryMenu by remember { mutableStateOf(false) }
     val menuItemDataInPeople = List(10) { "${it + 1}" }
-    val menuItemDataInCategory = listOf(Category.VEGETABLE, Category.FRUIT, Category.MEAT, Category.SEAFOOD, Category.DAIRY, Category.GRAIN, Category.BEVERAGE, Category.SNACK, Category.CONDIMENT, Category.FROZEN, Category.PROCESSED).map { it.kor }
+    val menuItemDataInCategory = Category.entries.map { it.kor }
     var quantity by remember { mutableStateOf("2") }
     var category by remember { mutableStateOf(Category.VEGETABLE.kor) }
     var price by remember { mutableStateOf("") }

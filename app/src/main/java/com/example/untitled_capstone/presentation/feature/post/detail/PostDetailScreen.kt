@@ -27,7 +27,6 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,6 +34,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import com.example.untitled_capstone.R
@@ -57,16 +57,20 @@ fun PostDetailScreen(
     clearBackStack: () -> Unit,
     savePost: (Post) -> Unit,
 ){
+    val context = LocalContext.current
     var expanded by remember { mutableStateOf(false) }
-    val menuItem by remember { derivedStateOf {
-        if(nickname == post?.nickname) {
-            listOf("수정", "삭제")
-        } else {
-            listOf("신고")
-        }
-    } }
+    var menuItem by remember { mutableStateOf(emptyList<String>()) }
     LaunchedEffect(true) {
         getPostById(id)
+    }
+    LaunchedEffect(post) {
+        if(post != null){
+            if(nickname == post.nickname){
+                menuItem = listOf("수정", "삭제")
+            }else{
+                menuItem = listOf("신고")
+            }
+        }
     }
     if(uiState == PostDetailUiState.Loading){
         Box(
@@ -99,15 +103,6 @@ fun PostDetailScreen(
                     },
                     title = {},
                     actions = {
-                        IconButton(
-                            onClick = { }
-                        ) {
-                            Icon(
-                                imageVector = ImageVector.vectorResource(R.drawable.share),
-                                tint = CustomTheme.colors.iconDefault,
-                                contentDescription = "share"
-                            )
-                        }
                         IconButton(
                             onClick = {
                                 expanded = true

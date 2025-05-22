@@ -35,7 +35,7 @@ fun WritingNewPostScreen(
     post: Post?,
     popBackStack: () -> Unit,
     deletePostImage: (Long, Long) -> Unit,
-    modifyPost: (Long, NewPost, List<File>?) -> Unit,
+    modifyPost: (Long, NewPost, List<File>) -> Unit,
     addNewPost: (NewPost, List<File>?) -> Unit,
 ){
     Scaffold(

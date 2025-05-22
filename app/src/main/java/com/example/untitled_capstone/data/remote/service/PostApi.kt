@@ -69,7 +69,7 @@ interface PostApi {
     ): ApiResponse<PostResultDto>
 
     @Multipart
-    @POST("/api/s3/update-post/{postId}")
+    @POST("/api/s3/add-post-image/{postId}")
     suspend fun uploadPostImages(
         @Path("postId") postId: Long,
         @Part postImage: List<MultipartBody.Part>

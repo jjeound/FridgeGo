@@ -82,13 +82,13 @@ import java.io.File
 fun ModifyPostForm(
     post: Post,
     deletePostImage: (Long, Long) -> Unit,
-    modifyPost: (Long, NewPost, List<File>?) -> Unit,
+    modifyPost: (Long, NewPost, List<File>) -> Unit,
 ){
     val context = LocalContext.current
     var isExpandedPeopleMenu by remember { mutableStateOf(false) }
     var isExpandedCategoryMenu by remember { mutableStateOf(false) }
     val menuItemDataInPeople = List(10) { "${it + 1}" }
-    val menuItemDataInCategory = listOf(Category.VEGETABLE, Category.FRUIT, Category.MEAT, Category.SEAFOOD, Category.DAIRY, Category.GRAIN, Category.BEVERAGE, Category.SNACK, Category.CONDIMENT, Category.FROZEN, Category.PROCESSED).map { it.kor }
+    val menuItemDataInCategory = Category.entries.map { it.kor }
     var numbers by remember { mutableStateOf(post.memberCount.toString()) }
     var category by remember { mutableStateOf(Category.fromString(post.category) ?: "채소") }
     var price by remember { mutableStateOf(post.price.toString()) }
@@ -100,6 +100,7 @@ fun ModifyPostForm(
         post.image?.map { it.imageUrl }?.toMutableStateList() ?: mutableStateListOf()
     }
     val imagesNew = remember { mutableStateListOf<String>() }
+    val imagesForDelete = remember { mutableStateListOf<Long>() }
     val showDialog = remember { mutableStateOf(false) }
     val files = remember { mutableStateListOf<File>() }
     val albumLauncher =
@@ -260,8 +261,8 @@ fun ModifyPostForm(
                                 .padding(Dimens.smallPadding),
                             onClick = {
                                 imagesOld.removeAt(index)
-                                deletePostImage(post.id,
-                                    post.image!![index].id
+                                imagesForDelete.add(
+                                    post.image!!.find { image == it.imageUrl }!!.id
                                 )
                             }
                         ) {
@@ -545,6 +546,11 @@ fun ModifyPostForm(
                     ),
                     files.toList()
                 )
+                if(imagesForDelete.isNotEmpty()){
+                    imagesForDelete.forEach { id ->
+                        deletePostImage(post.id, id)
+                    }
+                }
             }
         ) {
             Text(

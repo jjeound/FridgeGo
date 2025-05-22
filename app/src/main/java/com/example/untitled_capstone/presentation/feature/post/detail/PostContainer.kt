@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
@@ -56,6 +57,26 @@ fun PostContainer(post: Post, goToProfile: () -> Unit){
                     modifier = Modifier.fillMaxWidth().aspectRatio(1f)
                         .clip(shape = RoundedCornerShape(Dimens.cornerRadius))
                 )
+            }
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
+                    .padding(Dimens.smallPadding)
+            ) {
+                repeat(post.image.size) { index ->
+                    val isSelected = pagerState.currentPage == index
+                    Box(
+                        modifier = Modifier
+                            .padding(horizontal = 4.dp)
+                            .size(if (isSelected) 10.dp else 8.dp)
+                            .clip(CircleShape)
+                            .background(
+                                if (isSelected) CustomTheme.colors.border
+                                else CustomTheme.colors.borderLight
+                            )
+                    )
+                }
             }
         } else {
             Box(

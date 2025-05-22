@@ -1,5 +1,6 @@
 package com.example.untitled_capstone.presentation.feature.post.detail
 
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -45,17 +46,18 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
-import com.example.untitled_capstone.presentation.feature.post.PostUiState
 import com.example.untitled_capstone.presentation.util.ReportType
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PostReportScreen(
+fun ReportScreen(
     uiState: PostDetailUiState,
-    postId: Long,
-    repostPost: (Long, String, String) -> Unit,
+    id: Long,
+    reportPost: (Long, String, String) -> Unit,
+    reportUser: (Long, String, String) -> Unit,
     popBackStack: () -> Unit,
+    isPost: Boolean
 ) {
     var isExpanded by remember { mutableStateOf(false) }
     val reportType = listOf(
@@ -283,7 +285,13 @@ fun PostReportScreen(
                 ),
                 enabled = reportTypeText.isNotBlank() && content.isNotBlank(),
                 onClick = {
-                    repostPost(postId, ReportType.fromKor(reportTypeText) ?: "OTHER", content)
+                    if(isPost){
+                        Log.d("post", "reportPost: $id, $reportTypeText, $content")
+                        reportPost(id, ReportType.fromKor(reportTypeText) ?: "OTHER", content)
+                    }else{
+                        Log.d("user", "reportUser: $id, $reportTypeText, $content")
+                        reportUser(id, ReportType.fromKor(reportTypeText) ?: "OTHER", content)
+                    }
                 }
             ) {
                 Text(

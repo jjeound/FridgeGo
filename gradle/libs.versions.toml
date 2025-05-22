@@ -1,11 +1,11 @@
 [versions]
-agp = "8.9.1"
+agp = "8.10.0"
 android = "2.12.8"
 cameraCore = "1.4.2"
 coilCompose = "2.4.0"
 converterGson = "2.11.0"
 coreSplashscreenVersion = "1.0.1"
-datastorePreferences = "1.1.4"
+datastorePreferences = "1.1.6"
 hiltAndroid = "2.51.1"
 hiltNavigationCompose = "1.2.0"
 kotlin = "2.0.0"
@@ -30,6 +30,7 @@ roomCompiler = "2.6.1"
 runtimeLivedata = "1.7.8"
 rxandroid = "2.1.1"
 rxjava = "2.2.21"
+securityCrypto = "1.1.0-alpha07"
 stompprotocolandroid = "1.6.6"
 textRecognition = "16.0.1"
 v2User = "2.21.1"
@@ -53,6 +54,7 @@ androidx-paging-runtime-ktx = { module = "androidx.paging:paging-runtime-ktx", v
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomCompiler" }
 androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomKtx" }
 androidx-room-paging = { module = "androidx.room:room-paging", version.ref = "roomKtx" }
+androidx-security-crypto = { module = "androidx.security:security-crypto", version.ref = "securityCrypto" }
 androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "workRuntimeKtx" }
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "converterGson" }

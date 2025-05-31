@@ -13,6 +13,7 @@ import com.example.untitled_capstone.domain.use_case.my.UploadProfileImageUseCas
 import com.example.untitled_capstone.navigation.Screen
 import com.example.untitled_capstone.presentation.util.AuthEvent
 import com.example.untitled_capstone.presentation.util.AuthEventBus
+import com.example.untitled_capstone.presentation.util.UiEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -37,7 +38,7 @@ class ProfileViewModel @Inject constructor(
     private val _profile = MutableStateFlow<Profile?>(null)
     val profile = _profile.asStateFlow()
 
-    private val _event = MutableSharedFlow<ProfileEvent>()
+    private val _event = MutableSharedFlow<UiEvent>()
     val event = _event.asSharedFlow()
 
     fun getMyProfile(){
@@ -52,7 +53,7 @@ class ProfileViewModel @Inject constructor(
                     }
                     is Resource.Error -> {
                         uiState.tryEmit(ProfileUiState.Error(it.message))
-                        _event.emit(ProfileEvent.ShowSnackbar(it.message ?: "Unknown error"))
+                        _event.emit(UiEvent.ShowSnackbar(it.message ?: "Unknown error"))
                     }
                     is Resource.Loading -> {
                         uiState.tryEmit(ProfileUiState.Loading)
@@ -74,7 +75,7 @@ class ProfileViewModel @Inject constructor(
                     }
                     is Resource.Error -> {
                         uiState.tryEmit(ProfileUiState.Error(it.message))
-                        _event.emit(ProfileEvent.ShowSnackbar(it.message ?: "Unknown error"))
+                        _event.emit(UiEvent.ShowSnackbar(it.message ?: "Unknown error"))
                     }
                     is Resource.Loading -> {
                         uiState.tryEmit(ProfileUiState.Loading)
@@ -90,12 +91,13 @@ class ProfileViewModel @Inject constructor(
                 when(it){
                     is Resource.Success -> {
                         it.data?.let{
-                            uiState.tryEmit(ProfileUiState.Success)
+                            getMyProfile()
+                            uiState.tryEmit(ProfileUiState.Idle)
                         }
                     }
                     is Resource.Error -> {
                         uiState.tryEmit(ProfileUiState.Error(it.message))
-                        _event.emit(ProfileEvent.ShowSnackbar(it.message ?: "Unknown error"))
+                        _event.emit(UiEvent.ShowSnackbar(it.message ?: "Unknown error"))
                     }
                     is Resource.Loading -> {
                         uiState.tryEmit(ProfileUiState.Loading)
@@ -117,7 +119,7 @@ class ProfileViewModel @Inject constructor(
                     }
                     is Resource.Error -> {
                         uiState.tryEmit(ProfileUiState.Error(it.message))
-                        _event.emit(ProfileEvent.ShowSnackbar(it.message ?: "Unknown error"))
+                        _event.emit(UiEvent.ShowSnackbar(it.message ?: "Unknown error"))
                     }
                     is Resource.Loading -> {
                         uiState.tryEmit(ProfileUiState.Loading)
@@ -135,10 +137,4 @@ interface ProfileUiState {
     data object Loading: ProfileUiState
     data object Logout: ProfileUiState
     data class Error(val message: String?): ProfileUiState
-}
-
-interface ProfileEvent{
-    data class ShowSnackbar(val message: String) : ProfileEvent
-    data class Navigate(val route: Screen) : ProfileEvent
-    object PopBackStack : ProfileEvent
 }

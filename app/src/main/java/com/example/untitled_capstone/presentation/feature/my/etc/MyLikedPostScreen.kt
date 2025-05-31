@@ -36,9 +36,9 @@ import com.example.untitled_capstone.ui.theme.CustomTheme
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyLikedPostScreen(
-    navigateUp: (Screen) -> Unit,
+    navigate: (Screen) -> Unit,
     postItems: LazyPagingItems<PostRaw>,
-    popBackStack: () -> Unit,
+    clearBackstack: () -> Unit,
     toggleLike: (Long) -> Unit
 ){
     Scaffold(
@@ -55,7 +55,7 @@ fun MyLikedPostScreen(
                 },
                 navigationIcon = {
                     IconButton(
-                        onClick = { popBackStack() }
+                        onClick = { clearBackstack() }
                     ) {
                         Icon(
                             imageVector = ImageVector.Companion.vectorResource(R.drawable.chevron_left),
@@ -94,7 +94,7 @@ fun MyLikedPostScreen(
                         if (post != null) {
                             Box(
                                 modifier = Modifier.Companion.clickable {
-                                    navigateUp(
+                                    navigate(
                                         Screen.PostDetailNav(
                                             post.id
                                         )

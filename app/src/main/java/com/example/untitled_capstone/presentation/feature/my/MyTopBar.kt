@@ -29,17 +29,6 @@ fun MyTopBar() {
                 color = CustomTheme.colors.textPrimary,
             )
         },
-        actions = {
-            IconButton(
-                onClick = { }
-            ) {
-                Icon(
-                    imageVector = ImageVector.vectorResource(R.drawable.setting),
-                    tint = CustomTheme.colors.iconDefault,
-                    contentDescription = "setting"
-                )
-            }
-        },
         colors = TopAppBarColors(
             containerColor = CustomTheme.colors.surface,
             scrolledContainerColor = CustomTheme.colors.surface,

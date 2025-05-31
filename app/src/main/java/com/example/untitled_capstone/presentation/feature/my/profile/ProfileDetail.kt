@@ -23,6 +23,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -54,7 +55,7 @@ fun ProfileDetail(
     profile: Profile,
     uploadProfileImage: (File) -> Unit,
     clearBackStack: () -> Unit,
-    navigateUp: (Screen) -> Unit,
+    navigate: (Screen) -> Unit,
     logout: () -> Unit,
 ){
     val context = LocalContext.current
@@ -151,7 +152,9 @@ fun ProfileDetail(
                 style = CustomTheme.typography.title2,
                 color = CustomTheme.colors.textPrimary,
             )
-            Column {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(Dimens.smallPadding)
+            ) {
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(vertical = Dimens.smallPadding).clickable {
                         logout()
@@ -176,10 +179,12 @@ fun ProfileDetail(
                     color = CustomTheme.colors.borderLight
                 )
             }
-            Column {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(Dimens.smallPadding)
+            )  {
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(vertical = Dimens.smallPadding).clickable {
-                        navigateUp(Screen.NicknameNav)
+                        navigate(Screen.NicknameNav)
                     },
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
@@ -201,7 +206,9 @@ fun ProfileDetail(
                     color = CustomTheme.colors.borderLight
                 )
             }
-            Column {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(Dimens.smallPadding)
+            )  {
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(vertical = Dimens.smallPadding).clickable {
                         albumLauncher.launch(imageAlbumIntent)
@@ -226,7 +233,9 @@ fun ProfileDetail(
                     color = CustomTheme.colors.borderLight
                 )
             }
-            Column {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(Dimens.smallPadding)
+            )  {
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(vertical = Dimens.smallPadding).clickable {  },
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -291,7 +300,7 @@ fun ProfileDetailPreview() {
         uiState = ProfileUiState.Idle,
         uploadProfileImage = {},
         clearBackStack = {},
-        navigateUp = {},
+        navigate = {},
         logout = {}
     )
 }

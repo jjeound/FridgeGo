@@ -1,25 +1,16 @@
 package com.example.untitled_capstone.presentation.feature.my
 
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.untitled_capstone.core.util.Resource
 import com.example.untitled_capstone.domain.model.Profile
-import com.example.untitled_capstone.domain.use_case.my.GetMyNicknameUseCase
 import com.example.untitled_capstone.domain.use_case.my.GetMyProfileUseCase
-import com.example.untitled_capstone.navigation.Screen
-import com.example.untitled_capstone.presentation.feature.my.profile.ProfileEvent
-import com.example.untitled_capstone.presentation.feature.my.profile.ProfileUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.io.File
 import javax.inject.Inject
 
 @HiltViewModel

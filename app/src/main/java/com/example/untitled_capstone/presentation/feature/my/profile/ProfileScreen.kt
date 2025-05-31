@@ -29,6 +29,7 @@ import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.domain.model.Profile
 import com.example.untitled_capstone.navigation.Screen
+import com.example.untitled_capstone.presentation.util.CustomSnackbar
 import com.example.untitled_capstone.ui.theme.CustomTheme
 import java.io.File
 
@@ -39,7 +40,7 @@ fun ProfileScreen(
     isMe: Boolean,
     popBackStack: () -> Unit,
     profile: Profile?,
-    navigateUp: (Screen) -> Unit,
+    navigate: (Screen) -> Unit,
     logout: () -> Unit,
     uploadProfileImage: (File) -> Unit,
     clearBackStack: () -> Unit,
@@ -52,7 +53,14 @@ fun ProfileScreen(
 //    }
     Scaffold(
         containerColor = CustomTheme.colors.surface,
-        snackbarHost = { SnackbarHost(hostState = snackbarHostState)},
+        snackbarHost = { SnackbarHost(
+            hostState = snackbarHostState,
+            snackbar = { data ->
+                CustomSnackbar(
+                    data
+                )
+            }
+        )},
         topBar = {
             CenterAlignedTopAppBar(
                 modifier = Modifier.Companion.padding(Dimens.topBarPadding),
@@ -110,7 +118,7 @@ fun ProfileScreen(
                         if(isMe){
                             ProfileDetail(
                                 profile = profile,
-                                navigateUp = navigateUp,
+                                navigate = navigate,
                                 logout = logout,
                                 clearBackStack = clearBackStack,
                                 uiState = uiState,
@@ -119,7 +127,7 @@ fun ProfileScreen(
                         } else {
                             OtherProfile(
                                 profile = profile,
-                                navigateUp = navigateUp,
+                                navigate = navigate,
                             )
                         }
                     }

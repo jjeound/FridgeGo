@@ -31,7 +31,7 @@ import com.example.untitled_capstone.ui.theme.CustomTheme
 @Composable
 fun OtherProfile(
     profile: Profile,
-    navigateUp: (Screen) -> Unit,
+    navigate: (Screen) -> Unit,
 ) {
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -77,20 +77,20 @@ fun OtherProfile(
         Spacer(
             modifier = Modifier.weight(1f)
         )
-        Box(
-            modifier = Modifier.fillMaxWidth(),
-            contentAlignment = Alignment.Center
-        ){
-            Text(
-                modifier = Modifier.padding(Dimens.mediumPadding),
-                text = "평가하기",
-                style = CustomTheme.typography.body1,
-                color = CustomTheme.colors.textPrimary,
-            )
-        }
+//        Box(
+//            modifier = Modifier.fillMaxWidth(),
+//            contentAlignment = Alignment.Center
+//        ){
+//            Text(
+//                modifier = Modifier.padding(Dimens.mediumPadding),
+//                text = "평가하기",
+//                style = CustomTheme.typography.body1,
+//                color = CustomTheme.colors.textPrimary,
+//            )
+//        }
         Box(
             modifier = Modifier.fillMaxWidth().clickable{
-                navigateUp(Screen.ReportNav(profile.id, false))
+                navigate(Screen.ReportNav(profile.id, false))
             },
             contentAlignment = Alignment.Center
         ){

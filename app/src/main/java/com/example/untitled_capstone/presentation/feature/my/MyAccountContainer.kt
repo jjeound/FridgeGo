@@ -18,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
@@ -53,6 +54,7 @@ fun MyAccountContainer(
                             CircleShape
                         ).size(36.dp),
                         model = it,
+                        contentScale = ContentScale.Crop,
                         contentDescription = "profile",
                     )
                 } ?: Image(

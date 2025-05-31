@@ -21,12 +21,19 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -46,6 +53,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -55,6 +63,7 @@ import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
@@ -62,6 +71,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
@@ -73,13 +83,14 @@ import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.domain.model.NewPost
 import com.example.untitled_capstone.domain.model.Post
-import com.example.untitled_capstone.presentation.feature.fridge.crud.PermissionDialog
+import com.example.untitled_capstone.presentation.util.PermissionDialog
 import com.example.untitled_capstone.presentation.feature.my.profile.getRealPathFromURI
 import com.example.untitled_capstone.ui.theme.CustomTheme
 import java.io.File
 
 @Composable
 fun ModifyPostForm(
+    modifier: Modifier,
     post: Post,
     deletePostImage: (Long, Long) -> Unit,
     modifyPost: (Long, NewPost, List<File>) -> Unit,
@@ -103,6 +114,7 @@ fun ModifyPostForm(
     val imagesForDelete = remember { mutableStateListOf<Long>() }
     val showDialog = remember { mutableStateOf(false) }
     val files = remember { mutableStateListOf<File>() }
+    val listState = rememberLazyListState()
     val albumLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
@@ -156,372 +168,421 @@ fun ModifyPostForm(
             }
         )
     validator = price.isNotBlank() && title.isNotBlank() && content.isNotBlank()
-    Column(
-        modifier = Modifier.pointerInput(Unit) {
-            detectTapGestures(onTap = {
-                focusManager.clearFocus()
-            })
-        },
-        verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding)
-    ){
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(Dimens.mediumPadding)
+    Box(
+        modifier = modifier.fillMaxSize()
+            .padding(horizontal = Dimens.surfaceHorizontalPadding,
+                vertical = Dimens.surfaceVerticalPadding),
+    ) {
+        LazyColumn(
+            state = listState,
+            modifier = Modifier.imePadding().pointerInput(Unit) {
+                detectTapGestures(onTap = {
+                    focusManager.clearFocus()
+                })
+            },
+            verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding)
         ) {
-            Box(
-                modifier = Modifier
-                    .size(80.dp)
-                    .clip(shape = RoundedCornerShape(Dimens.cornerRadius))
-                    .background(CustomTheme.colors.onSurface)
-                    .border(
-                        width = 1.dp,
-                        color = CustomTheme.colors.border,
-                        shape = RoundedCornerShape(Dimens.cornerRadius)
-                    )
-            ){
-                IconButton(
-                    modifier = Modifier
-                        .align(Alignment.Center),
-                    onClick = {
-                        when {
-                            ContextCompat.checkSelfPermission(
-                                context,
-                                galleryPermissions[0]
-                            ) == PackageManager.PERMISSION_GRANTED ->  {
-                                albumLauncher.launch(imageAlbumIntent)
-                            }
-                            shouldShowRequestPermissionRationale(
-                                context as MainActivity,
-                                galleryPermissions[0]
-                            ) -> {
-                                showDialog.value = true
-                            }
-                            else -> {
-                                requestPermissionLauncher.launch(galleryPermissions)
-                            }
-                        }
-                    }
-                ){
-                    Icon(
-                        imageVector = ImageVector.vectorResource(R.drawable.camera),
-                        contentDescription = "get image",
-                        tint = CustomTheme.colors.iconDefault,
-                    )
-                }
-            }
-            Row(
-                modifier = Modifier.horizontalScroll(
-                    rememberScrollState()
-                ),
-                horizontalArrangement = Arrangement.spacedBy(Dimens.smallPadding)
-            ) {
-                imagesNew.forEachIndexed { index, image ->
-                    Box {
-                        AsyncImage(
-                            model = image.toUri(),
-                            contentDescription = "image",
-                            alignment = Alignment.Center,
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier
-                                .size(80.dp)
-                                .clip(shape = RoundedCornerShape(Dimens.cornerRadius))
-                        )
+            item {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(Dimens.mediumPadding)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(80.dp)
+                            .clip(shape = RoundedCornerShape(Dimens.cornerRadius))
+                            .background(CustomTheme.colors.onSurface)
+                            .border(
+                                width = 1.dp,
+                                color = CustomTheme.colors.border,
+                                shape = RoundedCornerShape(Dimens.cornerRadius)
+                            )
+                    ) {
                         IconButton(
                             modifier = Modifier
-                                .align(Alignment.TopEnd)
-                                .then(Modifier.size(24.dp))
-                                .padding(Dimens.smallPadding),
+                                .align(Alignment.Center),
                             onClick = {
-                                imagesNew.removeAt(index)
-                                files.removeAt(index)
+                                when {
+                                    ContextCompat.checkSelfPermission(
+                                        context,
+                                        galleryPermissions[0]
+                                    ) == PackageManager.PERMISSION_GRANTED -> {
+                                        albumLauncher.launch(imageAlbumIntent)
+                                    }
+
+                                    shouldShowRequestPermissionRationale(
+                                        context as MainActivity,
+                                        galleryPermissions[0]
+                                    ) -> {
+                                        showDialog.value = true
+                                    }
+
+                                    else -> {
+                                        requestPermissionLauncher.launch(galleryPermissions)
+                                    }
+                                }
                             }
                         ) {
                             Icon(
-                                imageVector = ImageVector.vectorResource(R.drawable.close),
-                                contentDescription = "delete image",
-                                tint = CustomTheme.colors.iconSelected,
+                                imageVector = ImageVector.vectorResource(R.drawable.camera),
+                                contentDescription = "get image",
+                                tint = CustomTheme.colors.iconDefault,
                             )
                         }
                     }
+                    LazyRow (
+                        horizontalArrangement = Arrangement.spacedBy(Dimens.smallPadding)
+                    ) {
+                        itemsIndexed(imagesNew) { index, image ->
+                            Box {
+                                AsyncImage(
+                                    model = image.toUri(),
+                                    contentDescription = "image",
+                                    alignment = Alignment.Center,
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier
+                                        .size(80.dp)
+                                        .clip(shape = RoundedCornerShape(Dimens.cornerRadius))
+                                )
+                                IconButton(
+                                    modifier = Modifier
+                                        .align(Alignment.TopEnd)
+                                        .then(Modifier.size(24.dp))
+                                        .padding(Dimens.smallPadding),
+                                    onClick = {
+                                        imagesNew.removeAt(index)
+                                        files.removeAt(index)
+                                    }
+                                ) {
+                                    Icon(
+                                        imageVector = ImageVector.vectorResource(R.drawable.close),
+                                        contentDescription = "delete image",
+                                        tint = CustomTheme.colors.iconSelected,
+                                    )
+                                }
+                            }
+                        }
+                        itemsIndexed(imagesOld){ index, image ->
+                            Box {
+                                AsyncImage(
+                                    model = image.toUri(),
+                                    contentDescription = "image",
+                                    alignment = Alignment.Center,
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier
+                                        .size(80.dp)
+                                        .clip(shape = RoundedCornerShape(Dimens.cornerRadius))
+                                )
+                                IconButton(
+                                    modifier = Modifier
+                                        .align(Alignment.TopEnd)
+                                        .then(Modifier.size(24.dp))
+                                        .padding(Dimens.smallPadding),
+                                    onClick = {
+                                        imagesOld.removeAt(index)
+                                        imagesForDelete.add(
+                                            post.image!!.find { image == it.imageUrl }!!.id
+                                        )
+                                    }
+                                ) {
+                                    Icon(
+                                        imageVector = ImageVector.vectorResource(R.drawable.close),
+                                        contentDescription = "delete image",
+                                        tint = CustomTheme.colors.iconSelected,
+                                    )
+                                }
+                            }
+                        }
+                    }
                 }
-                imagesOld.forEachIndexed{ index, image ->
-                    Box {
-                        AsyncImage(
-                            model = image.toUri(),
-                            contentDescription = "image",
-                            alignment = Alignment.Center,
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier
-                                .size(80.dp)
-                                .clip(shape = RoundedCornerShape(Dimens.cornerRadius))
+            }
+            item {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(Dimens.mediumPadding),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Icon(
+                            imageVector = ImageVector.vectorResource(R.drawable.people),
+                            contentDescription = "people",
+                            tint = CustomTheme.colors.iconDefault,
                         )
-                        IconButton(
+                        Text(
+                            text = "인원 수",
+                            style = CustomTheme.typography.caption2,
+                            color = CustomTheme.colors.textSecondary,
+                        )
+                    }
+                    Box {
+                        Card(
                             modifier = Modifier
-                                .align(Alignment.TopEnd)
-                                .then(Modifier.size(24.dp))
-                                .padding(Dimens.smallPadding),
-                            onClick = {
-                                imagesOld.removeAt(index)
-                                imagesForDelete.add(
-                                    post.image!!.find { image == it.imageUrl }!!.id
+                                .wrapContentSize()
+                                .clickable {
+                                    isExpandedPeopleMenu = !isExpandedPeopleMenu
+                                },
+                            shape = RoundedCornerShape(Dimens.cornerRadius),
+                            colors = CardDefaults.cardColors(
+                                containerColor = CustomTheme.colors.onSurface,
+                            ),
+                            border = BorderStroke(width = 1.dp, color = CustomTheme.colors.border),
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(start = 16.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                            ) {
+                                Text(
+                                    text = numbers,
+                                    style = CustomTheme.typography.caption2,
+                                    color = CustomTheme.colors.textPrimary,
+                                )
+                                Spacer(
+                                    modifier = Modifier.width(8.dp)
+                                )
+                                Icon(
+                                    imageVector = ImageVector.vectorResource(R.drawable.dropdown),
+                                    contentDescription = "select number of people",
+                                    tint = CustomTheme.colors.iconSelected,
                                 )
                             }
+                        }
+                        DropdownMenu(
+                            expanded = isExpandedPeopleMenu,
+                            onDismissRequest = { isExpandedPeopleMenu = false },
+                            containerColor = CustomTheme.colors.textTertiary,
+                            shadowElevation = 0.dp,
+                            tonalElevation = 0.dp,
+                            shape = RoundedCornerShape(Dimens.cornerRadius),
                         ) {
-                            Icon(
-                                imageVector = ImageVector.vectorResource(R.drawable.close),
-                                contentDescription = "delete image",
-                                tint = CustomTheme.colors.iconSelected,
-                            )
+                            menuItemDataInPeople.forEach { option ->
+                                DropdownMenuItem(
+                                    modifier = Modifier.height(30.dp),
+                                    text = {
+                                        Text(
+                                            text = option,
+                                            style = CustomTheme.typography.caption2,
+                                            color = CustomTheme.colors.textPrimary,
+                                        )
+                                    },
+                                    onClick = {
+                                        isExpandedPeopleMenu = false
+                                        numbers = option
+                                    },
+                                )
+                            }
+                        }
+                    }
+                    Text(
+                        text = "카테고리",
+                        style = CustomTheme.typography.caption2,
+                        color = CustomTheme.colors.textSecondary,
+                    )
+                    Box {
+                        Card(
+                            modifier = Modifier
+                                .wrapContentSize()
+                                .clickable {
+                                    isExpandedCategoryMenu = !isExpandedCategoryMenu
+                                },
+                            shape = RoundedCornerShape(Dimens.cornerRadius),
+                            colors = CardDefaults.cardColors(
+                                containerColor = CustomTheme.colors.onSurface,
+                            ),
+                            border = BorderStroke(width = 1.dp, color = CustomTheme.colors.border),
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(start = 16.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                            ) {
+                                Text(
+                                    text = category,
+                                    style = CustomTheme.typography.caption2,
+                                    color = CustomTheme.colors.textPrimary,
+                                )
+                                Spacer(
+                                    modifier = Modifier.width(8.dp)
+                                )
+                                Icon(
+                                    imageVector = ImageVector.vectorResource(R.drawable.dropdown),
+                                    contentDescription = "select number of people",
+                                    tint = CustomTheme.colors.iconSelected,
+                                )
+                            }
+                        }
+                        DropdownMenu(
+                            expanded = isExpandedCategoryMenu,
+                            onDismissRequest = { isExpandedCategoryMenu = false },
+                            containerColor = CustomTheme.colors.textTertiary,
+                            shadowElevation = 0.dp,
+                            tonalElevation = 0.dp,
+                            shape = RoundedCornerShape(Dimens.cornerRadius),
+                        ) {
+                            menuItemDataInCategory.forEach { option ->
+                                DropdownMenuItem(
+                                    modifier = Modifier.height(30.dp),
+                                    text = {
+                                        Text(
+                                            text = option,
+                                            style = CustomTheme.typography.caption2,
+                                            color = CustomTheme.colors.textPrimary,
+                                        )
+                                    },
+                                    onClick = {
+                                        isExpandedCategoryMenu = false
+                                        category = option
+                                    },
+                                )
+                            }
                         }
                     }
                 }
             }
-        }
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(Dimens.mediumPadding),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(6.dp)
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Icon(
-                    imageVector = ImageVector.vectorResource(R.drawable.people),
-                    contentDescription = "people",
-                    tint = CustomTheme.colors.iconDefault,
-                )
-                Text(
-                    text = "인원 수",
-                    style = CustomTheme.typography.caption2,
-                    color = CustomTheme.colors.textSecondary,
-                )
-            }
-            Box{
-                Card(
-                    modifier = Modifier.wrapContentSize().clickable {
-                        isExpandedPeopleMenu = !isExpandedPeopleMenu
-                    },
-                    shape = RoundedCornerShape(Dimens.cornerRadius),
-                    colors = CardDefaults.cardColors(
-                        containerColor = CustomTheme.colors.onSurface,
-                    ),
-                    border = BorderStroke(width = 1.dp, color = CustomTheme.colors.border),
-                ) {
-                    Row(
-                        modifier = Modifier.padding(start = 16.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                    ) {
+            item {
+                OutlinedTextField(
+                    // add validator
+                    value = price,
+                    onValueChange = { price = it },
+                    placeholder = {
                         Text(
-                            text = numbers,
-                            style = CustomTheme.typography.caption2,
-                            color = CustomTheme.colors.textPrimary,
+                            text = "가격",
+                            style = CustomTheme.typography.body1,
+                            color = CustomTheme.colors.textSecondary
                         )
-                        Spacer(
-                            modifier = Modifier.width(8.dp)
-                        )
-                        Icon(
-                            imageVector = ImageVector.vectorResource(R.drawable.dropdown),
-                            contentDescription = "select number of people",
-                            tint = CustomTheme.colors.iconSelected,
-                        )
-                    }
-                }
-                DropdownMenu(
-                    expanded = isExpandedPeopleMenu,
-                    onDismissRequest = { isExpandedPeopleMenu = false },
-                    containerColor = CustomTheme.colors.textTertiary,
-                    shadowElevation = 0.dp,
-                    tonalElevation = 0.dp,
-                    shape = RoundedCornerShape(Dimens.cornerRadius),
-                ) {
-                    menuItemDataInPeople.forEach { option ->
-                        DropdownMenuItem(
-                            modifier = Modifier.height(30.dp),
-                            text = {
-                                Text(
-                                    text = option,
-                                    style = CustomTheme.typography.caption2,
-                                    color = CustomTheme.colors.textPrimary,
-                                )},
-                            onClick = {
-                                isExpandedPeopleMenu = false
-                                numbers = option
-                            },
-                        )
-                    }
-                }
-            }
-            Text(
-                text = "카테고리",
-                style = CustomTheme.typography.caption2,
-                color = CustomTheme.colors.textSecondary,
-            )
-            Box{
-                Card(
-                    modifier = Modifier.wrapContentSize().clickable {
-                        isExpandedCategoryMenu = !isExpandedCategoryMenu
                     },
-                    shape = RoundedCornerShape(Dimens.cornerRadius),
-                    colors = CardDefaults.cardColors(
-                        containerColor = CustomTheme.colors.onSurface,
-                    ),
-                    border = BorderStroke(width = 1.dp, color = CustomTheme.colors.border),
-                ) {
-                    Row(
-                        modifier = Modifier.padding(start = 16.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                    ) {
+                    leadingIcon = {
                         Text(
-                            text = category,
-                            style = CustomTheme.typography.caption2,
-                            color = CustomTheme.colors.textPrimary,
+                            text = "₩",
+                            style = CustomTheme.typography.body1,
+                            color = CustomTheme.colors.textPrimary
                         )
-                        Spacer(
-                            modifier = Modifier.width(8.dp)
-                        )
-                        Icon(
-                            imageVector = ImageVector.vectorResource(R.drawable.dropdown),
-                            contentDescription = "select number of people",
-                            tint = CustomTheme.colors.iconSelected,
-                        )
-                    }
-                }
-                DropdownMenu(
-                    expanded = isExpandedCategoryMenu,
-                    onDismissRequest = { isExpandedCategoryMenu = false },
-                    containerColor = CustomTheme.colors.textTertiary,
-                    shadowElevation = 0.dp,
-                    tonalElevation = 0.dp,
+                    },
+                    trailingIcon = {
+                        if (price.isNotBlank()) {
+                            IconButton(
+                                onClick = { price = "" }
+                            ) {
+                                Icon(
+                                    imageVector = ImageVector.vectorResource(R.drawable.delete),
+                                    contentDescription = "delete",
+                                )
+                            }
+                        }
+                    },
+                    textStyle = CustomTheme.typography.body1,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = CustomTheme.colors.textSecondary,
+                        unfocusedBorderColor = CustomTheme.colors.textSecondary,
+                        focusedTextColor = CustomTheme.colors.textPrimary,
+                        unfocusedTextColor = CustomTheme.colors.textPrimary,
+                        focusedContainerColor = CustomTheme.colors.onSurface,
+                        unfocusedContainerColor = CustomTheme.colors.onSurface,
+                        cursorColor = CustomTheme.colors.textPrimary,
+                        errorCursorColor = CustomTheme.colors.error,
+                        focusedTrailingIconColor = CustomTheme.colors.iconDefault,
+                        unfocusedTrailingIconColor = Color.Transparent,
+                    ),
                     shape = RoundedCornerShape(Dimens.cornerRadius),
-                ) {
-                    menuItemDataInCategory.forEach { option ->
-                        DropdownMenuItem(
-                            modifier = Modifier.height(30.dp),
-                            text = {
-                                Text(
-                                    text = option,
-                                    style = CustomTheme.typography.caption2,
-                                    color = CustomTheme.colors.textPrimary,
-                                )},
-                            onClick = {
-                                isExpandedCategoryMenu = false
-                                category = option
-                            },
-                        )
-                    }
-                }
-            }
-        }
-        OutlinedTextField(
-            // add validator
-            value = price,
-            onValueChange = {price = it},
-            placeholder = {
-                Text(
-                    text = "가격",
-                    style = CustomTheme.typography.body1,
-                    color = CustomTheme.colors.textSecondary
-                )
-            },
-            leadingIcon = {
-                Text(
-                    text = "₩",
-                    style = CustomTheme.typography.body1,
-                    color = CustomTheme.colors.textPrimary
-                )
-            },
-            trailingIcon = {
-                if(price.isNotBlank()){
-                    IconButton(
-                        onClick = { price = "" }
-                    ) {
-                        Icon(
-                            imageVector = ImageVector.vectorResource(R.drawable.delete),
-                            contentDescription = "delete",
-                        )
-                    }
-                }
-            },
-            textStyle = CustomTheme.typography.body1,
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = CustomTheme.colors.textSecondary,
-                unfocusedBorderColor = CustomTheme.colors.textSecondary,
-                focusedTextColor = CustomTheme.colors.textPrimary,
-                unfocusedTextColor = CustomTheme.colors.textPrimary,
-                focusedContainerColor = CustomTheme.colors.onSurface,
-                unfocusedContainerColor = CustomTheme.colors.onSurface,
-                cursorColor = CustomTheme.colors.textPrimary,
-                errorCursorColor = CustomTheme.colors.error,
-                focusedTrailingIconColor = CustomTheme.colors.iconDefault,
-                unfocusedTrailingIconColor = Color.Transparent,
-            ),
-            shape = RoundedCornerShape(Dimens.cornerRadius),
-            singleLine = true,
-            keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-        )
-        TextField(
-            value = title,
-            onValueChange = {title = it},
-            placeholder = {
-                Text(
-                    text = "제목",
-                    style = CustomTheme.typography.body1,
-                    color = CustomTheme.colors.textSecondary
-                )
-            },
-            modifier = Modifier.fillMaxWidth(),
-            textStyle = CustomTheme.typography.body1,
-            colors = TextFieldDefaults.colors(
-                focusedTextColor = CustomTheme.colors.textPrimary,
-                unfocusedTextColor = CustomTheme.colors.textPrimary,
-                focusedContainerColor = CustomTheme.colors.onSurface,
-                unfocusedContainerColor = CustomTheme.colors.onSurface,
-                cursorColor = CustomTheme.colors.textPrimary,
-                focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent,
-                focusedTrailingIconColor = CustomTheme.colors.iconDefault,
-                unfocusedTrailingIconColor = Color.Transparent,
-            ),
-            keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() })
-        )
-        HorizontalDivider(
-            thickness = 1.dp,
-            color = CustomTheme.colors.border
-        )
-        Column(
-            modifier = Modifier.weight(1f)
-        ) {
-            TextField(
-                value = content,
-                onValueChange = {content = it},
-                placeholder = {
-                    Text(
-                        text = "내용을 입력하세요.",
-                        style = CustomTheme.typography.body3,
-                        color = CustomTheme.colors.textSecondary
+                    singleLine = true,
+                    keyboardActions = KeyboardActions(
+                        onDone = { focusManager.clearFocus() },
+                        onNext = {
+                            focusManager.moveFocus(
+                                FocusDirection.Down
+                            )
+                        }
+                    ),
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Number,
+                        imeAction = ImeAction.Next
                     )
-                },
-                modifier = Modifier.fillMaxWidth().height(160.dp),
-                textStyle = CustomTheme.typography.body3,
-                colors = TextFieldDefaults.colors(
-                    focusedTextColor = CustomTheme.colors.textPrimary,
-                    unfocusedTextColor = CustomTheme.colors.textPrimary,
-                    focusedContainerColor = CustomTheme.colors.onSurface,
-                    unfocusedContainerColor = CustomTheme.colors.onSurface,
-                    cursorColor = CustomTheme.colors.textPrimary,
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent,
-                    focusedTrailingIconColor = CustomTheme.colors.iconDefault,
-                    unfocusedTrailingIconColor = Color.Transparent,
-                ),
-                keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() })
-            )
+                )
+            }
+            item {
+                TextField(
+                    value = title,
+                    onValueChange = { title = it },
+                    placeholder = {
+                        Text(
+                            text = "제목",
+                            style = CustomTheme.typography.body1,
+                            color = CustomTheme.colors.textSecondary
+                        )
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    textStyle = CustomTheme.typography.body1,
+                    colors = TextFieldDefaults.colors(
+                        focusedTextColor = CustomTheme.colors.textPrimary,
+                        unfocusedTextColor = CustomTheme.colors.textPrimary,
+                        focusedContainerColor = CustomTheme.colors.onSurface,
+                        unfocusedContainerColor = CustomTheme.colors.onSurface,
+                        cursorColor = CustomTheme.colors.textPrimary,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        focusedTrailingIconColor = CustomTheme.colors.iconDefault,
+                        unfocusedTrailingIconColor = Color.Transparent,
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onDone = { focusManager.clearFocus() },
+                        onNext = {
+                            focusManager.moveFocus(
+                                FocusDirection.Down
+                            )
+                        }
+                    ),
+                    keyboardOptions = KeyboardOptions(
+                        imeAction = ImeAction.Next
+                    )
+                )
+            }
+            item {
+                HorizontalDivider(
+                    thickness = 1.dp,
+                    color = CustomTheme.colors.border
+                )
+            }
+            item {
+                Column(
+                    modifier = Modifier.wrapContentHeight()
+                ) {
+                    TextField(
+                        value = content,
+                        onValueChange = { content = it },
+                        placeholder = {
+                            Text(
+                                text = "내용을 입력하세요.",
+                                style = CustomTheme.typography.body3,
+                                color = CustomTheme.colors.textSecondary
+                            )
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        textStyle = CustomTheme.typography.body3,
+                        colors = TextFieldDefaults.colors(
+                            focusedTextColor = CustomTheme.colors.textPrimary,
+                            unfocusedTextColor = CustomTheme.colors.textPrimary,
+                            focusedContainerColor = CustomTheme.colors.onSurface,
+                            unfocusedContainerColor = CustomTheme.colors.onSurface,
+                            cursorColor = CustomTheme.colors.textPrimary,
+                            focusedIndicatorColor = Color.Transparent,
+                            unfocusedIndicatorColor = Color.Transparent,
+                            focusedTrailingIconColor = CustomTheme.colors.iconDefault,
+                            unfocusedTrailingIconColor = Color.Transparent,
+                        ),
+                        keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() })
+                    )
+                }
+            }
+        }
+        LaunchedEffect(content) {
+            listState.animateScrollToItem(index = 5)
         }
         Button(
             modifier = Modifier
-                .fillMaxWidth(),
+                .fillMaxWidth().align(Alignment.BottomCenter),
             shape = RoundedCornerShape(Dimens.cornerRadius),
             colors = ButtonDefaults.buttonColors(
                 containerColor = CustomTheme.colors.primary,

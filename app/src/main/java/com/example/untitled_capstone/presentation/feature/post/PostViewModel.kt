@@ -8,11 +8,13 @@ import androidx.paging.map
 import com.example.untitled_capstone.core.util.Resource
 import com.example.untitled_capstone.data.util.PostFetchType
 import com.example.untitled_capstone.domain.model.PostRaw
+import com.example.untitled_capstone.domain.use_case.my.GetLocationUseCase
 import com.example.untitled_capstone.domain.use_case.post.GetLikedPostsUseCase
 import com.example.untitled_capstone.domain.use_case.post.GetMyPostsUseCase
 import com.example.untitled_capstone.domain.use_case.post.SearchPostsUseCase
 import com.example.untitled_capstone.domain.use_case.post.ToggleLikePostUseCase
 import com.example.untitled_capstone.navigation.Screen
+import com.example.untitled_capstone.presentation.util.UiEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -29,7 +31,8 @@ class PostViewModel @Inject constructor(
     private val searchPostsUseCase: SearchPostsUseCase,
     private val toggleLikePostUseCase: ToggleLikePostUseCase,
     private val getMyPostsUseCase: GetMyPostsUseCase,
-    private val getMyLikedPostsUseCase: GetLikedPostsUseCase
+    private val getMyLikedPostsUseCase: GetLikedPostsUseCase,
+    private val getLocationUseCase: GetLocationUseCase
 ): ViewModel() {
 
     val uiState: MutableStateFlow<PostUiState> = MutableStateFlow<PostUiState>(PostUiState.Loading)
@@ -38,8 +41,12 @@ class PostViewModel @Inject constructor(
     val postPagingData = _postPagingData.asStateFlow()
 
 
-    private val _event = MutableSharedFlow<PostEvent>()
+    private val _event = MutableSharedFlow<UiEvent>()
     val event = _event.asSharedFlow()
+
+    init {
+        getLocation()
+    }
 
     fun getMyPosts() {
         viewModelScope.launch {
@@ -97,7 +104,7 @@ class PostViewModel @Inject constructor(
                     }
                     is Resource.Error -> {
                         uiState.tryEmit(PostUiState.Error(it.message))
-                        _event.emit(PostEvent.ShowSnackbar(it.message ?: "Unknown error"))
+                        _event.emit(UiEvent.ShowSnackbar(it.message ?: "Unknown error"))
                     }
                     is Resource.Loading -> {
                         uiState.tryEmit(PostUiState.Loading)
@@ -107,15 +114,25 @@ class PostViewModel @Inject constructor(
         }
     }
 
-    fun navigateUp(route: Screen) {
+    fun getLocation(){
         viewModelScope.launch {
-            _event.emit(PostEvent.Navigate(route))
-        }
-    }
-
-    fun popBackStack() {
-        viewModelScope.launch {
-            _event.emit(PostEvent.PopBackStack)
+            getLocationUseCase().collectLatest {
+                when(it){
+                    is Resource.Success -> {
+                        if (it.data == null){
+                            uiState.tryEmit(PostUiState.NoLocation)
+                        } else {
+                            fetchPosts()
+                        }
+                    }
+                    is Resource.Error -> {
+                        uiState.tryEmit(PostUiState.Error(it.message))
+                    }
+                    is Resource.Loading -> {
+                        uiState.tryEmit(PostUiState.Loading)
+                    }
+                }
+            }
         }
     }
 }
@@ -124,5 +141,6 @@ interface PostUiState {
     data object Idle : PostUiState
     data object Success : PostUiState
     data object Loading : PostUiState
+    data object NoLocation: PostUiState
     data class Error(val message: String?) : PostUiState
 }

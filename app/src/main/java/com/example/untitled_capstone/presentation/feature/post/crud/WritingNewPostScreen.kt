@@ -15,6 +15,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -37,7 +38,13 @@ fun WritingNewPostScreen(
     deletePostImage: (Long, Long) -> Unit,
     modifyPost: (Long, NewPost, List<File>) -> Unit,
     addNewPost: (NewPost, List<File>?) -> Unit,
+    clearBackStack: () -> Unit,
 ){
+    LaunchedEffect(uiState) {
+        if(uiState == PostCRUDUiState.Success){
+            clearBackStack()
+        }
+    }
     Scaffold(
         containerColor = CustomTheme.colors.onSurface,
         topBar = {
@@ -73,32 +80,28 @@ fun WritingNewPostScreen(
             modifier = Modifier.fillMaxWidth().height(1.dp),
             color = CustomTheme.colors.border,
         )
-        Box(
-            modifier = Modifier.padding(innerPadding)
-                .padding(horizontal = Dimens.surfaceHorizontalPadding,
-                vertical = Dimens.surfaceVerticalPadding),
-        ){
-            if(uiState == PostCRUDUiState.Loading){
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ){
-                    CircularProgressIndicator(
-                        color = CustomTheme.colors.primary,
-                    )
-                }
+        if(uiState == PostCRUDUiState.Loading){
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ){
+                CircularProgressIndicator(
+                    color = CustomTheme.colors.primary,
+                )
+            }
+        }else{
+            if(post!= null){
+                ModifyPostForm(
+                    modifier = Modifier.padding(innerPadding),
+                    post = post,
+                    deletePostImage = deletePostImage,
+                    modifyPost = modifyPost,
+                )
             }else{
-                if(post!= null){
-                    ModifyPostForm(
-                        post = post,
-                        deletePostImage = deletePostImage,
-                        modifyPost = modifyPost,
-                    )
-                }else{
-                    NewPostForm(
-                        addNewPost = addNewPost,
-                    )
-                }
+                NewPostForm(
+                    modifier = Modifier.padding(innerPadding),
+                    addNewPost = addNewPost,
+                )
             }
         }
     }

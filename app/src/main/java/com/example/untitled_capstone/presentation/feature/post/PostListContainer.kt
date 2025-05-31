@@ -25,6 +25,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.untitled_capstone.R
@@ -69,7 +70,7 @@ fun PostListContainer(
                 modifier = Modifier.width(Dimens.largePadding)
             )
             Column(
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.Start
             ){
@@ -78,6 +79,7 @@ fun PostListContainer(
                     style = CustomTheme.typography.title1,
                     color = CustomTheme.colors.textPrimary,
                     maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
                 Text(
                     text = post.price.toString() + "원",
@@ -100,46 +102,47 @@ fun PostListContainer(
                         color = CustomTheme.colors.textSecondary,
                     )
                 }
-            }
-            Row(
-                modifier = Modifier.height(80.dp),
-                verticalAlignment = Alignment.Bottom
-            ){
-                Icon(
-                    imageVector  = ImageVector.vectorResource(R.drawable.people),
-                    contentDescription = "numberOfPeople",
-                    tint = CustomTheme.colors.iconDefault,
-                )
-                Text(
-                    text = "${post.currentParticipants}/${post.memberCount}",
-                    style = CustomTheme.typography.caption2,
-                    color = CustomTheme.colors.textSecondary,
-                )
-                IconButton(
-                    modifier = Modifier.then(Modifier.size(24.dp)),
-                    onClick = {
-                        toggleLike(post.id)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End,
+                    verticalAlignment = Alignment.Bottom
+                ){
+                    Icon(
+                        imageVector  = ImageVector.vectorResource(R.drawable.people),
+                        contentDescription = "numberOfPeople",
+                        tint = CustomTheme.colors.iconDefault,
+                    )
+                    Text(
+                        text = "${post.currentParticipants}/${post.memberCount}",
+                        style = CustomTheme.typography.caption2,
+                        color = CustomTheme.colors.textSecondary,
+                    )
+                    IconButton(
+                        modifier = Modifier.then(Modifier.size(24.dp)),
+                        onClick = {
+                            toggleLike(post.id)
+                        }
+                    ) {
+                        if(post.liked){
+                            Icon(
+                                imageVector = ImageVector.vectorResource(R.drawable.heart_filled),
+                                contentDescription = "like",
+                                tint = CustomTheme.colors.iconRed,
+                            )
+                        }else {
+                            Icon(
+                                imageVector = ImageVector.vectorResource(R.drawable.heart),
+                                contentDescription = "like",
+                                tint = CustomTheme.colors.iconDefault
+                            )
+                        }
                     }
-                ) {
-                    if(post.liked){
-                        Icon(
-                            imageVector = ImageVector.vectorResource(R.drawable.heart_filled),
-                            contentDescription = "like",
-                            tint = CustomTheme.colors.iconRed,
-                        )
-                    }else {
-                        Icon(
-                            imageVector = ImageVector.vectorResource(R.drawable.heart),
-                            contentDescription = "like",
-                            tint = CustomTheme.colors.iconDefault
-                        )
-                    }
+                    Text(
+                        text = "${post.likeCount}",
+                        style = CustomTheme.typography.caption2,
+                        color = CustomTheme.colors.textSecondary,
+                    )
                 }
-                Text(
-                    text = "${post.likeCount}",
-                    style = CustomTheme.typography.caption2,
-                    color = CustomTheme.colors.textSecondary,
-                )
             }
         }
     }

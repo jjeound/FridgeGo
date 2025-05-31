@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
@@ -24,8 +25,9 @@ import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @Composable
 fun PostScreen(
+    uiState: PostUiState,
     postPagingData: LazyPagingItems<PostRaw>,
-    navigateUp: (Screen) -> Unit,
+    navigate: (Screen) -> Unit,
     toggleLike: (Long) -> Unit,
 ) {
     val context = LocalContext.current
@@ -45,6 +47,13 @@ fun PostScreen(
                 modifier = Modifier.align(Alignment.Center),
                 color = CustomTheme.colors.primary
             )
+        } else if(uiState == PostUiState.NoLocation) {
+            Text(
+                modifier = Modifier.align(Alignment.Center),
+                text = "동네 설정이 필요합니다.",
+                color = CustomTheme.colors.textPrimary,
+                style = CustomTheme.typography.body1
+            )
         } else {
             LazyColumn(
                 modifier = Modifier.padding(horizontal = Dimens.surfaceHorizontalPadding,
@@ -56,7 +65,7 @@ fun PostScreen(
                     if(post != null){
                         Box(
                             modifier = Modifier.clickable {
-                                navigateUp(
+                                navigate(
                                     Screen.PostDetailNav(
                                         post.id
                                     )

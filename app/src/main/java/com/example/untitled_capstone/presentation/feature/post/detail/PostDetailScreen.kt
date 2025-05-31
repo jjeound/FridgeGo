@@ -34,7 +34,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import com.example.untitled_capstone.R
@@ -51,13 +50,12 @@ fun PostDetailScreen(
     uiState: PostDetailUiState,
     post: Post?,
     getPostById: (Long) -> Unit,
-    navigateUp: (Screen) -> Unit,
+    navigate: (Screen) -> Unit,
     deletePost: (Long) -> Unit,
     toggleLike: (Long) -> Unit,
     clearBackStack: () -> Unit,
     savePost: (Post) -> Unit,
 ){
-    val context = LocalContext.current
     var expanded by remember { mutableStateOf(false) }
     var menuItem by remember { mutableStateOf(emptyList<String>()) }
     LaunchedEffect(true) {
@@ -70,6 +68,11 @@ fun PostDetailScreen(
             }else{
                 menuItem = listOf("신고")
             }
+        }
+    }
+    LaunchedEffect(uiState) {
+        if(uiState == PostDetailUiState.Success){
+            clearBackStack()
         }
     }
     if(uiState == PostDetailUiState.Loading){
@@ -133,7 +136,7 @@ fun PostDetailScreen(
                                     onClick = {
                                         expanded = false
                                         if(menuItem.size == 1){
-                                            navigateUp(
+                                            navigate(
                                                 Screen.ReportNav(
                                                     id = post.id,
                                                     isPost = true
@@ -143,7 +146,7 @@ fun PostDetailScreen(
                                             when(option){
                                                 menuItem[0] -> {
                                                     savePost(post)
-                                                    navigateUp(Screen.WritingNav)
+                                                    navigate(Screen.WritingNav)
                                                 }
                                                 menuItem[1] -> {
                                                     deletePost(post.id)
@@ -213,8 +216,8 @@ fun PostDetailScreen(
                                 Button(
                                     modifier = Modifier.padding(end = 4.dp),
                                     onClick = {
-                                        navigateUp(
-                                            Screen.ChattingRoomNav(post.chatRoomId)
+                                        navigate(
+                                            Screen.ChattingRoomNav(post.chatRoomId, true)
                                         )
                                     },
                                     enabled = post.roomActive && post.currentParticipants < post.memberCount,
@@ -256,7 +259,11 @@ fun PostDetailScreen(
                 PostContainer(
                     post= post,
                     goToProfile = {
-                        navigateUp(Screen.Profile(post.nickname))
+                        if (nickname == post.nickname){
+                            navigate(Screen.Profile(null))
+                        } else {
+                            navigate(Screen.Profile(post.nickname))
+                        }
                     }
                 )
             }

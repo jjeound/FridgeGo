@@ -91,7 +91,7 @@ fun PostContainer(post: Post, goToProfile: () -> Unit){
             modifier = Modifier.fillMaxWidth().clickable{
                 goToProfile()
             },
-            horizontalArrangement = Arrangement.SpaceBetween,
+            horizontalArrangement = Arrangement.Start,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Row {
@@ -125,9 +125,9 @@ fun PostContainer(post: Post, goToProfile: () -> Unit){
                     )
                 }
             }
-            Text(
-                text = "어쩌고 레벨"
-            )
+//            Text(
+//                text = "level"
+//            )
         }
         HorizontalDivider(
             thickness = 1.dp,
@@ -157,11 +157,11 @@ fun PostContainer(post: Post, goToProfile: () -> Unit){
             Spacer(
                 modifier = Modifier.height(Dimens.mediumPadding)
             )
-            Text(
-                text = "조회 100",
-                style = CustomTheme.typography.caption1,
-                color = CustomTheme.colors.textSecondary,
-            )
+//            Text(
+//                text = "조회 100",
+//                style = CustomTheme.typography.caption1,
+//                color = CustomTheme.colors.textSecondary,
+//            )
         }
     }
 }

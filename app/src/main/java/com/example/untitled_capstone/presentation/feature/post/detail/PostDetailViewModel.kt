@@ -1,6 +1,5 @@
 package com.example.untitled_capstone.presentation.feature.post.detail
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.untitled_capstone.core.util.Resource
@@ -11,8 +10,7 @@ import com.example.untitled_capstone.domain.use_case.post.DeletePostUseCase
 import com.example.untitled_capstone.domain.use_case.post.GetPostByIdUseCase
 import com.example.untitled_capstone.domain.use_case.post.ReportPostUseCase
 import com.example.untitled_capstone.domain.use_case.post.ToggleLikePostUseCase
-import com.example.untitled_capstone.navigation.Screen
-import com.example.untitled_capstone.presentation.feature.post.PostEvent
+import com.example.untitled_capstone.presentation.util.UiEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -36,7 +34,7 @@ class PostDetailViewModel @Inject constructor(
     private val _post = MutableStateFlow<Post?>(null)
     val post = _post.asStateFlow()
 
-    private val _event = MutableSharedFlow<PostEvent>()
+    private val _event = MutableSharedFlow<UiEvent>()
     val event = _event.asSharedFlow()
 
     private val _nickname = MutableStateFlow<String?>(null)
@@ -64,7 +62,7 @@ class PostDetailViewModel @Inject constructor(
                     }
                     is Resource.Error -> {
                         uiState.tryEmit(PostDetailUiState.Error(it.message))
-                        _event.emit(PostEvent.ShowSnackbar(it.message ?: "Unknown error"))
+                        _event.emit(UiEvent.ShowSnackbar(it.message ?: "Unknown error"))
                     }
                     is Resource.Loading -> {
                         uiState.tryEmit(PostDetailUiState.Loading)
@@ -80,13 +78,13 @@ class PostDetailViewModel @Inject constructor(
                 when(it){
                     is Resource.Success -> {
                         it.data?.let{
-                            uiState.tryEmit(PostDetailUiState.Idle)
-                            _event.emit(PostEvent.ClearBackStack)
+                            uiState.tryEmit(PostDetailUiState.Success)
+                            //_event.emit(PostEvent.ClearBackStack)
                         }
                     }
                     is Resource.Error -> {
                         uiState.tryEmit(PostDetailUiState.Error(it.message))
-                        _event.emit(PostEvent.ShowSnackbar(it.message ?: "Unknown error"))
+                        _event.emit(UiEvent.ShowSnackbar(it.message ?: "Unknown error"))
                     }
                     is Resource.Loading -> {
                         uiState.tryEmit(PostDetailUiState.Loading)
@@ -108,7 +106,7 @@ class PostDetailViewModel @Inject constructor(
                     }
                     is Resource.Error -> {
                         uiState.tryEmit(PostDetailUiState.Error(it.message))
-                        _event.emit(PostEvent.ShowSnackbar(it.message ?: "Unknown error"))
+                        _event.emit(UiEvent.ShowSnackbar(it.message ?: "Unknown error"))
                     }
                     is Resource.Loading -> {
                         uiState.tryEmit(PostDetailUiState.Loading)
@@ -129,7 +127,7 @@ class PostDetailViewModel @Inject constructor(
                     }
                     is Resource.Error -> {
                         uiState.tryEmit(PostDetailUiState.Error(it.message))
-                        _event.emit(PostEvent.ShowSnackbar(it.message ?: "Unknown error"))
+                        _event.emit(UiEvent.ShowSnackbar(it.message ?: "Unknown error"))
                     }
                     is Resource.Loading -> {
                         uiState.tryEmit(PostDetailUiState.Loading)
@@ -150,7 +148,7 @@ class PostDetailViewModel @Inject constructor(
                     }
                     is Resource.Error -> {
                         uiState.tryEmit(PostDetailUiState.Error(it.message))
-                        _event.emit(PostEvent.ShowSnackbar(it.message ?: "Unknown error"))
+                        _event.emit(UiEvent.ShowSnackbar(it.message ?: "Unknown error"))
                     }
                     is Resource.Loading -> {
                         uiState.tryEmit(PostDetailUiState.Loading)
@@ -160,23 +158,6 @@ class PostDetailViewModel @Inject constructor(
         }
     }
 
-//    fun navigateUp(route: Screen) {
-//        viewModelScope.launch {
-//            _event.emit(PostEvent.Navigate(route))
-//        }
-//    }
-//
-//    fun popBackStack() {
-//        viewModelScope.launch {
-//            _event.emit(PostEvent.PopBackStack)
-//        }
-//    }
-
-    fun clearBackStack() {
-        viewModelScope.launch {
-            _event.emit(PostEvent.ClearBackStack)
-        }
-    }
 }
 
 interface PostDetailUiState {

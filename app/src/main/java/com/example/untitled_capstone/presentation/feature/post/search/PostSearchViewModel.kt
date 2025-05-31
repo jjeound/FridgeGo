@@ -14,8 +14,7 @@ import com.example.untitled_capstone.domain.use_case.post.DeleteSearchHistoryUse
 import com.example.untitled_capstone.domain.use_case.post.GetSearchHistoryUseCase
 import com.example.untitled_capstone.domain.use_case.post.SearchPostsUseCase
 import com.example.untitled_capstone.domain.use_case.post.ToggleLikePostUseCase
-import com.example.untitled_capstone.navigation.Screen
-import com.example.untitled_capstone.presentation.feature.post.PostEvent
+import com.example.untitled_capstone.presentation.util.UiEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -43,7 +42,7 @@ class PostSearchViewModel @Inject constructor(
     private val _keywords = MutableStateFlow<List<Keyword>>(emptyList())
     val keywords = _keywords.asStateFlow()
 
-    private val _event = MutableSharedFlow<PostEvent>()
+    private val _event = MutableSharedFlow<UiEvent>()
     val event = _event.asSharedFlow()
 
 
@@ -71,7 +70,7 @@ class PostSearchViewModel @Inject constructor(
                     }
                     is Resource.Error -> {
                         uiState.tryEmit(SearchUiState.Error(it.message))
-                        _event.emit(PostEvent.ShowSnackbar(it.message ?: "Unknown error"))
+                        _event.emit(UiEvent.ShowSnackbar(it.message ?: "Unknown error"))
                     }
                     is Resource.Loading -> {
                         uiState.tryEmit(SearchUiState.Loading)
@@ -93,7 +92,7 @@ class PostSearchViewModel @Inject constructor(
                     }
                     is Resource.Error -> {
                         uiState.tryEmit(SearchUiState.Error(it.message))
-                        _event.emit(PostEvent.ShowSnackbar(it.message ?: "Unknown error"))
+                        _event.emit(UiEvent.ShowSnackbar(it.message ?: "Unknown error"))
                     }
                     is Resource.Loading -> {
                         uiState.tryEmit(SearchUiState.Loading)
@@ -115,7 +114,7 @@ class PostSearchViewModel @Inject constructor(
                     }
                     is Resource.Error -> {
                         uiState.tryEmit(SearchUiState.Error(it.message))
-                        _event.emit(PostEvent.ShowSnackbar(it.message ?: "Unknown error"))
+                        _event.emit(UiEvent.ShowSnackbar(it.message ?: "Unknown error"))
                     }
                     is Resource.Loading -> {
                         uiState.tryEmit(SearchUiState.Loading)
@@ -148,7 +147,7 @@ class PostSearchViewModel @Inject constructor(
                     }
                     is Resource.Error -> {
                         uiState.tryEmit(SearchUiState.Error(it.message))
-                        _event.emit(PostEvent.ShowSnackbar(it.message ?: "Unknown error"))
+                        _event.emit(UiEvent.ShowSnackbar(it.message ?: "Unknown error"))
                     }
                     is Resource.Loading -> {
                         uiState.tryEmit(SearchUiState.Loading)
@@ -163,18 +162,6 @@ class PostSearchViewModel @Inject constructor(
             _keywords.value = _keywords.value.filter { it.keyword != word }
         }
         _keywords.value = listOf(Keyword(word)) + _keywords.value
-    }
-
-    fun navigateUp(route: Screen) {
-        viewModelScope.launch {
-            _event.emit(PostEvent.Navigate(route))
-        }
-    }
-
-    fun clearBackStack() {
-        viewModelScope.launch {
-            _event.emit(PostEvent.ClearBackStack)
-        }
     }
 }
 

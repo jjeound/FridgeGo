@@ -58,7 +58,7 @@ fun PostSearchScreen(
     searchHistoryState: List<Keyword>,
     clearBackStack: () -> Unit,
     searchPost: (String) -> Unit,
-    navigateUp: (Screen) -> Unit,
+    navigate: (Screen) -> Unit,
     toggleLike: (Long) -> Unit,
     deleteAllSearchHistory: () -> Unit,
     deleteSearchHistory: (String) -> Unit,
@@ -194,7 +194,7 @@ fun PostSearchScreen(
                         if(post != null){
                             Box(
                                 modifier = Modifier.clickable {
-                                    navigateUp(
+                                    navigate(
                                         Screen.PostDetailNav(
                                             post.id
                                         )

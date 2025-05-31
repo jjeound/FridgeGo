@@ -2,6 +2,7 @@ package com.example.untitled_capstone.core.util
 
 object Constants {
     const val NOTIFICATION_CHANNEL_ID = "NOTIFICATION_CHANNEL_ID"
+    const val FCM_CHANNEL_ID = "FCM_CHANNEL_ID"
     const val BASE_URL = "https://api.refrigerator.asia/"
     const val KAKAO_BASE_URL = "https://dapi.kakao.com/"
     const val NETWORK_ERROR = 401

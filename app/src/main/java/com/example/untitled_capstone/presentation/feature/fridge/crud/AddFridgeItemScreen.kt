@@ -26,11 +26,11 @@ import java.io.File
 fun AddFridgeItemScreen(
     fridgeItem: FridgeItem?,
     uiState: FridgeCRUDUiState,
+    isFridge: Boolean,
     initSavedDate: () -> Unit,
     getSavedDate: () -> String?,
-    onNavigate: (Screen) -> Unit,
+    navigate: (Screen) -> Unit,
     popBackStack: () -> Unit,
-    showSnackbar: (String) -> Unit,
     addFridgeItem: (FridgeItem, File?) -> Unit,
     modifyFridgeItem: (FridgeItem, File?) -> Unit,
 ){
@@ -41,7 +41,7 @@ fun AddFridgeItemScreen(
                 modifier = Modifier.padding(horizontal = Dimens.topBarPadding),
                 title = {
                     Text(
-                        text = "냉장고",
+                        text = if(isFridge) "냉장고" else "냉동고",
                         style = CustomTheme.typography.title1,
                         color = CustomTheme.colors.textPrimary,
                     )
@@ -74,11 +74,11 @@ fun AddFridgeItemScreen(
            NewFridgeItemForm(
                fridgeItem = fridgeItem,
                uiState = uiState,
+               isFridge = isFridge,
                initSavedDate = initSavedDate,
                getSavedDate = getSavedDate,
-               navigateUp = onNavigate,
+               navigate = navigate,
                popBackStack = popBackStack,
-               showSnackbar = showSnackbar,
                addFridgeItem = addFridgeItem,
                modifyFridgeItem = modifyFridgeItem,
            )

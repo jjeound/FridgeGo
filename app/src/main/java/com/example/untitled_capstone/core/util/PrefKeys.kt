@@ -9,4 +9,5 @@ object PrefKeys {
     val NICKNAME = stringPreferencesKey("nickname")
     val APP_ENTRY = booleanPreferencesKey("app_entry")
     val MY_PROFILE = stringPreferencesKey("my_profile")
+    val DONG = stringPreferencesKey("dong")
 }

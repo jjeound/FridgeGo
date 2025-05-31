@@ -9,7 +9,7 @@ import javax.inject.Inject
 class ModifyRecipeUseCase @Inject constructor(
     private val repository: HomeRepository
 ) {
-    suspend operator fun invoke(recipe: Recipe): Flow<Resource<String>> {
+    operator fun invoke(recipe: Recipe): Flow<Resource<String>> {
         return repository.modifyRecipe(recipe)
     }
 }

@@ -9,7 +9,7 @@ import javax.inject.Inject
 class GetAddressByCoordUseCase @Inject constructor(
     private val loginRepository: LoginRepository
 ) {
-    suspend operator fun invoke(x: String, y: String): Flow<Resource<Address>> {
+    operator fun invoke(x: String, y: String): Flow<Resource<Address>> {
         return loginRepository.getAddressByCoord(x, y)
     }
 }

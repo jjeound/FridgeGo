@@ -9,7 +9,7 @@ import javax.inject.Inject
 class GetMessagesUseCase @Inject constructor(
     private val repository: ChatRepository
 ) {
-    suspend operator fun invoke(id: Long, lastMessageId: Long?): Flow<Resource<List<Message>>> {
+    operator fun invoke(id: Long, lastMessageId: Long?): Flow<Resource<List<Message>>> {
         return repository.getMessages(id, lastMessageId)
     }
 }

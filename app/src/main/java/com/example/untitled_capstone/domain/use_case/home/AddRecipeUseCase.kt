@@ -8,7 +8,7 @@ import javax.inject.Inject
 class AddRecipeUseCase @Inject constructor(
     private val repository: HomeRepository
 )  {
-    suspend operator fun invoke(recipe: String): Flow<Resource<String>>{
+    operator fun invoke(recipe: String): Flow<Resource<String>>{
         return repository.addRecipe(recipe)
     }
 }

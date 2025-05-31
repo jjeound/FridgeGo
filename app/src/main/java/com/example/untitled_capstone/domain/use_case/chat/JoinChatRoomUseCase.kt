@@ -9,7 +9,7 @@ import javax.inject.Inject
 class JoinChatRoomUseCase @Inject constructor(
     private val repository: ChatRepository
 ) {
-    suspend operator fun invoke(id: Long): Flow<Resource<ChattingRoom>> {
+    operator fun invoke(id: Long): Flow<Resource<ChattingRoom>> {
         return repository.joinChatRoom(id)
     }
 }

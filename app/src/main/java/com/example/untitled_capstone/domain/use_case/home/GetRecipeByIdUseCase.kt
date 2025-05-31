@@ -9,7 +9,7 @@ import javax.inject.Inject
 class GetRecipeByIdUseCase @Inject constructor(
     private val repository: HomeRepository
 )  {
-    suspend operator fun invoke(id: Long): Flow<Resource<Recipe>>{
+    operator fun invoke(id: Long): Flow<Resource<Recipe>>{
         return repository.getRecipeById(id)
     }
 }

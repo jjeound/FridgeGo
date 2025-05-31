@@ -8,7 +8,7 @@ import javax.inject.Inject
 class GetLocationUseCase @Inject constructor(
     private val myRepository: MyRepository
 ) {
-    suspend operator fun invoke(): Flow<Resource<String>> {
+    operator fun invoke(): Flow<Resource<String>> {
         return myRepository.getLocation()
     }
 }

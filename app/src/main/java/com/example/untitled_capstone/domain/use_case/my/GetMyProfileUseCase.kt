@@ -9,7 +9,7 @@ import javax.inject.Inject
 class GetMyProfileUseCase @Inject constructor(
     private val myRepository: MyRepository
 ) {
-    suspend operator fun invoke(): Flow<Resource<Profile>> {
+    operator fun invoke(): Flow<Resource<Profile>> {
         return myRepository.getMyProfile()
     }
 }

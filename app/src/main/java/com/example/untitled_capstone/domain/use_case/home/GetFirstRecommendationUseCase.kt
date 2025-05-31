@@ -8,7 +8,7 @@ import javax.inject.Inject
 class GetFirstRecommendationUseCase @Inject constructor(
     private val repository: HomeRepository
 ) {
-    suspend operator fun invoke(): Flow<Resource<String>> {
+    operator fun invoke(): Flow<Resource<String>> {
         return repository.getFirstRecommendation()
     }
 }

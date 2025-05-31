@@ -9,7 +9,7 @@ import javax.inject.Inject
 class GetPostByIdUseCase @Inject constructor(
     private val repository: PostRepository
 ) {
-    suspend operator fun invoke(id: Long): Flow<Resource<Post>> {
+    operator fun invoke(id: Long): Flow<Resource<Post>> {
         return repository.getPostById(id)
     }
 }

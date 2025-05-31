@@ -9,7 +9,7 @@ import javax.inject.Inject
 class KakaoLoginUseCase @Inject constructor(
     private val loginRepository: LoginRepository
 ) {
-    suspend operator fun invoke(accessToken: String): Flow<Resource<AccountInfo>> {
+    operator fun invoke(accessToken: String): Flow<Resource<AccountInfo>> {
         return loginRepository.kakaoLogin(accessToken)
     }
 }

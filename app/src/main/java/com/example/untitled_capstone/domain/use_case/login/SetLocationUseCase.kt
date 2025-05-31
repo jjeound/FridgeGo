@@ -8,7 +8,7 @@ import javax.inject.Inject
 class SetLocationUseCase @Inject constructor(
     private val loginRepository: LoginRepository
 ) {
-    suspend operator fun invoke(district: String, neighborhood: String): Flow<Resource<String>> {
+    operator fun invoke(district: String, neighborhood: String): Flow<Resource<String>> {
         return loginRepository.setLocation(district, neighborhood)
     }
 }

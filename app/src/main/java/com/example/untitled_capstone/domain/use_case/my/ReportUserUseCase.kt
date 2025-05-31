@@ -8,7 +8,7 @@ import javax.inject.Inject
 class ReportUserUseCase @Inject constructor(
     private val myRepository: MyRepository
 ) {
-    suspend operator fun invoke(targetUserId: Long, reportType: String, content: String): Flow<Resource<String>> {
+    operator fun invoke(targetUserId: Long, reportType: String, content: String): Flow<Resource<String>> {
         return myRepository.repostUser(targetUserId, reportType, content)
     }
 }

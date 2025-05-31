@@ -8,7 +8,7 @@ import javax.inject.Inject
 class DeleteFridgeItemUseCase @Inject constructor(
     private val fridgeRepository: FridgeRepository
 ) {
-    suspend operator fun invoke(id: Long): Flow<Resource<String>> {
+    operator fun invoke(id: Long): Flow<Resource<String>> {
         return fridgeRepository.deleteItem(id)
     }
 }

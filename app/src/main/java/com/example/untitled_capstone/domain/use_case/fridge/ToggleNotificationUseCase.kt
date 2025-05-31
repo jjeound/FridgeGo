@@ -8,7 +8,7 @@ import javax.inject.Inject
 class ToggleNotificationUseCase @Inject constructor(
     private val fridgeRepository: FridgeRepository
 ) {
-    suspend operator fun invoke(id: Long, alarmStatus: Boolean): Flow<Resource<String>> {
+    operator fun invoke(id: Long, alarmStatus: Boolean): Flow<Resource<String>> {
         return fridgeRepository.toggleNotification(id, alarmStatus)
     }
 }

@@ -12,7 +12,7 @@ import javax.inject.Inject
 class UploadProfileImageUseCase @Inject constructor(
     private val myRepository: MyRepository
 ) {
-    suspend operator fun invoke(file: File): Flow<Resource<String>> {
+    operator fun invoke(file: File): Flow<Resource<String>> {
         val requestFile = file.asRequestBody("image/*".toMediaTypeOrNull())
         val body = MultipartBody.Part.createFormData("profileImage", file.name, requestFile)
         return myRepository.uploadProfileImage(body)

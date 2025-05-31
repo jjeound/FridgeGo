@@ -10,7 +10,7 @@ import javax.inject.Inject
 class SetTastePreferenceUseCase @Inject constructor(
     private val repository: HomeRepository
 ) {
-    suspend operator fun invoke(tastePreference: TastePreference): Flow<Resource<String>> {
+    operator fun invoke(tastePreference: TastePreference): Flow<Resource<String>> {
         return repository.setTastePreference(tastePreference)
     }
 }

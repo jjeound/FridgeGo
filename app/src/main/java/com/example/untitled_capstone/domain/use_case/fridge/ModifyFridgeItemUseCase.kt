@@ -13,12 +13,12 @@ import javax.inject.Inject
 class ModifyFridgeItemUseCase @Inject constructor(
     private val fridgeRepository: FridgeRepository
 ) {
-    suspend operator fun invoke(item: FridgeItem, image: File?): Flow<Resource<String>> {
+    operator fun invoke(item: FridgeItem, image: File?): Flow<Resource<String>> {
         if (image == null) {
             return fridgeRepository.modifyItem(item)
         }
         val requestFile = image.asRequestBody("image/*".toMediaTypeOrNull())
-        val body = MultipartBody.Part.createFormData("recipeImage", image.name, requestFile)
+        val body = MultipartBody.Part.createFormData("ingredientImage", image.name, requestFile)
         return fridgeRepository.modifyItem(item, body)
     }
 }

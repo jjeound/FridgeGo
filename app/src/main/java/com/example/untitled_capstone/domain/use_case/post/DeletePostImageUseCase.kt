@@ -8,7 +8,7 @@ import javax.inject.Inject
 class DeletePostImageUseCase @Inject constructor(
     private val repository: PostRepository
 ) {
-    suspend operator fun invoke(id: Long, imageId: Long): Flow<Resource<String>> {
+    operator fun invoke(id: Long, imageId: Long): Flow<Resource<String>> {
         return repository.deleteImage(id, imageId)
     }
 }

@@ -9,7 +9,7 @@ import javax.inject.Inject
 class RecipeToggleLikeUseCase @Inject constructor(
     private val repository: HomeRepository
 ) {
-    suspend operator fun invoke(id: Long, liked: Boolean): Flow<Resource<Boolean>> {
+    operator fun invoke(id: Long, liked: Boolean): Flow<Resource<Boolean>> {
         return repository.toggleLike(id, liked)
     }
 }

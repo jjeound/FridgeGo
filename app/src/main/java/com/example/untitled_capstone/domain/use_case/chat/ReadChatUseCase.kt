@@ -8,7 +8,7 @@ import javax.inject.Inject
 class ReadChatUseCase @Inject constructor(
     private val repository: ChatRepository
 ) {
-    suspend operator fun invoke(id: Long): Flow<Resource<Int>> {
+    operator fun invoke(id: Long): Flow<Resource<Int>> {
         return repository.readChats(id)
     }
 }

@@ -9,7 +9,7 @@ import javax.inject.Inject
 class ModifyPostUseCase @Inject constructor(
     private val repository: PostRepository
 ) {
-    suspend operator fun invoke(id: Long, newPost: NewPost): Flow<Resource<String>> {
+    operator fun invoke(id: Long, newPost: NewPost): Flow<Resource<String>> {
         return repository.modifyPost(id, newPost)
     }
 }

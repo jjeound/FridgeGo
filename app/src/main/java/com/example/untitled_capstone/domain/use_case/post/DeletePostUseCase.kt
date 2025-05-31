@@ -8,7 +8,7 @@ import javax.inject.Inject
 class DeletePostUseCase @Inject constructor(
     private val repository: PostRepository
 ) {
-    suspend operator fun invoke(id: Long): Flow<Resource<String>> {
+    operator fun invoke(id: Long): Flow<Resource<String>> {
         return repository.deletePost(id)
     }
 }

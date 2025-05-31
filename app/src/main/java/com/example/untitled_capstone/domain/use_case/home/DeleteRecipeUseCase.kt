@@ -8,7 +8,7 @@ import javax.inject.Inject
 class DeleteRecipeUseCase @Inject constructor(
     private val repository: HomeRepository
 ) {
-    suspend operator fun invoke(id: Long): Flow<Resource<String>> {
+    operator fun invoke(id: Long): Flow<Resource<String>> {
         return repository.deleteRecipe(id)
     }
 }

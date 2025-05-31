@@ -9,7 +9,7 @@ import javax.inject.Inject
 class CheckWhoIsInUseCase @Inject constructor(
     private val repository: ChatRepository
 ) {
-    suspend operator fun invoke(id: Long): Flow<Resource<List<ChatMember>>> {
+    operator fun invoke(id: Long): Flow<Resource<List<ChatMember>>> {
         return repository.checkWhoIsIn(id)
     }
 }

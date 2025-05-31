@@ -8,7 +8,7 @@ import javax.inject.Inject
 class CloseChatRoomUseCase @Inject constructor(
     private val repository: ChatRepository
 ) {
-    suspend operator fun invoke(id: Long): Flow<Resource<String>> {
+    operator fun invoke(id: Long): Flow<Resource<String>> {
         return repository.closeChatRoom(id)
     }
 }

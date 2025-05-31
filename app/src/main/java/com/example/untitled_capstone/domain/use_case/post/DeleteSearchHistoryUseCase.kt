@@ -8,7 +8,7 @@ import javax.inject.Inject
 class DeleteSearchHistoryUseCase @Inject constructor(
     private val repository: PostRepository
 ) {
-    suspend operator fun invoke(keyword: String): Flow<Resource<String>> {
+    operator fun invoke(keyword: String): Flow<Resource<String>> {
         return repository.deleteSearchHistory(keyword)
     }
 }

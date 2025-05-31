@@ -8,7 +8,7 @@ import javax.inject.Inject
 class ModifyNicknameUseCase @Inject constructor(
     private val repository: LoginRepository
 ) {
-    suspend operator fun invoke(nickname: String): Flow<Resource<String>> {
+    operator fun invoke(nickname: String): Flow<Resource<String>> {
         return repository.modifyNickname(nickname)
     }
 }

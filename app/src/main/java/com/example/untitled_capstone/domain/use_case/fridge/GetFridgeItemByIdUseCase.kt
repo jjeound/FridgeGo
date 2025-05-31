@@ -9,7 +9,7 @@ import javax.inject.Inject
 class GetFridgeItemByIdUseCase @Inject constructor(
     private val fridgeRepository: FridgeRepository
 ) {
-    suspend operator fun invoke(id: Long): Flow<Resource<FridgeItem>>{
+    operator fun invoke(id: Long): Flow<Resource<FridgeItem>>{
         return fridgeRepository.getFridgeItemById(id)
     }
 }

@@ -13,3 +13,6 @@
 .externalNativeBuild
 .cxx
 local.properties
+my-release-key.keystore
+releaseKey
+key_store

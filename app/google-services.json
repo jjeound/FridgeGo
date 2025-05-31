@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "125415854625",
+    "project_id": "cook-app-ee30e",
+    "storage_bucket": "cook-app-ee30e.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:125415854625:android:98aa2c1642e1415b3ec960",
+        "android_client_info": {
+          "package_name": "com.example.untitled_capstone"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC9kWMH-oe241pACDPBHvFEuR6EqTr4g6I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

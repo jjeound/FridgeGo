@@ -17,7 +17,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -25,6 +24,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.untitled_capstone.R
@@ -33,6 +33,7 @@ import com.example.untitled_capstone.navigation.Screen
 import com.example.untitled_capstone.presentation.feature.my.MyTopBar
 import com.example.untitled_capstone.presentation.feature.fridge.FridgeTopBar
 import com.example.untitled_capstone.presentation.feature.post.PostTopBar
+import com.example.untitled_capstone.presentation.util.CustomSnackbar
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @Composable
@@ -51,14 +52,28 @@ fun MainScreen(viewModel: MainViewModel){
     val route = navBackStackEntry?.destination?.route
     val bottomRoute = route?.split(".")?.lastOrNull()
     val bottomBarDestination = screens.any { bottomRoute.equals(it) }
+    val dong by viewModel.dong.collectAsStateWithLifecycle()
 
     Scaffold(
         containerColor = CustomTheme.colors.surface,
-        snackbarHost = {SnackbarHost(hostState = snackbarHostState)},
+        snackbarHost = {SnackbarHost(
+            hostState = snackbarHostState,
+            snackbar = { data ->
+                CustomSnackbar(
+                    data
+                )
+            }
+        ) },
         topBar = {
             when{
                 bottomRoute.equals(screens[0]) -> TopBar(1, navController)
-                bottomRoute.equals(screens[1]) -> PostTopBar(navController)
+                bottomRoute.equals(screens[1]) -> PostTopBar(
+                    navigate = { screen ->
+                        navController.navigate(screen)
+                    },
+                    getLocation = viewModel::getLocation,
+                    dong
+                )
                 bottomRoute.equals(screens[2]) -> FridgeTopBar(navController, viewModel)
                 bottomRoute.equals(screens[3]) -> TopBar(4, navController)
                 bottomRoute.equals(screens[4]) -> MyTopBar()
@@ -90,12 +105,29 @@ fun MainScreen(viewModel: MainViewModel){
                             )
                         }
                     }
-                    screens[1], screens[2] -> {
+                    screens[1] -> {
                         FloatingActionButton(
                             onClick = {
-                                if (bottomRoute == screens[1]) navController.navigate(Screen.WritingNav)
-                                else navController.navigate(Screen.AddFridgeItemNav(
-                                    id = null
+                                if(dong != null){
+                                    navController.navigate(Screen.WritingNav)
+                                }
+                            },
+                            elevation = FloatingActionButtonDefaults.elevation(0.dp),
+                            containerColor = Color.Unspecified,
+                            contentColor = Color.Unspecified,
+                        ) {
+                            Icon(
+                                imageVector = ImageVector.vectorResource(id = R.drawable.writing),
+                                tint = Color.Unspecified,
+                                contentDescription = "write new post"
+                            )
+                        }
+                    }
+                    screens[2] -> {
+                        FloatingActionButton(
+                            onClick = {
+                                navController.navigate(Screen.AddFridgeItemNav(
+                                    id = null, isFridge = viewModel.topSelector
                                 ))
                             },
                             elevation = FloatingActionButtonDefaults.elevation(0.dp),
@@ -105,7 +137,7 @@ fun MainScreen(viewModel: MainViewModel){
                             Icon(
                                 imageVector = ImageVector.vectorResource(id = R.drawable.writing),
                                 tint = Color.Unspecified,
-                                contentDescription = "write new post"
+                                contentDescription = "write new fridge item"
                             )
                         }
                     }

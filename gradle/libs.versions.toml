@@ -1,40 +1,42 @@
 [versions]
-agp = "8.10.0"
+agp = "8.10.1"
 android = "2.12.8"
 cameraCore = "1.4.2"
 coilCompose = "2.4.0"
 converterGson = "2.11.0"
 coreSplashscreenVersion = "1.0.1"
-datastorePreferences = "1.1.6"
-hiltAndroid = "2.51.1"
+datastorePreferences = "1.1.7"
+firebaseBom = "33.14.0"
+firebaseMessagingKtx = "24.1.1"
+hiltAndroid = "2.56.1"
 hiltNavigationCompose = "1.2.0"
-kotlin = "2.0.0"
-coreKtx = "1.15.0"
+kotlin = "2.1.21"
+coreKtx = "1.16.0"
 junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
 kotlinxSerializationJson = "1.7.3"
-lifecycleRuntimeKtx = "2.8.7"
+lifecycleRuntimeKtx = "2.9.0"
 activityCompose = "1.10.1"
-composeBom = "2025.03.01"
+composeBom = "2025.05.01"
 loggingInterceptor = "4.12.0"
-navigationCompose = "2.8.9"
+navigationCompose = "2.9.0"
 okhttp = "4.12.0"
 pagingCommon = "3.3.6"
 pagingRuntimeKtx = "3.3.6"
 playServicesLocation = "21.3.0"
-playServicesMaps = "19.1.0"
+playServicesMaps = "19.2.0"
 retrofit = "2.11.0"
-roomKtx = "2.6.1"
-roomCompiler = "2.6.1"
-runtimeLivedata = "1.7.8"
+roomKtx = "2.7.1"
+roomCompiler = "2.7.1"
+runtimeLivedata = "1.8.2"
 rxandroid = "2.1.1"
 rxjava = "2.2.21"
 securityCrypto = "1.1.0-alpha07"
 stompprotocolandroid = "1.6.6"
 textRecognition = "16.0.1"
-v2User = "2.21.1"
-workRuntimeKtx = "2.10.0"
+v2User = "2.21.3"
+workRuntimeKtx = "2.10.1"
 
 [libraries]
 android = { module = "com.kakao.maps.open:android", version.ref = "android" }
@@ -58,6 +60,9 @@ androidx-security-crypto = { module = "androidx.security:security-crypto", versi
 androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "workRuntimeKtx" }
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "converterGson" }
+firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
+firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
+firebase-messaging-ktx = { module = "com.google.firebase:firebase-messaging-ktx", version.ref = "firebaseMessagingKtx" }
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroid" }
 hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hiltAndroid" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -92,5 +97,5 @@ android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 android-library = { id = "com.android.library", version.ref = "agp" }
-ksp = { id = "com.google.devtools.ksp", version = "2.0.0-1.0.23" }
-dagger-hilt = { id = "com.google.dagger.hilt.android", version = "2.51.1" }
+ksp = { id = "com.google.devtools.ksp", version = "2.1.21-2.0.1" }
+dagger-hilt = { id = "com.google.dagger.hilt.android", version = "2.56.1" }

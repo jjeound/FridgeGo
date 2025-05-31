@@ -14,6 +14,7 @@ import com.example.untitled_capstone.domain.use_case.fridge.GetFridgeItemsByDate
 import com.example.untitled_capstone.domain.use_case.fridge.GetFridgeItemsUseCase
 import com.example.untitled_capstone.domain.use_case.fridge.ToggleNotificationUseCase
 import com.example.untitled_capstone.navigation.Screen
+import com.example.untitled_capstone.presentation.util.UiEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -38,7 +39,7 @@ class FridgeViewModel @Inject constructor(
     private val _fridgeItemPaged: MutableStateFlow<PagingData<FridgeItem>> = MutableStateFlow(PagingData.empty())
     val fridgeItemPaged = _fridgeItemPaged.asStateFlow()
 
-    private val _event = MutableSharedFlow<FridgeEvent>()
+    private val _event = MutableSharedFlow<UiEvent>()
     val event = _event.asSharedFlow()
 
     fun toggleNotification(id: Long, alarmStatus: Boolean) {
@@ -118,29 +119,10 @@ class FridgeViewModel @Inject constructor(
                 }
         }
     }
-
-    fun navigateUp(route: Screen) {
-        viewModelScope.launch {
-            _event.emit(FridgeEvent.Navigate(route))
-        }
-    }
-
-    fun popBackStack() {
-        viewModelScope.launch {
-            _event.emit(FridgeEvent.PopBackStack)
-        }
-    }
 }
 
 interface FridgeUiState {
     data object Idle : FridgeUiState
     data object Loading : FridgeUiState
     data class Error(val message: String?) : FridgeUiState
-}
-
-interface FridgeEvent{
-    data class ShowSnackbar(val message: String) : FridgeEvent
-    data class Navigate(val route: Screen) : FridgeEvent
-    object PopBackStack : FridgeEvent
-    object ClearBackStack : FridgeEvent
 }

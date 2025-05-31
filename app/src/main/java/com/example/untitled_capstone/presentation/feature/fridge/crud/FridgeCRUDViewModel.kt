@@ -7,15 +7,13 @@ import com.example.untitled_capstone.domain.model.FridgeItem
 import com.example.untitled_capstone.domain.use_case.fridge.AddFridgeItemUseCase
 import com.example.untitled_capstone.domain.use_case.fridge.GetFridgeItemByIdUseCase
 import com.example.untitled_capstone.domain.use_case.fridge.ModifyFridgeItemUseCase
-import com.example.untitled_capstone.navigation.Screen
-import com.example.untitled_capstone.presentation.feature.fridge.FridgeEvent
+import com.example.untitled_capstone.presentation.util.UiEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.io.File
 import javax.inject.Inject
@@ -28,7 +26,7 @@ class FridgeCRUDViewModel @Inject constructor(
 ): ViewModel() {
     val uiState: MutableStateFlow<FridgeCRUDUiState> = MutableStateFlow<FridgeCRUDUiState>(FridgeCRUDUiState.Idle)
 
-    private val _event = MutableSharedFlow<FridgeEvent>()
+    private val _event = MutableSharedFlow<UiEvent>()
     val event = _event.asSharedFlow()
 
     private val _fridgeItem = MutableStateFlow<FridgeItem?>(null)
@@ -62,7 +60,7 @@ class FridgeCRUDViewModel @Inject constructor(
                     is Resource.Success -> {
                         it.data?.let { message ->
                             uiState.tryEmit(FridgeCRUDUiState.Success)
-                            _event.emit(FridgeEvent.PopBackStack)
+                            //_event.emit(FridgeEvent.PopBackStack)
                         }
                     }
                     is Resource.Error -> {
@@ -83,7 +81,7 @@ class FridgeCRUDViewModel @Inject constructor(
                     is Resource.Success -> {
                         it.data?.let { message ->
                             uiState.tryEmit(FridgeCRUDUiState.Success)
-                            _event.emit(FridgeEvent.PopBackStack)
+                            //_event.emit(FridgeEvent.PopBackStack)
                         }
                     }
                     is Resource.Error -> {
@@ -94,18 +92,6 @@ class FridgeCRUDViewModel @Inject constructor(
                     }
                 }
             }
-        }
-    }
-
-    fun navigateUp(route: Screen) {
-        viewModelScope.launch {
-            _event.emit(FridgeEvent.Navigate(route))
-        }
-    }
-
-    fun showSnackbar(message: String) {
-        viewModelScope.launch {
-            _event.emit(FridgeEvent.ShowSnackbar(message))
         }
     }
 }

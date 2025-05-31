@@ -40,7 +40,7 @@ import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.domain.model.FridgeItem
 import com.example.untitled_capstone.navigation.Screen
-import com.example.untitled_capstone.presentation.feature.fridge.crud.PermissionDialog
+import com.example.untitled_capstone.presentation.util.PermissionDialog
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
 
@@ -49,7 +49,7 @@ fun RefrigeratorScreen(
     fridgeItems: LazyPagingItems<FridgeItem>,
     uiState: FridgeUiState,
     topSelector: Boolean,
-    navigateUp: (Screen) -> Unit,
+    navigate: (Screen) -> Unit,
     toggleNotification: (Long, Boolean) -> Unit,
     deleteItem: (Long) -> Unit,
     getItems: () -> Unit,
@@ -144,7 +144,7 @@ fun RefrigeratorScreen(
                                 item = item,
                                 toggleNotification = toggleNotification,
                                 onShowDialog = { showDialog.value = true },
-                                navigateUp = { navigateUp(Screen.AddFridgeItemNav(id = item.id)) },
+                                navigate = { navigate(Screen.AddFridgeItemNav(id = item.id, isFridge = topSelector)) },
                                 deleteItem = deleteItem
                             )
                         }

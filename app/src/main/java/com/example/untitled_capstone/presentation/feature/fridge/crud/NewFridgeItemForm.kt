@@ -49,6 +49,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -70,6 +71,7 @@ import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.domain.model.FridgeItem
 import com.example.untitled_capstone.navigation.Screen
 import com.example.untitled_capstone.presentation.feature.my.profile.getRealPathFromURI
+import com.example.untitled_capstone.presentation.util.PermissionDialog
 import com.example.untitled_capstone.ui.theme.CustomTheme
 import java.io.File
 import java.text.SimpleDateFormat
@@ -81,11 +83,11 @@ import java.util.Locale
 fun NewFridgeItemForm(
     fridgeItem: FridgeItem?,
     uiState: FridgeCRUDUiState,
+    isFridge: Boolean,
     initSavedDate: () -> Unit,
     getSavedDate: () -> String?,
-    navigateUp: (Screen) -> Unit,
+    navigate: (Screen) -> Unit,
     popBackStack: () -> Unit,
-    showSnackbar: (String) -> Unit,
     modifyFridgeItem: (FridgeItem, File?) -> Unit,
     addFridgeItem : (FridgeItem, File?) -> Unit,
 ){
@@ -94,10 +96,10 @@ fun NewFridgeItemForm(
     val focusManager = LocalFocusManager.current
     val showDialog = remember { mutableStateOf(false) }
 
-    var image by remember { mutableStateOf<String?>(null) }
-    var imageFile by remember { mutableStateOf<File?>(null) }
-    var name by remember { mutableStateOf("") }
-    var quantity by remember { mutableStateOf("") }
+    var image by rememberSaveable { mutableStateOf<String?>(null) }
+    var imageFile by rememberSaveable { mutableStateOf<File?>(null) }
+    var name by rememberSaveable { mutableStateOf("") }
+    var quantity by rememberSaveable { mutableStateOf("") }
 
     var showDatePicker by remember { mutableStateOf(false) }
     val datePickerState = rememberDatePickerState()
@@ -130,7 +132,7 @@ fun NewFridgeItemForm(
 
     var validator by remember { mutableStateOf(false) }
     var isQuantityInt by remember { mutableStateOf(true) }
-    validator = name.isNotBlank() && selectedDate.isNotBlank()
+    validator = name.isNotBlank() && selectedDate.isNotBlank() && quantity.isNotBlank()
 
     LaunchedEffect(uiState) {
         if(uiState == FridgeCRUDUiState.Success){
@@ -222,6 +224,20 @@ fun NewFridgeItemForm(
                     )
                     IconButton(
                         modifier = Modifier
+                            .align(Alignment.TopEnd),
+                        onClick = {
+                            image = null
+                            imageFile = null
+                        }
+                    ){
+                        Icon(
+                            imageVector = ImageVector.vectorResource(R.drawable.close),
+                            contentDescription = "delete image",
+                            tint = CustomTheme.colors.iconDefault,
+                        )
+                    }
+                    IconButton(
+                        modifier = Modifier
                             .align(Alignment.BottomEnd),
                         onClick = {
                             albumLauncher.launch(imageAlbumIntent)
@@ -311,11 +327,18 @@ fun NewFridgeItemForm(
                 )
                 TextField(
                     label = {
-                        Text(
-                            text = "수량",
-                            style = CustomTheme.typography.caption1,
-                            color = CustomTheme.colors.textSecondary,
-                        )
+                        Row {
+                            Text(
+                                text = "수량/g",
+                                style = CustomTheme.typography.caption1,
+                                color = CustomTheme.colors.textSecondary,
+                            )
+                            Text(
+                                text = " *",
+                                style = CustomTheme.typography.caption1,
+                                color = CustomTheme.colors.iconRed,
+                            )
+                        }
                     },
                     value = quantity,
                     onValueChange = {quantity = it},
@@ -410,7 +433,7 @@ fun NewFridgeItemForm(
                         }
                     },
                     colors = DatePickerDefaults.colors(
-                        containerColor = CustomTheme.colors.onSurface,
+                        containerColor = CustomTheme.colors.onSurface
                     )
                 ) {
                     DatePicker(
@@ -423,6 +446,12 @@ fun NewFridgeItemForm(
                         },
                         colors = DatePickerDefaults.colors(
                             containerColor = CustomTheme.colors.onSurface,
+                            selectedDayContentColor = CustomTheme.colors.onSurface,
+                            selectedDayContainerColor = CustomTheme.colors.primary,
+                            selectedYearContentColor = CustomTheme.colors.onSurface,
+                            selectedYearContainerColor = CustomTheme.colors.primary,
+                            todayDateBorderColor = CustomTheme.colors.primary,
+                            todayContentColor = CustomTheme.colors.primary
                         )
                     )
                 }
@@ -434,7 +463,7 @@ fun NewFridgeItemForm(
                             context,
                             Manifest.permission.CAMERA
                         ) == PackageManager.PERMISSION_GRANTED ->  {
-                            navigateUp(
+                            navigate(
                                 Screen.ScanNav
                             )
                         }
@@ -464,7 +493,7 @@ fun NewFridgeItemForm(
         }
         PermissionDialog(
             showDialog = showDialog,
-            message = "접근 권한이 필요합니다.",
+            message = "저장소 권한이 필요합니다.",
             onDismiss = { showDialog.value = false },
             onConfirm = {
                 showDialog.value = false
@@ -515,7 +544,7 @@ fun NewFridgeItemForm(
                                 quantity = if(quantity.isNotBlank()) quantity else "0",
                                 expirationDate = expirationDate,
                                 notification = false,
-                                isFridge = true
+                                isFridge = isFridge
                             ),
                             imageFile
                         )
@@ -523,7 +552,7 @@ fun NewFridgeItemForm(
                     initSavedDate()
                 }else{
                     isQuantityInt = false
-                    showSnackbar("수량은 숫자만 입력하세요.")
+                    Toast.makeText(context, "수량은 숫자만 입력 가능합니다.", Toast.LENGTH_SHORT).show()
                 }
             }
         ) {

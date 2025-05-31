@@ -58,7 +58,7 @@ fun FridgeItemContainer(
     item: FridgeItem,
     toggleNotification: (Long, Boolean) -> Unit,
     onShowDialog: () -> Unit,
-    navigateUp: () -> Unit,
+    navigate: () -> Unit,
     deleteItem: (Long) -> Unit,
 ) {
     val context = LocalContext.current
@@ -131,7 +131,7 @@ fun FridgeItemContainer(
                     modifier = Modifier.weight(1f)
                 )
                 Text(
-                    text = "수량: ${item.quantity}",
+                    text = "수량/g: ${item.quantity}",
                     style = CustomTheme.typography.body2,
                     color = CustomTheme.colors.textPrimary,
                     maxLines = 1,
@@ -171,7 +171,7 @@ fun FridgeItemContainer(
                                 onClick = {
                                     expanded = false
                                     when(option){
-                                        menuItem[0] -> navigateUp()
+                                        menuItem[0] -> navigate()
                                         menuItem[1] -> deleteItem(item.id)
                                     }
                                 },

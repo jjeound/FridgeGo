@@ -1,5 +1,6 @@
 package com.example.untitled_capstone.domain.model
 
+import com.example.untitled_capstone.data.remote.dto.ModifyPostDto
 import com.example.untitled_capstone.data.remote.dto.NewPostDto
 
 data class NewPost(
@@ -11,6 +12,15 @@ data class NewPost(
 ){
     fun toNewPostDto(): NewPostDto{
         return NewPostDto(
+            category = category,
+            content = content,
+            memberCount = memberCount,
+            price = price,
+            title = title
+        )
+    }
+    fun toModifyPostDto(): ModifyPostDto {
+        return ModifyPostDto(
             category = category,
             content = content,
             memberCount = memberCount,

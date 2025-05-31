@@ -10,6 +10,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.json.JSONObject
 import ua.naiksoftware.stomp.Stomp
 import ua.naiksoftware.stomp.StompClient
 import ua.naiksoftware.stomp.dto.LifecycleEvent
@@ -88,4 +89,15 @@ class WebSocketManager @Inject constructor() {
             connect(token, roomId, onConnected, onError)
         }
     }
+
+    fun enterRoom(roomId: Long) {
+        val payload = Gson().toJson(mapOf("roomId" to roomId))
+        stompClient?.send("/pub/chat/enter", payload)?.subscribe()
+    }
+
+    fun leaveRoom(roomId: Long) {
+        val payload = Gson().toJson(mapOf("roomId" to roomId))
+        stompClient?.send("/pub/chat/leave", payload)?.subscribe()
+    }
+
 }

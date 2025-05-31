@@ -28,6 +28,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -52,13 +53,19 @@ import com.example.untitled_capstone.ui.theme.CustomTheme
 fun RecipeScreen(
     uiState: RecipeUiState,
     recipe: Recipe?,
-    onNavigate: (Screen) -> Unit,
+    navigate: (Screen) -> Unit,
     popBackStack: () -> Unit,
     deleteRecipe: (Long) -> Unit,
     toggleLike: (Long, Boolean) -> Unit,
+    clearBackStack: () -> Unit,
 ) {
     var expanded by remember { mutableStateOf(false) }
     val menuItem = listOf("수정", "삭제")
+    LaunchedEffect(uiState) {
+        if (uiState is RecipeUiState.Success) {
+            clearBackStack()
+        }
+    }
     if(uiState == RecipeUiState.Loading){
         Box(
             modifier = Modifier.fillMaxSize(),
@@ -128,8 +135,8 @@ fun RecipeScreen(
                                         expanded = false
                                         when(option){
                                             menuItem[0] -> {
-                                                onNavigate(
-                                                    Screen.RecipeModifyNav(recipe)
+                                                navigate(
+                                                    Screen.RecipeModifyNav(recipe.id)
                                                 )
                                             }
                                             menuItem[1] -> {

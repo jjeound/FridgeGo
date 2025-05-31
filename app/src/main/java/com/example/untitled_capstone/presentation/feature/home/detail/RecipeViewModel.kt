@@ -7,8 +7,12 @@ import com.example.untitled_capstone.core.util.Resource
 import com.example.untitled_capstone.domain.model.Recipe
 import com.example.untitled_capstone.domain.use_case.home.DeleteRecipeUseCase
 import com.example.untitled_capstone.domain.use_case.home.GetRecipeByIdUseCase
+import com.example.untitled_capstone.domain.use_case.home.ModifyRecipeUseCase
 import com.example.untitled_capstone.domain.use_case.home.RecipeToggleLikeUseCase
+import com.example.untitled_capstone.domain.use_case.home.UploadRecipeImageUseCase
 import com.example.untitled_capstone.navigation.Screen
+import com.example.untitled_capstone.presentation.feature.home.HomeUiState
+import com.example.untitled_capstone.presentation.util.UiEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -18,6 +22,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import java.io.File
 import javax.inject.Inject
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -26,6 +31,8 @@ class RecipeViewModel @Inject constructor(
     private val getRecipeByIdUseCase: GetRecipeByIdUseCase,
     private val recipeToggleLikeUseCase: RecipeToggleLikeUseCase,
     private val deleteRecipeUseCase: DeleteRecipeUseCase,
+    private val uploadRecipeImageUseCase: UploadRecipeImageUseCase,
+    private val modifyRecipeUseCase: ModifyRecipeUseCase,
 ): ViewModel() {
     val uiState: MutableStateFlow<RecipeUiState> =
         MutableStateFlow(RecipeUiState.Loading)
@@ -33,7 +40,7 @@ class RecipeViewModel @Inject constructor(
     private val _recipe = MutableStateFlow<Recipe?>(null)
     val recipe: StateFlow<Recipe?> = _recipe.asStateFlow()
 
-    private val _event = MutableSharedFlow<RecipeEvent>()
+    private val _event = MutableSharedFlow<UiEvent>()
     val event = _event.asSharedFlow()
 
     fun getRecipeById(id: Long){
@@ -46,7 +53,7 @@ class RecipeViewModel @Inject constructor(
                     }
                     is Resource.Error -> {
                         uiState.tryEmit(RecipeUiState.Error(it.message))
-                        _event.emit(RecipeEvent.ShowSnackbar(it.message ?: "Unknown error"))
+                        _event.emit(UiEvent.ShowSnackbar(it.message ?: "Unknown error"))
                     }
                     is Resource.Loading -> {
                         uiState.tryEmit(RecipeUiState.Loading)
@@ -66,7 +73,7 @@ class RecipeViewModel @Inject constructor(
                     }
                     is Resource.Error -> {
                         uiState.tryEmit(RecipeUiState.Error(it.message))
-                        _event.emit(RecipeEvent.ShowSnackbar(it.message ?: "Unknown error"))
+                        _event.emit(UiEvent.ShowSnackbar(it.message ?: "Unknown error"))
                     }
                     is Resource.Loading -> {
                         uiState.tryEmit(RecipeUiState.Loading)
@@ -81,12 +88,12 @@ class RecipeViewModel @Inject constructor(
             deleteRecipeUseCase(id).collectLatest {
                 when(it){
                     is Resource.Success -> {
-                        uiState.tryEmit(RecipeUiState.Idle)
-                        _event.emit(RecipeEvent.ClearBackStack)
+                        uiState.tryEmit(RecipeUiState.Success)
+                        //_event.emit(RecipeEvent.ClearBackStack)
                     }
                     is Resource.Error -> {
                         uiState.tryEmit(RecipeUiState.Error(it.message))
-                        _event.emit(RecipeEvent.ShowSnackbar(it.message ?: "Unknown error"))
+                        _event.emit(UiEvent.ShowSnackbar(it.message ?: "Unknown error"))
                     }
                     is Resource.Loading -> {
                         uiState.tryEmit(RecipeUiState.Loading)
@@ -96,21 +103,32 @@ class RecipeViewModel @Inject constructor(
         }
     }
 
-    fun popBackStack(){
+    fun uploadImageThenModify(recipe: Recipe, imageFile: File?){
         viewModelScope.launch {
-            _event.emit(RecipeEvent.PopBackStack)
-        }
-    }
+            uiState.tryEmit(RecipeUiState.Loading)
 
-    fun showSnackbar(message: String){
-        viewModelScope.launch {
-            _event.emit(RecipeEvent.ShowSnackbar(message))
-        }
-    }
-
-    fun navigateUp(route: Screen){
-        viewModelScope.launch {
-            _event.emit(RecipeEvent.Navigate(route))
+            imageFile?.let {
+                uploadRecipeImageUseCase(recipe.id, it).collectLatest {
+                    if (it is Resource.Error) {
+                        _event.emit(UiEvent.ShowSnackbar(it.message ?: "이미지 업로드 실패했지만 계속 진행합니다."))
+                    }
+                }
+            }
+            modifyRecipeUseCase(recipe).collectLatest {
+                when(it){
+                    is Resource.Success -> {
+                        uiState.tryEmit(RecipeUiState.Success)
+                        //_event.emit(RecipeEvent.PopBackStack)
+                    }
+                    is Resource.Error -> {
+                        uiState.tryEmit(RecipeUiState.Error(it.message))
+                        _event.emit(UiEvent.ShowSnackbar(it.message ?: "Unknown error"))
+                    }
+                    is Resource.Loading -> {
+                        uiState.tryEmit(RecipeUiState.Loading)
+                    }
+                }
+            }
         }
     }
 }
@@ -118,13 +136,7 @@ class RecipeViewModel @Inject constructor(
 @Stable
 interface RecipeUiState{
     data object Idle: RecipeUiState
+    data object Success: RecipeUiState
     data object Loading: RecipeUiState
     data class Error(val message: String?): RecipeUiState
-}
-
-interface RecipeEvent{
-    data class ShowSnackbar(val message: String) : RecipeEvent
-    data class Navigate(val route: Screen) : RecipeEvent
-    object PopBackStack : RecipeEvent
-    object ClearBackStack : RecipeEvent
 }

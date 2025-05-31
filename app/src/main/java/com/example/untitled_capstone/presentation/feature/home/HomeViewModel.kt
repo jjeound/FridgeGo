@@ -18,7 +18,6 @@ import com.example.untitled_capstone.domain.use_case.home.GetTastePreferenceUseC
 import com.example.untitled_capstone.domain.use_case.home.RecipeToggleLikeUseCase
 import com.example.untitled_capstone.domain.use_case.home.SetIsFirstSelectionUseCase
 import com.example.untitled_capstone.domain.use_case.home.SetTastePreferenceUseCase
-import com.example.untitled_capstone.navigation.Screen
 import com.example.untitled_capstone.presentation.util.UiEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -79,10 +78,10 @@ class HomeViewModel @Inject constructor(
             getTastePreferenceUseCase().collectLatest {
                 when(it){
                     is Resource.Success -> {
-                        uiState.tryEmit(HomeUiState.Idle)
                         it.data?.let {
                             _tastePref.value = it.tastePreference
                         }
+                        uiState.tryEmit(HomeUiState.Idle)
                     }
                     is Resource.Error -> {
                         uiState.tryEmit(HomeUiState.Error(it.message))
@@ -205,12 +204,6 @@ class HomeViewModel @Inject constructor(
                     }
                 }
             }
-        }
-    }
-
-    fun navigateUp(route: Screen){
-        viewModelScope.launch {
-            _event.emit(UiEvent.Navigate(route))
         }
     }
 }

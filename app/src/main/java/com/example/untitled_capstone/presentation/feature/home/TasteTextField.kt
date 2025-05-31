@@ -13,6 +13,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -25,9 +26,15 @@ import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @Composable
-fun SetTaste(tastePref: String?, onEvent: (HomeEvent) -> Unit) {
-    var text by rememberSaveable { mutableStateOf(tastePref ?: "") }
+fun TasteTextField(tastePref: String?, onEvent: (HomeEvent) -> Unit) {
+    var text by rememberSaveable { mutableStateOf("") }
     val focusManager = LocalFocusManager.current
+
+    LaunchedEffect(tastePref) {
+        if (!tastePref.isNullOrEmpty()) {
+            text = tastePref
+        }
+    }
 
     Card(
         colors = CardDefaults.cardColors(
@@ -78,9 +85,7 @@ fun SetTaste(tastePref: String?, onEvent: (HomeEvent) -> Unit) {
                 singleLine = true,
                 keyboardActions = KeyboardActions(onDone = {
                     focusManager.clearFocus()
-                    if(text.trim().isNotBlank()){
-                        onEvent(HomeEvent.SetTastePreference(text))
-                    }
+                    onEvent(HomeEvent.SetTastePreference(text))
                 })
             )
         }

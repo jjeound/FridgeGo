@@ -41,7 +41,6 @@ import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.domain.model.RecipeRaw
 import com.example.untitled_capstone.navigation.Screen
 import com.example.untitled_capstone.presentation.feature.main.MainViewModel
-import com.example.untitled_capstone.presentation.util.UiState
 import com.example.untitled_capstone.ui.theme.CustomTheme
 import kotlinx.coroutines.launch
 
@@ -54,7 +53,7 @@ fun HomeScreen(
     aiResponse: List<String>,
     tastePref: String?,
     onEvent: (HomeEvent) -> Unit,
-    onNavigate: (Screen) -> Unit,
+    navigate: (Screen) -> Unit,
 ) {
     val focusManager = LocalFocusManager.current
     val sheetState = rememberModalBottomSheetState(
@@ -78,7 +77,7 @@ fun HomeScreen(
                 focusManager.clearFocus()
             })}
     ) {
-        SetTaste(tastePref, onEvent)
+        TasteTextField(tastePref, onEvent)
         Spacer(modifier = Modifier.height(Dimens.largePadding))
         Card (
             colors = CardDefaults.cardColors(
@@ -106,7 +105,7 @@ fun HomeScreen(
                 Box(
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    if(recipeItems.loadState.refresh is LoadState.Loading || uiState == UiState.Loading) {
+                    if(recipeItems.loadState.refresh is LoadState.Loading || uiState == HomeUiState.Loading) {
                         CircularProgressIndicator(
                             modifier = Modifier.align(Alignment.Center),
                             color = CustomTheme.colors.primary
@@ -123,7 +122,7 @@ fun HomeScreen(
                                 if(item != null){
                                     MyRecipe(recipe = item ,modifier = Modifier
                                         .fillMaxWidth().padding(Dimens.smallPadding), onEvent = onEvent){
-                                        onNavigate(
+                                        navigate(
                                             Screen.RecipeNav(item.id),
                                         )
                                     }
@@ -135,7 +134,7 @@ fun HomeScreen(
                                 }
                             }
                         }
-                        if(recipeItems.itemCount == 0 && uiState != UiState.Loading){
+                        if(recipeItems.itemCount == 0 && uiState != HomeUiState.Loading){
                             AsyncImage(
                                 modifier = Modifier.fillMaxWidth(),
                                 model = R.drawable.home_banner,

@@ -27,6 +27,7 @@ import com.example.untitled_capstone.data.pagination.PostPagingSource
 import com.example.untitled_capstone.data.pagination.RecipePagingSource
 import com.example.untitled_capstone.data.remote.manager.WebSocketManager
 import com.example.untitled_capstone.data.remote.service.ChatApi
+import com.example.untitled_capstone.data.remote.service.FcmApi
 import com.example.untitled_capstone.data.remote.service.FridgeApi
 import com.example.untitled_capstone.data.remote.service.HomeApi
 import com.example.untitled_capstone.data.remote.service.LoginApi
@@ -50,6 +51,7 @@ import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
 @Module
@@ -208,6 +210,17 @@ object AppModule {
             .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
             .create(ChatApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideFcmApi(gson: Gson, okHttpClient: OkHttpClient): FcmApi {
+        return Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .client(okHttpClient)
+            .addConverterFactory(GsonConverterFactory.create(gson))
+            .build()
+            .create(FcmApi::class.java)
     }
 
     @Provides

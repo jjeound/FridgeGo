@@ -1,6 +1,7 @@
 package com.example.untitled_capstone.di
 
 import com.example.untitled_capstone.data.repository.ChatRepositoryImpl
+import com.example.untitled_capstone.data.repository.FCMRepositoryImpl
 import com.example.untitled_capstone.data.repository.FridgeRepositoryImpl
 import com.example.untitled_capstone.data.repository.HomeRepositoryImpl
 import com.example.untitled_capstone.data.repository.LocalUserRepositoryImpl
@@ -10,6 +11,7 @@ import com.example.untitled_capstone.data.repository.PostRepositoryImpl
 import com.example.untitled_capstone.data.repository.TokenRepositoryImpl
 import com.example.untitled_capstone.data.repository.WebSocketRepositoryImpl
 import com.example.untitled_capstone.domain.repository.ChatRepository
+import com.example.untitled_capstone.domain.repository.FCMRepository
 import com.example.untitled_capstone.domain.repository.FridgeRepository
 import com.example.untitled_capstone.domain.repository.HomeRepository
 import com.example.untitled_capstone.domain.repository.LocalUserRepository
@@ -52,4 +54,7 @@ interface DataModule {
 
     @Binds
     fun bindsTokenRepository(tokenRepositoryImpl: TokenRepositoryImpl): TokenRepository
+
+    @Binds
+    fun bindsFCMRepository(fcmRepositoryImpl: FCMRepositoryImpl): FCMRepository
 }

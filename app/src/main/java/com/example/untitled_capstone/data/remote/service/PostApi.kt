@@ -1,6 +1,7 @@
 package com.example.untitled_capstone.data.remote.service
 
 import com.example.untitled_capstone.data.remote.dto.ApiResponse
+import com.example.untitled_capstone.data.remote.dto.ModifyPostDto
 import com.example.untitled_capstone.data.remote.dto.NewPostDto
 import com.example.untitled_capstone.data.remote.dto.PostDto
 import com.example.untitled_capstone.data.remote.dto.PostLikedDto
@@ -47,7 +48,7 @@ interface PostApi {
     @PATCH("/api/post/{postId}")
     suspend fun modifyPost(
         @Path("postId") postId: Long,
-        @Body newPostDto: NewPostDto
+        @Body newPostDto: ModifyPostDto
     ): ApiResponse<String>
 
     @GET("/api/post/search")
@@ -92,7 +93,7 @@ interface PostApi {
     @DELETE("/api/search-history/all")
     suspend fun deleteAllSearchHistory(): ApiResponse<String>
 
-    @POST("/api/report/post/{postId}}")
+    @POST("/api/report/post/{postId}")
     suspend fun reportPost(
         @Path ("postId") postId: Long,
         @Body report: ReportDto

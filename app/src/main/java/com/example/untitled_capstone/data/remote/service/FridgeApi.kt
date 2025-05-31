@@ -3,7 +3,6 @@ package com.example.untitled_capstone.data.remote.service
 import com.example.untitled_capstone.data.remote.dto.ApiResponse
 import com.example.untitled_capstone.data.remote.dto.ContentDto
 import com.example.untitled_capstone.data.remote.dto.FridgeResultDto
-import com.example.untitled_capstone.data.remote.dto.ModifyFridgeReqDto
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.http.Body
@@ -37,10 +36,11 @@ interface FridgeApi {
         @Part ingredientImage: MultipartBody.Part? = null
     ): ApiResponse<String>
 
+    @Multipart
     @PATCH("/api/ingredient/{ingredientId}")
     suspend fun modifyItem(
         @Path("ingredientId") ingredientId: Long,
-        @Body fridgeItem: ModifyFridgeReqDto,
+        @Part("ingredientDtoReq") ingredientDtoReq: RequestBody,
         @Part ingredientImage: MultipartBody.Part? = null
     ): ApiResponse<String>
 

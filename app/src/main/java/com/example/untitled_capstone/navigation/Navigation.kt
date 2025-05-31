@@ -13,13 +13,11 @@ import androidx.navigation.navigation
 import androidx.navigation.toRoute
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.example.untitled_capstone.domain.model.Post
-import com.example.untitled_capstone.presentation.feature.chat.ChatEvent
 import com.example.untitled_capstone.presentation.feature.chat.ChatViewModel
 import com.example.untitled_capstone.presentation.feature.chat.detail.ChattingDetailScreen
 import com.example.untitled_capstone.presentation.feature.chat.detail.ChattingRoomDrawer
 import com.example.untitled_capstone.presentation.feature.chat.ChattingScreen
 import com.example.untitled_capstone.presentation.feature.chat.detail.ChatDetailViewModel
-import com.example.untitled_capstone.presentation.feature.fridge.FridgeEvent
 import com.example.untitled_capstone.presentation.feature.fridge.FridgeViewModel
 import com.example.untitled_capstone.presentation.feature.fridge.crud.ScanExpirationDate
 import com.example.untitled_capstone.presentation.feature.fridge.crud.AddFridgeItemScreen
@@ -27,12 +25,9 @@ import com.example.untitled_capstone.presentation.feature.fridge.RefrigeratorScr
 import com.example.untitled_capstone.presentation.feature.fridge.crud.FridgeCRUDViewModel
 import com.example.untitled_capstone.presentation.feature.home.HomeScreen
 import com.example.untitled_capstone.presentation.feature.home.HomeViewModel
-import com.example.untitled_capstone.presentation.feature.home.detail.RecipeEvent
 import com.example.untitled_capstone.presentation.feature.home.detail.RecipeScreen
 import com.example.untitled_capstone.presentation.feature.home.detail.RecipeViewModel
-import com.example.untitled_capstone.presentation.feature.home.modify.RecipeModifyScreen
-import com.example.untitled_capstone.presentation.feature.home.modify.RecipeModifyViewModel
-import com.example.untitled_capstone.presentation.feature.login.LoginEvent
+import com.example.untitled_capstone.presentation.feature.home.detail.RecipeModifyScreen
 import com.example.untitled_capstone.presentation.feature.login.LoginViewModel
 import com.example.untitled_capstone.presentation.feature.login.LoginScreen
 import com.example.untitled_capstone.presentation.feature.login.SetLocationScreen
@@ -42,13 +37,11 @@ import com.example.untitled_capstone.presentation.feature.my.MyViewModel
 import com.example.untitled_capstone.presentation.feature.my.etc.MyLikedPostScreen
 import com.example.untitled_capstone.presentation.feature.my.etc.MyPostScreen
 import com.example.untitled_capstone.presentation.feature.my.MyScreen
-import com.example.untitled_capstone.presentation.feature.my.profile.ProfileEvent
 import com.example.untitled_capstone.presentation.feature.my.profile.ProfileScreen
 import com.example.untitled_capstone.presentation.feature.my.profile.ProfileViewModel
 import com.example.untitled_capstone.presentation.feature.notification.NotificationViewModel
 import com.example.untitled_capstone.presentation.feature.notification.screen.NotificationScreen
 import com.example.untitled_capstone.presentation.feature.onBoardiing.OnBoarding
-import com.example.untitled_capstone.presentation.feature.post.PostEvent
 import com.example.untitled_capstone.presentation.feature.post.detail.ReportScreen
 import com.example.untitled_capstone.presentation.feature.post.PostScreen
 import com.example.untitled_capstone.presentation.feature.post.PostViewModel
@@ -84,12 +77,6 @@ fun Navigation(
                             is UiEvent.ShowSnackbar -> {
                                 snackbarHostState.showSnackbar(event.message)
                             }
-                            is UiEvent.Navigate -> {
-                                navController.navigate(event.route)
-                            }
-                            is UiEvent.PopBackStack -> {
-                                navController.popBackStack()
-                            }
                         }
                     }
                 }
@@ -100,8 +87,8 @@ fun Navigation(
                     aiResponse = aiResponse,
                     tastePref = tastePref,
                     onEvent = viewModel::onEvent,
-                    onNavigate = { route ->
-                        viewModel.navigateUp(route)
+                    navigate = { route ->
+                        navController.navigate(route)
                     }
                 )
             }
@@ -113,20 +100,8 @@ fun Navigation(
                 LaunchedEffect(true) {
                     viewModel.event.collect { event ->
                         when (event) {
-                            is RecipeEvent.ShowSnackbar -> {
+                            is UiEvent.ShowSnackbar -> {
                                 snackbarHostState.showSnackbar(event.message)
-                            }
-                            is RecipeEvent.Navigate -> {
-                                navController.navigate(event.route)
-                            }
-                            is RecipeEvent.PopBackStack -> {
-                                navController.popBackStack()
-                            }
-                            is RecipeEvent.ClearBackStack -> {
-                                navController.navigate(Graph.HomeGraph) {
-                                    popUpTo(0) { inclusive = true } // 모든 백스택 제거
-                                    launchSingleTop = true          // 중복 방지
-                                }
                             }
                         }
                     }
@@ -137,40 +112,42 @@ fun Navigation(
                 RecipeScreen(
                     uiState = uiState,
                     recipe = recipe,
-                    onNavigate = { route ->
-                        viewModel.navigateUp(route)
+                    navigate = { route ->
+                        navController.navigate(route)
                     },
-                    popBackStack = { viewModel.popBackStack() },
+                    popBackStack = { navController.popBackStack()},
                     deleteRecipe = viewModel::deleteRecipe,
-                    toggleLike = viewModel::toggleLike
+                    toggleLike = viewModel::toggleLike,
+                    clearBackStack = {
+                        navController.navigate(Graph.HomeGraph) {
+                            popUpTo(0) { inclusive = true } // 모든 백스택 제거
+                            launchSingleTop = true          // 중복 방지
+                        }
+                    }
                 )
             }
-            composable<Screen.RecipeModifyNav>(
-                typeMap = Screen.RecipeModifyNav.typeMap
-            ){
-                val viewModel: RecipeModifyViewModel = hiltViewModel()
+            composable<Screen.RecipeModifyNav>{
+                val viewModel: RecipeViewModel = hiltViewModel()
                 val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-                val args = it.toRoute<Screen.RecipeModifyNav>()
+                val recipe by viewModel.recipe.collectAsStateWithLifecycle()
                 LaunchedEffect(true) {
                     viewModel.event.collect { event ->
                         when (event) {
                             is UiEvent.ShowSnackbar -> {
                                 snackbarHostState.showSnackbar(event.message)
                             }
-                            is UiEvent.Navigate -> {
-                                navController.navigate(event.route)
-                            }
-                            is UiEvent.PopBackStack -> {
-                                navController.popBackStack()
-                            }
                         }
                     }
                 }
+                val args = it.toRoute<Screen.RecipeModifyNav>()
+                LaunchedEffect(true) {
+                    viewModel.getRecipeById(args.id)
+                }
                 RecipeModifyScreen(
                     uiState = uiState,
-                    recipe = args.recipe,
+                    recipe = recipe,
                     uploadImageThenModifyRecipe = viewModel::uploadImageThenModify,
-                    popBackStack = viewModel::popBackStack,
+                    popBackStack = {navController.popBackStack()},
                 )
             }
         }
@@ -180,27 +157,22 @@ fun Navigation(
             composable<Screen.Post>{
                 val viewModel: PostViewModel = hiltViewModel()
                 val postPagingData = viewModel.postPagingData.collectAsLazyPagingItems()
-                LaunchedEffect(true) {
-                    viewModel.fetchPosts()
-                }
+                val uiState by viewModel.uiState.collectAsStateWithLifecycle()
                 LaunchedEffect(true) {
                     viewModel.event.collect { event ->
                         when (event) {
-                            is PostEvent.ShowSnackbar -> {
+                            is UiEvent.ShowSnackbar -> {
                                 snackbarHostState.showSnackbar(event.message)
-                            }
-                            is PostEvent.Navigate -> {
-                                navController.navigate(event.route)
-                            }
-                            is PostEvent.PopBackStack -> {
-                                navController.popBackStack()
                             }
                         }
                     }
                 }
                 PostScreen(
+                    uiState = uiState,
                     postPagingData = postPagingData,
-                    navigateUp = viewModel::navigateUp,
+                    navigate = { route ->
+                        navController.navigate(route)
+                    },
                     toggleLike = viewModel::toggleLike
                 )
             }
@@ -213,20 +185,8 @@ fun Navigation(
                 LaunchedEffect(true) {
                     viewModel.event.collect { event ->
                         when (event) {
-                            is PostEvent.ShowSnackbar -> {
+                            is UiEvent.ShowSnackbar -> {
                                 snackbarHostState.showSnackbar(event.message)
-                            }
-                            is PostEvent.Navigate -> {
-                                navController.navigate(event.route)
-                            }
-                            is PostEvent.PopBackStack -> {
-                                navController.popBackStack()
-                            }
-                            is PostEvent.ClearBackStack -> {
-                                navController.navigate(Graph.PostGraph) {
-                                    popUpTo(0) { inclusive = true } // 모든 백스택 제거
-                                    launchSingleTop = true          // 중복 방지
-                                }
                             }
                         }
                     }
@@ -238,11 +198,16 @@ fun Navigation(
                     post = post,
                     getPostById = viewModel::getPostById,
                     toggleLike = viewModel::toggleLike,
-                    navigateUp = {
-                        navController.navigate(it)
+                    navigate = { route ->
+                        navController.navigate(route)
                     },
                     deletePost = viewModel::deletePost,
-                    clearBackStack = viewModel::clearBackStack,
+                    clearBackStack = {
+                        navController.navigate(Graph.PostGraph) {
+                            popUpTo(0) { inclusive = true } // 모든 백스택 제거
+                            launchSingleTop = true          // 중복 방지
+                        }
+                    },
                     savePost = { post ->
                         navController.currentBackStackEntry?.savedStateHandle["post"] = post
                     }
@@ -255,20 +220,8 @@ fun Navigation(
                 LaunchedEffect(true) {
                     viewModel.event.collect { event ->
                         when (event) {
-                            is PostEvent.ShowSnackbar -> {
+                            is UiEvent.ShowSnackbar -> {
                                 snackbarHostState.showSnackbar(event.message)
-                            }
-                            is PostEvent.Navigate -> {
-                                navController.navigate(event.route)
-                            }
-                            is PostEvent.PopBackStack -> {
-                                navController.popBackStack()
-                            }
-                            is PostEvent.ClearBackStack -> {
-                                navController.navigate(Graph.PostGraph) {
-                                    popUpTo(0) { inclusive = true } // 모든 백스택 제거
-                                    launchSingleTop = true          // 중복 방지
-                                }
                             }
                         }
                     }
@@ -279,7 +232,13 @@ fun Navigation(
                     deletePostImage = viewModel::deletePostImage,
                     modifyPost = viewModel::modifyPost,
                     addNewPost = viewModel::addNewPost,
-                    popBackStack = viewModel::popBackStack,
+                    popBackStack = {navController.popBackStack()},
+                    clearBackStack = {
+                        navController.navigate(Graph.PostGraph) {
+                            popUpTo(0) { inclusive = true } // 모든 백스택 제거
+                            launchSingleTop = true          // 중복 방지
+                        }
+                    }
                 )
             }
             composable<Screen.PostSearchNav> {
@@ -293,20 +252,8 @@ fun Navigation(
                 LaunchedEffect(true) {
                     viewModel.event.collect { event ->
                         when (event) {
-                            is PostEvent.ShowSnackbar -> {
+                            is UiEvent.ShowSnackbar -> {
                                 snackbarHostState.showSnackbar(event.message)
-                            }
-                            is PostEvent.Navigate -> {
-                                navController.navigate(event.route)
-                            }
-                            is PostEvent.PopBackStack -> {
-                                navController.popBackStack()
-                            }
-                            is PostEvent.ClearBackStack -> {
-                                navController.navigate(Graph.PostGraph) {
-                                    popUpTo(0) { inclusive = true } // 모든 백스택 제거
-                                    launchSingleTop = true          // 중복 방지
-                                }
                             }
                         }
                     }
@@ -317,28 +264,28 @@ fun Navigation(
                     searchHistoryState = searchHistoryState,
                     searchPost = viewModel::searchPost,
                     deleteSearchHistory = viewModel::deleteSearchHistory,
-                    navigateUp = viewModel::navigateUp,
+                    navigate = { route ->
+                        navController.navigate(route)
+                    },
                     deleteAllSearchHistory = viewModel::deleteAllSearchHistory,
                     toggleLike = viewModel::toggleLike,
-                    clearBackStack = viewModel::clearBackStack
+                    clearBackStack = {
+                        navController.navigate(Graph.PostGraph) {
+                            popUpTo(0) { inclusive = true } // 모든 백스택 제거
+                            launchSingleTop = true          // 중복 방지
+                        }
+                    }
                 )
             }
             composable<Screen.ReportNav> {
-                val parentEntry = navController.getBackStackEntry(Graph.PostGraph)
-                val viewModel: PostDetailViewModel = hiltViewModel(parentEntry)
+                val viewModel: PostDetailViewModel = hiltViewModel()
                 val uiState by viewModel.uiState.collectAsStateWithLifecycle()
                 val args = it.toRoute<Screen.ReportNav>()
                 LaunchedEffect(true) {
                     viewModel.event.collect { event ->
                         when (event) {
-                            is PostEvent.ShowSnackbar -> {
+                            is UiEvent.ShowSnackbar -> {
                                 snackbarHostState.showSnackbar(event.message)
-                            }
-                            is PostEvent.Navigate -> {
-                                navController.navigate(event.route)
-                            }
-                            is PostEvent.PopBackStack -> {
-                                navController.popBackStack()
                             }
                         }
                     }
@@ -363,13 +310,15 @@ fun Navigation(
                 val args = it.toRoute<Screen.ChattingRoomNav>()
                 LaunchedEffect(Unit) {
                     viewModel.enterChatRoom(args.id)
+                    viewModel.fcmEnterRoom(args.id)
                     viewModel.getMessages(args.id)
-                    viewModel.readChats(args.id)
                     viewModel.connectSocket(args.id)
                     viewModel.getMyName()
                     val isJoined = chattingRoomList.any{it.roomId == args.id}
                     if(!isJoined){
                         viewModel.joinChatRoom(args.id)
+                    }else{
+                        viewModel.readChats(args.id)
                     }
                 }
                 LaunchedEffect(messages.itemCount) {
@@ -378,14 +327,8 @@ fun Navigation(
                 LaunchedEffect(true) {
                     viewModel.event.collect { event ->
                         when (event) {
-                            is ChatEvent.ShowSnackbar -> {
+                            is UiEvent.ShowSnackbar -> {
                                 snackbarHostState.showSnackbar(event.message)
-                            }
-                            is ChatEvent.Navigate -> {
-                                navController.navigate(event.route)
-                            }
-                            is ChatEvent.PopBackStack -> {
-                                navController.popBackStack()
                             }
                         }
                     }
@@ -398,21 +341,22 @@ fun Navigation(
                     members = members,
                     chattingRoom = chattingRoom,
                     clearBackStack = {
+                        viewModel.fcmLeaveRoom(args.id)
                         navController.navigate(Graph.ChatGraph) {
                             popUpTo(0) { inclusive = true } // 모든 백스택 제거
                             launchSingleTop = true          // 중복 방지
                         }
-                     },
+                    },
                     sendMessage = viewModel::sendMessage,
                     disconnect = viewModel::disconnect,
-                    navigateUp = { route ->
+                    navigate = { route ->
                         navController.navigate(route)
-                    }
+                    },
+                    leaveRoom = viewModel::fcmLeaveRoom,
                 )
             }
             composable<Screen.ChattingDrawerNav>{
-                val parentEntry = navController.getBackStackEntry(Graph.ChatGraph)
-                val viewModel: ChatDetailViewModel = hiltViewModel(parentEntry)
+                val viewModel: ChatDetailViewModel = hiltViewModel()
                 val uiState by viewModel.uiState.collectAsStateWithLifecycle()
                 val members by viewModel.member.collectAsStateWithLifecycle()
                 val myName by viewModel.name.collectAsStateWithLifecycle()
@@ -424,14 +368,8 @@ fun Navigation(
                 LaunchedEffect(true) {
                     viewModel.event.collect { event ->
                         when (event) {
-                            is ChatEvent.ShowSnackbar -> {
+                            is UiEvent.ShowSnackbar -> {
                                 snackbarHostState.showSnackbar(event.message)
-                            }
-                            is ChatEvent.Navigate -> {
-                                navController.navigate(event.route)
-                            }
-                            is ChatEvent.PopBackStack -> {
-                                navController.popBackStack()
                             }
                         }
                     }
@@ -440,6 +378,7 @@ fun Navigation(
                     uiState = uiState,
                     roomId = args.id,
                     title = args.title,
+                    isActive = args.isActive,
                     popBackStack = {navController.popBackStack()},
                     members = members,
                     myName = myName,
@@ -450,7 +389,10 @@ fun Navigation(
                         }
                     },
                     closeChatRoom = viewModel::closeChatRoom,
-                    exitChatRoom = viewModel::exitChatRoom
+                    exitChatRoom = viewModel::exitChatRoom,
+                    navigate = {
+                        navController.navigate(it)
+                    }
                 )
             }
             composable<Screen.Profile>{
@@ -470,7 +412,7 @@ fun Navigation(
                     isMe = args.nickname == null,
                     popBackStack = {navController.popBackStack()},
                     profile = profile,
-                    navigateUp = {
+                    navigate = {
                         navController.navigate(it)
                     },
                     logout = viewModel::logout,
@@ -494,14 +436,8 @@ fun Navigation(
                 LaunchedEffect(true) {
                     viewModel.event.collect { event ->
                         when (event) {
-                            is FridgeEvent.ShowSnackbar -> {
+                            is UiEvent.ShowSnackbar -> {
                                 snackbarHostState.showSnackbar(event.message)
-                            }
-                            is FridgeEvent.Navigate -> {
-                                navController.navigate(event.route)
-                            }
-                            is FridgeEvent.PopBackStack -> {
-                                navController.popBackStack()
                             }
                         }
                     }
@@ -513,8 +449,8 @@ fun Navigation(
                     fridgeItems = fridgeItems,
                     uiState = uiState,
                     topSelector = mainViewModel.topSelector,
-                    navigateUp = { route ->
-                        viewModel.navigateUp(route)
+                    navigate = { route ->
+                        navController.navigate(route)
                     },
                     toggleNotification = viewModel::toggleNotification,
                     deleteItem = viewModel::deleteItem,
@@ -530,14 +466,8 @@ fun Navigation(
                 LaunchedEffect(true) {
                     viewModel.event.collect { event ->
                         when (event) {
-                            is FridgeEvent.ShowSnackbar -> {
+                            is UiEvent.ShowSnackbar -> {
                                 snackbarHostState.showSnackbar(event.message)
-                            }
-                            is FridgeEvent.Navigate -> {
-                                navController.navigate(event.route)
-                            }
-                            is FridgeEvent.PopBackStack -> {
-                                navController.popBackStack()
                             }
                         }
                     }
@@ -550,19 +480,17 @@ fun Navigation(
                 AddFridgeItemScreen(
                     fridgeItem = fridgeItem,
                     uiState = uiState,
+                    isFridge = args.isFridge,
                     initSavedDate = {
                         navController.currentBackStackEntry?.savedStateHandle?.remove<String>("date")
                     },
                     getSavedDate = {
                         navController.currentBackStackEntry?.savedStateHandle?.get<String>("date")
                     },
-                    onNavigate = { route ->
-                        viewModel.navigateUp(route)
+                    navigate = { route ->
+                        navController.navigate(route)
                     },
                     popBackStack = {navController.popBackStack()},
-                    showSnackbar = { message ->
-                        viewModel.showSnackbar(message)
-                    },
                     addFridgeItem = viewModel::addItem,
                     modifyFridgeItem = viewModel::modifyItem,
                 )
@@ -583,7 +511,7 @@ fun Navigation(
                 LaunchedEffect(true) {
                     viewModel.event.collect { event ->
                         when (event) {
-                            is ChatEvent.ShowSnackbar -> {
+                            is UiEvent.ShowSnackbar -> {
                                 snackbarHostState.showSnackbar(event.message)
                             }
                         }
@@ -592,7 +520,7 @@ fun Navigation(
                 ChattingScreen(
                     uiState = uiState,
                     chattingRoomList = chattingRoomList,
-                    navigateUp = { route ->
+                    navigate = { route ->
                         navController.navigate(route)
                     }
                 )
@@ -606,31 +534,33 @@ fun Navigation(
                 val chattingRoomList by viewModel.chattingRoomList.collectAsStateWithLifecycle()
                 val name by viewModel.name.collectAsStateWithLifecycle()
                 val args = it.toRoute<Screen.ChattingRoomNav>()
+
                 LaunchedEffect(Unit) {
                     viewModel.enterChatRoom(args.id)
-                    viewModel.getMessages(args.id)
-                    viewModel.readChats(args.id)
+                    viewModel.fcmEnterRoom(args.id)
                     viewModel.connectSocket(args.id)
+                    viewModel.checkWhoIsIn(args.id)
+                    viewModel.getMessages(args.id)
                     viewModel.getMyName()
-                    val isJoined = chattingRoomList.any{it.roomId == args.id}
-                    if(!isJoined){
-                        viewModel.joinChatRoom(args.id)
-                    }
                 }
-                LaunchedEffect(messages.itemCount) {
-                    viewModel.sendRead(args.id)
+                if(args.isActive){
+                    LaunchedEffect(Unit) {
+                        val isJoined = chattingRoomList.any{it.roomId == args.id}
+                        if(!isJoined){
+                            viewModel.joinChatRoom(args.id)
+                        }else {
+                            viewModel.readChats(args.id)
+                        }
+                    }
+                    LaunchedEffect(messages.itemCount) {
+                        viewModel.sendRead(args.id)
+                    }
                 }
                 LaunchedEffect(true) {
                     viewModel.event.collect { event ->
                         when (event) {
-                            is ChatEvent.ShowSnackbar -> {
+                            is UiEvent.ShowSnackbar -> {
                                 snackbarHostState.showSnackbar(event.message)
-                            }
-                            is ChatEvent.Navigate -> {
-                                navController.navigate(event.route)
-                            }
-                            is ChatEvent.PopBackStack -> {
-                                navController.popBackStack()
                             }
                         }
                     }
@@ -643,6 +573,7 @@ fun Navigation(
                     members = members,
                     chattingRoom = chattingRoom,
                     clearBackStack = {
+                        viewModel.fcmLeaveRoom(args.id)
                         navController.navigate(Graph.ChatGraph) {
                             popUpTo(0) { inclusive = true } // 모든 백스택 제거
                             launchSingleTop = true          // 중복 방지
@@ -650,9 +581,10 @@ fun Navigation(
                     },
                     sendMessage = viewModel::sendMessage,
                     disconnect = viewModel::disconnect,
-                    navigateUp = { route ->
+                    navigate = { route ->
                         navController.navigate(route)
-                    }
+                    },
+                    leaveRoom = viewModel::fcmLeaveRoom,
                 )
             }
             composable<Screen.ChattingDrawerNav>{
@@ -669,18 +601,8 @@ fun Navigation(
                 LaunchedEffect(true) {
                     viewModel.event.collect { event ->
                         when (event) {
-                            is ChatEvent.ShowSnackbar -> {
+                            is UiEvent.ShowSnackbar -> {
                                 snackbarHostState.showSnackbar(event.message)
-                            }
-                            is ChatEvent.Navigate -> {
-                                navController.navigate(event.route){
-                                    popUpTo(Screen.Chat){
-                                        inclusive = true
-                                    }
-                                }
-                            }
-                            is ChatEvent.PopBackStack -> {
-                                navController.popBackStack()
                             }
                         }
                     }
@@ -689,6 +611,7 @@ fun Navigation(
                     uiState = uiState,
                     roomId = args.id,
                     title = args.title,
+                    isActive = args.isActive,
                     popBackStack = {navController.popBackStack()},
                     members = members,
                     myName = myName,
@@ -699,7 +622,10 @@ fun Navigation(
                         }
                     },
                     closeChatRoom = viewModel::closeChatRoom,
-                    exitChatRoom = viewModel::exitChatRoom
+                    exitChatRoom = viewModel::exitChatRoom,
+                    navigate = {
+                        navController.navigate(it)
+                    }
                 )
             }
             composable<Screen.Profile>{
@@ -717,14 +643,8 @@ fun Navigation(
                 LaunchedEffect(true) {
                     viewModel.event.collect { event ->
                         when (event) {
-                            is ProfileEvent.ShowSnackbar -> {
+                            is UiEvent.ShowSnackbar -> {
                                 snackbarHostState.showSnackbar(event.message)
-                            }
-                            is ProfileEvent.Navigate -> {
-                                navController.navigate(event.route)
-                            }
-                            is ProfileEvent.PopBackStack -> {
-                                navController.popBackStack()
                             }
                         }
                     }
@@ -734,7 +654,7 @@ fun Navigation(
                     isMe = args.nickname == null,
                     popBackStack = {navController.popBackStack()},
                     profile = profile,
-                    navigateUp = {
+                    navigate = {
                         navController.navigate(it)
                     },
                     logout = viewModel::logout,
@@ -754,14 +674,8 @@ fun Navigation(
                 LaunchedEffect(true) {
                     viewModel.event.collect { event ->
                         when (event) {
-                            is PostEvent.ShowSnackbar -> {
+                            is UiEvent.ShowSnackbar -> {
                                 snackbarHostState.showSnackbar(event.message)
-                            }
-                            is PostEvent.Navigate -> {
-                                navController.navigate(event.route)
-                            }
-                            is PostEvent.PopBackStack -> {
-                                navController.popBackStack()
                             }
                         }
                     }
@@ -784,7 +698,7 @@ fun Navigation(
                 val profile by viewModel.profile.collectAsStateWithLifecycle()
                 MyScreen(
                     profile = profile,
-                    navigateUp = {
+                    navigate = {
                         navController.navigate(it)
                     }
                 )
@@ -804,14 +718,8 @@ fun Navigation(
                 LaunchedEffect(true) {
                     viewModel.event.collect { event ->
                         when (event) {
-                            is ProfileEvent.ShowSnackbar -> {
+                            is UiEvent.ShowSnackbar -> {
                                 snackbarHostState.showSnackbar(event.message)
-                            }
-                            is ProfileEvent.Navigate -> {
-                                navController.navigate(event.route)
-                            }
-                            is ProfileEvent.PopBackStack -> {
-                                navController.popBackStack()
                             }
                         }
                     }
@@ -821,7 +729,7 @@ fun Navigation(
                     isMe = args.nickname == null,
                     popBackStack = {navController.popBackStack()},
                     profile = profile,
-                    navigateUp = {
+                    navigate = {
                         navController.navigate(it)
                     },
                     logout = viewModel::logout,
@@ -840,7 +748,7 @@ fun Navigation(
                 LaunchedEffect(true) {
                     viewModel.event.collect {
                         when(it){
-                            is LoginEvent.ShowSnackbar -> {
+                            is UiEvent.ShowSnackbar -> {
                                 snackbarHostState.showSnackbar(it.message)
                             }
                         }
@@ -867,7 +775,7 @@ fun Navigation(
                 LaunchedEffect(true) {
                     viewModel.event.collect {
                         when(it){
-                            is LoginEvent.ShowSnackbar -> {
+                            is UiEvent.ShowSnackbar -> {
                                 snackbarHostState.showSnackbar(it.message)
                             }
                         }
@@ -895,22 +803,23 @@ fun Navigation(
                 LaunchedEffect(true) {
                     viewModel.event.collect { event ->
                         when (event) {
-                            is PostEvent.ShowSnackbar -> {
+                            is UiEvent.ShowSnackbar -> {
                                 snackbarHostState.showSnackbar(event.message)
-                            }
-                            is PostEvent.Navigate -> {
-                                navController.navigate(event.route)
-                            }
-                            is PostEvent.PopBackStack -> {
-                                navController.popBackStack()
                             }
                         }
                     }
                 }
                 MyLikedPostScreen(
-                    navigateUp = viewModel::navigateUp,
+                    navigate = {
+                        navController.navigate(it)
+                    },
                     postItems = postItems,
-                    popBackStack = viewModel::popBackStack,
+                    clearBackstack = {
+                        navController.navigate(Graph.MyGraph) {
+                            popUpTo(0) { inclusive = true } // 모든 백스택 제거
+                            launchSingleTop = true          // 중복 방지
+                        }
+                    },
                     toggleLike = viewModel::toggleLike,
                 )
             }
@@ -923,22 +832,23 @@ fun Navigation(
                 LaunchedEffect(true) {
                     viewModel.event.collect { event ->
                         when (event) {
-                            is PostEvent.ShowSnackbar -> {
+                            is UiEvent.ShowSnackbar -> {
                                 snackbarHostState.showSnackbar(event.message)
-                            }
-                            is PostEvent.Navigate -> {
-                                navController.navigate(event.route)
-                            }
-                            is PostEvent.PopBackStack -> {
-                                navController.popBackStack()
                             }
                         }
                     }
                 }
                 MyPostScreen(
-                    navigateUp = viewModel::navigateUp,
+                    navigate = {
+                        navController.navigate(it)
+                    },
                     postItems = postItems,
-                    popBackStack = viewModel::popBackStack,
+                    clearBackstack = {
+                        navController.navigate(Graph.MyGraph) {
+                            popUpTo(0) { inclusive = true } // 모든 백스택 제거
+                            launchSingleTop = true          // 중복 방지
+                        }
+                    },
                     toggleLike = viewModel::toggleLike,
                 )
             }
@@ -952,6 +862,15 @@ fun Navigation(
                 val viewModel: LoginViewModel = hiltViewModel()
                 val uiState by viewModel.uiState.collectAsStateWithLifecycle()
                 val accountInfo by viewModel.accountInfo.collectAsStateWithLifecycle()
+                LaunchedEffect(true) {
+                    viewModel.event.collect { event ->
+                        when(event){
+                            is UiEvent.ShowSnackbar -> {
+                                snackbarHostState.showSnackbar(event.message)
+                            }
+                        }
+                    }
+                }
                 LoginScreen(
                     uiState = uiState,
                     login = viewModel::login,
@@ -973,7 +892,7 @@ fun Navigation(
                 LaunchedEffect(true) {
                     viewModel.event.collect {
                         when(it){
-                            is LoginEvent.ShowSnackbar -> {
+                            is UiEvent.ShowSnackbar -> {
                                 snackbarHostState.showSnackbar(it.message)
                             }
                         }
@@ -1000,7 +919,7 @@ fun Navigation(
                 LaunchedEffect(true) {
                     viewModel.event.collect {
                         when(it){
-                            is LoginEvent.ShowSnackbar -> {
+                            is UiEvent.ShowSnackbar -> {
                                 snackbarHostState.showSnackbar(it.message)
                             }
                         }

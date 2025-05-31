@@ -6,7 +6,7 @@ import kotlin.reflect.typeOf
 
 sealed interface Screen {
     @Serializable
-    data class ChattingRoomNav(val id: Long) : Screen
+    data class ChattingRoomNav(val id: Long, val isActive: Boolean) : Screen
 
     @Serializable
     data class RecipeNav(val id: Long) : Screen
@@ -24,7 +24,7 @@ sealed interface Screen {
     data object OnBoarding: Screen
 
     @Serializable
-    data class AddFridgeItemNav(val id: Long? = null): Screen
+    data class AddFridgeItemNav(val id: Long? = null, val isFridge: Boolean): Screen
 
     @Serializable
     data object  LoginNav: Screen
@@ -66,14 +66,10 @@ sealed interface Screen {
     data object PostSearchNav: Screen
 
     @Serializable
-    data class RecipeModifyNav(val recipe: Recipe): Screen{
-        companion object {
-            val typeMap = mapOf(typeOf<Recipe>() to RecipeType)
-        }
-    }
+    data class RecipeModifyNav(val id: Long): Screen
 
     @Serializable
-    data class ChattingDrawerNav(val id: Long, val title: String): Screen
+    data class ChattingDrawerNav(val id: Long, val title: String, val isActive: Boolean): Screen
 
     @Serializable
     data class ReportNav(val id: Long, val isPost: Boolean): Screen

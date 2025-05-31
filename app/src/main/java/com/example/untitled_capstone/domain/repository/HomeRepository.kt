@@ -11,27 +11,27 @@ import okhttp3.MultipartBody
 
 interface HomeRepository {
     @WorkerThread
-    suspend fun getTastePreference(): Flow<Resource<TastePreference>>
+    fun getTastePreference(): Flow<Resource<TastePreference>>
     @WorkerThread
-    suspend fun setTastePreference(tastePreference: TastePreference): Flow<Resource<String>>
+    fun setTastePreference(tastePreference: TastePreference): Flow<Resource<String>>
     @WorkerThread
     fun getRecipes(): Flow<PagingData<RecipeItemEntity>>
     @WorkerThread
-    suspend fun getRecipeById(id: Long): Flow<Resource<Recipe>>
+    fun getRecipeById(id: Long): Flow<Resource<Recipe>>
     @WorkerThread
-    suspend fun toggleLike(id: Long, liked: Boolean): Flow<Resource<Boolean>>
+    fun toggleLike(id: Long, liked: Boolean): Flow<Resource<Boolean>>
     @WorkerThread
-    suspend fun addRecipe(recipe: String): Flow<Resource<String>>
+    fun addRecipe(recipe: String): Flow<Resource<String>>
     @WorkerThread
-    suspend fun deleteRecipe(id: Long): Flow<Resource<String>>
+    fun deleteRecipe(id: Long): Flow<Resource<String>>
     @WorkerThread
-    suspend fun modifyRecipe(recipe: Recipe): Flow<Resource<String>>
+    fun modifyRecipe(recipe: Recipe): Flow<Resource<String>>
     @WorkerThread
-    suspend fun getFirstRecommendation(): Flow<Resource<String>>
+    fun getFirstRecommendation(): Flow<Resource<String>>
     @WorkerThread
-    suspend fun getAnotherRecommendation(): Flow<Resource<String>>
+    fun getAnotherRecommendation(): Flow<Resource<String>>
     fun isFirstSelection(): Boolean
     fun setFirstSelection(isFirst: Boolean)
     @WorkerThread
-    suspend fun uploadImage(id: Long, image: MultipartBody.Part): Flow<Resource<String>>
+    fun uploadImage(id: Long, image: MultipartBody.Part): Flow<Resource<String>>
 }

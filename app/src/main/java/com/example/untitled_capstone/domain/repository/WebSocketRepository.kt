@@ -14,4 +14,6 @@ interface WebSocketRepository {
     fun sendMessage(roomId: Long, content: String)
     fun sendReadEvent(roomId: Long)
     fun disconnect()
+    fun enterRoom(roomId: Long)
+    fun leaveRoom(roomId: Long)
 }

@@ -12,21 +12,21 @@ import kotlinx.coroutines.flow.Flow
 
 interface ChatRepository {
     @WorkerThread
-    suspend fun readChats(id: Long): Flow<Resource<Int>>
+    fun readChats(id: Long): Flow<Resource<Int>>
     @WorkerThread
-    suspend fun joinChatRoom(id: Long): Flow<Resource<ChattingRoom>>
+    fun joinChatRoom(id: Long): Flow<Resource<ChattingRoom>>
     @WorkerThread
-    suspend fun closeChatRoom(id: Long): Flow<Resource<String>>
+    fun closeChatRoom(id: Long): Flow<Resource<String>>
     @WorkerThread
-    suspend fun enterChatRoom(id: Long): Flow<Resource<ChattingRoom>>
+    fun enterChatRoom(id: Long): Flow<Resource<ChattingRoom>>
     @WorkerThread
-    suspend fun checkWhoIsIn(id: Long): Flow<Resource<List<ChatMember>>>
+    fun checkWhoIsIn(id: Long): Flow<Resource<List<ChatMember>>>
     @WorkerThread
-    suspend fun getMessages(id: Long, lastMessageId: Long?): Flow<Resource<List<Message>>>
+    fun getMessages(id: Long, lastMessageId: Long?): Flow<Resource<List<Message>>>
     @WorkerThread
-    suspend fun getMyRooms(): Flow<Resource<List<ChattingRoomRaw>>>
+    fun getMyRooms(): Flow<Resource<List<ChattingRoomRaw>>>
     @WorkerThread
-    suspend fun exitChatRoom(id: Long): Flow<Resource<String>>
+    fun exitChatRoom(id: Long): Flow<Resource<String>>
     @WorkerThread
     fun getMessagePaged(roomId: Long): Flow<PagingData<MessageItemEntity>>
 }

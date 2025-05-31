@@ -16,13 +16,13 @@ interface FridgeRepository{
     @WorkerThread
     fun getFridgeItemsByDate(fetchType: FridgeFetchType): Flow<PagingData<FridgeItemEntity>>
     @WorkerThread
-    suspend fun addItem(item: FridgeItem, image: File?): Flow<Resource<String>>
+    fun addItem(item: FridgeItem, image: File?): Flow<Resource<String>>
     @WorkerThread
-    suspend fun toggleNotification(id: Long, alarmStatus: Boolean): Flow<Resource<String>>
+    fun toggleNotification(id: Long, alarmStatus: Boolean): Flow<Resource<String>>
     @WorkerThread
-    suspend fun modifyItem(updatedItem: FridgeItem, image: MultipartBody.Part? = null): Flow<Resource<String>>
+    fun modifyItem(updatedItem: FridgeItem, image: MultipartBody.Part? = null): Flow<Resource<String>>
     @WorkerThread
-    suspend fun deleteItem(id: Long): Flow<Resource<String>>
+    fun deleteItem(id: Long): Flow<Resource<String>>
     @WorkerThread
-    suspend fun getFridgeItemById(id: Long): Flow<Resource<FridgeItem>>
+    fun getFridgeItemById(id: Long): Flow<Resource<FridgeItem>>
 }

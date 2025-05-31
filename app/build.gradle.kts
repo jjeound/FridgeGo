@@ -9,6 +9,7 @@ plugins {
     alias(libs.plugins.dagger.hilt)
     id("kotlin-parcelize")
     kotlin("plugin.serialization") version "2.0.21"
+    id("com.google.gms.google-services")
 }
 
     android {
@@ -34,6 +35,22 @@ plugins {
             buildConfigField("String", "KAKAO_APP_KEY", "\"${localProperties["KAKAO_APP_KEY"]}\"")
             buildConfigField("String", "KAKAO_REST_API_KEY", "\"${localProperties["KAKAO_REST_API_KEY"]}\"")
             manifestPlaceholders["KAKAO_APP_KEY"] = kakaoAppKey
+        }
+
+        signingConfigs {
+
+            val localProperties = Properties()
+            val localPropertiesFile = rootProject.file("local.properties")
+            if (localPropertiesFile.exists()) {
+                localProperties.load(localPropertiesFile.inputStream())
+            }
+
+            create("release") {
+                storeFile = file(localProperties.getProperty("STORE_PATH") ?: "")
+                storePassword  = localProperties.getProperty("STORE_PASSWORD") ?: ""
+                keyAlias = localProperties.getProperty("KEY_ALIAS") ?: ""
+                keyPassword = localProperties.getProperty("KEY_PASSWORD") ?: ""
+            }
         }
 
         buildTypes {
@@ -91,6 +108,11 @@ dependencies {
     implementation (libs.androidx.room.ktx)
     ksp (libs.androidx.room.compiler)
     implementation (libs.androidx.room.paging)
+
+    // FCM
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.analytics)
+    implementation (libs.firebase.messaging.ktx)
 
     // login
     implementation (libs.v2.user)

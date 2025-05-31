@@ -33,7 +33,7 @@ class ChatRepositoryImpl @Inject constructor(
 ): ChatRepository {
 
     @WorkerThread
-    override suspend fun readChats(id: Long): Flow<Resource<Int>> = flow {
+    override fun readChats(id: Long): Flow<Resource<Int>> = flow {
         emit(Resource.Loading())
         try {
             val response = api.readChats(id)
@@ -50,7 +50,7 @@ class ChatRepositoryImpl @Inject constructor(
     }.flowOn(ioDispatcher)
 
     @WorkerThread
-    override suspend fun joinChatRoom(id: Long): Flow<Resource<ChattingRoom>> = flow {
+    override fun joinChatRoom(id: Long): Flow<Resource<ChattingRoom>> = flow {
         emit(Resource.Loading())
         try {
             val response = api.joinChatRoom(id)
@@ -67,7 +67,7 @@ class ChatRepositoryImpl @Inject constructor(
     }.flowOn(ioDispatcher)
 
     @WorkerThread
-    override suspend fun closeChatRoom(id: Long): Flow<Resource<String>> = flow {
+    override fun closeChatRoom(id: Long): Flow<Resource<String>> = flow {
         emit(Resource.Loading())
         try {
             val response = api.closeChatRoom(id)
@@ -84,7 +84,7 @@ class ChatRepositoryImpl @Inject constructor(
     }.flowOn(ioDispatcher)
 
     @WorkerThread
-    override suspend fun enterChatRoom(id: Long): Flow<Resource<ChattingRoom>> = flow {
+    override fun enterChatRoom(id: Long): Flow<Resource<ChattingRoom>> = flow {
         emit(Resource.Loading())
         try {
             val response = api.enterChatRoom(id)
@@ -101,7 +101,7 @@ class ChatRepositoryImpl @Inject constructor(
     }.flowOn(ioDispatcher)
 
     @WorkerThread
-    override suspend fun checkWhoIsIn(id: Long): Flow<Resource<List<ChatMember>>> = flow {
+    override fun checkWhoIsIn(id: Long): Flow<Resource<List<ChatMember>>> = flow {
         emit(Resource.Loading())
         try {
             Resource.Loading(data = null)
@@ -119,7 +119,7 @@ class ChatRepositoryImpl @Inject constructor(
     }.flowOn(ioDispatcher)
 
     @WorkerThread
-    override suspend fun getMessages(id: Long, lastMessageId: Long?): Flow<Resource<List<Message>>> = flow {
+    override fun getMessages(id: Long, lastMessageId: Long?): Flow<Resource<List<Message>>> = flow {
         emit(Resource.Loading())
         try {
             Resource.Loading(data = null)
@@ -137,7 +137,7 @@ class ChatRepositoryImpl @Inject constructor(
     }.flowOn(ioDispatcher)
 
     @WorkerThread
-    override suspend fun getMyRooms(): Flow<Resource<List<ChattingRoomRaw>>> = flow {
+    override fun getMyRooms(): Flow<Resource<List<ChattingRoomRaw>>> = flow {
         emit(Resource.Loading())
         try {
             val response = api.getMyRooms()
@@ -154,7 +154,7 @@ class ChatRepositoryImpl @Inject constructor(
     }.flowOn(ioDispatcher)
 
     @WorkerThread
-    override suspend fun exitChatRoom(id: Long): Flow<Resource<String>> = flow {
+    override fun exitChatRoom(id: Long): Flow<Resource<String>> = flow {
         emit(Resource.Loading())
         try {
             Resource.Loading(data = null)

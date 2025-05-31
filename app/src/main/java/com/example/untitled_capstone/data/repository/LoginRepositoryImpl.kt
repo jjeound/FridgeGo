@@ -2,8 +2,10 @@ package com.example.untitled_capstone.data.repository
 
 
 import android.content.Context
+import android.util.Log
 import androidx.annotation.WorkerThread
 import androidx.datastore.preferences.core.edit
+import com.example.untitled_capstone.core.util.PrefKeys.DONG
 import com.example.untitled_capstone.core.util.PrefKeys.NICKNAME
 import com.example.untitled_capstone.core.util.Resource
 import com.example.untitled_capstone.data.AppDispatchers
@@ -13,6 +15,7 @@ import com.example.untitled_capstone.data.local.entity.ProfileEntity
 import com.example.untitled_capstone.data.remote.dto.EmailReq
 import com.example.untitled_capstone.data.remote.dto.KakaoAccessTokenRequest
 import com.example.untitled_capstone.data.remote.dto.LocationDto
+import com.example.untitled_capstone.data.remote.service.FcmApi
 import com.example.untitled_capstone.data.remote.service.LoginApi
 import com.example.untitled_capstone.data.remote.service.MapApi
 import com.example.untitled_capstone.domain.model.AccountInfo
@@ -33,6 +36,7 @@ class LoginRepositoryImpl @Inject constructor(
     private val api: LoginApi,
     private val mapApi: MapApi,
     private val tokenRepository: TokenRepository,
+    private val fcmApi: FcmApi,
     private val db: ProfileDatabase,
     @Dispatcher(AppDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
     @ApplicationContext private val context: Context,
@@ -40,11 +44,11 @@ class LoginRepositoryImpl @Inject constructor(
     val dataStore = context.dataStore
 
     @WorkerThread
-    override suspend fun kakaoLogin(accessToken: String): Flow<Resource<AccountInfo>> = flow {
+    override fun kakaoLogin(accessToken: String): Flow<Resource<AccountInfo>> = flow {
         emit(Resource.Loading())
         try {
-            val response = api.kakaoLogin(KakaoAccessTokenRequest(accessToken))
-            //val response = api.loginTest(EmailReq(accessToken))
+            // val response = api.kakaoLogin(KakaoAccessTokenRequest(accessToken))
+            val response = api.loginTest(EmailReq("1"))
             if(response.isSuccess){
                 tokenRepository.saveAccessToken(response.result!!.accessToken)
                 tokenRepository.saveRefreshToken(response.result.refreshToken)
@@ -57,17 +61,20 @@ class LoginRepositoryImpl @Inject constructor(
                 )
                 emit(Resource.Success(response.result.toAccountInfo()))
             }else{
+                Log.d("error", response.message)
                 emit(Resource.Error(response.message))
             }
         } catch (e: IOException) {
+            Log.d("error", e.toString())
             emit(Resource.Error(e.toString()))
         } catch (e: HttpException) {
+            Log.d("error", e.toString())
             emit(Resource.Error(e.toString()))
         }
     }.flowOn(ioDispatcher)
 
     @WorkerThread
-    override suspend fun setNickname(nickname: String): Flow<Resource<String>> = flow {
+    override fun setNickname(nickname: String): Flow<Resource<String>> = flow {
         emit(Resource.Loading())
         try {
             val token = tokenRepository.getAccessToken()
@@ -89,7 +96,7 @@ class LoginRepositoryImpl @Inject constructor(
     }.flowOn(ioDispatcher)
 
     @WorkerThread
-    override suspend fun modifyNickname(nickname: String): Flow<Resource<String>> = flow{
+    override fun modifyNickname(nickname: String): Flow<Resource<String>> = flow{
         emit(Resource.Loading())
         try {
             val token = tokenRepository.getAccessToken()
@@ -117,7 +124,7 @@ class LoginRepositoryImpl @Inject constructor(
     }
 
     @WorkerThread
-    override suspend fun getAddressByCoord(
+    override fun getAddressByCoord(
         x: String,
         y: String
     ): Flow<Resource<Address>> = flow {
@@ -137,12 +144,13 @@ class LoginRepositoryImpl @Inject constructor(
     }.flowOn(ioDispatcher)
 
     @WorkerThread
-    override suspend fun setLocation(district: String, neighborhood: String): Flow<Resource<String>> = flow {
+    override fun setLocation(district: String, neighborhood: String): Flow<Resource<String>> = flow {
         emit(Resource.Loading())
         try {
             val token = tokenRepository.getAccessToken()
             val response = api.setLocation(token?: "", LocationDto(district, neighborhood))
             if(response.isSuccess){
+                saveLocation(neighborhood)
                 emit(Resource.Success(response.result))
             }else{
                 emit(Resource.Error(response.message))
@@ -154,4 +162,9 @@ class LoginRepositoryImpl @Inject constructor(
         }
     }.flowOn(ioDispatcher)
 
+    private suspend fun saveLocation(neighborhood: String) {
+        dataStore.edit { prefs ->
+            prefs[DONG] = neighborhood
+        }
+    }
 }

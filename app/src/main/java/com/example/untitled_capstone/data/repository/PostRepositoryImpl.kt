@@ -28,11 +28,11 @@ import kotlinx.coroutines.flow.flowOn
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import okio.IOException
 import retrofit2.HttpException
-import java.io.File
 import javax.inject.Inject
 
 class PostRepositoryImpl @Inject constructor(
@@ -41,17 +41,10 @@ class PostRepositoryImpl @Inject constructor(
     @Dispatcher(AppDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
 ): PostRepository{
     @WorkerThread
-    override suspend fun post(newPost: NewPost, images: List<File>?): Flow<Resource<String>> = flow {
+    override fun post(newPost: RequestBody, images: List<MultipartBody.Part>?): Flow<Resource<String>> = flow {
         emit(Resource.Loading())
         try {
-            val gson = Gson()
-            val json = gson.toJson(newPost)
-            val jsonBody = json.toRequestBody("application/json; charset=utf-8".toMediaType())
-            val requestFile = images?.map { it.asRequestBody("image/*".toMediaTypeOrNull())}
-            val body = requestFile?.mapIndexed { index, file ->
-                MultipartBody.Part.createFormData("postImages", images[index].name, file)
-            }
-            val response = api.post(jsonBody, body)
+            val response = api.post(newPost, images)
             if(response.isSuccess){
                 emit(Resource.Success(response.result))
             }else {
@@ -75,7 +68,7 @@ class PostRepositoryImpl @Inject constructor(
     }
 
     @WorkerThread
-    override suspend fun getPostById(id: Long): Flow<Resource<Post>> = flow {
+    override fun getPostById(id: Long): Flow<Resource<Post>> = flow {
         emit(Resource.Loading())
         try {
             val response = api.getPostById(id)
@@ -92,7 +85,7 @@ class PostRepositoryImpl @Inject constructor(
     }.flowOn(ioDispatcher)
 
     @WorkerThread
-    override suspend fun deletePost(id: Long): Flow<Resource<String>> = flow {
+    override fun deletePost(id: Long): Flow<Resource<String>> = flow {
         emit(Resource.Loading())
         try {
             val response = api.deletePost(id)
@@ -109,13 +102,13 @@ class PostRepositoryImpl @Inject constructor(
     }.flowOn(ioDispatcher)
 
     @WorkerThread
-    override suspend fun modifyPost(
+    override fun modifyPost(
         id: Long,
         newPost: NewPost,
     ): Flow<Resource<String>> = flow {
         emit(Resource.Loading())
         try {
-            val response = api.modifyPost(id, newPost.toNewPostDto())
+            val response = api.modifyPost(id, newPost.toModifyPostDto())
             if(response.isSuccess){
                 emit(Resource.Success(response.result))
             }else {
@@ -139,7 +132,7 @@ class PostRepositoryImpl @Inject constructor(
     }
 
     @WorkerThread
-    override suspend fun toggleLike(id: Long): Flow<Resource<Boolean>> = flow {
+    override fun toggleLike(id: Long): Flow<Resource<Boolean>> = flow {
         emit(Resource.Loading())
         try {
             val response = api.toggleLike(id)
@@ -166,7 +159,7 @@ class PostRepositoryImpl @Inject constructor(
     }
 
     @WorkerThread
-    override suspend fun uploadImages(
+    override fun uploadImages(
         id: Long,
         images: List<MultipartBody.Part>
     ): Flow<Resource<String>> = flow {
@@ -186,7 +179,7 @@ class PostRepositoryImpl @Inject constructor(
     }.flowOn(ioDispatcher)
 
     @WorkerThread
-    override suspend fun deleteImage(
+    override fun deleteImage(
         id: Long,
         imageId: Long
     ): Flow<Resource<String>> = flow {
@@ -206,7 +199,7 @@ class PostRepositoryImpl @Inject constructor(
     }.flowOn(ioDispatcher)
 
     @WorkerThread
-    override suspend fun getSearchHistory(): Flow<Resource<List<Keyword>>> = flow {
+    override fun getSearchHistory(): Flow<Resource<List<Keyword>>> = flow {
         emit(Resource.Loading())
         try {
             val response = api.getSearchHistory()
@@ -224,7 +217,7 @@ class PostRepositoryImpl @Inject constructor(
     }.flowOn(ioDispatcher)
 
     @WorkerThread
-    override suspend fun deleteSearchHistory(keyword: String): Flow<Resource<String>> = flow {
+    override fun deleteSearchHistory(keyword: String): Flow<Resource<String>> = flow {
         emit(Resource.Loading())
         try {
             val response = api.deleteSearchHistory(keyword)
@@ -241,7 +234,7 @@ class PostRepositoryImpl @Inject constructor(
     }
 
     @WorkerThread
-    override suspend fun deleteAllSearchHistory(): Flow<Resource<String>> = flow {
+    override fun deleteAllSearchHistory(): Flow<Resource<String>> = flow {
         emit(Resource.Loading())
         try {
             val response = api.deleteAllSearchHistory()
@@ -258,7 +251,7 @@ class PostRepositoryImpl @Inject constructor(
     }.flowOn(ioDispatcher)
 
     @WorkerThread
-    override suspend fun reportPost(
+    override fun reportPost(
         postId: Long,
         reportType: String,
         content: String

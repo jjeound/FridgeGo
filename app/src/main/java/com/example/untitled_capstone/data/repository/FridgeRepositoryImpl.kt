@@ -55,7 +55,7 @@ class FridgeRepositoryImpl @Inject constructor(
         ).flow.flowOn(ioDispatcher)
     }
 
-    override suspend fun addItem(item: FridgeItem, image: File?): Flow<Resource<String>> = flow {
+    override fun addItem(item: FridgeItem, image: File?): Flow<Resource<String>> = flow {
         emit(Resource.Loading())
         try {
             val json = Gson().toJson(item.toNewFridgeItemDto())
@@ -76,7 +76,7 @@ class FridgeRepositoryImpl @Inject constructor(
     }.flowOn(ioDispatcher)
 
     @WorkerThread
-    override suspend fun toggleNotification(
+    override fun toggleNotification(
         id: Long,
         alarmStatus: Boolean
     ): Flow<Resource<String>> = flow {
@@ -97,10 +97,12 @@ class FridgeRepositoryImpl @Inject constructor(
     }.flowOn(ioDispatcher)
 
     @WorkerThread
-    override suspend fun modifyItem(updatedItem: FridgeItem, image: MultipartBody.Part?): Flow<Resource<String>> = flow {
+    override fun modifyItem(updatedItem: FridgeItem, image: MultipartBody.Part?): Flow<Resource<String>> = flow {
         emit(Resource.Loading())
         try {
-            val response = api.modifyItem(updatedItem.id, updatedItem.toModifyFridgeReqDto(), image)
+            val json = Gson().toJson(updatedItem.toModifyFridgeReqDto())
+            val jsonBody = json.toRequestBody("application/json; charset=utf-8".toMediaType())
+            val response = api.modifyItem(updatedItem.id, jsonBody, image)
             if(response.isSuccess){
                 emit(Resource.Success(response.result))
             }else{
@@ -113,7 +115,7 @@ class FridgeRepositoryImpl @Inject constructor(
         }
     }.flowOn(ioDispatcher)
 
-    override suspend fun deleteItem(id: Long): Flow<Resource<String>> = flow {
+    override fun deleteItem(id: Long): Flow<Resource<String>> = flow {
         emit(Resource.Loading())
         try {
             Resource.Loading(data = null)
@@ -131,7 +133,7 @@ class FridgeRepositoryImpl @Inject constructor(
     }.flowOn(ioDispatcher)
 
     @WorkerThread
-    override suspend fun getFridgeItemById(id: Long): Flow<Resource<FridgeItem>> = flow {
+    override fun getFridgeItemById(id: Long): Flow<Resource<FridgeItem>> = flow {
         emit(Resource.Loading())
          try {
             Resource.Loading(data = null)

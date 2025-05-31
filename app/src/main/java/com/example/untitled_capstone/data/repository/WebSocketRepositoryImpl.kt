@@ -1,10 +1,13 @@
 package com.example.untitled_capstone.data.repository
 
+import com.example.untitled_capstone.data.AppDispatchers
+import com.example.untitled_capstone.data.Dispatcher
 import com.example.untitled_capstone.data.local.db.MessageItemDatabase
 import com.example.untitled_capstone.data.remote.dto.MessageDto
 import com.example.untitled_capstone.data.remote.dto.UnreadBroadcastDto
 import com.example.untitled_capstone.data.remote.manager.WebSocketManager
 import com.example.untitled_capstone.domain.repository.WebSocketRepository
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -13,7 +16,8 @@ import javax.inject.Inject
 
 class WebSocketRepositoryImpl @Inject constructor(
     private val webSocketManager: WebSocketManager,
-    private val db: MessageItemDatabase
+    private val db: MessageItemDatabase,
+    @Dispatcher(AppDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
 ) : WebSocketRepository {
 
     override fun connect(token: String, roomId: Long, onConnected: () -> Unit, onError: (Throwable) -> Unit) {
@@ -28,12 +32,12 @@ class WebSocketRepositoryImpl @Inject constructor(
         webSocketManager.subscribeRoom(
             roomId = roomId,
             onMessage = { dto ->
-                CoroutineScope(Dispatchers.IO).launch {
+                CoroutineScope(ioDispatcher).launch {
                     saveMessageToDatabase(dto, roomId)
                 }
                 onMessage(dto) },
             onUnreadUpdate = { dto ->
-                CoroutineScope(Dispatchers.IO).launch {
+                CoroutineScope(ioDispatcher).launch {
                     updateUnreadCount(
                         messageId = dto.messageId,
                         roomId = roomId,
@@ -55,6 +59,14 @@ class WebSocketRepositoryImpl @Inject constructor(
 
     override fun disconnect() {
         webSocketManager.disconnect()
+    }
+
+    override fun enterRoom(roomId: Long) {
+        webSocketManager.enterRoom(roomId)
+    }
+
+    override fun leaveRoom(roomId: Long) {
+        webSocketManager.leaveRoom(roomId)
     }
 
     private suspend fun saveMessageToDatabase(message: MessageDto, roomId: Long) {

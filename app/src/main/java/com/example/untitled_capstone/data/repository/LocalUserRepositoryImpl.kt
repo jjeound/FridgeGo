@@ -4,7 +4,6 @@ import android.app.Application
 import androidx.datastore.preferences.core.edit
 import com.example.untitled_capstone.core.util.PrefKeys.APP_ENTRY
 import com.example.untitled_capstone.domain.repository.LocalUserRepository
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject

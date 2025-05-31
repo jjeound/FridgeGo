@@ -43,11 +43,12 @@ class HomeRepositoryImpl @Inject constructor(
     private val prefs = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
 
     @WorkerThread
-    override suspend fun getTastePreference(): Flow<Resource<TastePreference>> = flow {
+    override fun getTastePreference(): Flow<Resource<TastePreference>> = flow {
         emit(Resource.Loading())
-        if(prefs.getString(TASTE_PREFERENCE, null) != null){
-            emit(Resource.Success(TastePreference(prefs.getString(TASTE_PREFERENCE, null)!!)))
-        }else{
+        val cached = prefs.getString(TASTE_PREFERENCE, null)
+        if (cached != null) {
+            emit(Resource.Success(TastePreference(cached)))
+        } else {
             try {
                 val response = api.getTastePreference()
                 if(response.isSuccess){
@@ -64,7 +65,7 @@ class HomeRepositoryImpl @Inject constructor(
     }.flowOn(ioDispatcher)
 
     @WorkerThread
-    override suspend fun setTastePreference(tastePreference: TastePreference): Flow<Resource<String>> = flow {
+    override fun setTastePreference(tastePreference: TastePreference): Flow<Resource<String>> = flow {
         emit(Resource.Loading())
         try {
             val response = api.setTastePreference(tastePreference.toPreferenceDto())
@@ -92,7 +93,7 @@ class HomeRepositoryImpl @Inject constructor(
     }
 
     @WorkerThread
-    override suspend fun getRecipeById(id: Long): Flow<Resource<Recipe>> = flow {
+    override fun getRecipeById(id: Long): Flow<Resource<Recipe>> = flow {
         emit(Resource.Loading())
         try {
             val response = api.getRecipeById(id)
@@ -109,7 +110,7 @@ class HomeRepositoryImpl @Inject constructor(
     }.flowOn(ioDispatcher)
 
     @WorkerThread
-    override suspend fun toggleLike(id: Long, liked: Boolean): Flow<Resource<Boolean>> = flow {
+    override fun toggleLike(id: Long, liked: Boolean): Flow<Resource<Boolean>> = flow {
         emit(Resource.Loading())
         try {
             val response = api.toggleLike(id)
@@ -126,7 +127,7 @@ class HomeRepositoryImpl @Inject constructor(
     }.flowOn(ioDispatcher)
 
     @WorkerThread
-    override suspend fun addRecipe(recipe: String): Flow<Resource<String>> = flow {
+    override fun addRecipe(recipe: String): Flow<Resource<String>> = flow {
         emit(Resource.Loading())
         try {
             val response = api.addRecipe(RecipeReqDto(recipe))
@@ -143,7 +144,7 @@ class HomeRepositoryImpl @Inject constructor(
     }.flowOn(ioDispatcher)
 
     @WorkerThread
-    override suspend fun deleteRecipe(id: Long): Flow<Resource<String>> = flow {
+    override fun deleteRecipe(id: Long): Flow<Resource<String>> = flow {
         emit(Resource.Loading())
         try {
             val response = api.deleteRecipe(id)
@@ -160,7 +161,7 @@ class HomeRepositoryImpl @Inject constructor(
     }.flowOn(ioDispatcher)
 
     @WorkerThread
-    override suspend fun modifyRecipe(recipe: Recipe): Flow<Resource<String>> = flow {
+    override fun modifyRecipe(recipe: Recipe): Flow<Resource<String>> = flow {
         emit(Resource.Loading())
         try {
             val response = api.modifyRecipe(recipe.id, ModifyRecipeBody(title = recipe.title,
@@ -178,7 +179,7 @@ class HomeRepositoryImpl @Inject constructor(
     }.flowOn(ioDispatcher)
 
     @WorkerThread
-    override suspend fun getFirstRecommendation(): Flow<Resource<String>> = flow {
+    override fun getFirstRecommendation(): Flow<Resource<String>> = flow {
         emit(Resource.Loading())
         try {
             val response = api.getFirstRecommendation()
@@ -195,7 +196,7 @@ class HomeRepositoryImpl @Inject constructor(
     }.flowOn(ioDispatcher)
 
     @WorkerThread
-    override suspend fun getAnotherRecommendation(): Flow<Resource<String>> = flow {
+    override fun getAnotherRecommendation(): Flow<Resource<String>> = flow {
         emit(Resource.Loading())
         try {
             val response = api.getAnotherRecommendation()
@@ -220,7 +221,7 @@ class HomeRepositoryImpl @Inject constructor(
     }
 
     @WorkerThread
-    override suspend fun uploadImage(id: Long, image: MultipartBody.Part): Flow<Resource<String>> = flow {
+    override fun uploadImage(id: Long, image: MultipartBody.Part): Flow<Resource<String>> = flow {
         emit(Resource.Loading())
         try {
             val response = api.uploadImage(id, image)

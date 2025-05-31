@@ -121,7 +121,7 @@ fun SetNickNameScreen(
                     OutlinedTextField(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(44.dp),
+                            .height(48.dp),
                         value = nickname,
                         onValueChange = { nickname = it },
                         placeholder = {

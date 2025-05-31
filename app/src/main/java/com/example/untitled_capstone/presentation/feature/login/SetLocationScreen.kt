@@ -2,10 +2,14 @@ package com.example.untitled_capstone.presentation.feature.login
 
 import android.Manifest
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
+import android.net.Uri
+import android.provider.Settings
 import android.util.Log
-import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresPermission
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -46,8 +50,10 @@ import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.ui.theme.CustomTheme
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
+import com.example.untitled_capstone.MainActivity
 import com.example.untitled_capstone.domain.model.Address
-import com.example.untitled_capstone.navigation.Screen
+import com.example.untitled_capstone.presentation.util.PermissionDialog
 import com.kakao.vectormap.MapView
 import com.google.android.gms.location.LocationServices
 import com.kakao.vectormap.KakaoMap
@@ -76,25 +82,47 @@ fun SetLocationScreen(
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
     val locationPermissions = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)
+    val requestPermissionLauncher =
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.RequestMultiplePermissions(),
+            onResult = { permissions ->
+                locationPermissions.forEach { permission ->
+                    if (permissions[permission] == true){
+                        Log.d(permission, "위치 권한이 허용되었습니다.")
+                    }
+                }
+            }
+        )
     val mapView = remember { MapView(context) }
     var lat by remember { mutableDoubleStateOf(0.0) }
     var lon by remember { mutableDoubleStateOf(0.0) }
     var showMap by remember { mutableStateOf(false) }
+    val showDialog = remember { mutableStateOf(false) }
+
     LaunchedEffect(Unit) {
-        if(
+        when {
             ContextCompat.checkSelfPermission(
                 context,
                 locationPermissions[0]
             ) == PackageManager.PERMISSION_GRANTED &&
-            ContextCompat.checkSelfPermission(
-                context,
-                locationPermissions[1]
-            ) == PackageManager.PERMISSION_GRANTED
-        ) {
-            getCurrentLocation(context) { latitude, longitude ->
-                lat = latitude
-                lon = longitude
-                getAddressByCoord(lon.toString(), lat.toString())
+                    ContextCompat.checkSelfPermission(
+                        context,
+                        locationPermissions[1]
+                    ) == PackageManager.PERMISSION_GRANTED->  {
+                getCurrentLocation(context) { latitude, longitude ->
+                    lat = latitude
+                    lon = longitude
+                    getAddressByCoord(lon.toString(), lat.toString())
+                }
+            }
+            shouldShowRequestPermissionRationale(
+                context as MainActivity,
+                locationPermissions[0]
+            ) -> {
+                showDialog.value = true
+            }
+            else -> {
+                requestPermissionLauncher.launch(locationPermissions)
             }
         }
     }
@@ -186,7 +214,7 @@ fun SetLocationScreen(
                                                 )
                                             )
 
-                                        val layer = p0.labelManager?.layer;
+                                        val layer = p0.labelManager?.layer
 
                                         layer?.addLabel(options)
                                     }
@@ -227,6 +255,19 @@ fun SetLocationScreen(
                 )
             }
         }
+        PermissionDialog(
+            showDialog = showDialog,
+            message = "위치 권한이 필요합니다.",
+            onDismiss = { showDialog.value = false },
+            onConfirm = {
+                showDialog.value = false
+                context.startActivity(
+                    Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                        data = Uri.fromParts("package", context.packageName, null)
+                    }
+                )
+            }
+        )
     }
 }
 
@@ -242,13 +283,6 @@ fun getCurrentLocation(context: Context, onLocationReceived: (lat: Double, lon: 
         Log.e("Location", "위치 요청 실패: ${it.message}")
     }
 }
-
-
-//@Preview
-//@Composable
-//fun SetLocationScreenPreview(){
-//    SetLocationScreen(AddressState(), {}, {}, {}, false)
-//}
 
 
 

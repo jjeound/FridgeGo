@@ -6,15 +6,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.domain.model.AccountInfo
-import com.example.untitled_capstone.navigation.Graph
-import com.example.untitled_capstone.navigation.Screen
+import com.example.untitled_capstone.presentation.util.CustomSnackbar
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -26,6 +28,7 @@ fun LoginScreen(
     navigateToHome: () -> Unit,
     navigateToNic: () -> Unit,
 ){
+    val snackbarHostState = remember { SnackbarHostState() }
     LaunchedEffect(uiState) {
         if(uiState == LoginUiState.Success){
             if (accountInfo?.nickname != null){
@@ -37,6 +40,12 @@ fun LoginScreen(
     }
     Scaffold(
         containerColor = CustomTheme.colors.onSurface,
+        snackbarHost = { SnackbarHost(
+            hostState = snackbarHostState,
+            snackbar = { data ->
+                CustomSnackbar(data)
+            }
+        ) },
         topBar = {
             CenterAlignedTopAppBar(
                 modifier = Modifier.padding(Dimens.topBarPadding),

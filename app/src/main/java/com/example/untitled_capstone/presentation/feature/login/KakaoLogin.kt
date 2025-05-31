@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -29,6 +28,7 @@ import com.kakao.sdk.auth.model.OAuthToken
 import com.kakao.sdk.common.model.ClientError
 import com.kakao.sdk.common.model.ClientErrorCause
 import com.kakao.sdk.user.UserApiClient
+import kotlin.math.log
 
 @Composable
 fun KakaoLogin(
@@ -62,10 +62,10 @@ fun KakaoLogin(
                 modifier = Modifier.width(600.dp).height(90.dp).padding(
                     Dimens.largePadding
                 ).clickable {
-                    //onAction(LoginEvent.KakaoLogin("2"))
-                    kakaoLogin(context){ code ->
-                        login(code)
-                    }
+                    login("")
+//                    kakaoLogin(context){ code ->
+//                        login(code)
+//                    }
                 },
                 painter = painterResource(id = R.drawable.kakao_login_large_wide),
                 contentDescription = "kakao_login"

@@ -1,6 +1,6 @@
 package com.example.untitled_capstone.presentation.feature.chat.detail
 
-import android.util.Log
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -42,6 +42,8 @@ import coil.compose.AsyncImage
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.domain.model.ChatMember
+import com.example.untitled_capstone.navigation.Screen
+import com.example.untitled_capstone.presentation.util.CustomSnackbar
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -49,6 +51,7 @@ import com.example.untitled_capstone.ui.theme.CustomTheme
 fun ChattingRoomDrawer(
     roomId: Long,
     title: String,
+    isActive: Boolean,
     uiState: ChatDetailUiState,
     popBackStack: () -> Unit,
     members: List<ChatMember>,
@@ -56,6 +59,7 @@ fun ChattingRoomDrawer(
     closeChatRoom: (Long) -> Unit,
     exitChatRoom: (Long) -> Unit,
     clearBackStack: () -> Unit,
+    navigate: (Screen) -> Unit,
 ){
     val snackbarHostState = remember { SnackbarHostState() }
     val scrollState = rememberScrollState()
@@ -65,12 +69,17 @@ fun ChattingRoomDrawer(
             color = CustomTheme.colors.primary
         )
     }
-    Log.d("members", members.toString())
-    Log.d("myName", myName.toString())
 
     Scaffold(
         containerColor = CustomTheme.colors.surface,
-        snackbarHost = {SnackbarHost(hostState = snackbarHostState)},
+        snackbarHost = {SnackbarHost(
+            hostState = snackbarHostState,
+            snackbar = { data ->
+                CustomSnackbar(
+                    data
+                )
+            }
+        )},
         topBar = {
             CenterAlignedTopAppBar(
                 modifier = Modifier.padding(horizontal = Dimens.topBarPadding),
@@ -143,7 +152,13 @@ fun ChattingRoomDrawer(
                                         .fillMaxWidth()
                                         .padding(
                                             vertical = Dimens.smallPadding,
-                                        ),
+                                        ).clickable{
+                                            if (it.nickname != myName){
+                                                navigate(
+                                                    Screen.Profile(it.nickname)
+                                                )
+                                            }
+                                        },
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.spacedBy(Dimens.smallPadding)
                                 ) {
@@ -199,7 +214,8 @@ fun ChattingRoomDrawer(
                         onClick = {
                             closeChatRoom(roomId)
                             clearBackStack()
-                        }
+                        },
+                        enabled = isActive
                     ) {
                         Text(
                             text = "채팅방 마감하기",

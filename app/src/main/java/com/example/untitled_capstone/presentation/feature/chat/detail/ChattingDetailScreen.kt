@@ -25,14 +25,20 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavHostController
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
@@ -43,6 +49,7 @@ import com.example.untitled_capstone.domain.model.ChattingRoom
 import com.example.untitled_capstone.domain.model.Message
 import com.example.untitled_capstone.navigation.Screen
 import com.example.untitled_capstone.presentation.feature.chat.ChatViewModel
+import com.example.untitled_capstone.presentation.util.CustomSnackbar
 import com.example.untitled_capstone.presentation.util.UiEvent
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
@@ -56,13 +63,30 @@ fun ChattingDetailScreen(
     name: String?,
     clearBackStack: () -> Unit,
     disconnect: () -> Unit,
-    navigateUp: (Screen) -> Unit,
+    navigate: (Screen) -> Unit,
     members: List<ChatMember>,
     sendMessage: (Long, String) -> Unit,
+    leaveRoom: (Long) -> Unit,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val listState = rememberLazyListState()
-    Log.d("name", name.toString())
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_STOP) {
+                leaveRoom(roomId)
+            }
+            if (event == Lifecycle.Event.ON_DESTROY) {
+                leaveRoom(roomId)
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
 
     if(uiState == ChatDetailUiState.Loading){
         Box(
@@ -77,7 +101,15 @@ fun ChattingDetailScreen(
     chattingRoom?.let { room ->
         Scaffold(
             containerColor = CustomTheme.colors.onSurface,
-            snackbarHost = { SnackbarHost(hostState = snackbarHostState)},
+            snackbarHost = {
+                SnackbarHost(
+                    hostState = snackbarHostState,
+                    snackbar = { data ->
+                        CustomSnackbar(
+                            data
+                        )
+                    }
+                )},
             topBar = {
                 CenterAlignedTopAppBar(
                     modifier = Modifier.padding(horizontal = Dimens.topBarPadding),
@@ -116,7 +148,7 @@ fun ChattingDetailScreen(
                     actions = {
                         IconButton(
                             onClick = {
-                                navigateUp(Screen.ChattingDrawerNav(roomId, room.name))
+                                navigate(Screen.ChattingDrawerNav(roomId, room.name, room.active))
                             }
                         ) {
                             Icon(
@@ -161,6 +193,18 @@ fun ChattingDetailScreen(
                             reverseLayout = true,
                             verticalArrangement = Arrangement.Bottom,
                         ) {
+//                            item {
+//                                Box(
+//                                    modifier = Modifier.fillMaxWidth(),
+//                                    contentAlignment = Alignment.Center
+//                                ){
+//                                    Text(
+//                                        text = "hi님이 들어왔습니다.",
+//                                        style = CustomTheme.typography.caption2,
+//                                        color = CustomTheme.colors.textSecondary,
+//                                    )
+//                                }
+//                            }
                             items(messages.itemCount){ index ->
                                 val message = messages[index]
                                 if (message != null) {
@@ -171,7 +215,7 @@ fun ChattingDetailScreen(
                                         isMe = isMe,
                                         profileImage = profileImage,
                                         isActive = room.active,
-                                        navigateUp = navigateUp
+                                        navigate = navigate
                                     )
                                 }
                             }
@@ -185,11 +229,16 @@ fun ChattingDetailScreen(
                                 sendMessage = sendMessage,
                             )
                         }else{
-                            Text(
-                                text = "채팅방이 비활성화 되었습니다.",
-                                style = CustomTheme.typography.body2,
-                                color = CustomTheme.colors.textSecondary,
-                            )
+                            Box(
+                                modifier = Modifier.fillMaxWidth(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = "채팅방이 비활성화 되었습니다.",
+                                    style = CustomTheme.typography.body2,
+                                    color = CustomTheme.colors.textSecondary,
+                                )
+                            }
                         }
                     }
                 }

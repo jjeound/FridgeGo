@@ -18,6 +18,8 @@ import com.example.untitled_capstone.domain.use_case.chat.ConnectChatSocketUseCa
 import com.example.untitled_capstone.domain.use_case.chat.DisconnectUseCase
 import com.example.untitled_capstone.domain.use_case.chat.EnterChatRoomUseCase
 import com.example.untitled_capstone.domain.use_case.chat.ExitChatRoomUseCase
+import com.example.untitled_capstone.domain.use_case.chat.FCMEnterRoomUseCase
+import com.example.untitled_capstone.domain.use_case.chat.FCMLeaveRoomUseCase
 import com.example.untitled_capstone.domain.use_case.chat.GetMessagesUseCase
 import com.example.untitled_capstone.domain.use_case.chat.GetMyChatRoomsUseCase
 import com.example.untitled_capstone.domain.use_case.chat.GetPagedMessagesUseCase
@@ -29,7 +31,7 @@ import com.example.untitled_capstone.domain.use_case.chat.SubscribeRoomUseCase
 import com.example.untitled_capstone.domain.use_case.my.GetAccessTokenUseCase
 import com.example.untitled_capstone.domain.use_case.my.GetMyNicknameUseCase
 import com.example.untitled_capstone.navigation.Screen
-import com.example.untitled_capstone.presentation.feature.chat.ChatEvent
+import com.example.untitled_capstone.presentation.util.UiEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -59,7 +61,9 @@ class ChatDetailViewModel @Inject constructor(
     private val disconnectUseCase: DisconnectUseCase,
     private val sendReadChatUseCase: ReadChatUseCase,
     private val sendReadEventUseCase: SendReadEventUseCase,
-    private val getMyRoomsUseCase: GetMyChatRoomsUseCase
+    private val getMyRoomsUseCase: GetMyChatRoomsUseCase,
+    private val fcmEnterRoomUseCase: FCMEnterRoomUseCase,
+    private val fcmLeaveRoomUseCase: FCMLeaveRoomUseCase,
 ): ViewModel() {
 
     val uiState: MutableStateFlow<ChatDetailUiState> = MutableStateFlow<ChatDetailUiState>(ChatDetailUiState.Loading)
@@ -79,7 +83,7 @@ class ChatDetailViewModel @Inject constructor(
     private val _name = MutableStateFlow<String?>(null)
     val name = _name.asStateFlow()
 
-    private val _event = MutableSharedFlow<ChatEvent>()
+    private val _event = MutableSharedFlow<UiEvent>()
     val event = _event.asSharedFlow()
 
     fun getMessages(roomId: Long) {
@@ -107,7 +111,7 @@ class ChatDetailViewModel @Inject constructor(
 
                     is Resource.Error -> {
                         uiState.tryEmit(ChatDetailUiState.Error(it.message))
-                        _event.emit(ChatEvent.ShowSnackbar(it.message ?: "Unknown error"))
+                        _event.emit(UiEvent.ShowSnackbar(it.message ?: "Unknown error"))
                     }
 
                     is Resource.Loading -> {
@@ -124,14 +128,14 @@ class ChatDetailViewModel @Inject constructor(
                 when(it){
                     is Resource.Success -> {
                         it.data?.let { room ->
-                            _chattingRoom.update { room }
+                            _chattingRoom.value = room
                             uiState.tryEmit(ChatDetailUiState.Idle)
                         }
                     }
 
                     is Resource.Error -> {
                         uiState.tryEmit(ChatDetailUiState.Error(it.message))
-                        _event.emit(ChatEvent.ShowSnackbar(it.message ?: "Unknown error"))
+                        _event.emit(UiEvent.ShowSnackbar(it.message ?: "Unknown error"))
                     }
 
                     is Resource.Loading -> {
@@ -154,7 +158,7 @@ class ChatDetailViewModel @Inject constructor(
 
                     is Resource.Error -> {
                         uiState.tryEmit(ChatDetailUiState.Error(it.message))
-                        _event.emit(ChatEvent.ShowSnackbar(it.message ?: "Unknown error"))
+                        _event.emit(UiEvent.ShowSnackbar(it.message ?: "Unknown error"))
                     }
 
                     is Resource.Loading -> {
@@ -177,7 +181,7 @@ class ChatDetailViewModel @Inject constructor(
 
                     is Resource.Error -> {
                         uiState.tryEmit(ChatDetailUiState.Error(it.message))
-                        _event.emit(ChatEvent.ShowSnackbar(it.message ?: "Unknown error"))
+                        _event.emit(UiEvent.ShowSnackbar(it.message ?: "Unknown error"))
                     }
 
                     is Resource.Loading -> {
@@ -202,14 +206,14 @@ class ChatDetailViewModel @Inject constructor(
                 when(it){
                     is Resource.Success -> {
                         it.data?.let { members ->
-                            _member.update { members }
+                            _member.value = members
                             uiState.tryEmit(ChatDetailUiState.Idle)
                         }
                     }
 
                     is Resource.Error -> {
                         uiState.tryEmit(ChatDetailUiState.Error(it.message))
-                        _event.emit(ChatEvent.ShowSnackbar(it.message ?: "Unknown error"))
+                        _event.emit(UiEvent.ShowSnackbar(it.message ?: "Unknown error"))
                     }
 
                     is Resource.Loading -> {
@@ -232,7 +236,7 @@ class ChatDetailViewModel @Inject constructor(
 
                     is Resource.Error -> {
                         uiState.tryEmit(ChatDetailUiState.Error(it.message))
-                        _event.emit(ChatEvent.ShowSnackbar(it.message ?: "Unknown error"))
+                        _event.emit(UiEvent.ShowSnackbar(it.message ?: "Unknown error"))
                     }
 
                     is Resource.Loading -> {
@@ -255,7 +259,7 @@ class ChatDetailViewModel @Inject constructor(
 
                     is Resource.Error -> {
                         uiState.tryEmit(ChatDetailUiState.Error(it.message))
-                        _event.emit(ChatEvent.ShowSnackbar(it.message ?: "Unknown error"))
+                        _event.emit(UiEvent.ShowSnackbar(it.message ?: "Unknown error"))
                     }
 
                     is Resource.Loading -> {
@@ -276,7 +280,7 @@ class ChatDetailViewModel @Inject constructor(
                     Log.d("socket", "error")
                 })
             } else {
-                _event.emit(ChatEvent.ShowSnackbar("Token is null or blank"))
+                _event.emit(UiEvent.ShowSnackbar("Token is null or blank"))
             }
         }
     }
@@ -321,16 +325,12 @@ class ChatDetailViewModel @Inject constructor(
         disconnectUseCase()
     }
 
-    fun navigateUp(route: Screen) {
-        viewModelScope.launch {
-            _event.emit(ChatEvent.Navigate(route))
-        }
+    fun fcmEnterRoom(roomId: Long){
+        fcmEnterRoomUseCase(roomId)
     }
 
-    fun popBackStack() {
-        viewModelScope.launch {
-            _event.emit(ChatEvent.PopBackStack)
-        }
+    fun fcmLeaveRoom(roomId: Long){
+        fcmLeaveRoomUseCase(roomId)
     }
 }
 

@@ -20,7 +20,7 @@ import com.example.untitled_capstone.ui.theme.CustomTheme
 fun ChattingScreen(
     uiState: ChatUiState,
     chattingRoomList: List<ChattingRoomRaw>,
-    navigateUp: (Screen) -> Unit,
+    navigate: (Screen) -> Unit,
 ) {
     if(uiState == ChatUiState.Loading){
         Box(
@@ -41,7 +41,7 @@ fun ChattingScreen(
             val room = chattingRoomList[index]
             Box(
                 modifier = Modifier.clickable {
-                    navigateUp(Screen.ChattingRoomNav(room.roomId))
+                    navigate(Screen.ChattingRoomNav(room.roomId, room.active))
                 }
             ){
                 ChatItem(chattingRoomRaw = room)

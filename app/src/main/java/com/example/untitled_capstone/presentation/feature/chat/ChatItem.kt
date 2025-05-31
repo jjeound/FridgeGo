@@ -19,10 +19,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.domain.model.ChattingRoomRaw
@@ -49,9 +52,11 @@ fun ChatItem(chattingRoomRaw: ChattingRoomRaw){
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Image(
-                    imageVector = ImageVector.vectorResource(R.drawable.chattingroom_image),
-                    contentDescription = "profile",
+                AsyncImage(
+                    model = R.drawable.thumbnail,
+                    modifier = Modifier.size(48.dp).clip(RoundedCornerShape(Dimens.cornerRadius)),
+                    contentScale = ContentScale.Crop,
+                    contentDescription = "thumbnail",
                 )
                 Spacer(
                     modifier = Modifier.width(Dimens.mediumPadding)

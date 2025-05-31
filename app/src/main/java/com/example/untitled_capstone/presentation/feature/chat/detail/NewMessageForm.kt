@@ -42,16 +42,16 @@ fun NewMessageForm(
         horizontalArrangement = Arrangement.spacedBy(Dimens.mediumPadding),
         verticalAlignment = Alignment.Bottom
     ) {
-        IconButton(
-            modifier = Modifier.padding(bottom = 16.dp).then(Modifier.size(24.dp)),
-            onClick = { }
-        ) {
-            Icon(
-                imageVector = ImageVector.vectorResource(R.drawable.plus),
-                contentDescription = "more",
-                tint = CustomTheme.colors.iconDefault,
-            )
-        }
+//        IconButton(
+//            modifier = Modifier.padding(bottom = 16.dp).then(Modifier.size(24.dp)),
+//            onClick = { }
+//        ) {
+//            Icon(
+//                imageVector = ImageVector.vectorResource(R.drawable.plus),
+//                contentDescription = "more",
+//                tint = CustomTheme.colors.iconDefault,
+//            )
+//        }
         TextField(
             value = text,
             onValueChange = {text = it},
@@ -62,17 +62,17 @@ fun NewMessageForm(
                     color = CustomTheme.colors.textSecondary
                 )
             },
-            trailingIcon = {
-                IconButton(
-                    onClick = { }
-                ) {
-                    Icon(
-                        imageVector = ImageVector.vectorResource(R.drawable.emoji),
-                        contentDescription = "emoji",
-                        tint = CustomTheme.colors.iconDefault
-                    )
-                }
-            },
+//            trailingIcon = {
+//                IconButton(
+//                    onClick = { }
+//                ) {
+//                    Icon(
+//                        imageVector = ImageVector.vectorResource(R.drawable.emoji),
+//                        contentDescription = "emoji",
+//                        tint = CustomTheme.colors.iconDefault
+//                    )
+//                }
+//            },
             modifier = Modifier.weight(1f).wrapContentHeight(),
             textStyle = CustomTheme.typography.button2,
             colors = TextFieldDefaults.colors(

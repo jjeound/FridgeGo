@@ -38,7 +38,7 @@ fun MessageCard(
     isMe: Boolean,
     profileImage: String?,
     isActive: Boolean,
-    navigateUp: (Screen) -> Unit,
+    navigate: (Screen) -> Unit,
 ) {
     if(isMe){
         Row(
@@ -86,6 +86,7 @@ fun MessageCard(
                     )
                 ) {
                     Text(
+                        modifier = Modifier.padding(Dimens.smallPadding),
                         text = message.content,
                         style = CustomTheme.typography.caption1,
                         color = CustomTheme.colors.textPrimary,
@@ -106,7 +107,7 @@ fun MessageCard(
                         .size(36.dp)
                         .clip(shape = RoundedCornerShape(36.dp))
                         .clickable {
-                            navigateUp(Screen.Profile(
+                            navigate(Screen.Profile(
                                 message.senderNickname
                             ))
                         }
@@ -114,7 +115,7 @@ fun MessageCard(
             } else {
                 Icon(
                     modifier = Modifier.clickable{
-                        navigateUp(Screen.Profile(
+                        navigate(Screen.Profile(
                             message.senderNickname
                         ))
                     },
@@ -145,6 +146,7 @@ fun MessageCard(
                         )
                     ) {
                         Text(
+                            modifier = Modifier.padding(Dimens.smallPadding),
                             text = message.content,
                             style = CustomTheme.typography.caption1,
                             color = CustomTheme.colors.textPrimary,

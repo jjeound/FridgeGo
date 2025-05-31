@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.untitled_capstone.core.util.Resource
 import com.example.untitled_capstone.domain.model.ChattingRoomRaw
 import com.example.untitled_capstone.domain.use_case.chat.GetMyChatRoomsUseCase
-import com.example.untitled_capstone.navigation.Screen
+import com.example.untitled_capstone.presentation.util.UiEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -27,7 +27,7 @@ class ChatViewModel @Inject constructor(
     private val _chattingRoomList = MutableStateFlow<List<ChattingRoomRaw>>(emptyList())
     val chattingRoomList = _chattingRoomList.asStateFlow()
 
-    private val _event = MutableSharedFlow<ChatEvent>()
+    private val _event = MutableSharedFlow<UiEvent>()
     val event = _event.asSharedFlow()
 
     init {
@@ -47,7 +47,7 @@ class ChatViewModel @Inject constructor(
 
                     is Resource.Error -> {
                         uiState.tryEmit(ChatUiState.Error(it.message))
-                        _event.emit(ChatEvent.ShowSnackbar(it.message ?: "Unknown error"))
+                        _event.emit(UiEvent.ShowSnackbar(it.message ?: "Unknown error"))
                     }
 
                     is Resource.Loading -> {
@@ -63,11 +63,4 @@ interface ChatUiState {
     data object Idle : ChatUiState
     data object Loading : ChatUiState
     data class Error(val message: String?) : ChatUiState
-}
-
-interface ChatEvent{
-    data class ShowSnackbar(val message: String) : ChatEvent
-    data class Navigate(val route: Screen) : ChatEvent
-    object PopBackStack : ChatEvent
-    object ClearBackStack : ChatEvent
 }

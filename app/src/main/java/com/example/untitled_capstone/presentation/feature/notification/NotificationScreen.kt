@@ -1,10 +1,13 @@
-package com.example.untitled_capstone.presentation.feature.notification.screen
+package com.example.untitled_capstone.presentation.feature.notification
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -12,21 +15,23 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
-import androidx.navigation.NavHostController
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
-import com.example.untitled_capstone.presentation.feature.notification.composable.NotificationCard
-import com.example.untitled_capstone.presentation.feature.notification.state.NotificationState
+import com.example.untitled_capstone.domain.model.Notification
 import com.example.untitled_capstone.ui.theme.CustomTheme
-import kotlinx.serialization.Serializable
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NotificationScreen(navController: NavHostController, state: NotificationState){
+fun NotificationScreen(
+    uiState: NotificationUiState,
+    notificationList: List<Notification>,
+    popBackStack: () -> Unit,
+){
     Scaffold(
         containerColor = CustomTheme.colors.surface,
         topBar = {
@@ -41,7 +46,7 @@ fun NotificationScreen(navController: NavHostController, state: NotificationStat
                 },
                 navigationIcon = {
                     IconButton(
-                        onClick = {navController.popBackStack()}
+                        onClick = {popBackStack()}
                     ) {
                         Icon(
                             imageVector = ImageVector.vectorResource(R.drawable.chevron_left),
@@ -53,29 +58,27 @@ fun NotificationScreen(navController: NavHostController, state: NotificationStat
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = CustomTheme.colors.surface
                 ),
-                actions = {
-                    IconButton(
-                        onClick = { }
-                    ) {
-                        Icon(
-                            imageVector = ImageVector.vectorResource(R.drawable.more),
-                            contentDescription = "option",
-                            tint = CustomTheme.colors.iconDefault
-                        )
-                    }
-                }
             )
         }
     ){ innerPadding ->
-        LazyColumn(
-            modifier = Modifier.padding(innerPadding).padding(
-                horizontal = Dimens.surfaceHorizontalPadding,
-                vertical = Dimens.surfaceVerticalPadding),
-            verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding)
-        ) {
-            if(!state.isLoading){
-                items( state.notifications,){ item ->
-                    NotificationCard(item)
+        if(uiState == NotificationUiState.Loading){
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(
+                    color = CustomTheme.colors.primary
+                )
+            }
+        } else  {
+            LazyColumn(
+                modifier = Modifier.padding(innerPadding).padding(
+                    horizontal = Dimens.surfaceHorizontalPadding,
+                    vertical = Dimens.surfaceVerticalPadding),
+                verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding)
+            ) {
+                items(notificationList){ notification ->
+                    NotificationCard(notification)
                 }
             }
         }

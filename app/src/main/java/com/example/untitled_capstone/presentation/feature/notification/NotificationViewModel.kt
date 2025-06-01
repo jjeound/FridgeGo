@@ -1,49 +1,63 @@
 package com.example.untitled_capstone.presentation.feature.notification
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.untitled_capstone.core.util.Resource
 import com.example.untitled_capstone.domain.model.Notification
-import com.example.untitled_capstone.presentation.feature.notification.state.NotificationState
+import com.example.untitled_capstone.domain.use_case.notification.GetAllNotificationsUseCase
+import com.example.untitled_capstone.domain.use_case.notification.ReadNotificationUseCase
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class NotificationViewModel: ViewModel() {
-    var state by mutableStateOf(NotificationState())
-        private set
+@HiltViewModel
+class NotificationViewModel @Inject constructor(
+    private val readNotificationUseCase: ReadNotificationUseCase,
+    private val getAllNotificationsUseCase: GetAllNotificationsUseCase
+): ViewModel() {
+
+    val uiState: MutableStateFlow<NotificationUiState> = MutableStateFlow(NotificationUiState.Loading)
+
+    private val _notificationList = MutableStateFlow<List<Notification>>(emptyList())
+    val notificationList = _notificationList.asStateFlow()
 
     init {
-        state = state.copy(
-            notifications = listOf(
-                Notification(
-                    title = "유통기한",
-                    content = "양파의 유통기한이 1일 남았습니다.",
-                    time = "time1",
-                    isRead = false,
-                    navigation = "id1"
-                ),
-                Notification(
-                    title = "title2",
-                    content = "content2",
-                    time = "time2",
-                    isRead = true,
-                    navigation = "id1"
-                ),
-                Notification(
-                    title = "title3",
-                    content = "content3",
-                    time = "time3",
-                    isRead = true,
-                    navigation = "id1"
-                ),
-                Notification(
-                    title = "title4",
-                    content = "content4",
-                    time = "time4",
-                    isRead = true,
-                    navigation = "id1"
-                )
-            ),
-            isLoading = false
-        )
+        fetchNotifications()
     }
+
+    fun fetchNotifications(){
+        viewModelScope.launch {
+            getAllNotificationsUseCase().collectLatest {
+                when(it){
+                    is Resource.Success -> {
+                        _notificationList.value = it.data ?: emptyList()
+                        uiState.tryEmit(NotificationUiState.Idle)
+                        readNotification()
+                    }
+                    is Resource.Error -> {
+                        uiState.tryEmit(NotificationUiState.Error(it.message ?: "Unknown error"))
+                    }
+                    is Resource.Loading -> {
+                        uiState.tryEmit(NotificationUiState.Loading)
+                    }
+                }
+            }
+        }
+    }
+
+    fun readNotification() {
+        viewModelScope.launch {
+            readNotificationUseCase()
+        }
+    }
+}
+
+
+sealed interface NotificationUiState{
+    data object Idle : NotificationUiState
+    data object Loading : NotificationUiState
+    data class Error(val message: String) : NotificationUiState
 }

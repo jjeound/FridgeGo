@@ -1,4 +1,4 @@
-package com.example.untitled_capstone.presentation.feature.notification.composable
+package com.example.untitled_capstone.presentation.feature.notification
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -17,9 +17,10 @@ import com.example.untitled_capstone.domain.model.Notification
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @Composable
-fun NotificationCard(notification: Notification) {
+fun NotificationCard(
+    notification: Notification
+) {
     Card(
-        onClick = {  },
         colors = CardDefaults.cardColors(
             containerColor = if(notification.isRead) CustomTheme.colors.surface else CustomTheme.colors.onSurface,
         ),
@@ -57,5 +58,5 @@ fun NotificationCard(notification: Notification) {
 @Preview
 @Composable
 fun NotificationCardPreview() {
-    NotificationCard(Notification("title", "content", "time", false, "id"))
+    NotificationCard(Notification("title", "content", "time", false))
 }

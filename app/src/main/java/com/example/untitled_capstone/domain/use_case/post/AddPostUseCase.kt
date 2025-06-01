@@ -6,7 +6,7 @@ import com.example.untitled_capstone.data.AppDispatchers
 import com.example.untitled_capstone.data.Dispatcher
 import com.example.untitled_capstone.domain.model.NewPost
 import com.example.untitled_capstone.domain.repository.PostRepository
-import com.example.untitled_capstone.domain.util.ImageCompressor
+import com.example.untitled_capstone.data.util.ImageCompressor
 import com.google.gson.Gson
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher

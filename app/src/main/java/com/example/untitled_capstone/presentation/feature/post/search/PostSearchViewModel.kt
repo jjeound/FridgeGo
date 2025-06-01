@@ -6,7 +6,6 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.map
 import com.example.untitled_capstone.core.util.Resource
-import com.example.untitled_capstone.data.util.PostFetchType
 import com.example.untitled_capstone.domain.model.Keyword
 import com.example.untitled_capstone.domain.model.PostRaw
 import com.example.untitled_capstone.domain.use_case.post.DeleteAllSearchHistoryUseCase
@@ -49,7 +48,7 @@ class PostSearchViewModel @Inject constructor(
     fun searchPost(keyword: String){
         addSearchHistory(keyword)
         viewModelScope.launch {
-            searchPostsUseCase(PostFetchType.Search(keyword))
+            searchPostsUseCase(keyword)
                 .distinctUntilChanged()
                 .cachedIn(viewModelScope)
                 .collectLatest { pagingData ->

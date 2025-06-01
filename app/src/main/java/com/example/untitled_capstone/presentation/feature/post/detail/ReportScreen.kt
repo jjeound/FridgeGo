@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -28,6 +29,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBarDefaults
@@ -46,6 +49,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
+import com.example.untitled_capstone.presentation.util.CustomSnackbar
 import com.example.untitled_capstone.presentation.util.ReportType
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
@@ -57,7 +61,7 @@ fun ReportScreen(
     reportPost: (Long, String, String) -> Unit,
     reportUser: (Long, String, String) -> Unit,
     popBackStack: () -> Unit,
-    isPost: Boolean
+    isPost: Boolean,
 ) {
     var isExpanded by remember { mutableStateOf(false) }
     val reportType = listOf(

@@ -6,14 +6,12 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.map
 import com.example.untitled_capstone.core.util.Resource
-import com.example.untitled_capstone.data.util.PostFetchType
 import com.example.untitled_capstone.domain.model.PostRaw
 import com.example.untitled_capstone.domain.use_case.my.GetLocationUseCase
 import com.example.untitled_capstone.domain.use_case.post.GetLikedPostsUseCase
 import com.example.untitled_capstone.domain.use_case.post.GetMyPostsUseCase
 import com.example.untitled_capstone.domain.use_case.post.SearchPostsUseCase
 import com.example.untitled_capstone.domain.use_case.post.ToggleLikePostUseCase
-import com.example.untitled_capstone.navigation.Screen
 import com.example.untitled_capstone.presentation.util.UiEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -50,7 +48,7 @@ class PostViewModel @Inject constructor(
 
     fun getMyPosts() {
         viewModelScope.launch {
-            getMyPostsUseCase(PostFetchType.MyPosts)
+            getMyPostsUseCase()
                 .distinctUntilChanged()
                 .cachedIn(viewModelScope)
                 .collect { pagingData ->
@@ -61,7 +59,7 @@ class PostViewModel @Inject constructor(
 
     fun getLikedPosts() {
         viewModelScope.launch {
-            getMyLikedPostsUseCase(PostFetchType.LikedPosts)
+            getMyLikedPostsUseCase()
                 .distinctUntilChanged()
                 .cachedIn(viewModelScope)
                 .collect { pagingData ->
@@ -72,7 +70,7 @@ class PostViewModel @Inject constructor(
 
     fun fetchPosts(){
         viewModelScope.launch {
-            searchPostsUseCase(PostFetchType.Search(null))
+            searchPostsUseCase()
                 .distinctUntilChanged()
                 .cachedIn(viewModelScope)
                 .collect { pagingData ->

@@ -1,5 +1,6 @@
 package com.example.untitled_capstone.presentation.util
 
+import android.app.Notification
 import android.app.NotificationManager
 import android.content.Context
 import androidx.core.app.NotificationCompat
@@ -10,11 +11,16 @@ import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Constants.NOTIFICATION_CHANNEL_ID
+import com.example.untitled_capstone.domain.use_case.notification.InsertNotificationUseCase
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import java.util.concurrent.TimeUnit
 
 class ExpirationAlarmWorker(
     context: Context,
-    workerParams: WorkerParameters
+    workerParams: WorkerParameters,
+    private val insertNotificationUseCase: InsertNotificationUseCase
 ) : Worker(context, workerParams) {
 
     override fun doWork(): Result {
@@ -26,15 +32,29 @@ class ExpirationAlarmWorker(
 
     private fun showNotification(title: String, message: String) {
         val notificationManager = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-
+        val time = System.currentTimeMillis()
         // 알림 생성
         val notification = NotificationCompat.Builder(applicationContext, NOTIFICATION_CHANNEL_ID)
             .setContentTitle(title)
             .setContentText(message)
-            .setSmallIcon(R.drawable.logo)
+            .setSmallIcon(R.drawable.thumbnail)
             .setAutoCancel(true)
             .build()
-        notificationManager.notify(System.currentTimeMillis().toInt(), notification)
+        notificationManager.notify(time.toInt(), notification)
+
+        insertNotificationUseCase(
+            com.example.untitled_capstone.domain.model.Notification(
+                title = title,
+                content = message,
+                time = convertMillisToDate(time),
+                isRead = false
+            )
+        )
+    }
+
+    fun convertMillisToDate(millis: Long): String {
+        val formatter = SimpleDateFormat("yyyy년 MM월 dd일", Locale.getDefault())
+        return formatter.format(Date(millis))
     }
 }
 

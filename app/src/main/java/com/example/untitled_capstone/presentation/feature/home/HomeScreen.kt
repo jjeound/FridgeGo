@@ -134,7 +134,7 @@ fun HomeScreen(
                                 }
                             }
                         }
-                        if(recipeItems.itemCount == 0 && uiState != HomeUiState.Loading){
+                        if(recipeItems.loadState.refresh != LoadState.Loading && recipeItems.itemCount == 0){
                             AsyncImage(
                                 modifier = Modifier.fillMaxWidth(),
                                 model = R.drawable.home_banner,

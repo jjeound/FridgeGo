@@ -37,8 +37,6 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -93,7 +91,6 @@ fun RecipeModifyScreen(
             popBackStack()
         }
     }
-    val snackbarHostState = remember { SnackbarHostState() }
     val focusManager = LocalFocusManager.current
     var title by remember { mutableStateOf("")}
     val ingredients = remember { SnapshotStateList<MutableState<String>>()}
@@ -169,7 +166,6 @@ fun RecipeModifyScreen(
     }
     Scaffold(
         containerColor = CustomTheme.colors.onSurface,
-        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = {
             CenterAlignedTopAppBar(
                 modifier = Modifier.padding(Dimens.topBarPadding),

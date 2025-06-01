@@ -2,7 +2,6 @@ package com.example.untitled_capstone.data.remote.service
 
 import com.example.untitled_capstone.data.remote.dto.ApiResponse
 import com.example.untitled_capstone.data.remote.dto.ModifyPostDto
-import com.example.untitled_capstone.data.remote.dto.NewPostDto
 import com.example.untitled_capstone.data.remote.dto.PostDto
 import com.example.untitled_capstone.data.remote.dto.PostLikedDto
 import com.example.untitled_capstone.data.remote.dto.PostResultDto

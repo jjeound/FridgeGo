@@ -23,6 +23,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import okio.IOException
+import org.json.JSONObject
 import retrofit2.HttpException
 import javax.inject.Inject
 
@@ -45,7 +46,14 @@ class ChatRepositoryImpl @Inject constructor(
         } catch (e: IOException) {
             emit(Resource.Error(e.toString()))
         } catch (e: HttpException) {
-            emit(Resource.Error(e.toString()))
+            val errorMessage = try {
+                val errorJson = e.response()?.errorBody()?.string()
+                val errorObj = JSONObject(errorJson ?: "")
+                errorObj.getString("message")
+            } catch (ex: Exception) {
+                "알 수 없는 오류가 발생했어요."
+            }
+            emit(Resource.Error(errorMessage))
         }
     }.flowOn(ioDispatcher)
 
@@ -62,7 +70,14 @@ class ChatRepositoryImpl @Inject constructor(
         } catch (e: IOException) {
             emit(Resource.Error(e.toString()))
         } catch (e: HttpException) {
-            emit(Resource.Error(e.toString()))
+            val errorMessage = try {
+                val errorJson = e.response()?.errorBody()?.string()
+                val errorObj = JSONObject(errorJson ?: "")
+                errorObj.getString("message")
+            } catch (ex: Exception) {
+                "알 수 없는 오류가 발생했어요."
+            }
+            emit(Resource.Error(errorMessage))
         }
     }.flowOn(ioDispatcher)
 
@@ -79,7 +94,14 @@ class ChatRepositoryImpl @Inject constructor(
         } catch (e: IOException) {
             emit(Resource.Error(e.toString()))
         } catch (e: HttpException) {
-            emit(Resource.Error(e.toString()))
+            val errorMessage = try {
+                val errorJson = e.response()?.errorBody()?.string()
+                val errorObj = JSONObject(errorJson ?: "")
+                errorObj.getString("message")
+            } catch (ex: Exception) {
+                "알 수 없는 오류가 발생했어요."
+            }
+            emit(Resource.Error(errorMessage))
         }
     }.flowOn(ioDispatcher)
 
@@ -96,7 +118,14 @@ class ChatRepositoryImpl @Inject constructor(
         } catch (e: IOException) {
             emit(Resource.Error(e.toString()))
         } catch (e: HttpException) {
-            emit(Resource.Error(e.toString()))
+            val errorMessage = try {
+                val errorJson = e.response()?.errorBody()?.string()
+                val errorObj = JSONObject(errorJson ?: "")
+                errorObj.getString("message")
+            } catch (ex: Exception) {
+                "알 수 없는 오류가 발생했어요."
+            }
+            emit(Resource.Error(errorMessage))
         }
     }.flowOn(ioDispatcher)
 
@@ -114,7 +143,14 @@ class ChatRepositoryImpl @Inject constructor(
         } catch (e: IOException) {
             emit(Resource.Error(e.toString()))
         } catch (e: HttpException) {
-            emit(Resource.Error(e.toString()))
+            val errorMessage = try {
+                val errorJson = e.response()?.errorBody()?.string()
+                val errorObj = JSONObject(errorJson ?: "")
+                errorObj.getString("message")
+            } catch (ex: Exception) {
+                "알 수 없는 오류가 발생했어요."
+            }
+            emit(Resource.Error(errorMessage))
         }
     }.flowOn(ioDispatcher)
 
@@ -132,7 +168,14 @@ class ChatRepositoryImpl @Inject constructor(
         } catch (e: IOException) {
             emit(Resource.Error(e.toString()))
         } catch (e: HttpException) {
-            emit(Resource.Error(e.toString()))
+            val errorMessage = try {
+                val errorJson = e.response()?.errorBody()?.string()
+                val errorObj = JSONObject(errorJson ?: "")
+                errorObj.getString("message")
+            } catch (ex: Exception) {
+                "알 수 없는 오류가 발생했어요."
+            }
+            emit(Resource.Error(errorMessage))
         }
     }.flowOn(ioDispatcher)
 
@@ -149,7 +192,14 @@ class ChatRepositoryImpl @Inject constructor(
         } catch (e: IOException) {
             emit(Resource.Error(e.toString()))
         } catch (e: HttpException) {
-            emit(Resource.Error(e.toString()))
+            val errorMessage = try {
+                val errorJson = e.response()?.errorBody()?.string()
+                val errorObj = JSONObject(errorJson ?: "")
+                errorObj.getString("message")
+            } catch (ex: Exception) {
+                "알 수 없는 오류가 발생했어요."
+            }
+            emit(Resource.Error(errorMessage))
         }
     }.flowOn(ioDispatcher)
 
@@ -167,7 +217,14 @@ class ChatRepositoryImpl @Inject constructor(
         } catch (e: IOException) {
             emit(Resource.Error(e.toString()))
         } catch (e: HttpException) {
-            emit(Resource.Error(e.toString()))
+            val errorMessage = try {
+                val errorJson = e.response()?.errorBody()?.string()
+                val errorObj = JSONObject(errorJson ?: "")
+                errorObj.getString("message")
+            } catch (ex: Exception) {
+                "알 수 없는 오류가 발생했어요."
+            }
+            emit(Resource.Error(errorMessage))
         }
     }.flowOn(ioDispatcher)
 

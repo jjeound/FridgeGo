@@ -11,6 +11,7 @@ import com.example.untitled_capstone.data.AppDispatchers
 import com.example.untitled_capstone.data.Dispatcher
 import com.example.untitled_capstone.data.remote.dto.ReportDto
 import com.example.untitled_capstone.data.remote.service.MyApi
+import com.example.untitled_capstone.data.util.ImageCompressor
 import com.example.untitled_capstone.domain.model.Profile
 import com.example.untitled_capstone.domain.repository.MyRepository
 import com.example.untitled_capstone.domain.repository.TokenRepository
@@ -21,9 +22,13 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
 import okio.IOException
+import org.json.JSONObject
 import retrofit2.HttpException
+import java.io.File
 import javax.inject.Inject
 
 class MyRepositoryImpl @Inject constructor(
@@ -48,7 +53,14 @@ class MyRepositoryImpl @Inject constructor(
         } catch (e: IOException) {
             emit(Resource.Error(e.toString()))
         } catch (e: HttpException) {
-            emit(Resource.Error(e.toString()))
+            val errorMessage = try {
+                val errorJson = e.response()?.errorBody()?.string()
+                val errorObj = JSONObject(errorJson ?: "")
+                errorObj.getString("message")
+            } catch (ex: Exception) {
+                "알 수 없는 오류가 발생했어요."
+            }
+            emit(Resource.Error(errorMessage))
         }
     }.flowOn(ioDispatcher)
 
@@ -65,7 +77,14 @@ class MyRepositoryImpl @Inject constructor(
         } catch (e: IOException) {
             emit(Resource.Error(e.toString()))
         } catch (e: HttpException) {
-            emit(Resource.Error(e.toString()))
+            val errorMessage = try {
+                val errorJson = e.response()?.errorBody()?.string()
+                val errorObj = JSONObject(errorJson ?: "")
+                errorObj.getString("message")
+            } catch (ex: Exception) {
+                "알 수 없는 오류가 발생했어요."
+            }
+            emit(Resource.Error(errorMessage))
         }
     }.flowOn(ioDispatcher)
 
@@ -102,7 +121,14 @@ class MyRepositoryImpl @Inject constructor(
         } catch (e: IOException) {
             emit(Resource.Error(e.toString()))
         } catch (e: HttpException) {
-            emit(Resource.Error(e.toString()))
+            val errorMessage = try {
+                val errorJson = e.response()?.errorBody()?.string()
+                val errorObj = JSONObject(errorJson ?: "")
+                errorObj.getString("message")
+            } catch (ex: Exception) {
+                "알 수 없는 오류가 발생했어요."
+            }
+            emit(Resource.Error(errorMessage))
         }
     }.flowOn(ioDispatcher)
 
@@ -131,10 +157,13 @@ class MyRepositoryImpl @Inject constructor(
     }.flowOn(ioDispatcher)
 
     @WorkerThread
-    override fun uploadProfileImage(profileImage: MultipartBody.Part): Flow<Resource<String>> = flow {
+    override fun uploadProfileImage(profileImage: File): Flow<Resource<String>> = flow {
         emit(Resource.Loading())
+        val compressedFile = ImageCompressor.compressImage(context, profileImage)
+        val requestFile = compressedFile.asRequestBody("image/*".toMediaTypeOrNull())
+        val body = MultipartBody.Part.createFormData("profileImage", compressedFile.name, requestFile)
         try {
-            val response = api.uploadProfileImage(profileImage)
+            val response = api.uploadProfileImage(body)
             if(response.isSuccess){
                 emit(Resource.Success(response.result))
             }else {
@@ -143,7 +172,14 @@ class MyRepositoryImpl @Inject constructor(
         } catch (e: IOException) {
             emit(Resource.Error(e.toString()))
         } catch (e: HttpException) {
-            emit(Resource.Error(e.toString()))
+            val errorMessage = try {
+                val errorJson = e.response()?.errorBody()?.string()
+                val errorObj = JSONObject(errorJson ?: "")
+                errorObj.getString("message")
+            } catch (ex: Exception) {
+                "알 수 없는 오류가 발생했어요."
+            }
+            emit(Resource.Error(errorMessage))
         }
     }.flowOn(ioDispatcher)
 
@@ -155,8 +191,8 @@ class MyRepositoryImpl @Inject constructor(
     ): Flow<Resource<String>> = flow {
         emit(Resource.Loading())
         try {
-            val response = api.reportUser(targetUserId, ReportDto(reportType, content))
-            Log.d("reportUser", "$targetUserId $reportType $content $response")
+            val response = api.reportUser(targetUserId, ReportDto(
+                reportType = reportType, content = content))
             if(response.isSuccess){
                 emit(Resource.Success(response.result))
             }else {
@@ -165,7 +201,14 @@ class MyRepositoryImpl @Inject constructor(
         } catch (e: IOException) {
             emit(Resource.Error(e.toString()))
         } catch (e: HttpException) {
-            emit(Resource.Error(e.toString()))
+            val errorMessage = try {
+                val errorJson = e.response()?.errorBody()?.string()
+                val errorObj = JSONObject(errorJson ?: "")
+                errorObj.getString("message")
+            } catch (ex: Exception) {
+                "알 수 없는 오류가 발생했어요."
+            }
+            emit(Resource.Error(errorMessage))
         }
     }.flowOn(ioDispatcher)
 }

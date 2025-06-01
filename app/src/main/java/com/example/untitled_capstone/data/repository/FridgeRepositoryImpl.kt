@@ -1,5 +1,6 @@
 package com.example.untitled_capstone.data.repository
 
+import android.content.Context
 import androidx.annotation.WorkerThread
 import androidx.paging.ExperimentalPagingApi
 import androidx.paging.Pager
@@ -14,9 +15,11 @@ import com.example.untitled_capstone.data.local.entity.FridgeItemEntity
 import com.example.untitled_capstone.data.pagination.FridgePagingSource
 import com.example.untitled_capstone.data.remote.service.FridgeApi
 import com.example.untitled_capstone.data.util.FridgeFetchType
+import com.example.untitled_capstone.data.util.ImageCompressor
 import com.example.untitled_capstone.domain.model.FridgeItem
 import com.example.untitled_capstone.domain.repository.FridgeRepository
 import com.google.gson.Gson
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -27,6 +30,7 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import okio.IOException
+import org.json.JSONObject
 import retrofit2.HttpException
 import java.io.File
 import javax.inject.Inject
@@ -35,6 +39,7 @@ import javax.inject.Inject
 class FridgeRepositoryImpl @Inject constructor(
     private val api: FridgeApi,
     private val db: FridgeItemDatabase,
+    @ApplicationContext private val context: Context,
     @Dispatcher(AppDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
 ): FridgeRepository {
     @OptIn(ExperimentalPagingApi::class)
@@ -71,7 +76,14 @@ class FridgeRepositoryImpl @Inject constructor(
         } catch (e: IOException) {
             emit(Resource.Error(e.toString()))
         } catch (e: HttpException) {
-            emit(Resource.Error(e.toString()))
+            val errorMessage = try {
+                val errorJson = e.response()?.errorBody()?.string()
+                val errorObj = JSONObject(errorJson ?: "")
+                errorObj.getString("message")
+            } catch (ex: Exception) {
+                "알 수 없는 오류가 발생했어요."
+            }
+            emit(Resource.Error(errorMessage))
         }
     }.flowOn(ioDispatcher)
 
@@ -92,17 +104,31 @@ class FridgeRepositoryImpl @Inject constructor(
         } catch (e: IOException) {
             emit(Resource.Error(e.toString()))
         } catch (e: HttpException) {
-            emit(Resource.Error(e.toString()))
+            val errorMessage = try {
+                val errorJson = e.response()?.errorBody()?.string()
+                val errorObj = JSONObject(errorJson ?: "")
+                errorObj.getString("message")
+            } catch (ex: Exception) {
+                "알 수 없는 오류가 발생했어요."
+            }
+            emit(Resource.Error(errorMessage))
         }
     }.flowOn(ioDispatcher)
 
     @WorkerThread
-    override fun modifyItem(updatedItem: FridgeItem, image: MultipartBody.Part?): Flow<Resource<String>> = flow {
+    override fun modifyItem(updatedItem: FridgeItem, image: File?): Flow<Resource<String>> = flow {
         emit(Resource.Loading())
         try {
             val json = Gson().toJson(updatedItem.toModifyFridgeReqDto())
             val jsonBody = json.toRequestBody("application/json; charset=utf-8".toMediaType())
-            val response = api.modifyItem(updatedItem.id, jsonBody, image)
+            val imageFile = if (image != null){
+                val compressedFile = ImageCompressor.compressImage(context, image)
+                val requestFile = compressedFile.asRequestBody("image/*".toMediaTypeOrNull())
+                MultipartBody.Part.createFormData("ingredientImage", compressedFile.name, requestFile)
+            }  else {
+                null
+            }
+            val response = api.modifyItem(updatedItem.id, jsonBody, imageFile)
             if(response.isSuccess){
                 emit(Resource.Success(response.result))
             }else{
@@ -111,7 +137,14 @@ class FridgeRepositoryImpl @Inject constructor(
         } catch (e: IOException) {
             emit(Resource.Error(e.toString()))
         } catch (e: HttpException) {
-            emit(Resource.Error(e.toString()))
+            val errorMessage = try {
+                val errorJson = e.response()?.errorBody()?.string()
+                val errorObj = JSONObject(errorJson ?: "")
+                errorObj.getString("message")
+            } catch (ex: Exception) {
+                "알 수 없는 오류가 발생했어요."
+            }
+            emit(Resource.Error(errorMessage))
         }
     }.flowOn(ioDispatcher)
 
@@ -128,7 +161,14 @@ class FridgeRepositoryImpl @Inject constructor(
         } catch (e: IOException) {
             emit(Resource.Error(e.toString()))
         } catch (e: HttpException) {
-            emit(Resource.Error(e.toString()))
+            val errorMessage = try {
+                val errorJson = e.response()?.errorBody()?.string()
+                val errorObj = JSONObject(errorJson ?: "")
+                errorObj.getString("message")
+            } catch (ex: Exception) {
+                "알 수 없는 오류가 발생했어요."
+            }
+            emit(Resource.Error(errorMessage))
         }
     }.flowOn(ioDispatcher)
 
@@ -146,7 +186,14 @@ class FridgeRepositoryImpl @Inject constructor(
          } catch (e: IOException) {
              emit(Resource.Error(e.toString()))
          } catch (e: HttpException) {
-             emit(Resource.Error(e.toString()))
+             val errorMessage = try {
+                 val errorJson = e.response()?.errorBody()?.string()
+                 val errorObj = JSONObject(errorJson ?: "")
+                 errorObj.getString("message")
+             } catch (ex: Exception) {
+                 "알 수 없는 오류가 발생했어요."
+             }
+             emit(Resource.Error(errorMessage))
          }
     }.flowOn(ioDispatcher)
 }

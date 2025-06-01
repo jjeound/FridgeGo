@@ -28,6 +28,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import okio.IOException
+import org.json.JSONObject
 import retrofit2.HttpException
 import javax.inject.Inject
 import kotlin.toString
@@ -36,7 +37,6 @@ class LoginRepositoryImpl @Inject constructor(
     private val api: LoginApi,
     private val mapApi: MapApi,
     private val tokenRepository: TokenRepository,
-    private val fcmApi: FcmApi,
     private val db: ProfileDatabase,
     @Dispatcher(AppDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
     @ApplicationContext private val context: Context,
@@ -47,8 +47,8 @@ class LoginRepositoryImpl @Inject constructor(
     override fun kakaoLogin(accessToken: String): Flow<Resource<AccountInfo>> = flow {
         emit(Resource.Loading())
         try {
-            // val response = api.kakaoLogin(KakaoAccessTokenRequest(accessToken))
-            val response = api.loginTest(EmailReq("1"))
+            val response = api.kakaoLogin(KakaoAccessTokenRequest(accessToken))
+            //val response = api.loginTest(EmailReq("1"))
             if(response.isSuccess){
                 tokenRepository.saveAccessToken(response.result!!.accessToken)
                 tokenRepository.saveRefreshToken(response.result.refreshToken)
@@ -61,15 +61,19 @@ class LoginRepositoryImpl @Inject constructor(
                 )
                 emit(Resource.Success(response.result.toAccountInfo()))
             }else{
-                Log.d("error", response.message)
                 emit(Resource.Error(response.message))
             }
         } catch (e: IOException) {
-            Log.d("error", e.toString())
             emit(Resource.Error(e.toString()))
         } catch (e: HttpException) {
-            Log.d("error", e.toString())
-            emit(Resource.Error(e.toString()))
+            val errorMessage = try {
+                val errorJson = e.response()?.errorBody()?.string()
+                val errorObj = JSONObject(errorJson ?: "")
+                errorObj.getString("message")
+            } catch (ex: Exception) {
+                "알 수 없는 오류가 발생했어요."
+            }
+            emit(Resource.Error(errorMessage))
         }
     }.flowOn(ioDispatcher)
 
@@ -91,7 +95,14 @@ class LoginRepositoryImpl @Inject constructor(
         } catch (e: IOException) {
             emit(Resource.Error(e.toString()))
         } catch (e: HttpException) {
-            emit(Resource.Error(e.toString()))
+            val errorMessage = try {
+                val errorJson = e.response()?.errorBody()?.string()
+                val errorObj = JSONObject(errorJson ?: "")
+                errorObj.getString("message")
+            } catch (ex: Exception) {
+                "알 수 없는 오류가 발생했어요."
+            }
+            emit(Resource.Error(errorMessage))
         }
     }.flowOn(ioDispatcher)
 
@@ -113,7 +124,14 @@ class LoginRepositoryImpl @Inject constructor(
         } catch (e: IOException) {
             emit(Resource.Error(e.toString()))
         } catch (e: HttpException) {
-            emit(Resource.Error(e.toString()))
+            val errorMessage = try {
+                val errorJson = e.response()?.errorBody()?.string()
+                val errorObj = JSONObject(errorJson ?: "")
+                errorObj.getString("message")
+            } catch (ex: Exception) {
+                "알 수 없는 오류가 발생했어요."
+            }
+            emit(Resource.Error(errorMessage))
         }
     }.flowOn(ioDispatcher)
 
@@ -139,7 +157,14 @@ class LoginRepositoryImpl @Inject constructor(
         } catch (e: IOException) {
             emit(Resource.Error(e.toString()))
         } catch (e: HttpException) {
-            emit(Resource.Error(e.toString()))
+            val errorMessage = try {
+                val errorJson = e.response()?.errorBody()?.string()
+                val errorObj = JSONObject(errorJson ?: "")
+                errorObj.getString("message")
+            } catch (ex: Exception) {
+                "알 수 없는 오류가 발생했어요."
+            }
+            emit(Resource.Error(errorMessage))
         }
     }.flowOn(ioDispatcher)
 
@@ -158,7 +183,14 @@ class LoginRepositoryImpl @Inject constructor(
         } catch (e: IOException) {
             emit(Resource.Error(e.toString()))
         } catch (e: HttpException) {
-            emit(Resource.Error(e.toString()))
+            val errorMessage = try {
+                val errorJson = e.response()?.errorBody()?.string()
+                val errorObj = JSONObject(errorJson ?: "")
+                errorObj.getString("message")
+            } catch (ex: Exception) {
+                "알 수 없는 오류가 발생했어요."
+            }
+            emit(Resource.Error(errorMessage))
         }
     }.flowOn(ioDispatcher)
 

@@ -10,7 +10,6 @@ import com.example.untitled_capstone.core.util.Resource
 import com.example.untitled_capstone.data.local.db.RecipeItemDatabase
 import com.example.untitled_capstone.data.local.entity.RecipeItemEntity
 import com.example.untitled_capstone.data.pagination.RecipePagingSource
-import com.example.untitled_capstone.data.remote.dto.PreferenceDto
 import com.example.untitled_capstone.data.remote.dto.RecipeReqDto
 import com.example.untitled_capstone.data.remote.service.HomeApi
 import com.example.untitled_capstone.domain.model.TastePreference
@@ -25,18 +24,22 @@ import com.example.untitled_capstone.core.util.Constants.TASTE_PREFERENCE
 import com.example.untitled_capstone.data.AppDispatchers
 import com.example.untitled_capstone.data.Dispatcher
 import com.example.untitled_capstone.data.remote.dto.ModifyRecipeBody
-import com.example.untitled_capstone.data.remote.dto.RecipeLikedDto
 import com.example.untitled_capstone.domain.model.Recipe
+import com.example.untitled_capstone.data.util.ImageCompressor
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import org.json.JSONObject
+import java.io.File
 
 class HomeRepositoryImpl @Inject constructor(
     private val api: HomeApi,
     private val db: RecipeItemDatabase,
-    @ApplicationContext context: Context,
+    @ApplicationContext private val context: Context,
     @Dispatcher(AppDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
 ): HomeRepository {
 
@@ -59,7 +62,14 @@ class HomeRepositoryImpl @Inject constructor(
             } catch (e: IOException) {
                 emit(Resource.Error(e.toString()))
             } catch (e: HttpException) {
-                emit(Resource.Error(e.toString()))
+                val errorMessage = try {
+                    val errorJson = e.response()?.errorBody()?.string()
+                    val errorObj = JSONObject(errorJson ?: "")
+                    errorObj.getString("message")
+                } catch (ex: Exception) {
+                    "알 수 없는 오류가 발생했어요."
+                }
+                emit(Resource.Error(errorMessage))
             }
         }
     }.flowOn(ioDispatcher)
@@ -78,7 +88,14 @@ class HomeRepositoryImpl @Inject constructor(
         } catch (e: IOException) {
             emit(Resource.Error(e.toString()))
         } catch (e: HttpException) {
-            emit(Resource.Error(e.toString()))
+            val errorMessage = try {
+                val errorJson = e.response()?.errorBody()?.string()
+                val errorObj = JSONObject(errorJson ?: "")
+                errorObj.getString("message")
+            } catch (ex: Exception) {
+                "알 수 없는 오류가 발생했어요."
+            }
+            emit(Resource.Error(errorMessage))
         }
     }.flowOn(ioDispatcher)
 
@@ -105,7 +122,14 @@ class HomeRepositoryImpl @Inject constructor(
         } catch (e: IOException) {
             emit(Resource.Error(e.toString()))
         } catch (e: HttpException) {
-            emit(Resource.Error(e.toString()))
+            val errorMessage = try {
+                val errorJson = e.response()?.errorBody()?.string()
+                val errorObj = JSONObject(errorJson ?: "")
+                errorObj.getString("message")
+            } catch (ex: Exception) {
+                "알 수 없는 오류가 발생했어요."
+            }
+            emit(Resource.Error(errorMessage))
         }
     }.flowOn(ioDispatcher)
 
@@ -122,7 +146,14 @@ class HomeRepositoryImpl @Inject constructor(
         } catch (e: IOException) {
             emit(Resource.Error(e.toString()))
         } catch (e: HttpException) {
-            emit(Resource.Error(e.toString()))
+            val errorMessage = try {
+                val errorJson = e.response()?.errorBody()?.string()
+                val errorObj = JSONObject(errorJson ?: "")
+                errorObj.getString("message")
+            } catch (ex: Exception) {
+                "알 수 없는 오류가 발생했어요."
+            }
+            emit(Resource.Error(errorMessage))
         }
     }.flowOn(ioDispatcher)
 
@@ -139,7 +170,14 @@ class HomeRepositoryImpl @Inject constructor(
         } catch (e: IOException) {
             emit(Resource.Error(e.toString()))
         } catch (e: HttpException) {
-            emit(Resource.Error(e.toString()))
+            val errorMessage = try {
+                val errorJson = e.response()?.errorBody()?.string()
+                val errorObj = JSONObject(errorJson ?: "")
+                errorObj.getString("message")
+            } catch (ex: Exception) {
+                "알 수 없는 오류가 발생했어요."
+            }
+            emit(Resource.Error(errorMessage))
         }
     }.flowOn(ioDispatcher)
 
@@ -156,7 +194,14 @@ class HomeRepositoryImpl @Inject constructor(
         } catch (e: IOException) {
             emit(Resource.Error(e.toString()))
         } catch (e: HttpException) {
-            emit(Resource.Error(e.toString()))
+            val errorMessage = try {
+                val errorJson = e.response()?.errorBody()?.string()
+                val errorObj = JSONObject(errorJson ?: "")
+                errorObj.getString("message")
+            } catch (ex: Exception) {
+                "알 수 없는 오류가 발생했어요."
+            }
+            emit(Resource.Error(errorMessage))
         }
     }.flowOn(ioDispatcher)
 
@@ -174,7 +219,14 @@ class HomeRepositoryImpl @Inject constructor(
         } catch (e: IOException) {
             emit(Resource.Error(e.toString()))
         } catch (e: HttpException) {
-            emit(Resource.Error(e.toString()))
+            val errorMessage = try {
+                val errorJson = e.response()?.errorBody()?.string()
+                val errorObj = JSONObject(errorJson ?: "")
+                errorObj.getString("message")
+            } catch (ex: Exception) {
+                "알 수 없는 오류가 발생했어요."
+            }
+            emit(Resource.Error(errorMessage))
         }
     }.flowOn(ioDispatcher)
 
@@ -191,7 +243,14 @@ class HomeRepositoryImpl @Inject constructor(
         } catch (e: IOException) {
             emit(Resource.Error(e.toString()))
         } catch (e: HttpException) {
-            emit(Resource.Error(e.toString()))
+            val errorMessage = try {
+                val errorJson = e.response()?.errorBody()?.string()
+                val errorObj = JSONObject(errorJson ?: "")
+                errorObj.getString("message")
+            } catch (ex: Exception) {
+                "알 수 없는 오류가 발생했어요."
+            }
+            emit(Resource.Error(errorMessage))
         }
     }.flowOn(ioDispatcher)
 
@@ -208,7 +267,14 @@ class HomeRepositoryImpl @Inject constructor(
         } catch (e: IOException) {
             emit(Resource.Error(e.toString()))
         } catch (e: HttpException) {
-            emit(Resource.Error(e.toString()))
+            val errorMessage = try {
+                val errorJson = e.response()?.errorBody()?.string()
+                val errorObj = JSONObject(errorJson ?: "")
+                errorObj.getString("message")
+            } catch (ex: Exception) {
+                "알 수 없는 오류가 발생했어요."
+            }
+            emit(Resource.Error(errorMessage))
         }
     }.flowOn(ioDispatcher)
 
@@ -221,10 +287,13 @@ class HomeRepositoryImpl @Inject constructor(
     }
 
     @WorkerThread
-    override fun uploadImage(id: Long, image: MultipartBody.Part): Flow<Resource<String>> = flow {
+    override fun uploadImage(id: Long, image: File): Flow<Resource<String>> = flow {
         emit(Resource.Loading())
+        val compressedFile = ImageCompressor.compressImage(context, image)
+        val requestFile = compressedFile.asRequestBody("image/*".toMediaTypeOrNull())
+        val body = MultipartBody.Part.createFormData("recipeImage", compressedFile.name, requestFile)
         try {
-            val response = api.uploadImage(id, image)
+            val response = api.uploadImage(id, body)
             if(response.isSuccess){
                 emit(Resource.Success(response.result))
             }else {
@@ -233,7 +302,14 @@ class HomeRepositoryImpl @Inject constructor(
         } catch (e: IOException) {
             emit(Resource.Error(e.toString()))
         } catch (e: HttpException) {
-            emit(Resource.Error(e.toString()))
+            val errorMessage = try {
+                val errorJson = e.response()?.errorBody()?.string()
+                val errorObj = JSONObject(errorJson ?: "")
+                errorObj.getString("message")
+            } catch (ex: Exception) {
+                "알 수 없는 오류가 발생했어요."
+            }
+            emit(Resource.Error(errorMessage))
         }
     }.flowOn(ioDispatcher)
 }

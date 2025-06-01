@@ -38,8 +38,8 @@ import com.example.untitled_capstone.ui.theme.CustomTheme
 fun MyLikedPostScreen(
     navigate: (Screen) -> Unit,
     postItems: LazyPagingItems<PostRaw>,
-    clearBackstack: () -> Unit,
-    toggleLike: (Long) -> Unit
+    popBackStack: () -> Unit,
+    toggleLike: (Long) -> Unit,
 ){
     Scaffold(
         containerColor = CustomTheme.colors.surface,
@@ -55,7 +55,7 @@ fun MyLikedPostScreen(
                 },
                 navigationIcon = {
                     IconButton(
-                        onClick = { clearBackstack() }
+                        onClick = { popBackStack() }
                     ) {
                         Icon(
                             imageVector = ImageVector.Companion.vectorResource(R.drawable.chevron_left),

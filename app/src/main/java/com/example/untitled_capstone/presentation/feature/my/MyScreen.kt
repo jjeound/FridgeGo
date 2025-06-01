@@ -80,7 +80,7 @@ fun MyScreen(
                 )
 
                 MyContainer("내 동네 설정", R.drawable.location, { navigate(Screen.LocationNav) })
-                MyContainer("앱 설정", R.drawable.info, {})
+                MyContainer("앱 설정", R.drawable.info, {}) //TODO: 앱 설정 화면 구현
             }
         }
 //        Card(

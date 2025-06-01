@@ -18,12 +18,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,13 +38,10 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.domain.model.Profile
-import com.example.untitled_capstone.navigation.Graph
 import com.example.untitled_capstone.navigation.Screen
 import com.example.untitled_capstone.ui.theme.CustomTheme
 import java.io.File
@@ -91,6 +88,31 @@ fun ProfileDetail(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding)
     ){
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(
+                horizontal = Dimens.mediumPadding,
+                vertical = Dimens.smallPadding
+            ),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            profile.trustLevelImageUrl?.let {
+                AsyncImage(
+                    modifier = Modifier.size(28.dp),
+                    model = it,
+                    contentScale = ContentScale.Crop,
+                    contentDescription = "trust level",
+                )
+                Spacer(
+                    modifier = Modifier.width(Dimens.smallPadding)
+                )
+            }
+            Text(
+                text = levelToKor(profile.trustLevel),
+                style = CustomTheme.typography.title1,
+                color = CustomTheme.colors.textPrimary,
+            )
+        }
         image?.let {
             AsyncImage(
                 modifier = Modifier.size(80.dp).clip(CircleShape),
@@ -115,28 +137,6 @@ fun ProfileDetail(
                 text = profile.email,
                 style = CustomTheme.typography.caption1,
                 color = CustomTheme.colors.textSecondary,
-            )
-        }
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(
-                horizontal = Dimens.mediumPadding,
-                vertical = Dimens.smallPadding
-            ),
-            horizontalArrangement = Arrangement.spacedBy(Dimens.smallPadding),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            profile.trustLevelImageUrl?.let {
-                AsyncImage(
-                    modifier = Modifier.size(28.dp),
-                    model = it,
-                    contentScale = ContentScale.Crop,
-                    contentDescription = "trust level",
-                )
-            }
-            Text(
-                text = levelToKor(profile.trustLevel),
-                style = CustomTheme.typography.title1,
-                color = CustomTheme.colors.textPrimary,
             )
         }
         Spacer(
@@ -237,7 +237,7 @@ fun ProfileDetail(
                 verticalArrangement = Arrangement.spacedBy(Dimens.smallPadding)
             )  {
                 Row(
-                    modifier = Modifier.fillMaxWidth().padding(vertical = Dimens.smallPadding).clickable {  },
+                    modifier = Modifier.fillMaxWidth().padding(vertical = Dimens.smallPadding).clickable {  }, //TODO: 회원 탈퇴 기능 구현
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {

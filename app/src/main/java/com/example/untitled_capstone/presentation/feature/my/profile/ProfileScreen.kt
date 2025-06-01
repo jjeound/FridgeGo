@@ -12,24 +12,18 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.domain.model.Profile
 import com.example.untitled_capstone.navigation.Screen
-import com.example.untitled_capstone.presentation.util.CustomSnackbar
 import com.example.untitled_capstone.ui.theme.CustomTheme
 import java.io.File
 
@@ -45,22 +39,8 @@ fun ProfileScreen(
     uploadProfileImage: (File) -> Unit,
     clearBackStack: () -> Unit,
 ) {
-    val snackbarHostState = remember { SnackbarHostState() }
-//    LaunchedEffect(uiState) {
-//        if(uiState == ProfileUiState.Success){
-//
-//        }
-//    }
     Scaffold(
         containerColor = CustomTheme.colors.surface,
-        snackbarHost = { SnackbarHost(
-            hostState = snackbarHostState,
-            snackbar = { data ->
-                CustomSnackbar(
-                    data
-                )
-            }
-        )},
         topBar = {
             CenterAlignedTopAppBar(
                 modifier = Modifier.Companion.padding(Dimens.topBarPadding),
@@ -100,7 +80,7 @@ fun ProfileScreen(
             )
             if(uiState == ProfileUiState.Loading){
                 Box(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ){
                     CircularProgressIndicator(

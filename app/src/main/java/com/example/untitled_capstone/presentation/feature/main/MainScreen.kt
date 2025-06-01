@@ -19,6 +19,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -28,6 +29,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.untitled_capstone.R
+import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.navigation.Navigation
 import com.example.untitled_capstone.navigation.Screen
 import com.example.untitled_capstone.presentation.feature.my.MyTopBar
@@ -56,14 +58,17 @@ fun MainScreen(viewModel: MainViewModel){
 
     Scaffold(
         containerColor = CustomTheme.colors.surface,
-        snackbarHost = {SnackbarHost(
-            hostState = snackbarHostState,
-            snackbar = { data ->
-                CustomSnackbar(
-                    data
+        snackbarHost = {
+            Box(modifier = Modifier.fillMaxSize()) {
+                SnackbarHost(
+                    hostState = snackbarHostState,
+                    snackbar = { data -> CustomSnackbar(data) },
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(bottom = Dimens.snackbarPadding)
                 )
             }
-        ) },
+        },
         topBar = {
             when{
                 bottomRoute.equals(screens[0]) -> TopBar(1, navController)

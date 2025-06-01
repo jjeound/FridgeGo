@@ -8,21 +8,31 @@ import androidx.room.Room
 import com.example.untitled_capstone.core.util.Constants.BASE_URL
 import com.example.untitled_capstone.core.util.Constants.KAKAO_BASE_URL
 import com.example.untitled_capstone.data.local.db.FridgeItemDatabase
+import com.example.untitled_capstone.data.local.db.LikedPostDatabase
 import com.example.untitled_capstone.data.local.db.MessageItemDatabase
+import com.example.untitled_capstone.data.local.db.MyPostDatabase
+import com.example.untitled_capstone.data.local.db.NotificationDatabase
 import com.example.untitled_capstone.data.local.db.PostItemDatabase
 import com.example.untitled_capstone.data.local.db.ProfileDatabase
 import com.example.untitled_capstone.data.local.db.RecipeItemDatabase
 import com.example.untitled_capstone.data.local.entity.FridgeItemEntity
+import com.example.untitled_capstone.data.local.entity.LikedPostEntity
 import com.example.untitled_capstone.data.local.entity.MessageItemEntity
+import com.example.untitled_capstone.data.local.entity.MyPostEntity
 import com.example.untitled_capstone.data.local.entity.PostItemEntity
 import com.example.untitled_capstone.data.local.entity.RecipeItemEntity
 import com.example.untitled_capstone.data.local.remote.FridgeItemDao
+import com.example.untitled_capstone.data.local.remote.LikedPostDao
 import com.example.untitled_capstone.data.local.remote.MessageDao
+import com.example.untitled_capstone.data.local.remote.MyPostDao
+import com.example.untitled_capstone.data.local.remote.NotificationDao
 import com.example.untitled_capstone.data.local.remote.PostItemDao
 import com.example.untitled_capstone.data.local.remote.ProfileDao
 import com.example.untitled_capstone.data.local.remote.RecipeItemDao
 import com.example.untitled_capstone.data.pagination.FridgePagingSource
+import com.example.untitled_capstone.data.pagination.LikedPostPagingSource
 import com.example.untitled_capstone.data.pagination.MessagePagingSource
+import com.example.untitled_capstone.data.pagination.MyPostPagingSource
 import com.example.untitled_capstone.data.pagination.PostPagingSource
 import com.example.untitled_capstone.data.pagination.RecipePagingSource
 import com.example.untitled_capstone.data.remote.manager.WebSocketManager
@@ -37,7 +47,6 @@ import com.example.untitled_capstone.data.remote.service.PostApi
 import com.example.untitled_capstone.data.remote.service.TokenApi
 import com.example.untitled_capstone.data.util.ApiResponseAdapterFactory
 import com.example.untitled_capstone.data.util.FridgeFetchType
-import com.example.untitled_capstone.data.util.PostFetchType
 import com.example.untitled_capstone.domain.repository.TokenRepository
 import com.example.untitled_capstone.domain.use_case.token.AuthAuthenticator
 import com.example.untitled_capstone.domain.use_case.token.AuthInterceptor
@@ -96,6 +105,30 @@ object AppModule {
 
     @Provides
     @Singleton
+    fun provideLikedPostItemDatabase(@ApplicationContext context: Context): LikedPostDatabase {
+        return Room.databaseBuilder(
+            context, LikedPostDatabase::class.java, "liked_post__database"
+        ).build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideLikedPostDao(db: LikedPostDatabase): LikedPostDao = db.dao
+
+    @Provides
+    @Singleton
+    fun provideMyPostItemDatabase(@ApplicationContext context: Context): MyPostDatabase {
+        return Room.databaseBuilder(
+            context, MyPostDatabase::class.java, "my_post_database"
+        ).build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideMyPostDao(db: MyPostDatabase): MyPostDao = db.dao
+
+    @Provides
+    @Singleton
     fun provideMessageItemDatabase(@ApplicationContext context: Context): MessageItemDatabase{
         return Room.databaseBuilder(
             context, MessageItemDatabase::class.java, "message_item_database"
@@ -117,6 +150,18 @@ object AppModule {
     @Provides
     @Singleton
     fun provideProfileDao(db: ProfileDatabase): ProfileDao = db.dao
+
+    @Provides
+    @Singleton
+    fun provideNotificationDatabase(@ApplicationContext context: Context): NotificationDatabase {
+        return Room.databaseBuilder(
+            context, NotificationDatabase::class.java, "notification_database"
+        ).build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideNotificationDao(db: NotificationDatabase): NotificationDao = db.dao
 
     @Provides
     @Singleton
@@ -267,13 +312,44 @@ object AppModule {
     @OptIn(ExperimentalPagingApi::class)
     @Provides
     @Singleton
-    fun providePostPager(db: PostItemDatabase, api: PostApi, fetchType: PostFetchType): Pager<Int, PostItemEntity> {
+    fun providePostPager(db: PostItemDatabase, api: PostApi): Pager<Int, PostItemEntity> {
         return Pager(
             config = PagingConfig(pageSize = 10),
             remoteMediator = PostPagingSource(
                 db = db,
-                api = api,
-                fetchType = fetchType
+                api = api
+            ),
+            pagingSourceFactory = {
+                db.dao.getPostItems()
+            }
+        )
+    }
+
+    @OptIn(ExperimentalPagingApi::class)
+    @Provides
+    @Singleton
+    fun provideLikedPostPager(db: LikedPostDatabase, api: PostApi): Pager<Int, LikedPostEntity> {
+        return Pager(
+            config = PagingConfig(pageSize = 10),
+            remoteMediator = LikedPostPagingSource(
+                db = db,
+                api = api
+            ),
+            pagingSourceFactory = {
+                db.dao.getPostItems()
+            }
+        )
+    }
+
+    @OptIn(ExperimentalPagingApi::class)
+    @Provides
+    @Singleton
+    fun provideMyPostPager(db: MyPostDatabase, api: PostApi): Pager<Int, MyPostEntity> {
+        return Pager(
+            config = PagingConfig(pageSize = 10),
+            remoteMediator = MyPostPagingSource(
+                db = db,
+                api = api
             ),
             pagingSourceFactory = {
                 db.dao.getPostItems()

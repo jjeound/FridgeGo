@@ -7,6 +7,7 @@ import com.example.untitled_capstone.data.repository.HomeRepositoryImpl
 import com.example.untitled_capstone.data.repository.LocalUserRepositoryImpl
 import com.example.untitled_capstone.data.repository.LoginRepositoryImpl
 import com.example.untitled_capstone.data.repository.MyRepositoryImpl
+import com.example.untitled_capstone.data.repository.NotificationRepositoryImpl
 import com.example.untitled_capstone.data.repository.PostRepositoryImpl
 import com.example.untitled_capstone.data.repository.TokenRepositoryImpl
 import com.example.untitled_capstone.data.repository.WebSocketRepositoryImpl
@@ -17,6 +18,7 @@ import com.example.untitled_capstone.domain.repository.HomeRepository
 import com.example.untitled_capstone.domain.repository.LocalUserRepository
 import com.example.untitled_capstone.domain.repository.LoginRepository
 import com.example.untitled_capstone.domain.repository.MyRepository
+import com.example.untitled_capstone.domain.repository.NotificationRepository
 import com.example.untitled_capstone.domain.repository.PostRepository
 import com.example.untitled_capstone.domain.repository.TokenRepository
 import com.example.untitled_capstone.domain.repository.WebSocketRepository
@@ -57,4 +59,7 @@ interface DataModule {
 
     @Binds
     fun bindsFCMRepository(fcmRepositoryImpl: FCMRepositoryImpl): FCMRepository
+
+    @Binds
+    fun bindsNotificationRepository(notificationRepositoryImpl: NotificationRepositoryImpl): NotificationRepository
 }

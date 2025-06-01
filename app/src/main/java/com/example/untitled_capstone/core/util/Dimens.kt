@@ -11,4 +11,5 @@ object Dimens {
     val smallPadding = 4.dp
     val cornerRadius = 12.dp
     val topBarPadding = 4.dp
+    val snackbarPadding = 100.dp
 }

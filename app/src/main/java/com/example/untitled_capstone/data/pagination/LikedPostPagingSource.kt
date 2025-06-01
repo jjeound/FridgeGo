@@ -5,22 +5,24 @@ import androidx.paging.LoadType
 import androidx.paging.PagingState
 import androidx.paging.RemoteMediator
 import androidx.room.withTransaction
+import com.example.untitled_capstone.data.local.db.LikedPostDatabase
+import com.example.untitled_capstone.data.local.db.MyPostDatabase
 import com.example.untitled_capstone.data.local.db.PostItemDatabase
+import com.example.untitled_capstone.data.local.entity.LikedPostEntity
 import com.example.untitled_capstone.data.local.entity.PostItemEntity
 import com.example.untitled_capstone.data.remote.service.PostApi
 import retrofit2.HttpException
 import java.io.IOException
 
 @OptIn(ExperimentalPagingApi::class)
-class PostPagingSource(
+class LikedPostPagingSource(
     private val api: PostApi,
-    private val db: PostItemDatabase,
-    private val keyword: String? = null,
-): RemoteMediator<Int, PostItemEntity>() {
+    private val db: LikedPostDatabase
+): RemoteMediator<Int, LikedPostEntity>() {
 
     override suspend fun load(
         loadType: LoadType,
-        state: PagingState<Int, PostItemEntity>
+        state: PagingState<Int, LikedPostEntity>
     ): MediatorResult {
         return try {
             val loadKey = when(loadType) {
@@ -38,12 +40,13 @@ class PostPagingSource(
                 }
             }
 
-            val response = api.searchPosts(keyword = keyword, page = loadKey.toInt(), size = state.config.pageSize)
+            val response = api.getLikedPosts(page = loadKey.toInt(), size = state.config.pageSize)
+
             db.withTransaction {
                 if(loadType == LoadType.REFRESH) {
                     db.dao.clearAll()
                 }
-                val postEntities = response.result!!.content.map { it.toPostEntity(response.result.number + 1) }
+                val postEntities = response.result!!.content.map { it.toLikedPostEntity(response.result.number + 1) }
                 db.dao.upsertAll(postEntities)
             }
 

@@ -25,12 +25,9 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -43,7 +40,6 @@ import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.domain.model.ChatMember
 import com.example.untitled_capstone.navigation.Screen
-import com.example.untitled_capstone.presentation.util.CustomSnackbar
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -61,7 +57,6 @@ fun ChattingRoomDrawer(
     clearBackStack: () -> Unit,
     navigate: (Screen) -> Unit,
 ){
-    val snackbarHostState = remember { SnackbarHostState() }
     val scrollState = rememberScrollState()
     if(uiState is ChatDetailUiState.Loading){
         CircularProgressIndicator(
@@ -72,14 +67,6 @@ fun ChattingRoomDrawer(
 
     Scaffold(
         containerColor = CustomTheme.colors.surface,
-        snackbarHost = {SnackbarHost(
-            hostState = snackbarHostState,
-            snackbar = { data ->
-                CustomSnackbar(
-                    data
-                )
-            }
-        )},
         topBar = {
             CenterAlignedTopAppBar(
                 modifier = Modifier.padding(horizontal = Dimens.topBarPadding),

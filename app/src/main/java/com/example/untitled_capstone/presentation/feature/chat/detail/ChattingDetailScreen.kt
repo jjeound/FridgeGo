@@ -68,7 +68,6 @@ fun ChattingDetailScreen(
     sendMessage: (Long, String) -> Unit,
     leaveRoom: (Long) -> Unit,
 ) {
-    val snackbarHostState = remember { SnackbarHostState() }
     val listState = rememberLazyListState()
     val lifecycleOwner = LocalLifecycleOwner.current
 
@@ -101,15 +100,6 @@ fun ChattingDetailScreen(
     chattingRoom?.let { room ->
         Scaffold(
             containerColor = CustomTheme.colors.onSurface,
-            snackbarHost = {
-                SnackbarHost(
-                    hostState = snackbarHostState,
-                    snackbar = { data ->
-                        CustomSnackbar(
-                            data
-                        )
-                    }
-                )},
             topBar = {
                 CenterAlignedTopAppBar(
                     modifier = Modifier.padding(horizontal = Dimens.topBarPadding),

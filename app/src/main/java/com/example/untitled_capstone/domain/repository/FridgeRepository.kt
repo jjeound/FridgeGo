@@ -7,7 +7,6 @@ import com.example.untitled_capstone.data.local.entity.FridgeItemEntity
 import com.example.untitled_capstone.data.util.FridgeFetchType
 import com.example.untitled_capstone.domain.model.FridgeItem
 import kotlinx.coroutines.flow.Flow
-import okhttp3.MultipartBody
 import java.io.File
 
 interface FridgeRepository{
@@ -20,7 +19,7 @@ interface FridgeRepository{
     @WorkerThread
     fun toggleNotification(id: Long, alarmStatus: Boolean): Flow<Resource<String>>
     @WorkerThread
-    fun modifyItem(updatedItem: FridgeItem, image: MultipartBody.Part? = null): Flow<Resource<String>>
+    fun modifyItem(updatedItem: FridgeItem, image: File? = null): Flow<Resource<String>>
     @WorkerThread
     fun deleteItem(id: Long): Flow<Resource<String>>
     @WorkerThread

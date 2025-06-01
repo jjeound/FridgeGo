@@ -7,7 +7,7 @@ import com.example.untitled_capstone.data.local.entity.RecipeItemEntity
 import com.example.untitled_capstone.domain.model.Recipe
 import com.example.untitled_capstone.domain.model.TastePreference
 import kotlinx.coroutines.flow.Flow
-import okhttp3.MultipartBody
+import java.io.File
 
 interface HomeRepository {
     @WorkerThread
@@ -33,5 +33,5 @@ interface HomeRepository {
     fun isFirstSelection(): Boolean
     fun setFirstSelection(isFirst: Boolean)
     @WorkerThread
-    fun uploadImage(id: Long, image: MultipartBody.Part): Flow<Resource<String>>
+    fun uploadImage(id: Long, image: File): Flow<Resource<String>>
 }

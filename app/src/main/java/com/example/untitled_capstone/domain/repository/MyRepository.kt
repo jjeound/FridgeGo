@@ -4,7 +4,7 @@ import androidx.annotation.WorkerThread
 import com.example.untitled_capstone.core.util.Resource
 import com.example.untitled_capstone.domain.model.Profile
 import kotlinx.coroutines.flow.Flow
-import okhttp3.MultipartBody
+import java.io.File
 
 interface MyRepository {
     @WorkerThread
@@ -17,7 +17,7 @@ interface MyRepository {
     @WorkerThread
     fun getLocation(): Flow<Resource<String>>
     @WorkerThread
-    fun uploadProfileImage(profileImage: MultipartBody.Part): Flow<Resource<String>>
+    fun uploadProfileImage(profileImage: File): Flow<Resource<String>>
     @WorkerThread
     fun repostUser(targetUserId: Long, reportType: String, content: String): Flow<Resource<String>>
 }

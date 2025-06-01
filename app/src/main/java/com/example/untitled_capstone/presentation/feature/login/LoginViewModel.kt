@@ -90,8 +90,6 @@ class LoginViewModel @Inject constructor(
                                 val token = task.result
                                 saveFCMToken(token)
                             })
-                            saveAppEntry()
-                            //AuthEventBus.send(AuthEvent.Login)
                             uiState.tryEmit(LoginUiState.Success)
                         }
                     }
@@ -119,6 +117,7 @@ class LoginViewModel @Inject constructor(
                 when(it){
                     is Resource.Success -> {
                         it.data?.let{ result ->
+                            saveAppEntry()
                             _event.emit(UiEvent.ShowSnackbar(it.message ?: "닉네임이 설정되었습니다."))
                             uiState.tryEmit(LoginUiState.Success)
                         }
@@ -163,7 +162,6 @@ class LoginViewModel @Inject constructor(
                 when(it){
                     is Resource.Success -> {
                         it.data?.let{ result ->
-                            saveAppEntry()
                             _address.value = Address(district, neighborhood)
                             _which.value = true
                             _event.emit(UiEvent.ShowSnackbar(it.message ?: "위치 설정이 완료되었습니다."))

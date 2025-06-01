@@ -62,10 +62,10 @@ fun KakaoLogin(
                 modifier = Modifier.width(600.dp).height(90.dp).padding(
                     Dimens.largePadding
                 ).clickable {
-                    login("")
-//                    kakaoLogin(context){ code ->
-//                        login(code)
-//                    }
+                    //login("")
+                    kakaoLogin(context){ code ->
+                        login(code)
+                    }
                 },
                 painter = painterResource(id = R.drawable.kakao_login_large_wide),
                 contentDescription = "kakao_login"

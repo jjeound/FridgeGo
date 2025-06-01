@@ -16,6 +16,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -44,7 +45,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
@@ -77,10 +77,9 @@ fun SetLocationScreen(
     setLocation: (String, String) -> Unit,
     popBackStack: ()-> Unit,
     navigateToHome: () -> Unit,
-    from : Boolean
+    from : Boolean,  //true면 마이 화면, false면 로그인 화면에서 넘어옴
 ){
     val context = LocalContext.current
-    val snackbarHostState = remember { SnackbarHostState() }
     val locationPermissions = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)
     val requestPermissionLauncher =
         rememberLauncherForActivityResult(
@@ -136,7 +135,6 @@ fun SetLocationScreen(
     }
     Scaffold(
         containerColor = CustomTheme.colors.onSurface,
-        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = {
             CenterAlignedTopAppBar(
                 modifier = Modifier.padding(Dimens.topBarPadding),
@@ -229,30 +227,52 @@ fun SetLocationScreen(
                     },
                 )
             }
-            Button(
+            Row(
                 modifier = Modifier
                     .fillMaxWidth(),
-                shape = RoundedCornerShape(Dimens.cornerRadius),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = CustomTheme.colors.primary,
-                    disabledContainerColor = CustomTheme.colors.onSurface,
-                    contentColor = CustomTheme.colors.onPrimary,
-                    disabledContentColor = CustomTheme.colors.textTertiary
-                ),
-                border = BorderStroke(
-                    width = 1.dp,
-                    color = CustomTheme.colors.border
-                ),
-                onClick = {
-                    if(address != null){
-                        setLocation(address.regionGu, address.regionDong)
+                horizontalArrangement = Arrangement.spacedBy(Dimens.largePadding),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                if(!from){
+                    Button(
+                        modifier = Modifier
+                            .weight(1f),
+                        shape = RoundedCornerShape(Dimens.cornerRadius),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = CustomTheme.colors.onSurface,
+                            contentColor = CustomTheme.colors.textSecondary,
+                        ),
+                        onClick = {
+                            navigateToHome()
+                        },
+                    ) {
+                        Text(
+                            text = "나중에 하기",
+                            style = CustomTheme.typography.button1,
+                        )
                     }
                 }
-            ) {
-                Text(
-                    text = "내 동네 설정하기",
-                    style = CustomTheme.typography.button1,
-                )
+                Button(
+                    modifier = Modifier
+                        .weight(1f),
+                    shape = RoundedCornerShape(Dimens.cornerRadius),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = CustomTheme.colors.primary,
+                        disabledContainerColor = CustomTheme.colors.onSurface,
+                        contentColor = CustomTheme.colors.onPrimary,
+                        disabledContentColor = CustomTheme.colors.textTertiary
+                    ),
+                    onClick = {
+                        if(address != null){
+                            setLocation(address.regionGu, address.regionDong)
+                        }
+                    }
+                ) {
+                    Text(
+                        text = "동네 설정하기",
+                        style = CustomTheme.typography.button1,
+                    )
+                }
             }
         }
         PermissionDialog(

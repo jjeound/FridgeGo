@@ -21,8 +21,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -51,10 +49,9 @@ fun SetNickNameScreen(
     uiState: LoginUiState,
     setNickname: (String) -> Unit,
     modifyNickname: (String) -> Unit,
-    from: Boolean
+    from: Boolean,
 ) {
     var error by remember { mutableStateOf(false) }
-    val snackbarHostState = remember { SnackbarHostState() }
     var nickname by remember { mutableStateOf("") }
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -72,7 +69,6 @@ fun SetNickNameScreen(
     }
     Scaffold(
         containerColor = CustomTheme.colors.onSurface,
-        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = {
             CenterAlignedTopAppBar(
                 modifier = Modifier.padding(Dimens.topBarPadding),

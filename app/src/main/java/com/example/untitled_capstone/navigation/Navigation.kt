@@ -40,7 +40,7 @@ import com.example.untitled_capstone.presentation.feature.my.MyScreen
 import com.example.untitled_capstone.presentation.feature.my.profile.ProfileScreen
 import com.example.untitled_capstone.presentation.feature.my.profile.ProfileViewModel
 import com.example.untitled_capstone.presentation.feature.notification.NotificationViewModel
-import com.example.untitled_capstone.presentation.feature.notification.screen.NotificationScreen
+import com.example.untitled_capstone.presentation.feature.notification.NotificationScreen
 import com.example.untitled_capstone.presentation.feature.onBoardiing.OnBoarding
 import com.example.untitled_capstone.presentation.feature.post.detail.ReportScreen
 import com.example.untitled_capstone.presentation.feature.post.PostScreen
@@ -210,7 +210,7 @@ fun Navigation(
                     },
                     savePost = { post ->
                         navController.currentBackStackEntry?.savedStateHandle["post"] = post
-                    }
+                    },
                 )
             }
             composable<Screen.WritingNav>{
@@ -238,7 +238,7 @@ fun Navigation(
                             popUpTo(0) { inclusive = true } // 모든 백스택 제거
                             launchSingleTop = true          // 중복 방지
                         }
-                    }
+                    },
                 )
             }
             composable<Screen.PostSearchNav> {
@@ -274,7 +274,7 @@ fun Navigation(
                             popUpTo(0) { inclusive = true } // 모든 백스택 제거
                             launchSingleTop = true          // 중복 방지
                         }
-                    }
+                    },
                 )
             }
             composable<Screen.ReportNav> {
@@ -296,7 +296,7 @@ fun Navigation(
                     reportPost = viewModel::reportPost,
                     reportUser = viewModel::reportUser,
                     popBackStack = {navController.popBackStack()},
-                    isPost = args.isPost
+                    isPost = args.isPost,
                 )
             }
             composable<Screen.ChattingRoomNav>{
@@ -392,7 +392,7 @@ fun Navigation(
                     exitChatRoom = viewModel::exitChatRoom,
                     navigate = {
                         navController.navigate(it)
-                    }
+                    },
                 )
             }
             composable<Screen.Profile>{
@@ -422,7 +422,7 @@ fun Navigation(
                             popUpTo(0) { inclusive = true } // 모든 백스택 제거
                             launchSingleTop = true          // 중복 방지
                         }
-                    }
+                    },
                 )
             }
         }
@@ -625,7 +625,7 @@ fun Navigation(
                     exitChatRoom = viewModel::exitChatRoom,
                     navigate = {
                         navController.navigate(it)
-                    }
+                    },
                 )
             }
             composable<Screen.Profile>{
@@ -764,7 +764,7 @@ fun Navigation(
                     },
                     setNickname = viewModel::setNickname,
                     modifyNickname = viewModel::modifyNickname,
-                    from = true
+                    from = true,
                 )
             }
             composable<Screen.LocationNav> {
@@ -791,7 +791,7 @@ fun Navigation(
                     },
                     getAddressByCoord = viewModel::getAddressByCoord,
                     setLocation = viewModel::setLocation,
-                    from = true
+                    from = true,
                 )
             }
             composable<Screen.MyLikedPostNav> {
@@ -814,11 +814,8 @@ fun Navigation(
                         navController.navigate(it)
                     },
                     postItems = postItems,
-                    clearBackstack = {
-                        navController.navigate(Graph.MyGraph) {
-                            popUpTo(0) { inclusive = true } // 모든 백스택 제거
-                            launchSingleTop = true          // 중복 방지
-                        }
+                    popBackStack = {
+                        navController.popBackStack()
                     },
                     toggleLike = viewModel::toggleLike,
                 )
@@ -843,19 +840,22 @@ fun Navigation(
                         navController.navigate(it)
                     },
                     postItems = postItems,
-                    clearBackstack = {
-                        navController.navigate(Graph.MyGraph) {
-                            popUpTo(0) { inclusive = true } // 모든 백스택 제거
-                            launchSingleTop = true          // 중복 방지
-                        }
+                    popBackStack = {
+                        navController.popBackStack()
                     },
                     toggleLike = viewModel::toggleLike,
                 )
             }
         }
         composable<Screen.NotificationNav> {
-            val viewModel = NotificationViewModel()
-            NotificationScreen(navController, viewModel.state)
+            val viewModel: NotificationViewModel = hiltViewModel()
+            val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+            val notificationList by viewModel.notificationList.collectAsStateWithLifecycle()
+            NotificationScreen(
+                uiState = uiState,
+                notificationList = notificationList,
+                popBackStack = {navController.popBackStack()}
+            )
         }
         navigation<Graph.LoginGraph>(startDestination = Screen.LoginNav){
             composable<Screen.LoginNav> {
@@ -881,7 +881,7 @@ fun Navigation(
                             launchSingleTop = true
                         }
                     },
-                    navigateToNic = {
+                    navigateToNext = {
                         navController.navigate(Screen.NicknameNav)
                     },
                 )
@@ -908,7 +908,7 @@ fun Navigation(
                     },
                     setNickname = viewModel::setNickname,
                     modifyNickname = viewModel::modifyNickname,
-                    from = false
+                    from = false,
                 )
             }
             composable<Screen.LocationNav> {
@@ -935,7 +935,7 @@ fun Navigation(
                     },
                     getAddressByCoord = viewModel::getAddressByCoord,
                     setLocation = viewModel::setLocation,
-                    from = false
+                    from = false,
                 )
             }
         }

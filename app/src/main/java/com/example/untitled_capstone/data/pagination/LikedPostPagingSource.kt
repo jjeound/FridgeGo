@@ -6,10 +6,7 @@ import androidx.paging.PagingState
 import androidx.paging.RemoteMediator
 import androidx.room.withTransaction
 import com.example.untitled_capstone.data.local.db.LikedPostDatabase
-import com.example.untitled_capstone.data.local.db.MyPostDatabase
-import com.example.untitled_capstone.data.local.db.PostItemDatabase
 import com.example.untitled_capstone.data.local.entity.LikedPostEntity
-import com.example.untitled_capstone.data.local.entity.PostItemEntity
 import com.example.untitled_capstone.data.remote.service.PostApi
 import retrofit2.HttpException
 import java.io.IOException

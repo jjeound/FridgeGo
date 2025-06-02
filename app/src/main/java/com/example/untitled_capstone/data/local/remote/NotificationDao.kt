@@ -9,7 +9,7 @@ import com.example.untitled_capstone.data.local.entity.NotificationEntity
 @Dao
 interface NotificationDao {
 
-    @Query("SELECT * FROM NotificationEntity")
+    @Query("SELECT * FROM NotificationEntity ORDER BY id DESC")
     fun getAllNotifications(): List<NotificationEntity>
 
     @Query("UPDATE notificationentity SET isRead = :value")

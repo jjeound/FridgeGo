@@ -69,7 +69,7 @@ fun ChatBot(
                 horizontal = Dimens.surfaceHorizontalPadding
             )
             .padding(top = Dimens.surfaceVerticalPadding)
-            .background(color = CustomTheme.colors.onSurface),
+            .background(color = Color.White),
         verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding)
     ) {
         LazyColumn(
@@ -114,7 +114,7 @@ fun ChatBot(
                                 Text(
                                     text = matches[0].trim(), // title
                                     style = CustomTheme.typography.title1,
-                                    color = CustomTheme.colors.textPrimary,
+                                    color = Color.Black,
                                 )
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically
@@ -127,14 +127,14 @@ fun ChatBot(
                                     ) {
                                         Icon(
                                             imageVector = ImageVector.vectorResource(R.drawable.flag),
-                                            tint = CustomTheme.colors.iconSelected,
+                                            tint = Color.Black,
                                             contentDescription = "save"
                                         )
                                     }
                                     Text(
                                         text = "저장",
                                         style = CustomTheme.typography.caption1,
-                                        color = CustomTheme.colors.textPrimary
+                                        color = Color.Black
                                     )
                                 }
                             }
@@ -144,22 +144,17 @@ fun ChatBot(
                                         Text(
                                             text = "${matches[index - 1].trim()} 📌", // 재료
                                             style = CustomTheme.typography.title1,
-                                            color = CustomTheme.colors.textPrimary,
+                                            color = Color.Black,
                                         )
                                     }
                                     if(index == 3){
                                         Text(
                                             text = "${matches[index - 1].trim()} \uD83D\uDE80", // 레시피
                                             style = CustomTheme.typography.title1,
-                                            color = CustomTheme.colors.textPrimary,
+                                            color = Color.Black,
                                         )
                                     }
                                 }
-                                HorizontalDivider(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    color = CustomTheme.colors.borderLight,
-                                    thickness = 1.dp
-                                )
                                 if(index == 2){
                                     Text(
                                         text = text
@@ -167,14 +162,14 @@ fun ChatBot(
                                                 it.trim().replaceFirst("- ", "✅ ")
                                             },
                                         style = CustomTheme.typography.body1,
-                                        color = CustomTheme.colors.textPrimary,
+                                        color = Color.Black,
                                     )
                                 }
                                 if(index == 3){
                                     Text(
                                         text = text.trim(),
                                         style = CustomTheme.typography.body1,
-                                        color = CustomTheme.colors.textPrimary,
+                                        color = Color.Black,
                                     )
                                 }
                             }

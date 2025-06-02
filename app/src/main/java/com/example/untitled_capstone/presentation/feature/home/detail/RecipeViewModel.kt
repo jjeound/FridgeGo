@@ -89,7 +89,6 @@ class RecipeViewModel @Inject constructor(
                 when(it){
                     is Resource.Success -> {
                         uiState.tryEmit(RecipeUiState.Success)
-                        //_event.emit(RecipeEvent.ClearBackStack)
                     }
                     is Resource.Error -> {
                         uiState.tryEmit(RecipeUiState.Error(it.message))
@@ -118,7 +117,6 @@ class RecipeViewModel @Inject constructor(
                 when(it){
                     is Resource.Success -> {
                         uiState.tryEmit(RecipeUiState.Success)
-                        //_event.emit(RecipeEvent.PopBackStack)
                     }
                     is Resource.Error -> {
                         uiState.tryEmit(RecipeUiState.Error(it.message))

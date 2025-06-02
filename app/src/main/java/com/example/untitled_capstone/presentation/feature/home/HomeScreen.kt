@@ -31,6 +31,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.paging.LoadState
@@ -150,7 +151,7 @@ fun HomeScreen(
                 modifier = Modifier.fillMaxSize(),
                 sheetState = sheetState,
                 onDismissRequest = { mainViewModel.hideBottomSheet()},
-                containerColor = CustomTheme.colors.onSurface,
+                containerColor = Color.White,
             ) {
                 ChatBot(
                     uiState = uiState,

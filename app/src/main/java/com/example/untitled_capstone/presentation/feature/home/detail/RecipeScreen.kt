@@ -1,5 +1,6 @@
 package com.example.untitled_capstone.presentation.feature.home.detail
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -118,8 +119,12 @@ fun RecipeScreen(
                         DropdownMenu(
                             expanded = expanded,
                             onDismissRequest = { expanded = false },
-                            containerColor = CustomTheme.colors.textTertiary,
+                            containerColor = CustomTheme.colors.onSurface,
                             shape = RoundedCornerShape(Dimens.cornerRadius),
+                            border = BorderStroke(
+                                width = 1.dp,
+                                color = CustomTheme.colors.borderLight
+                            )
                         ) {
                             menuItem.forEach { option ->
                                 DropdownMenuItem(

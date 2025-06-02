@@ -85,10 +85,11 @@ fun RecipeModifyScreen(
     recipe: Recipe?,
     uploadImageThenModifyRecipe: (Recipe, File?) -> Unit,
     popBackStack: () -> Unit,
+    clearBackStack: () -> Unit,
 ) {
     LaunchedEffect(uiState) {
         if(uiState == RecipeUiState.Success){
-            popBackStack()
+            clearBackStack()
         }
     }
     val focusManager = LocalFocusManager.current

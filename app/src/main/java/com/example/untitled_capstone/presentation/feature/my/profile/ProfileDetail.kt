@@ -51,7 +51,7 @@ fun ProfileDetail(
     uiState: ProfileUiState,
     profile: Profile,
     uploadProfileImage: (File) -> Unit,
-    clearBackStack: () -> Unit,
+    goToLoginScreen: () -> Unit,
     navigate: (Screen) -> Unit,
     logout: () -> Unit,
 ){
@@ -81,7 +81,7 @@ fun ProfileDetail(
         addCategory(Intent.CATEGORY_OPENABLE)
     }
     if(uiState == ProfileUiState.Logout){
-        clearBackStack()
+        goToLoginScreen()
     }
     Column (
         modifier = Modifier.fillMaxSize().padding(Dimens.mediumPadding),
@@ -299,7 +299,7 @@ fun ProfileDetailPreview() {
         ),
         uiState = ProfileUiState.Idle,
         uploadProfileImage = {},
-        clearBackStack = {},
+        goToLoginScreen = {},
         navigate = {},
         logout = {}
     )

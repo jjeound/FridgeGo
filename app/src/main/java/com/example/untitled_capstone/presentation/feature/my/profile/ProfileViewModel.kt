@@ -89,8 +89,8 @@ class ProfileViewModel @Inject constructor(
                 when(it){
                     is Resource.Success -> {
                         it.data?.let{
+                            uiState.emit(ProfileUiState.ImageChanged)
                             getMyProfile()
-                            uiState.tryEmit(ProfileUiState.Idle)
                         }
                     }
                     is Resource.Error -> {
@@ -134,5 +134,6 @@ interface ProfileUiState {
     data object Success: ProfileUiState
     data object Loading: ProfileUiState
     data object Logout: ProfileUiState
+    data object ImageChanged: ProfileUiState
     data class Error(val message: String?): ProfileUiState
 }

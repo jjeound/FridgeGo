@@ -15,6 +15,11 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -37,8 +42,13 @@ fun ProfileScreen(
     navigate: (Screen) -> Unit,
     logout: () -> Unit,
     uploadProfileImage: (File) -> Unit,
+    goToLoginScreen: () -> Unit,
     clearBackStack: () -> Unit,
 ) {
+    var isImageChanged by remember { mutableStateOf(false) }
+    LaunchedEffect(uiState == ProfileUiState.ImageChanged) {
+        isImageChanged = true
+    }
     Scaffold(
         containerColor = CustomTheme.colors.surface,
         topBar = {
@@ -53,7 +63,13 @@ fun ProfileScreen(
                 },
                 navigationIcon = {
                     IconButton(
-                        onClick = { popBackStack() }
+                        onClick = {
+                            if(isImageChanged){
+                                clearBackStack()
+                            } else {
+                                popBackStack()
+                            }
+                        }
                     ) {
                         Icon(
                             imageVector = ImageVector.Companion.vectorResource(R.drawable.chevron_left),
@@ -100,7 +116,7 @@ fun ProfileScreen(
                                 profile = profile,
                                 navigate = navigate,
                                 logout = logout,
-                                clearBackStack = clearBackStack,
+                                goToLoginScreen = goToLoginScreen,
                                 uiState = uiState,
                                 uploadProfileImage = uploadProfileImage
                             )

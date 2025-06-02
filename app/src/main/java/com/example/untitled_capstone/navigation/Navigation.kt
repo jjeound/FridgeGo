@@ -148,6 +148,12 @@ fun Navigation(
                     recipe = recipe,
                     uploadImageThenModifyRecipe = viewModel::uploadImageThenModify,
                     popBackStack = {navController.popBackStack()},
+                    clearBackStack = {
+                        navController.navigate(Graph.HomeGraph) {
+                            popUpTo(0) { inclusive = true } // 모든 백스택 제거
+                            launchSingleTop = true          // 중복 방지
+                        }
+                    }
                 )
             }
         }
@@ -417,12 +423,18 @@ fun Navigation(
                     },
                     logout = viewModel::logout,
                     uploadProfileImage = viewModel::uploadProfileImage,
-                    clearBackStack = {
+                    goToLoginScreen = {
                         navController.navigate(Graph.LoginGraph) {
                             popUpTo(0) { inclusive = true } // 모든 백스택 제거
                             launchSingleTop = true          // 중복 방지
                         }
                     },
+                    clearBackStack = {
+                        navController.navigate(Graph.MyGraph) {
+                            popUpTo(0) { inclusive = true } // 모든 백스택 제거
+                            launchSingleTop = true          // 중복 방지
+                        }
+                    }
                 )
             }
         }
@@ -659,8 +671,14 @@ fun Navigation(
                     },
                     logout = viewModel::logout,
                     uploadProfileImage = viewModel::uploadProfileImage,
-                    clearBackStack = {
+                    goToLoginScreen = {
                         navController.navigate(Graph.LoginGraph) {
+                            popUpTo(0) { inclusive = true } // 모든 백스택 제거
+                            launchSingleTop = true          // 중복 방지
+                        }
+                    },
+                    clearBackStack = {
+                        navController.navigate(Graph.MyGraph) {
                             popUpTo(0) { inclusive = true } // 모든 백스택 제거
                             launchSingleTop = true          // 중복 방지
                         }
@@ -734,8 +752,14 @@ fun Navigation(
                     },
                     logout = viewModel::logout,
                     uploadProfileImage = viewModel::uploadProfileImage,
-                    clearBackStack = {
+                    goToLoginScreen = {
                         navController.navigate(Graph.LoginGraph) {
+                            popUpTo(0) { inclusive = true } // 모든 백스택 제거
+                            launchSingleTop = true          // 중복 방지
+                        }
+                    },
+                    clearBackStack = {
+                        navController.navigate(Graph.MyGraph) {
                             popUpTo(0) { inclusive = true } // 모든 백스택 제거
                             launchSingleTop = true          // 중복 방지
                         }

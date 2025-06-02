@@ -10,7 +10,7 @@ import javax.inject.Inject
 class ModifyFridgeItemUseCase @Inject constructor(
     private val fridgeRepository: FridgeRepository
 ) {
-    operator fun invoke(item: FridgeItem, image: File?): Flow<Resource<String>> {
-        return fridgeRepository.modifyItem(item, image)
+    operator fun invoke(item: FridgeItem, image: File?, isOriginalImageDeleted: Boolean): Flow<Resource<String>> {
+        return fridgeRepository.modifyItem(item, image, isOriginalImageDeleted)
     }
 }

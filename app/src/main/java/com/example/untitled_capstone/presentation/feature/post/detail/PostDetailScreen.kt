@@ -1,5 +1,6 @@
 package com.example.untitled_capstone.presentation.feature.post.detail
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -120,8 +121,12 @@ fun PostDetailScreen(
                         DropdownMenu(
                             expanded = expanded,
                             onDismissRequest = { expanded = false },
-                            containerColor = CustomTheme.colors.textTertiary,
+                            containerColor = CustomTheme.colors.onSurface,
                             shape = RoundedCornerShape(Dimens.cornerRadius),
+                            border = BorderStroke(
+                                width = 1.dp,
+                                color = CustomTheme.colors.borderLight
+                            )
                         ) {
                             menuItem.forEach { option ->
                                 DropdownMenuItem(

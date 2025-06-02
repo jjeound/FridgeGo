@@ -116,16 +116,16 @@ class FridgeRepositoryImpl @Inject constructor(
     }.flowOn(ioDispatcher)
 
     @WorkerThread
-    override fun modifyItem(updatedItem: FridgeItem, image: File?): Flow<Resource<String>> = flow {
+    override fun modifyItem(updatedItem: FridgeItem, image: File?, isOriginalImageDeleted: Boolean): Flow<Resource<String>> = flow {
         emit(Resource.Loading())
         try {
             val json = Gson().toJson(updatedItem.toModifyFridgeReqDto())
             val jsonBody = json.toRequestBody("application/json; charset=utf-8".toMediaType())
-            val imageFile = if (image != null){
+            val imageFile = if (image != null){ // 수정한 이미지
                 val compressedFile = ImageCompressor.compressImage(context, image)
                 val requestFile = compressedFile.asRequestBody("image/*".toMediaTypeOrNull())
                 MultipartBody.Part.createFormData("ingredientImage", compressedFile.name, requestFile)
-            }  else {
+            }  else { // 이미지가 없거나 기존 이미지
                 null
             }
             val response = api.modifyItem(updatedItem.id, jsonBody, imageFile)

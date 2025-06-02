@@ -2,7 +2,6 @@ package com.example.untitled_capstone.data.repository
 
 
 import android.content.Context
-import android.util.Log
 import androidx.annotation.WorkerThread
 import androidx.datastore.preferences.core.edit
 import com.example.untitled_capstone.core.util.PrefKeys.DONG
@@ -12,10 +11,8 @@ import com.example.untitled_capstone.data.AppDispatchers
 import com.example.untitled_capstone.data.Dispatcher
 import com.example.untitled_capstone.data.local.db.ProfileDatabase
 import com.example.untitled_capstone.data.local.entity.ProfileEntity
-import com.example.untitled_capstone.data.remote.dto.EmailReq
 import com.example.untitled_capstone.data.remote.dto.KakaoAccessTokenRequest
 import com.example.untitled_capstone.data.remote.dto.LocationDto
-import com.example.untitled_capstone.data.remote.service.FcmApi
 import com.example.untitled_capstone.data.remote.service.LoginApi
 import com.example.untitled_capstone.data.remote.service.MapApi
 import com.example.untitled_capstone.domain.model.AccountInfo

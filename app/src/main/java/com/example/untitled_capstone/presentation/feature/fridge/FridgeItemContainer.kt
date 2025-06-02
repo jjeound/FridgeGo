@@ -6,6 +6,7 @@ import android.os.Build
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -155,8 +156,12 @@ fun FridgeItemContainer(
                     DropdownMenu(
                         expanded = expanded,
                         onDismissRequest = { expanded = false },
-                        containerColor = CustomTheme.colors.textTertiary,
+                        containerColor = CustomTheme.colors.onSurface,
                         shape = RoundedCornerShape(Dimens.cornerRadius),
+                        border = BorderStroke(
+                            width = 1.dp,
+                            color = CustomTheme.colors.borderLight
+                        )
                     ) {
                         menuItem.forEach { option ->
                             DropdownMenuItem(

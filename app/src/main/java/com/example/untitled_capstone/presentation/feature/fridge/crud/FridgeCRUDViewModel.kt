@@ -74,9 +74,9 @@ class FridgeCRUDViewModel @Inject constructor(
         }
     }
 
-    fun modifyItem(item: FridgeItem, image: File?) {
+    fun modifyItem(item: FridgeItem, image: File?, isOriginalImageDeleted: Boolean) {
         viewModelScope.launch {
-            modifyFridgeItemUseCase(item, image).collectLatest{
+            modifyFridgeItemUseCase(item, image, isOriginalImageDeleted).collectLatest{
                 when(it){
                     is Resource.Success -> {
                         it.data?.let { message ->

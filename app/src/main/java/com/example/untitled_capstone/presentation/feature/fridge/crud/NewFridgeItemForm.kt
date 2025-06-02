@@ -88,7 +88,7 @@ fun NewFridgeItemForm(
     getSavedDate: () -> String?,
     navigate: (Screen) -> Unit,
     popBackStack: () -> Unit,
-    modifyFridgeItem: (FridgeItem, File?) -> Unit,
+    modifyFridgeItem: (FridgeItem, File?, Boolean) -> Unit,
     addFridgeItem : (FridgeItem, File?) -> Unit,
 ){
     val context = LocalContext.current
@@ -113,6 +113,7 @@ fun NewFridgeItemForm(
         convertMillisToDate(it)
     }
         ?: "")
+    var isOriginalImageDeleted by remember { mutableStateOf(false) }
 
     LaunchedEffect(fridgeItem) {
         fridgeItem?.let {
@@ -228,6 +229,7 @@ fun NewFridgeItemForm(
                         onClick = {
                             image = null
                             imageFile = null
+                            isOriginalImageDeleted = true
                         }
                     ){
                         Icon(
@@ -446,12 +448,22 @@ fun NewFridgeItemForm(
                         },
                         colors = DatePickerDefaults.colors(
                             containerColor = CustomTheme.colors.onSurface,
+                            titleContentColor = CustomTheme.colors.textPrimary,
+
                             selectedDayContentColor = CustomTheme.colors.onSurface,
                             selectedDayContainerColor = CustomTheme.colors.primary,
+
                             selectedYearContentColor = CustomTheme.colors.onSurface,
                             selectedYearContainerColor = CustomTheme.colors.primary,
+                            currentYearContentColor = CustomTheme.colors.textPrimary,
+
                             todayDateBorderColor = CustomTheme.colors.primary,
-                            todayContentColor = CustomTheme.colors.primary
+                            todayContentColor = CustomTheme.colors.primary,
+
+                            weekdayContentColor = CustomTheme.colors.textPrimary, // 요일 텍스트 (월~일)
+                            dayContentColor = CustomTheme.colors.textPrimary, // 일반 날짜 텍스트
+                            yearContentColor = CustomTheme.colors.textPrimary, // 연도 선택 화면에서 일반 연도 텍스트
+                            navigationContentColor = CustomTheme.colors.textPrimary // 월 변경 화살표 아이콘
                         )
                     )
                 }
@@ -533,7 +545,8 @@ fun NewFridgeItemForm(
                                 notification = it.notification,
                                 isFridge = it.isFridge
                             ),
-                            imageFile
+                            imageFile,
+                            isOriginalImageDeleted
                         )
                     } ?: run {
                         addFridgeItem(

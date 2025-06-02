@@ -7,13 +7,8 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Constants.FCM_CHANNEL_ID
-import com.example.untitled_capstone.data.AppDispatchers
-import com.example.untitled_capstone.data.Dispatcher
-import com.example.untitled_capstone.data.remote.service.FcmApi
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 
 class FCMService() : FirebaseMessagingService() {
     override fun onMessageReceived(remoteMessage: RemoteMessage) {

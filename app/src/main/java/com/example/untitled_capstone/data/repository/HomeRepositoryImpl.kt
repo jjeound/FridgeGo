@@ -66,7 +66,7 @@ class HomeRepositoryImpl @Inject constructor(
                     val errorJson = e.response()?.errorBody()?.string()
                     val errorObj = JSONObject(errorJson ?: "")
                     errorObj.getString("message")
-                } catch (ex: Exception) {
+                } catch (_: Exception) {
                     "알 수 없는 오류가 발생했어요."
                 }
                 emit(Resource.Error(errorMessage))
@@ -92,7 +92,7 @@ class HomeRepositoryImpl @Inject constructor(
                 val errorJson = e.response()?.errorBody()?.string()
                 val errorObj = JSONObject(errorJson ?: "")
                 errorObj.getString("message")
-            } catch (ex: Exception) {
+            } catch (_: Exception) {
                 "알 수 없는 오류가 발생했어요."
             }
             emit(Resource.Error(errorMessage))
@@ -126,7 +126,7 @@ class HomeRepositoryImpl @Inject constructor(
                 val errorJson = e.response()?.errorBody()?.string()
                 val errorObj = JSONObject(errorJson ?: "")
                 errorObj.getString("message")
-            } catch (ex: Exception) {
+            } catch (_: Exception) {
                 "알 수 없는 오류가 발생했어요."
             }
             emit(Resource.Error(errorMessage))
@@ -150,7 +150,7 @@ class HomeRepositoryImpl @Inject constructor(
                 val errorJson = e.response()?.errorBody()?.string()
                 val errorObj = JSONObject(errorJson ?: "")
                 errorObj.getString("message")
-            } catch (ex: Exception) {
+            } catch (_: Exception) {
                 "알 수 없는 오류가 발생했어요."
             }
             emit(Resource.Error(errorMessage))
@@ -174,7 +174,7 @@ class HomeRepositoryImpl @Inject constructor(
                 val errorJson = e.response()?.errorBody()?.string()
                 val errorObj = JSONObject(errorJson ?: "")
                 errorObj.getString("message")
-            } catch (ex: Exception) {
+            } catch (_: Exception) {
                 "알 수 없는 오류가 발생했어요."
             }
             emit(Resource.Error(errorMessage))
@@ -198,7 +198,7 @@ class HomeRepositoryImpl @Inject constructor(
                 val errorJson = e.response()?.errorBody()?.string()
                 val errorObj = JSONObject(errorJson ?: "")
                 errorObj.getString("message")
-            } catch (ex: Exception) {
+            } catch (_: Exception) {
                 "알 수 없는 오류가 발생했어요."
             }
             emit(Resource.Error(errorMessage))
@@ -223,7 +223,7 @@ class HomeRepositoryImpl @Inject constructor(
                 val errorJson = e.response()?.errorBody()?.string()
                 val errorObj = JSONObject(errorJson ?: "")
                 errorObj.getString("message")
-            } catch (ex: Exception) {
+            } catch (_: Exception) {
                 "알 수 없는 오류가 발생했어요."
             }
             emit(Resource.Error(errorMessage))
@@ -247,7 +247,7 @@ class HomeRepositoryImpl @Inject constructor(
                 val errorJson = e.response()?.errorBody()?.string()
                 val errorObj = JSONObject(errorJson ?: "")
                 errorObj.getString("message")
-            } catch (ex: Exception) {
+            } catch (_: Exception) {
                 "알 수 없는 오류가 발생했어요."
             }
             emit(Resource.Error(errorMessage))
@@ -271,7 +271,7 @@ class HomeRepositoryImpl @Inject constructor(
                 val errorJson = e.response()?.errorBody()?.string()
                 val errorObj = JSONObject(errorJson ?: "")
                 errorObj.getString("message")
-            } catch (ex: Exception) {
+            } catch (_: Exception) {
                 "알 수 없는 오류가 발생했어요."
             }
             emit(Resource.Error(errorMessage))
@@ -306,7 +306,7 @@ class HomeRepositoryImpl @Inject constructor(
                 val errorJson = e.response()?.errorBody()?.string()
                 val errorObj = JSONObject(errorJson ?: "")
                 errorObj.getString("message")
-            } catch (ex: Exception) {
+            } catch (_: Exception) {
                 "알 수 없는 오류가 발생했어요."
             }
             emit(Resource.Error(errorMessage))

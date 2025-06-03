@@ -18,7 +18,8 @@ data class FridgeItem(
             count = quantity.toInt(),
             foodName = name,
             storageType = isFridge,
-            useByDate = expirationDate
+            useByDate = expirationDate,
+            imageUrl = image
         )
     }
     fun toNewFridgeItemDto(): NewFridgeItemDto = NewFridgeItemDto(

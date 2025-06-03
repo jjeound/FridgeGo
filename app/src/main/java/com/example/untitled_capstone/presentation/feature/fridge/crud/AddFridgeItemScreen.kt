@@ -31,7 +31,7 @@ fun AddFridgeItemScreen(
     navigate: (Screen) -> Unit,
     popBackStack: () -> Unit,
     addFridgeItem: (FridgeItem, File?) -> Unit,
-    modifyFridgeItem: (FridgeItem, File?, Boolean) -> Unit,
+    modifyFridgeItem: (FridgeItem, File?) -> Unit,
 ){
     Scaffold(
         containerColor = CustomTheme.colors.onSurface,

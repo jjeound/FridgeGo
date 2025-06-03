@@ -88,7 +88,7 @@ fun NewFridgeItemForm(
     getSavedDate: () -> String?,
     navigate: (Screen) -> Unit,
     popBackStack: () -> Unit,
-    modifyFridgeItem: (FridgeItem, File?, Boolean) -> Unit,
+    modifyFridgeItem: (FridgeItem, File?) -> Unit,
     addFridgeItem : (FridgeItem, File?) -> Unit,
 ){
     val context = LocalContext.current
@@ -113,7 +113,6 @@ fun NewFridgeItemForm(
         convertMillisToDate(it)
     }
         ?: "")
-    var isOriginalImageDeleted by remember { mutableStateOf(false) }
 
     LaunchedEffect(fridgeItem) {
         fridgeItem?.let {
@@ -229,7 +228,6 @@ fun NewFridgeItemForm(
                         onClick = {
                             image = null
                             imageFile = null
-                            isOriginalImageDeleted = true
                         }
                     ){
                         Icon(
@@ -546,7 +544,6 @@ fun NewFridgeItemForm(
                                 isFridge = it.isFridge
                             ),
                             imageFile,
-                            isOriginalImageDeleted
                         )
                     } ?: run {
                         addFridgeItem(

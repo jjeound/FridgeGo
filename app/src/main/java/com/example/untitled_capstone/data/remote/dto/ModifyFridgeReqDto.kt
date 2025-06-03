@@ -5,5 +5,6 @@ data class ModifyFridgeReqDto(
     val count: Int,
     val foodName: String,
     val storageType: Boolean,
-    val useByDate: Long
+    val useByDate: Long,
+    val imageUrl: String?
 )

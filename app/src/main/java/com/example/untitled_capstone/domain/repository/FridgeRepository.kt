@@ -19,7 +19,7 @@ interface FridgeRepository{
     @WorkerThread
     fun toggleNotification(id: Long, alarmStatus: Boolean): Flow<Resource<String>>
     @WorkerThread
-    fun modifyItem(updatedItem: FridgeItem, image: File? = null, isOriginalImageDeleted: Boolean): Flow<Resource<String>>
+    fun modifyItem(updatedItem: FridgeItem, image: File? = null): Flow<Resource<String>>
     @WorkerThread
     fun deleteItem(id: Long): Flow<Resource<String>>
     @WorkerThread

@@ -60,7 +60,6 @@ class FridgeCRUDViewModel @Inject constructor(
                     is Resource.Success -> {
                         it.data?.let { message ->
                             uiState.tryEmit(FridgeCRUDUiState.Success)
-                            //_event.emit(FridgeEvent.PopBackStack)
                         }
                     }
                     is Resource.Error -> {
@@ -74,14 +73,13 @@ class FridgeCRUDViewModel @Inject constructor(
         }
     }
 
-    fun modifyItem(item: FridgeItem, image: File?, isOriginalImageDeleted: Boolean) {
+    fun modifyItem(item: FridgeItem, image: File?) {
         viewModelScope.launch {
-            modifyFridgeItemUseCase(item, image, isOriginalImageDeleted).collectLatest{
+            modifyFridgeItemUseCase(item, image).collectLatest{
                 when(it){
                     is Resource.Success -> {
                         it.data?.let { message ->
                             uiState.tryEmit(FridgeCRUDUiState.Success)
-                            //_event.emit(FridgeEvent.PopBackStack)
                         }
                     }
                     is Resource.Error -> {

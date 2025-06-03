@@ -116,7 +116,7 @@ class FridgeRepositoryImpl @Inject constructor(
     }.flowOn(ioDispatcher)
 
     @WorkerThread
-    override fun modifyItem(updatedItem: FridgeItem, image: File?, isOriginalImageDeleted: Boolean): Flow<Resource<String>> = flow {
+    override fun modifyItem(updatedItem: FridgeItem, image: File?): Flow<Resource<String>> = flow {
         emit(Resource.Loading())
         try {
             val json = Gson().toJson(updatedItem.toModifyFridgeReqDto())

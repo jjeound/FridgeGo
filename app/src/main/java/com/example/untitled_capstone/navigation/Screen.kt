@@ -45,7 +45,7 @@ sealed interface Screen {
     data object My: Screen
 
     @Serializable
-    data class Profile(val nickname: String?): Screen
+    data object Profile: Screen
 
     @Serializable
     data object NicknameNav: Screen
@@ -73,6 +73,12 @@ sealed interface Screen {
 
     @Serializable
     data class ReportNav(val id: Long, val isPost: Boolean): Screen
+
+    @Serializable
+    data class ProfileModifyNav(val name: String?, val imageUrl: String?): Screen
+
+    @Serializable
+    data class PostProfileNav(val nickname: String?): Screen
 }
 
 sealed interface Graph {

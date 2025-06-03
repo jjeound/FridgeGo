@@ -38,7 +38,7 @@ fun MyScreen(
         verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding),
     ) {
         MyAccountContainer(
-            navigateUp = { navigate(Screen.Profile(null)) },
+            navigateUp = { navigate(Screen.Profile) },
             nickname = profile?.nickname,
             image = profile?.imageUrl
         )

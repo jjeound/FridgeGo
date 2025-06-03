@@ -107,7 +107,7 @@ fun MessageCard(
                         .size(36.dp)
                         .clip(shape = RoundedCornerShape(36.dp))
                         .clickable {
-                            navigate(Screen.Profile(
+                            navigate(Screen.PostProfileNav(
                                 message.senderNickname
                             ))
                         }
@@ -115,7 +115,7 @@ fun MessageCard(
             } else {
                 Icon(
                     modifier = Modifier.clickable{
-                        navigate(Screen.Profile(
+                        navigate(Screen.PostProfileNav(
                             message.senderNickname
                         ))
                     },

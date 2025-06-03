@@ -1,4 +1,4 @@
-package com.example.untitled_capstone.presentation.feature.my.profile
+package com.example.untitled_capstone.presentation.feature.post.detail
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,11 +15,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -29,25 +24,18 @@ import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.domain.model.Profile
 import com.example.untitled_capstone.navigation.Screen
+import com.example.untitled_capstone.presentation.feature.my.profile.ProfileUiState
 import com.example.untitled_capstone.ui.theme.CustomTheme
-import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileScreen(
+fun PostProfileScreen(
     uiState: ProfileUiState,
     popBackStack: () -> Unit,
     profile: Profile?,
+    isMe: Boolean,
     navigate: (Screen) -> Unit,
-    logout: () -> Unit,
-    uploadProfileImage: (File) -> Unit,
-    goToLoginScreen: () -> Unit,
-    clearBackStack: () -> Unit,
 ) {
-    var isImageChanged by remember { mutableStateOf(false) }
-    LaunchedEffect(uiState == ProfileUiState.ImageChanged) {
-        isImageChanged = true
-    }
     Scaffold(
         containerColor = CustomTheme.colors.surface,
         topBar = {
@@ -63,11 +51,7 @@ fun ProfileScreen(
                 navigationIcon = {
                     IconButton(
                         onClick = {
-                            if(isImageChanged){
-                                clearBackStack()
-                            } else {
-                                popBackStack()
-                            }
+                            popBackStack()
                         }
                     ) {
                         Icon(
@@ -110,13 +94,10 @@ fun ProfileScreen(
                     )
                 ) {
                     if (profile != null) {
-                        ProfileDetail(
+                        OtherProfile(
                             profile = profile,
                             navigate = navigate,
-                            logout = logout,
-                            goToLoginScreen = goToLoginScreen,
-                            uiState = uiState,
-                            uploadProfileImage = uploadProfileImage
+                            isMe = isMe,
                         )
                     }
                 }

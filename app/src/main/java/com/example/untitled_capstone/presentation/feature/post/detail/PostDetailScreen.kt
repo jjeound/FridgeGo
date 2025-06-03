@@ -264,11 +264,7 @@ fun PostDetailScreen(
                 PostContainer(
                     post= post,
                     goToProfile = {
-                        if (nickname == post.nickname){
-                            navigate(Screen.Profile(null))
-                        } else {
-                            navigate(Screen.Profile(post.nickname))
-                        }
+                        navigate(Screen.PostProfileNav(post.nickname))
                     }
                 )
             }

@@ -6,6 +6,7 @@ import com.example.untitled_capstone.data.remote.dto.ProfileDto
 import com.example.untitled_capstone.data.remote.dto.ReportDto
 import okhttp3.MultipartBody
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Multipart
 import retrofit2.http.POST
@@ -39,4 +40,7 @@ interface MyApi {
         @Path ("targetUserId") targetUserId: Long,
         @Body report: ReportDto
     ): ApiResponse<String>
+
+    @DELETE("/api/s3/delete-profile")
+    suspend fun deleteProfileImage(): ApiResponse<String>
 }

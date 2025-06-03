@@ -37,6 +37,7 @@ import com.example.untitled_capstone.presentation.feature.my.MyViewModel
 import com.example.untitled_capstone.presentation.feature.my.etc.MyLikedPostScreen
 import com.example.untitled_capstone.presentation.feature.my.etc.MyPostScreen
 import com.example.untitled_capstone.presentation.feature.my.MyScreen
+import com.example.untitled_capstone.presentation.feature.my.profile.ProfileModifyScreen
 import com.example.untitled_capstone.presentation.feature.my.profile.ProfileScreen
 import com.example.untitled_capstone.presentation.feature.my.profile.ProfileViewModel
 import com.example.untitled_capstone.presentation.feature.notification.NotificationViewModel
@@ -49,6 +50,7 @@ import com.example.untitled_capstone.presentation.feature.post.crud.PostCRUDView
 import com.example.untitled_capstone.presentation.feature.post.crud.WritingNewPostScreen
 import com.example.untitled_capstone.presentation.feature.post.detail.PostDetailScreen
 import com.example.untitled_capstone.presentation.feature.post.detail.PostDetailViewModel
+import com.example.untitled_capstone.presentation.feature.post.detail.PostProfileScreen
 import com.example.untitled_capstone.presentation.feature.post.search.PostSearchScreen
 import com.example.untitled_capstone.presentation.feature.post.search.PostSearchViewModel
 import com.example.untitled_capstone.presentation.util.AuthEvent
@@ -401,11 +403,11 @@ fun Navigation(
                     },
                 )
             }
-            composable<Screen.Profile>{
+            composable<Screen.PostProfileNav>{
                 val viewModel: ProfileViewModel = hiltViewModel()
                 val uiState by viewModel.uiState.collectAsStateWithLifecycle()
                 val profile by viewModel.profile.collectAsStateWithLifecycle()
-                val args = it.toRoute<Screen.Profile>()
+                val args = it.toRoute<Screen.PostProfileNav>()
                 LaunchedEffect(true) {
                     if (args.nickname != null) {
                         viewModel.getOtherProfile(args.nickname)
@@ -413,7 +415,7 @@ fun Navigation(
                         viewModel.getMyProfile()
                     }
                 }
-                ProfileScreen(
+                PostProfileScreen(
                     uiState = uiState,
                     isMe = args.nickname == null,
                     popBackStack = {navController.popBackStack()},
@@ -421,20 +423,6 @@ fun Navigation(
                     navigate = {
                         navController.navigate(it)
                     },
-                    logout = viewModel::logout,
-                    uploadProfileImage = viewModel::uploadProfileImage,
-                    goToLoginScreen = {
-                        navController.navigate(Graph.LoginGraph) {
-                            popUpTo(0) { inclusive = true } // 모든 백스택 제거
-                            launchSingleTop = true          // 중복 방지
-                        }
-                    },
-                    clearBackStack = {
-                        navController.navigate(Graph.MyGraph) {
-                            popUpTo(0) { inclusive = true } // 모든 백스택 제거
-                            launchSingleTop = true          // 중복 방지
-                        }
-                    }
                 )
             }
         }
@@ -640,11 +628,11 @@ fun Navigation(
                     },
                 )
             }
-            composable<Screen.Profile>{
+            composable<Screen.PostProfileNav>{
                 val viewModel: ProfileViewModel = hiltViewModel()
                 val uiState by viewModel.uiState.collectAsStateWithLifecycle()
                 val profile by viewModel.profile.collectAsStateWithLifecycle()
-                val args = it.toRoute<Screen.Profile>()
+                val args = it.toRoute<Screen.PostProfileNav>()
                 LaunchedEffect(true) {
                     if (args.nickname != null) {
                         viewModel.getOtherProfile(args.nickname)
@@ -652,36 +640,13 @@ fun Navigation(
                         viewModel.getMyProfile()
                     }
                 }
-                LaunchedEffect(true) {
-                    viewModel.event.collect { event ->
-                        when (event) {
-                            is UiEvent.ShowSnackbar -> {
-                                snackbarHostState.showSnackbar(event.message)
-                            }
-                        }
-                    }
-                }
-                ProfileScreen(
+                PostProfileScreen(
                     uiState = uiState,
                     isMe = args.nickname == null,
                     popBackStack = {navController.popBackStack()},
                     profile = profile,
                     navigate = {
                         navController.navigate(it)
-                    },
-                    logout = viewModel::logout,
-                    uploadProfileImage = viewModel::uploadProfileImage,
-                    goToLoginScreen = {
-                        navController.navigate(Graph.LoginGraph) {
-                            popUpTo(0) { inclusive = true } // 모든 백스택 제거
-                            launchSingleTop = true          // 중복 방지
-                        }
-                    },
-                    clearBackStack = {
-                        navController.navigate(Graph.MyGraph) {
-                            popUpTo(0) { inclusive = true } // 모든 백스택 제거
-                            launchSingleTop = true          // 중복 방지
-                        }
                     },
                 )
             }
@@ -725,13 +690,8 @@ fun Navigation(
                 val viewModel: ProfileViewModel = hiltViewModel()
                 val uiState by viewModel.uiState.collectAsStateWithLifecycle()
                 val profile by viewModel.profile.collectAsStateWithLifecycle()
-                val args = it.toRoute<Screen.Profile>()
                 LaunchedEffect(true) {
-                    if (args.nickname != null) {
-                        viewModel.getOtherProfile(args.nickname)
-                    } else {
-                        viewModel.getMyProfile()
-                    }
+                    viewModel.getMyProfile()
                 }
                 LaunchedEffect(true) {
                     viewModel.event.collect { event ->
@@ -744,7 +704,6 @@ fun Navigation(
                 }
                 ProfileScreen(
                     uiState = uiState,
-                    isMe = args.nickname == null,
                     popBackStack = {navController.popBackStack()},
                     profile = profile,
                     navigate = {
@@ -764,31 +723,6 @@ fun Navigation(
                             launchSingleTop = true          // 중복 방지
                         }
                     },
-                )
-            }
-            composable<Screen.NicknameNav>{
-                val viewModel: LoginViewModel = hiltViewModel()
-                val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-                LaunchedEffect(true) {
-                    viewModel.event.collect {
-                        when(it){
-                            is UiEvent.ShowSnackbar -> {
-                                snackbarHostState.showSnackbar(it.message)
-                            }
-                        }
-                    }
-                }
-                SetNickNameScreen(
-                    uiState = uiState,
-                    navigateToLoc = {
-                        navController.navigate(Screen.LocationNav)
-                    },
-                    popBackStack = {
-                        navController.popBackStack()
-                    },
-                    setNickname = viewModel::setNickname,
-                    modifyNickname = viewModel::modifyNickname,
-                    from = true,
                 )
             }
             composable<Screen.LocationNav> {
@@ -870,6 +804,21 @@ fun Navigation(
                     toggleLike = viewModel::toggleLike,
                 )
             }
+            composable<Screen.ProfileModifyNav> {
+                val parentEntry = navController.getBackStackEntry(Graph.MyGraph)
+                val viewModel: ProfileViewModel = hiltViewModel(parentEntry)
+                val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+                val args = it.toRoute<Screen.ProfileModifyNav>()
+                ProfileModifyScreen(
+                    uiState = uiState,
+                    myName = args.name,
+                    imageUrl = args.imageUrl,
+                    uploadProfileImage = viewModel::uploadProfileImage,
+                    popBackStack = {navController.popBackStack()},
+                    deleteProfileImage = viewModel::deleteProfileImage,
+                    modifyNickname = viewModel::modifyNickname
+                )
+            }
         }
         composable<Screen.NotificationNav> {
             val viewModel: NotificationViewModel = hiltViewModel()
@@ -931,8 +880,6 @@ fun Navigation(
                         navController.popBackStack()
                     },
                     setNickname = viewModel::setNickname,
-                    modifyNickname = viewModel::modifyNickname,
-                    from = false,
                 )
             }
             composable<Screen.LocationNav> {

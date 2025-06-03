@@ -20,4 +20,6 @@ interface MyRepository {
     fun uploadProfileImage(profileImage: File): Flow<Resource<String>>
     @WorkerThread
     fun repostUser(targetUserId: Long, reportType: String, content: String): Flow<Resource<String>>
+    @WorkerThread
+    fun deleteProfileImage(): Flow<Resource<String>>
 }

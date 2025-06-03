@@ -184,40 +184,13 @@ fun ProfileDetail(
             )  {
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(vertical = Dimens.smallPadding).clickable {
-                        navigate(Screen.NicknameNav)
+                        navigate(Screen.ProfileModifyNav(profile.nickname, profile.imageUrl))
                     },
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "닉네임 변경",
-                        style = CustomTheme.typography.body1,
-                        color = CustomTheme.colors.textPrimary,
-                    )
-                    Icon(
-                        imageVector = ImageVector.vectorResource(R.drawable.chevron_right),
-                        contentDescription = "navigate",
-                        tint = CustomTheme.colors.iconDefault
-                    )
-                }
-                HorizontalDivider(
-                    modifier = Modifier.fillMaxWidth(),
-                    thickness = 1.dp,
-                    color = CustomTheme.colors.borderLight
-                )
-            }
-            Column(
-                verticalArrangement = Arrangement.spacedBy(Dimens.smallPadding)
-            )  {
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(vertical = Dimens.smallPadding).clickable {
-                        albumLauncher.launch(imageAlbumIntent)
-                    },
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "프로필 이미지 변경",
+                        text = "프로필 변경",
                         style = CustomTheme.typography.body1,
                         color = CustomTheme.colors.textPrimary,
                     )

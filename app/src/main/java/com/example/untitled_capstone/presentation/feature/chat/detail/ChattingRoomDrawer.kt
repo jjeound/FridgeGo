@@ -140,11 +140,9 @@ fun ChattingRoomDrawer(
                                         .padding(
                                             vertical = Dimens.smallPadding,
                                         ).clickable{
-                                            if (it.nickname != myName){
-                                                navigate(
-                                                    Screen.Profile(it.nickname)
-                                                )
-                                            }
+                                            navigate(
+                                                Screen.PostProfileNav(it.nickname)
+                                            )
                                         },
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.spacedBy(Dimens.smallPadding)

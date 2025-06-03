@@ -1,4 +1,4 @@
-package com.example.untitled_capstone.presentation.feature.my.profile
+package com.example.untitled_capstone.presentation.feature.post.detail
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -26,12 +26,14 @@ import com.example.untitled_capstone.R
 import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.domain.model.Profile
 import com.example.untitled_capstone.navigation.Screen
+import com.example.untitled_capstone.presentation.feature.my.profile.levelToKor
 import com.example.untitled_capstone.ui.theme.CustomTheme
 
 @Composable
 fun OtherProfile(
     profile: Profile,
     navigate: (Screen) -> Unit,
+    isMe: Boolean,
 ) {
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -88,18 +90,20 @@ fun OtherProfile(
 //                color = CustomTheme.colors.textPrimary,
 //            )
 //        }
-        Box(
-            modifier = Modifier.fillMaxWidth().clickable{
-                navigate(Screen.ReportNav(profile.id, false))
-            },
-            contentAlignment = Alignment.Center
-        ){
-            Text(
-                modifier = Modifier.padding(Dimens.mediumPadding),
-                text = "신고하기",
-                style = CustomTheme.typography.body1,
-                color = CustomTheme.colors.iconRed,
-            )
+        if(!isMe){
+            Box(
+                modifier = Modifier.fillMaxWidth().clickable{
+                    navigate(Screen.ReportNav(profile.id, false))
+                },
+                contentAlignment = Alignment.Center
+            ){
+                Text(
+                    modifier = Modifier.padding(Dimens.mediumPadding),
+                    text = "신고하기",
+                    style = CustomTheme.typography.body1,
+                    color = CustomTheme.colors.iconRed,
+                )
+            }
         }
     }
 }

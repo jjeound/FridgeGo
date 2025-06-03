@@ -5,10 +5,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.untitled_capstone.core.util.Resource
 import com.example.untitled_capstone.domain.model.Profile
+import com.example.untitled_capstone.domain.use_case.login.ModifyNicknameUseCase
+import com.example.untitled_capstone.domain.use_case.my.DeleteProfileImageUseCase
 import com.example.untitled_capstone.domain.use_case.my.GetMyProfileUseCase
 import com.example.untitled_capstone.domain.use_case.my.GetOtherProfileUseCase
 import com.example.untitled_capstone.domain.use_case.my.LogoutUseCase
 import com.example.untitled_capstone.domain.use_case.my.UploadProfileImageUseCase
+import com.example.untitled_capstone.presentation.feature.login.LoginUiState
 import com.example.untitled_capstone.presentation.util.AuthEvent
 import com.example.untitled_capstone.presentation.util.AuthEventBus
 import com.example.untitled_capstone.presentation.util.UiEvent
@@ -28,6 +31,8 @@ class ProfileViewModel @Inject constructor(
     private val getOtherProfileUseCase: GetOtherProfileUseCase,
     private val uploadProfileImageUseCase: UploadProfileImageUseCase,
     private val logoutUseCase: LogoutUseCase,
+    private val modifyNicknameUseCase: ModifyNicknameUseCase,
+    private val deleteProfileImageUseCase: DeleteProfileImageUseCase
 ): ViewModel() {
 
     val uiState: MutableStateFlow<ProfileUiState> =
@@ -113,6 +118,50 @@ class ProfileViewModel @Inject constructor(
                         it.data?.let{
                             AuthEventBus.send(AuthEvent.Logout)
                             uiState.tryEmit(ProfileUiState.Logout)
+                        }
+                    }
+                    is Resource.Error -> {
+                        uiState.tryEmit(ProfileUiState.Error(it.message))
+                        _event.emit(UiEvent.ShowSnackbar(it.message ?: "Unknown error"))
+                    }
+                    is Resource.Loading -> {
+                        uiState.tryEmit(ProfileUiState.Loading)
+                    }
+                }
+            }
+        }
+    }
+
+    fun modifyNickname(nickname: String){
+        viewModelScope.launch {
+            modifyNicknameUseCase(nickname).collectLatest{
+                when(it){
+                    is Resource.Success -> {
+                        it.data?.let{ result ->
+                            _event.emit(UiEvent.ShowSnackbar(it.message ?: "닉네임이 변경되었습니다."))
+                            uiState.tryEmit(ProfileUiState.Success)
+                        }
+                    }
+                    is Resource.Error -> {
+                        _event.emit(UiEvent.ShowSnackbar(it.message ?: "An unexpected error occurred"))
+                        uiState.tryEmit(ProfileUiState.Error(it.message))
+                    }
+                    is Resource.Loading -> {
+                        uiState.tryEmit(ProfileUiState.Loading)
+                    }
+                }
+            }
+        }
+    }
+
+    fun deleteProfileImage() {
+        viewModelScope.launch {
+            deleteProfileImageUseCase().collectLatest {
+                when (it) {
+                    is Resource.Success -> {
+                        it.data?.let {
+                            uiState.emit(ProfileUiState.ImageChanged)
+                            getMyProfile()
                         }
                     }
                     is Resource.Error -> {

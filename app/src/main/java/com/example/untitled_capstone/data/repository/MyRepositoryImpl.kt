@@ -211,4 +211,28 @@ class MyRepositoryImpl @Inject constructor(
             emit(Resource.Error(errorMessage))
         }
     }.flowOn(ioDispatcher)
+
+    @WorkerThread
+    override fun deleteProfileImage(): Flow<Resource<String>> = flow {
+        emit(Resource.Loading())
+        try {
+            val response = api.deleteProfileImage()
+            if(response.isSuccess){
+                emit(Resource.Success(response.result))
+            }else {
+                emit(Resource.Error(message = response.message))
+            }
+        } catch (e: IOException) {
+            emit(Resource.Error(e.toString()))
+        } catch (e: HttpException) {
+            val errorMessage = try {
+                val errorJson = e.response()?.errorBody()?.string()
+                val errorObj = JSONObject(errorJson ?: "")
+                errorObj.getString("message")
+            } catch (_: Exception) {
+                "알 수 없는 오류가 발생했어요."
+            }
+            emit(Resource.Error(errorMessage))
+        }
+    }.flowOn(ioDispatcher)
 }

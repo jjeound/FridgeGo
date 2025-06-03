@@ -34,7 +34,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import com.example.untitled_capstone.R
@@ -48,21 +47,15 @@ fun SetNickNameScreen(
     popBackStack: () -> Unit,
     uiState: LoginUiState,
     setNickname: (String) -> Unit,
-    modifyNickname: (String) -> Unit,
-    from: Boolean,
 ) {
     var error by remember { mutableStateOf(false) }
     var nickname by remember { mutableStateOf("") }
     val focusManager = LocalFocusManager.current
-    val keyboardController = LocalSoftwareKeyboardController.current
     LaunchedEffect(uiState) {
         if(uiState == LoginUiState.Success){
             error = false
-            if(from){
-                keyboardController?.hide()
-            } else {
-                navigateToLoc()
-            }
+            focusManager.clearFocus()
+            navigateToLoc()
         }else if(uiState is LoginUiState.Error){
             error = true
         }
@@ -74,7 +67,7 @@ fun SetNickNameScreen(
                 modifier = Modifier.padding(Dimens.topBarPadding),
                 title = {
                     Text(
-                        text = if(from) "닉네임 변경" else "로그인",
+                        text = "로그인",
                         style = CustomTheme.typography.title1,
                         color = CustomTheme.colors.textPrimary,
                     )
@@ -184,11 +177,7 @@ fun SetNickNameScreen(
                         color = CustomTheme.colors.border
                     ),
                     onClick = {
-                        if(from){
-                            modifyNickname(nickname)
-                        } else {
-                            setNickname(nickname)
-                        }
+                        setNickname(nickname)
                     }
                 ) {
                     Text(

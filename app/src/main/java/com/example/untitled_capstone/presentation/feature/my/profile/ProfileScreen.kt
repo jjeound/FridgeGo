@@ -30,7 +30,6 @@ import com.example.untitled_capstone.core.util.Dimens
 import com.example.untitled_capstone.domain.model.Profile
 import com.example.untitled_capstone.navigation.Screen
 import com.example.untitled_capstone.ui.theme.CustomTheme
-import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -40,7 +39,6 @@ fun ProfileScreen(
     profile: Profile?,
     navigate: (Screen) -> Unit,
     logout: () -> Unit,
-    uploadProfileImage: (File) -> Unit,
     goToLoginScreen: () -> Unit,
     clearBackStack: () -> Unit,
 ) {
@@ -116,7 +114,6 @@ fun ProfileScreen(
                             logout = logout,
                             goToLoginScreen = goToLoginScreen,
                             uiState = uiState,
-                            uploadProfileImage = uploadProfileImage
                         )
                     }
                 }

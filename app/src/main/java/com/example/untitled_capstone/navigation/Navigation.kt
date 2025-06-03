@@ -710,7 +710,6 @@ fun Navigation(
                         navController.navigate(it)
                     },
                     logout = viewModel::logout,
-                    uploadProfileImage = viewModel::uploadProfileImage,
                     goToLoginScreen = {
                         navController.navigate(Graph.LoginGraph) {
                             popUpTo(0) { inclusive = true } // 모든 백스택 제거

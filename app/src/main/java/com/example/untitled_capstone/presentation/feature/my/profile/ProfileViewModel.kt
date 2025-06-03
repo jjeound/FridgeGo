@@ -11,7 +11,6 @@ import com.example.untitled_capstone.domain.use_case.my.GetMyProfileUseCase
 import com.example.untitled_capstone.domain.use_case.my.GetOtherProfileUseCase
 import com.example.untitled_capstone.domain.use_case.my.LogoutUseCase
 import com.example.untitled_capstone.domain.use_case.my.UploadProfileImageUseCase
-import com.example.untitled_capstone.presentation.feature.login.LoginUiState
 import com.example.untitled_capstone.presentation.util.AuthEvent
 import com.example.untitled_capstone.presentation.util.AuthEventBus
 import com.example.untitled_capstone.presentation.util.UiEvent

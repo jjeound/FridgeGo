@@ -1,8 +1,6 @@
 package com.example.untitled_capstone.navigation
 
-import com.example.untitled_capstone.domain.model.Recipe
 import kotlinx.serialization.Serializable
-import kotlin.reflect.typeOf
 
 sealed interface Screen {
     @Serializable

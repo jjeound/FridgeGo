@@ -13,14 +13,14 @@ plugins {
 }
 
     android {
-        namespace = "com.example.untitled_capstone"
+        namespace = "com.stone.fridge"
         compileSdk = 35
 
         defaultConfig {
-            applicationId = "com.example.untitled_capstone"
+            applicationId = "com.stone.fridge"
             minSdk = 26
             targetSdk = 35
-            versionCode = 1
+            versionCode = 2
             versionName = "1.0"
 
             testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -55,7 +55,8 @@ plugins {
 
         buildTypes {
             release {
-                isMinifyEnabled = false
+                isMinifyEnabled = true
+                isShrinkResources = true
                 proguardFiles(
                     getDefaultProguardFile("proguard-android-optimize.txt"),
                     "proguard-rules.pro"

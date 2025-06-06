@@ -1,21 +1,21 @@
 {
   "project_info": {
-    "project_number": "125415854625",
-    "project_id": "cook-app-ee30e",
-    "storage_bucket": "cook-app-ee30e.firebasestorage.app"
+    "project_number": "885891837597",
+    "project_id": "cook-app-cac22",
+    "storage_bucket": "cook-app-cac22.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:125415854625:android:98aa2c1642e1415b3ec960",
+        "mobilesdk_app_id": "1:885891837597:android:22f043a5e1557be5362e74",
         "android_client_info": {
-          "package_name": "com.example.untitled_capstone"
+          "package_name": "com.stone.fridge"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyC9kWMH-oe241pACDPBHvFEuR6EqTr4g6I"
+          "current_key": "AIzaSyD9pidWp4XQPMa-K9KwJlcu3jsg71XwafM"
         }
       ],
       "services": {

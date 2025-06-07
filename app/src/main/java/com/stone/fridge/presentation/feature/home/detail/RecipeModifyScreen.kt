@@ -119,22 +119,14 @@ fun RecipeModifyScreen(
     val showDialog = remember { mutableStateOf(false) }
     val albumLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            when (result.resultCode) {
-                Activity.RESULT_OK -> {
-                    result.data?.data?.let { uri ->
-                        uri.let {
-                            image = uri.toString()
-                            val filePath = context.getRealPathFromURI(it)
-                            imageFile = if (filePath != null) {
-                                File(filePath)
-                            } else {
-                                context.copyUriToFile(uri)
-                            }
-                            Log.d("TargetSDK", "imageUri - selected : $uri")
-                        }
-                    }
+            if (result.resultCode == Activity.RESULT_OK) {
+                val uri = result.data?.data
+                uri?.let {
+                    image = it.toString()
+                    val filePath = context.getRealPathFromURI(it)
+                    imageFile = filePath?.let { path -> File(path) } ?: context.copyUriToFile(it)
+                    Log.d("TargetSDK", "imageUri - selected : $uri")
                 }
-                Activity.RESULT_CANCELED -> Unit
             }
         }
     val imageAlbumIntent = Intent(Intent.ACTION_GET_CONTENT).apply {

@@ -2,6 +2,8 @@ package com.stone.fridge.domain.use_case.token
 
 import com.stone.fridge.domain.repository.TokenRepository
 import com.kakao.sdk.common.Constants.AUTHORIZATION
+import com.stone.fridge.presentation.util.AuthEvent
+import com.stone.fridge.presentation.util.AuthEventBus
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -16,6 +18,7 @@ class AuthAuthenticator @Inject constructor(
 ) : Authenticator {
     override fun authenticate(route: Route?, response: Response): Request? {
         if (responseCount(response) >= MAX_AUTH_RETRY) {
+            AuthEventBus.send(AuthEvent.Logout)
             return null // 무한 루프 방지
         }
 

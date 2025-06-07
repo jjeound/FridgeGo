@@ -2,6 +2,7 @@ package com.stone.fridge.navigation
 
 import kotlinx.serialization.Serializable
 
+@Serializable
 sealed interface Screen {
     @Serializable
     data class ChattingRoomNav(val id: Long, val isActive: Boolean) : Screen
@@ -85,6 +86,7 @@ sealed interface Screen {
     data class FCMChatNav(val roomId: Long): Screen
 }
 
+@Serializable
 sealed interface Graph {
     @Serializable
     data object HomeGraph: Graph

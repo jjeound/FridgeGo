@@ -1,6 +1,5 @@
 package com.stone.fridge.navigation
 
-import android.util.Log
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect

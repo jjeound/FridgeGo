@@ -20,7 +20,7 @@ plugins {
             applicationId = "com.stone.fridge"
             minSdk = 26
             targetSdk = 35
-            versionCode = 2
+            versionCode = 15
             versionName = "1.0"
 
             testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -54,7 +54,16 @@ plugins {
         }
 
         buildTypes {
+            debug {
+                isMinifyEnabled = false
+                isShrinkResources = false
+                proguardFiles(
+                    getDefaultProguardFile("proguard-android-optimize.txt"),
+                    "proguard-rules.pro"
+                )
+            }
             release {
+                signingConfig = signingConfigs["release"]
                 isMinifyEnabled = true
                 isShrinkResources = true
                 proguardFiles(

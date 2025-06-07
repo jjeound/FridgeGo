@@ -55,6 +55,7 @@ fun ChatBot(
     expandSheet: () -> Unit,
 ) {
     val context = LocalContext.current
+    val listState = rememberLazyListState()
     LaunchedEffect(aiResponse.isNotEmpty(), !isExpanded) {
         expandSheet()
     }
@@ -63,6 +64,11 @@ fun ChatBot(
     }
     if(uiState == HomeUiState.Saved){
         Toast.makeText(context, "레시피가 저장되었습니다.", Toast.LENGTH_SHORT).show()
+    }
+    LaunchedEffect(aiResponse.size) {
+        if (aiResponse.isNotEmpty()) {
+            listState.animateScrollToItem(aiResponse.size + 3)
+        }
     }
     Column(
         modifier = Modifier
@@ -75,7 +81,8 @@ fun ChatBot(
         verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding)
     ) {
         LazyColumn(
-            state = rememberLazyListState(),
+            modifier = Modifier.weight(1f),
+            state = listState,
             verticalArrangement = Arrangement.spacedBy(Dimens.largePadding)
         ) {
             items(
@@ -206,36 +213,40 @@ fun ChatBot(
                     }
                 }
             }
-        }
-        Box(
-            modifier = Modifier.fillMaxWidth().weight(1f)
-        ) {
-            ElevatedButton(
-                modifier = Modifier.align(
-                    alignment = if (isExpanded) Alignment.BottomEnd else Alignment.TopEnd
-                ),
-                onClick = {
-                    onEvent(HomeEvent.GetRecipeByAi)
-                },
-                enabled = uiState != HomeUiState.Loading,
-                shape = ButtonDefaults.filledTonalShape,
-                elevation = ButtonDefaults.elevatedButtonElevation(),
-                colors = ButtonColors(
-                    containerColor = CustomTheme.colors.primary,
-                    contentColor = CustomTheme.colors.onPrimary,
-                    disabledContainerColor = CustomTheme.colors.buttonBorderUnfocused,
-                    disabledContentColor = CustomTheme.colors.textSecondary,
-                ),
-            ) {
-                Text(
-                    text = "레시피 추천 받기",
-                    style = CustomTheme.typography.button1,
+            item {
+                Box(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    ElevatedButton(
+                        modifier = Modifier.align(
+                            alignment = if (isExpanded) Alignment.BottomEnd else Alignment.TopEnd
+                        ),
+                        onClick = {
+                            onEvent(HomeEvent.GetRecipeByAi)
+                        },
+                        enabled = uiState != HomeUiState.Loading,
+                        shape = ButtonDefaults.filledTonalShape,
+                        elevation = ButtonDefaults.elevatedButtonElevation(),
+                        colors = ButtonColors(
+                            containerColor = CustomTheme.colors.primary,
+                            contentColor = CustomTheme.colors.onPrimary,
+                            disabledContainerColor = CustomTheme.colors.buttonBorderUnfocused,
+                            disabledContentColor = CustomTheme.colors.textSecondary,
+                        ),
+                    ) {
+                        Text(
+                            text = "레시피 추천 받기",
+                            style = CustomTheme.typography.button1,
+                        )
+                    }
+                }
+            }
+            item {
+                Spacer(
+                    modifier = Modifier.height(Dimens.hugePadding)
                 )
             }
         }
-        Spacer(
-            modifier = Modifier.height(Dimens.hugePadding)
-        )
     }
 }
 

@@ -100,9 +100,7 @@ fun HomeScreen(
                 verticalArrangement = Arrangement.spacedBy(Dimens.largePadding)
             ) {
                 Row(
-                    modifier = Modifier.fillMaxWidth().padding(
-                        horizontal = Dimens.mediumPadding
-                    ),
+                    modifier = Modifier.fillMaxWidth().padding(Dimens.smallPadding),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {

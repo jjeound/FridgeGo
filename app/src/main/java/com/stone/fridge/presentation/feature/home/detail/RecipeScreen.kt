@@ -1,6 +1,5 @@
 package com.stone.fridge.presentation.feature.home.detail
 
-import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement

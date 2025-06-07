@@ -2,8 +2,10 @@ package com.stone.fridge.data.remote.dto
 
 import com.stone.fridge.data.local.entity.MessageItemEntity
 import com.stone.fridge.domain.model.Message
+import kotlinx.serialization.Serializable
 import java.time.LocalDateTime
 
+@Serializable
 data class MessageDto(
     val content: String,
     val enderId: Long,

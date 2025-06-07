@@ -1,7 +1,9 @@
 package com.stone.fridge.data.remote.dto
 
 import com.stone.fridge.domain.model.Post
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class PostDto(
     val category: String,
     val content: String,

@@ -1,6 +1,8 @@
 package com.stone.fridge.data.remote.dto
 
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class FridgeResultDto(
     val content: List<ContentDto>,
     val empty: Boolean,

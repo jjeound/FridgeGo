@@ -1,8 +1,9 @@
 package com.stone.fridge.data.remote.dto
 
 import com.stone.fridge.domain.model.ChattingRoom
+import kotlinx.serialization.Serializable
 
-
+@Serializable
 data class ChatRoomResponse(
     val active: Boolean,
     val currentParticipants: Int,

@@ -1,7 +1,9 @@
 package com.stone.fridge.data.remote.dto
 
 import com.stone.fridge.domain.model.AccountInfo
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class CallbackDto(
     val id: Long,
     val email: String,

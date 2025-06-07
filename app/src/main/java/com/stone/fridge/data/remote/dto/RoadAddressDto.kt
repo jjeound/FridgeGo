@@ -1,5 +1,8 @@
 package com.stone.fridge.data.remote.dto
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class RoadAddressDto(
     val address_name: String,
     val region_1depth_name: String,

@@ -3,8 +3,10 @@ package com.stone.fridge.data.remote.dto
 import com.stone.fridge.data.local.entity.LikedPostEntity
 import com.stone.fridge.data.local.entity.MyPostEntity
 import com.stone.fridge.data.local.entity.PostItemEntity
+import kotlinx.serialization.Serializable
 import kotlin.Int
 
+@Serializable
 data class PostRawDto(
     val id: Long,
     val timeAgo: String,

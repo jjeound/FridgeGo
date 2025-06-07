@@ -2,7 +2,9 @@ package com.stone.fridge.data.remote.dto
 
 import com.stone.fridge.data.local.entity.FridgeItemEntity
 import com.stone.fridge.domain.model.FridgeItem
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class ContentDto(
     val alarmStatus: Boolean,
     val count: Int,

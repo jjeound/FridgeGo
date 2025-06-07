@@ -1,7 +1,9 @@
 package com.stone.fridge.data.remote.dto
 
 import com.stone.fridge.domain.model.Address
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class AddressDto(
     val address_name: String,
     val region_1depth_name: String,

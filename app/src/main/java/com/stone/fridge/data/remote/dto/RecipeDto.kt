@@ -1,7 +1,9 @@
 package com.stone.fridge.data.remote.dto
 
 import com.stone.fridge.domain.model.Recipe
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class RecipeDto(
     val id: Long,
     val title: String,

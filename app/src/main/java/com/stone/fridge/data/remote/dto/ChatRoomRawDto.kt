@@ -1,8 +1,10 @@
 package com.stone.fridge.data.remote.dto
 
 import com.stone.fridge.domain.model.ChattingRoomRaw
+import kotlinx.serialization.Serializable
 import java.time.LocalDateTime
 
+@Serializable
 data class ChatRoomRawDto(
     val active: Boolean,
     val currentParticipants: Int,

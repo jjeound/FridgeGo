@@ -1,7 +1,9 @@
 package com.stone.fridge.data.remote.dto
 
 import com.stone.fridge.domain.model.Profile
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class ProfileDto(
     val id: Long,
     val email: String,

@@ -1,7 +1,9 @@
 package com.stone.fridge.data.remote.dto
 
 import com.stone.fridge.domain.model.Ingredient
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class IngredientDto(
     val alarmStatus: String,
     val count: Int,

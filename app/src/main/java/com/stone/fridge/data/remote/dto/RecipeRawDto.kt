@@ -1,7 +1,6 @@
 package com.stone.fridge.data.remote.dto
 
 import com.stone.fridge.data.local.entity.RecipeItemEntity
-import com.stone.fridge.domain.model.RecipeRaw
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -18,14 +17,6 @@ data class RecipeRawDto(
             imageUrl = imageUrl,
             liked = liked,
             pagerNumber = pagerNumber
-        )
-    }
-    fun toRecipeRaw(): RecipeRaw{
-        return RecipeRaw(
-            id = id,
-            title = title,
-            imageUrl = imageUrl,
-            liked = liked
         )
     }
 }

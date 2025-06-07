@@ -33,7 +33,7 @@ class AddPostUseCase @Inject constructor(
         emit(Resource.Loading())
 
         val gson = Gson()
-        val json = gson.toJson(post)
+        val json = gson.toJson(post.toNewPostDto())
         val jsonBody = json.toRequestBody("application/json; charset=utf-8".toMediaType())
 
         // ✅ 이미지 압축

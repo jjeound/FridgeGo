@@ -64,7 +64,7 @@ class FridgeRepositoryImpl @Inject constructor(
     override fun addItem(item: NewFridge, image: File?): Flow<Resource<String>> = flow {
         emit(Resource.Loading())
         try {
-            val json = Gson().toJson(item)
+            val json = Gson().toJson(item.toNewFridgeItemDto())
             val jsonBody = json.toRequestBody("application/json; charset=utf-8".toMediaType())
             val requestFile = image?.asRequestBody("image/*".toMediaTypeOrNull())
             val body = requestFile?.let {MultipartBody.Part.createFormData("ingredientImage", image.name, requestFile)}

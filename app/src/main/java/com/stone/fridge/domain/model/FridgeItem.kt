@@ -1,7 +1,6 @@
 package com.stone.fridge.domain.model
 
 import com.stone.fridge.data.remote.dto.ModifyFridgeReqDto
-import com.stone.fridge.data.remote.dto.NewFridgeItemDto
 import kotlinx.serialization.Serializable
 
 @Serializable

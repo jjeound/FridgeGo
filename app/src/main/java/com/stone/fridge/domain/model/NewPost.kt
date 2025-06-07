@@ -21,4 +21,13 @@ data class NewPost(
             title = title
         )
     }
+    fun toNewPostDto(): NewPostDto {
+        return NewPostDto(
+            category = category,
+            content = content,
+            memberCount = memberCount,
+            price = price,
+            title = title
+        )
+    }
 }

@@ -1,5 +1,8 @@
 package com.stone.fridge.domain.model
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class NewFridge(
     val foodName: String,
     val count: Int,

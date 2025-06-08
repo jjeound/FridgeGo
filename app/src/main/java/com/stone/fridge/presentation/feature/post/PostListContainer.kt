@@ -78,7 +78,8 @@ fun PostListContainer(
                     style = CustomTheme.typography.title1,
                     color = CustomTheme.colors.textPrimary,
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
+                    overflow = TextOverflow.Ellipsis,
+                    softWrap = false
                 )
                 Text(
                     text = post.price.toString() + "원",

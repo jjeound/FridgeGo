@@ -1,18 +1,25 @@
 package com.stone.fridge.data.remote.manager
 
 import android.annotation.SuppressLint
-import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
+import android.content.Context
 import android.content.Intent
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.net.toUri
+import androidx.datastore.preferences.core.edit
 import com.stone.fridge.R
 import com.stone.fridge.core.util.Constants.FCM_CHANNEL_ID
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.stone.fridge.core.util.Constants.NOTIFICATION_CHANNEL_ID
+import com.stone.fridge.core.util.PrefKeys.FCM_NEW_TOKEN
+import com.stone.fridge.data.repository.dataStore
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class FCMService() : FirebaseMessagingService() {
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
@@ -63,6 +70,16 @@ class FCMService() : FirebaseMessagingService() {
 
     override fun onNewToken(token: String) {
         super.onNewToken(token)
-        Log.d("FCM", "New token: $token")
+        val context = applicationContext
+        saveFcmToken(token, context)
+    }
+    
+    private fun saveFcmToken(token: String, context: Context){
+        CoroutineScope(Dispatchers.IO).launch {
+            context.dataStore.edit { prefs ->
+                prefs[FCM_NEW_TOKEN] = token
+            }
+            Log.d("FCM", "New token saved: $token")
+        }
     }
 }

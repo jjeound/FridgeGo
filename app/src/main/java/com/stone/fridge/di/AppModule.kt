@@ -150,13 +150,18 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideFridgeApi(gson: Gson, okHttpClient: OkHttpClient): FridgeApi {
+    fun provideRetrofit(okHttpClient: OkHttpClient, gson: Gson): Retrofit {
         return Retrofit.Builder()
             .baseUrl(BASE_URL)
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
-            .create(FridgeApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideFridgeApi(retrofit: Retrofit): FridgeApi {
+        return retrofit.create(FridgeApi::class.java)
     }
 
     @Provides
@@ -171,35 +176,20 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideMyApi(gson: Gson, okHttpClient: OkHttpClient): MyApi {
-        return Retrofit.Builder()
-            .baseUrl(BASE_URL)
-            .client(okHttpClient)
-            .addConverterFactory(GsonConverterFactory.create(gson))
-            .build()
-            .create(MyApi::class.java)
+    fun provideMyApi(retrofit: Retrofit): MyApi {
+        return retrofit.create(MyApi::class.java)
     }
 
     @Provides
     @Singleton
-    fun provideHomeApi(gson: Gson, okHttpClient: OkHttpClient): HomeApi {
-        return Retrofit.Builder()
-            .baseUrl(BASE_URL)
-            .client(okHttpClient)
-            .addConverterFactory(GsonConverterFactory.create(gson))
-            .build()
-            .create(HomeApi::class.java)
+    fun provideHomeApi(retrofit: Retrofit): HomeApi {
+        return retrofit.create(HomeApi::class.java)
     }
 
     @Provides
     @Singleton
-    fun providePostApi(gson: Gson, okHttpClient: OkHttpClient): PostApi {
-        return Retrofit.Builder()
-            .baseUrl(BASE_URL)
-            .client(okHttpClient)
-            .addConverterFactory(GsonConverterFactory.create(gson))
-            .build()
-            .create(PostApi::class.java)
+    fun providePostApi(retrofit: Retrofit): PostApi {
+        return retrofit.create(PostApi::class.java)
     }
 
     @Provides
@@ -224,35 +214,20 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideChatApi(gson: Gson, okHttpClient: OkHttpClient): ChatApi {
-        return Retrofit.Builder()
-            .baseUrl(BASE_URL)
-            .client(okHttpClient)
-            .addConverterFactory(GsonConverterFactory.create(gson))
-            .build()
-            .create(ChatApi::class.java)
+    fun provideChatApi(retrofit: Retrofit): ChatApi {
+        return retrofit.create(ChatApi::class.java)
     }
 
     @Provides
     @Singleton
-    fun provideFcmApi(gson: Gson, okHttpClient: OkHttpClient): FcmApi {
-        return Retrofit.Builder()
-            .baseUrl(BASE_URL)
-            .client(okHttpClient)
-            .addConverterFactory(GsonConverterFactory.create(gson))
-            .build()
-            .create(FcmApi::class.java)
+    fun provideFcmApi(retrofit: Retrofit): FcmApi {
+        return retrofit.create(FcmApi::class.java)
     }
 
     @Provides
     @Singleton
-    fun provideNotificationApi(gson: Gson, okHttpClient: OkHttpClient): NotificationApi {
-        return Retrofit.Builder()
-            .baseUrl(BASE_URL)
-            .client(okHttpClient)
-            .addConverterFactory(GsonConverterFactory.create(gson))
-            .build()
-            .create(NotificationApi::class.java)
+    fun provideNotificationApi(retrofit: Retrofit): NotificationApi {
+        return retrofit.create(NotificationApi::class.java)
     }
 
     @Provides

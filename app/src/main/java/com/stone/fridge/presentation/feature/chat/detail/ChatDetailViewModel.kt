@@ -23,6 +23,7 @@ import com.stone.fridge.domain.use_case.chat.FCMLeaveRoomUseCase
 import com.stone.fridge.domain.use_case.chat.GetMessagesUseCase
 import com.stone.fridge.domain.use_case.chat.GetMyChatRoomsUseCase
 import com.stone.fridge.domain.use_case.chat.GetPagedMessagesUseCase
+import com.stone.fridge.domain.use_case.chat.GetUserIdUseCase
 import com.stone.fridge.domain.use_case.chat.JoinChatRoomUseCase
 import com.stone.fridge.domain.use_case.chat.ReadChatUseCase
 import com.stone.fridge.domain.use_case.chat.SendMessageUseCase
@@ -63,6 +64,7 @@ class ChatDetailViewModel @Inject constructor(
     private val getMyRoomsUseCase: GetMyChatRoomsUseCase,
     private val fcmEnterRoomUseCase: FCMEnterRoomUseCase,
     private val fcmLeaveRoomUseCase: FCMLeaveRoomUseCase,
+    private val getUserIdUseCase: GetUserIdUseCase
 ): ViewModel() {
 
     val uiState: MutableStateFlow<ChatDetailUiState> = MutableStateFlow<ChatDetailUiState>(ChatDetailUiState.Loading)
@@ -81,6 +83,9 @@ class ChatDetailViewModel @Inject constructor(
 
     private val _name = MutableStateFlow<String?>(null)
     val name = _name.asStateFlow()
+
+    private val _userId = MutableStateFlow<Long?>(null)
+    val userId = _userId.asStateFlow()
 
     private val _event = MutableSharedFlow<UiEvent>()
     val event = _event.asSharedFlow()
@@ -193,9 +198,13 @@ class ChatDetailViewModel @Inject constructor(
 
     fun getMyName(){
         viewModelScope.launch {
-            viewModelScope.launch {
-                _name.update{getMyNicknameUseCase()}
-            }
+            _name.update{getMyNicknameUseCase()}
+        }
+    }
+
+    fun getUserId() {
+        viewModelScope.launch {
+            _userId.update { getUserIdUseCase() }
         }
     }
 
@@ -275,6 +284,7 @@ class ChatDetailViewModel @Inject constructor(
             if(!token.isNullOrBlank()){ // null뿐만 아니라 빈 값도 확인
                 connectChatSocketUseCase(token, roomId, onConnected = {
                     subscribe(roomId)
+                    readChats(roomId)
                 }, onError = {
                     Log.d("socket", "error")
                 })

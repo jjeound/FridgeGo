@@ -53,9 +53,8 @@ fun ChattingDetailScreen(
     messages: LazyPagingItems<Message>,
     uiState: ChatDetailUiState,
     chattingRoom: ChattingRoom?,
-    name: String?,
+    userId: Long?,
     clearBackStack: () -> Unit,
-    disconnect: () -> Unit,
     navigate: (Screen) -> Unit,
     members: List<ChatMember>,
     sendMessage: (Long, String) -> Unit,
@@ -119,7 +118,6 @@ fun ChattingDetailScreen(
                         IconButton(
                             onClick = {
                                 leaveRoom(roomId)
-                                disconnect()
                                 clearBackStack()
                             }
                         ) {
@@ -197,13 +195,16 @@ fun ChattingDetailScreen(
 //                            }
                             items(messages.itemCount){ index ->
                                 val message = messages[index]
+                                Log.d("message", message.toString())
                                 if (message != null) {
-                                    val isMe = message.senderNickname == name
-                                    val profileImage = members.find { it.nickname == message.senderNickname }?.imageUrl
+                                    val isMe = message.senderId == userId
+                                    val userNickname = members.find{ it.userId == message.senderId }?.nickname
+                                    val profileImage = members.find { it.userId == message.senderId }?.imageUrl
                                     MessageCard(
                                         message = message,
                                         isMe = isMe,
                                         profileImage = profileImage,
+                                        userNickname = userNickname,
                                         isActive = room.active,
                                         navigate = navigate
                                     )

@@ -7,7 +7,7 @@ import javax.inject.Inject
 class SaveFCMTokenUseCase @Inject constructor(
     private val repository: FCMRepository
 ) {
-    suspend operator fun invoke(token: String){
-        return repository.saveFcmToken(token)
+    suspend operator fun invoke(){
+        return repository.saveFcmToken()
     }
 }

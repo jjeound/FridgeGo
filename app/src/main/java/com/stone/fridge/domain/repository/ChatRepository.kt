@@ -29,4 +29,6 @@ interface ChatRepository {
     fun exitChatRoom(id: Long): Flow<Resource<String>>
     @WorkerThread
     fun getMessagePaged(roomId: Long): Flow<PagingData<MessageItemEntity>>
+    @WorkerThread
+    suspend fun getUserId(): Long?
 }

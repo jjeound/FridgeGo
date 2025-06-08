@@ -39,7 +39,7 @@ fun NotificationScreen(
                 modifier = Modifier.padding(Dimens.topBarPadding),
                 title = {
                     Text(
-                        text = "유통기한 알림",
+                        text = "소비기한 알림",
                         style = CustomTheme.typography.title1,
                         color = CustomTheme.colors.textPrimary,
                     )

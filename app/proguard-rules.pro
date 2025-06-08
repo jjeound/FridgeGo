@@ -38,6 +38,7 @@
 
 # CameraX
 -keep class androidx.camera.** { *; }
+-dontwarn androidx.camera.**
 
 # Hilt
 -keep class dagger.** { *; }
@@ -46,12 +47,15 @@
 # DataStore
 -keep class androidx.datastore.** { *; }
 
+# Stomp Protocol
+-keep class ua.naiksoftware.stomp.** { *; }
+-dontwarn ua.naiksoftware.stomp.**
+
 # Coil
 -keep class coil.** { *; }
 
-# Kakao SDK
--keep class com.kakao.** { *; }
--dontwarn com.kakao.**
+# Kotlin metadata
+-keepattributes *Annotation*, InnerClasses, EnclosingMethod, Signature, SourceFile, LineNumberTable
 
 # Needed for AD_ID safe use
 -keep class com.google.android.gms.ads.identifier.AdvertisingIdClient { *; }
@@ -61,3 +65,21 @@
 -keep class com.stone.fridge.** { *; }
 -keep @kotlinx.serialization.Serializable class * { *; }
 -keep class kotlinx.serialization.** { *; }
+
+-keep class com.kakao.sdk.**.model.* { <fields>; }
+
+# https://github.com/square/okhttp/pull/6792
+-dontwarn org.bouncycastle.jsse.**
+-dontwarn org.conscrypt.*
+-dontwarn org.openjsse.**
+
+# refrofit2 (with r8 full mode)
+-if interface * { @retrofit2.http.* <methods>; }
+-keep,allowobfuscation interface <1>
+-keep,allowobfuscation,allowshrinking class kotlin.coroutines.Continuation
+-if interface * { @retrofit2.http.* public *** *(...); }
+-keep,allowoptimization,allowshrinking,allowobfuscation class <3>
+-keep,allowobfuscation,allowshrinking class retrofit2.Response
+
+-keep class com.kakao.vectormap.** { *; }
+-keep interface com.kakao.vectormap.**

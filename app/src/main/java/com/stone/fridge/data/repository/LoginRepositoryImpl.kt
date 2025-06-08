@@ -6,6 +6,7 @@ import androidx.annotation.WorkerThread
 import androidx.datastore.preferences.core.edit
 import com.stone.fridge.core.util.PrefKeys.DONG
 import com.stone.fridge.core.util.PrefKeys.NICKNAME
+import com.stone.fridge.core.util.PrefKeys.USER_ID
 import com.stone.fridge.core.util.Resource
 import com.stone.fridge.data.AppDispatchers
 import com.stone.fridge.data.Dispatcher
@@ -46,6 +47,7 @@ class LoginRepositoryImpl @Inject constructor(
             if(response.isSuccess){
                 tokenRepository.saveAccessToken(response.result!!.accessToken)
                 tokenRepository.saveRefreshToken(response.result.refreshToken)
+                saveUserId(userId = response.result.id)
                 emit(Resource.Success(response.result.toAccountInfo()))
             }else{
                 emit(Resource.Error(response.message))
@@ -93,6 +95,12 @@ class LoginRepositoryImpl @Inject constructor(
     private suspend fun saveNickname(nickname: String) {
         dataStore.edit { prefs ->
             prefs[NICKNAME] = nickname
+        }
+    }
+
+    private suspend fun saveUserId(userId: Long) {
+        dataStore.edit { prefs ->
+            prefs[USER_ID] = userId
         }
     }
 

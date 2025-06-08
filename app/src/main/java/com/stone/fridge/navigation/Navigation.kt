@@ -221,6 +221,7 @@ fun Navigation(
                     savePost = { post ->
                         navController.currentBackStackEntry?.savedStateHandle["post"] = post
                     },
+                    closeChatRoom = viewModel::closeChatRoom
                 )
             }
             composable<Screen.WritingNav>{
@@ -316,19 +317,16 @@ fun Navigation(
                 val members by viewModel.member.collectAsStateWithLifecycle()
                 val chattingRoom by viewModel.chattingRoom.collectAsStateWithLifecycle()
                 val chattingRoomList by viewModel.chattingRoomList.collectAsStateWithLifecycle()
-                val name by viewModel.name.collectAsStateWithLifecycle()
+                val userId by viewModel.userId.collectAsStateWithLifecycle()
                 val args = it.toRoute<Screen.ChattingRoomNav>()
                 LaunchedEffect(Unit) {
                     viewModel.enterChatRoom(args.id)
                     viewModel.connectSocket(args.id)
-                    viewModel.fcmEnterRoom(args.id)
                     viewModel.getMessages(args.id)
-                    viewModel.getMyName()
+                    viewModel.getUserId()
                     val isJoined = chattingRoomList.any{it.roomId == args.id}
                     if(!isJoined){
                         viewModel.joinChatRoom(args.id)
-                    }else{
-                        viewModel.readChats(args.id)
                     }
                 }
                 LaunchedEffect(messages.itemCount) {
@@ -347,7 +345,7 @@ fun Navigation(
                     messages = messages,
                     uiState = uiState,
                     roomId = args.id,
-                    name = name,
+                    userId = userId,
                     members = members,
                     chattingRoom = chattingRoom,
                     clearBackStack = {
@@ -358,7 +356,6 @@ fun Navigation(
                         }
                     },
                     sendMessage = viewModel::sendMessage,
-                    disconnect = viewModel::disconnect,
                     navigate = { route ->
                         navController.navigate(route)
                     },
@@ -534,24 +531,21 @@ fun Navigation(
                 val members by viewModel.member.collectAsStateWithLifecycle()
                 val chattingRoom by viewModel.chattingRoom.collectAsStateWithLifecycle()
                 val chattingRoomList by viewModel.chattingRoomList.collectAsStateWithLifecycle()
-                val name by viewModel.name.collectAsStateWithLifecycle()
+                val userId by viewModel.userId.collectAsStateWithLifecycle()
                 val args = it.toRoute<Screen.ChattingRoomNav>()
 
                 LaunchedEffect(Unit) {
                     viewModel.enterChatRoom(args.id)
-                    viewModel.fcmEnterRoom(args.id)
                     viewModel.connectSocket(args.id)
                     viewModel.checkWhoIsIn(args.id)
                     viewModel.getMessages(args.id)
-                    viewModel.getMyName()
+                    viewModel.getUserId()
                 }
                 if(args.isActive){
                     LaunchedEffect(Unit) {
                         val isJoined = chattingRoomList.any{it.roomId == args.id}
                         if(!isJoined){
                             viewModel.joinChatRoom(args.id)
-                        }else {
-                            viewModel.readChats(args.id)
                         }
                     }
                     LaunchedEffect(messages.itemCount) {
@@ -571,7 +565,7 @@ fun Navigation(
                     messages = messages,
                     uiState = uiState,
                     roomId = args.id,
-                    name = name,
+                    userId = userId,
                     members = members,
                     chattingRoom = chattingRoom,
                     clearBackStack = {
@@ -582,7 +576,6 @@ fun Navigation(
                         }
                     },
                     sendMessage = viewModel::sendMessage,
-                    disconnect = viewModel::disconnect,
                     navigate = { route ->
                         navController.navigate(route)
                     },

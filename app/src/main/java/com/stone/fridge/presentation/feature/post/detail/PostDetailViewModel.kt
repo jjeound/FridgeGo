@@ -1,9 +1,11 @@
 package com.stone.fridge.presentation.feature.post.detail
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.stone.fridge.core.util.Resource
 import com.stone.fridge.domain.model.Post
+import com.stone.fridge.domain.use_case.chat.CloseChatRoomUseCase
 import com.stone.fridge.domain.use_case.my.GetMyNicknameUseCase
 import com.stone.fridge.domain.use_case.my.ReportUserUseCase
 import com.stone.fridge.domain.use_case.post.DeletePostUseCase
@@ -28,6 +30,7 @@ class PostDetailViewModel @Inject constructor(
     private val reportPostUseCase: ReportPostUseCase,
     private val reportUserUseCase: ReportUserUseCase,
     private val getMyNicknameUseCase: GetMyNicknameUseCase,
+    private val closeChatRoomUseCase: CloseChatRoomUseCase,
 ): ViewModel() {
     val uiState: MutableStateFlow<PostDetailUiState> = MutableStateFlow<PostDetailUiState>(PostDetailUiState.Loading)
 
@@ -158,6 +161,26 @@ class PostDetailViewModel @Inject constructor(
         }
     }
 
+    fun closeChatRoom(roomId: Long){
+        viewModelScope.launch {
+            closeChatRoomUseCase(roomId).collectLatest {
+                when(it){
+                    is Resource.Success -> {
+                        it.data?.let{
+                            Log.d("PostDetailViewModel", "Chat room closed successfully")
+                        }
+                    }
+                    is Resource.Error -> {
+                        uiState.tryEmit(PostDetailUiState.Error(it.message))
+                        _event.tryEmit(UiEvent.ShowSnackbar(it.message ?: "Unknown error"))
+                    }
+                    is Resource.Loading -> {
+                        uiState.emit(PostDetailUiState.Loading)
+                    }
+                }
+            }
+        }
+    }
 }
 
 interface PostDetailUiState {

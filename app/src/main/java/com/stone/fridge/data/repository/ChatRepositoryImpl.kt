@@ -1,11 +1,14 @@
 package com.stone.fridge.data.repository
 
+import android.content.Context
 import androidx.annotation.WorkerThread
 import androidx.paging.ExperimentalPagingApi
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import com.stone.fridge.core.util.Constants.MESSAGE_PAGE_SIZE
+import com.stone.fridge.core.util.PrefKeys.NICKNAME
+import com.stone.fridge.core.util.PrefKeys.USER_ID
 import com.stone.fridge.core.util.Resource
 import com.stone.fridge.data.AppDispatchers
 import com.stone.fridge.data.Dispatcher
@@ -18,10 +21,13 @@ import com.stone.fridge.domain.model.ChattingRoom
 import com.stone.fridge.domain.model.ChattingRoomRaw
 import com.stone.fridge.domain.model.Message
 import com.stone.fridge.domain.repository.ChatRepository
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import okio.IOException
 import org.json.JSONObject
 import retrofit2.HttpException
@@ -30,8 +36,10 @@ import javax.inject.Inject
 class ChatRepositoryImpl @Inject constructor(
     private val api: ChatApi,
     private val db: MessageItemDatabase,
+    @ApplicationContext private val context: Context,
     @Dispatcher(AppDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
 ): ChatRepository {
+    val dataStore = context.dataStore
 
     @WorkerThread
     override fun readChats(id: Long): Flow<Resource<Int>> = flow {
@@ -236,5 +244,11 @@ class ChatRepositoryImpl @Inject constructor(
             remoteMediator = MessagePagingSource(roomId, api, db),
             pagingSourceFactory = { db.dao.getMessagesPaging(roomId) }
         ).flow.flowOn(ioDispatcher)
+    }
+
+    override suspend fun getUserId(): Long? {
+        return dataStore.data.map { prefs ->
+            prefs[USER_ID]
+        }.first()
     }
 }

@@ -30,6 +30,7 @@ class WebSocketManager @Inject constructor() {
             when (event.type) {
                 LifecycleEvent.Type.OPENED -> {
                     isReconnecting = false
+                    enterRoom(roomId)
                     onConnected()
                 }
                 LifecycleEvent.Type.ERROR -> {
@@ -97,6 +98,7 @@ class WebSocketManager @Inject constructor() {
     fun leaveRoom(roomId: Long) {
         val payload = Gson().toJson(mapOf("roomId" to roomId))
         stompClient?.send("/pub/chat/leave", payload)?.subscribe()
+        disconnect()
     }
 
 }

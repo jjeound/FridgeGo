@@ -8,7 +8,7 @@ import java.time.LocalDateTime
 @Serializable
 data class MessageDto(
     val content: String,
-    val enderId: Long,
+    val senderId: Long,
     val messageId: Long,
     val read: Boolean,
     val senderNickname: String,
@@ -18,7 +18,7 @@ data class MessageDto(
     fun toMessageEntity(roomId: Long) = MessageItemEntity(
         messageId = messageId,
         roomId = roomId,
-        senderId = enderId,
+        senderId = senderId,
         senderNickname = senderNickname,
         content = content,
         sentAt = sentAt,
@@ -27,7 +27,7 @@ data class MessageDto(
     )
     fun toMessage() = Message(
         content = content,
-        senderId = enderId,
+        senderId = senderId,
         messageId = messageId,
         read = read,
         senderNickname = senderNickname,

@@ -56,6 +56,7 @@ fun PostDetailScreen(
     toggleLike: (Long) -> Unit,
     clearBackStack: () -> Unit,
     savePost: (Post) -> Unit,
+    closeChatRoom: (Long) -> Unit,
 ){
     var expanded by remember { mutableStateOf(false) }
     var menuItem by remember { mutableStateOf(emptyList<String>()) }
@@ -154,6 +155,7 @@ fun PostDetailScreen(
                                                     navigate(Screen.WritingNav)
                                                 }
                                                 menuItem[1] -> {
+                                                    closeChatRoom(post.chatRoomId)
                                                     deletePost(post.id)
                                                 }
                                             }

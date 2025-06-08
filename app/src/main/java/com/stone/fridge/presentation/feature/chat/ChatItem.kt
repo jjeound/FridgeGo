@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Badge
 import androidx.compose.material3.Card
@@ -21,6 +22,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.stone.fridge.R
@@ -47,6 +50,7 @@ fun ChatItem(chattingRoomRaw: ChattingRoomRaw){
             horizontalArrangement = Arrangement.SpaceBetween,
         ){
             Row(
+                modifier = Modifier.weight(1f),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 AsyncImage(
@@ -66,6 +70,9 @@ fun ChatItem(chattingRoomRaw: ChattingRoomRaw){
                             text = chattingRoomRaw.name,
                             style = CustomTheme.typography.title1,
                             color = CustomTheme.colors.textPrimary,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            softWrap = false
                         )
                         Spacer(
                             modifier = Modifier.width(6.dp)
@@ -80,6 +87,9 @@ fun ChatItem(chattingRoomRaw: ChattingRoomRaw){
                         text = chattingRoomRaw.lastMessage ?: "",
                         style = CustomTheme.typography.body2,
                         color = CustomTheme.colors.textSecondary,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        softWrap = false
                     )
                 }
             }
@@ -99,16 +109,17 @@ fun ChatItem(chattingRoomRaw: ChattingRoomRaw){
                     modifier = Modifier.height(6.dp)
                 )
                 if(chattingRoomRaw.unreadCount > 0 && chattingRoomRaw.active){
+                    val unreadCount = if(chattingRoomRaw.unreadCount > 100) "100+" else chattingRoomRaw.unreadCount.toString()
                     Badge(
                         content = {
                             Text(
-                                text = chattingRoomRaw.unreadCount.toString(),
+                                text = unreadCount,
                                 style = CustomTheme.typography.caption2,
                                 color = Color.White
                             )
                         },
                         containerColor = CustomTheme.colors.iconRed,
-                        modifier = Modifier.size(20.dp)
+                        modifier = Modifier.wrapContentWidth()
                     )
                 }
             }

@@ -107,28 +107,32 @@ fun NewFridgeItemForm(
     val datePickerState = rememberDatePickerState()
     var expirationDate by remember { mutableLongStateOf(fridgeItem?.expirationDate ?: 0L) }
     val scannedDate = getSavedDate()
-    var selectedDate = datePickerState.selectedDateMillis?.let {
-        expirationDate = it
-        convertMillisToDate(it)
-    } ?: (fridgeItem?.expirationDate?.let {
-        expirationDate = it // 기존 데이터가 있으면 expirationDate 설정
-        convertMillisToDate(it)
+    var selectedDate by remember { mutableStateOf("") }
+
+    LaunchedEffect(datePickerState.selectedDateMillis) {
+        datePickerState.selectedDateMillis?.let {
+            expirationDate = it
+            selectedDate = convertMillisToDate(it)
+        }
     }
-        ?: "")
 
     LaunchedEffect(fridgeItem) {
         fridgeItem?.let {
             image = it.image
             name = it.name
             quantity = it.quantity
+            expirationDate = it.expirationDate
+            selectedDate = convertMillisToDate(it.expirationDate)
         }
     }
 
-    scannedDate?.let {
-        if (scannedDate.isNotBlank()) {
-            val parsedDate = parseDateToMillis(scannedDate)
-            expirationDate = parsedDate
-            selectedDate = convertMillisToDate(parsedDate)
+    LaunchedEffect(scannedDate) {
+        scannedDate?.let {
+            if (it.isNotBlank()) {
+                val parsed = parseDateToMillis(it)
+                expirationDate = parsed
+                selectedDate = convertMillisToDate(parsed)
+            }
         }
     }
 

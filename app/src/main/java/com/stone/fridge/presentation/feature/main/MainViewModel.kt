@@ -1,6 +1,5 @@
 package com.stone.fridge.presentation.feature.main
 
-import android.util.Log
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
@@ -15,10 +14,7 @@ import com.stone.fridge.domain.use_case.login.SaveFCMTokenUseCase
 import com.stone.fridge.domain.use_case.my.GetLocationUseCase
 import com.stone.fridge.presentation.util.AuthEvent
 import com.stone.fridge.presentation.util.UiEvent
-import com.google.firebase.Firebase
-import com.google.firebase.messaging.messaging
 import com.stone.fridge.domain.use_case.notification.GetUnreadCountUseCase
-import com.stone.fridge.domain.use_case.notification.IsUnreadNotificationUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -82,20 +78,14 @@ class MainViewModel @Inject constructor(
             if (token == null) {
                 _authEvent.emit(AuthEvent.Logout)
             } else {
-                Firebase.messaging.token.addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        Log.d("FCM", "FCM Token: ${task.result}")
-                        saveFcmToken(task.result)
-                    }
-                }
                 _authEvent.emit(AuthEvent.Login)
             }
         }
     }
 
-    private fun saveFcmToken(token: String) {
+    private fun saveFcmToken() {
         viewModelScope.launch {
-            saveFCMTokenUseCase(token)
+            saveFCMTokenUseCase()
         }
     }
 

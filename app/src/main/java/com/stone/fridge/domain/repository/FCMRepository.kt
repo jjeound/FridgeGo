@@ -4,5 +4,5 @@ import androidx.annotation.WorkerThread
 
 interface FCMRepository {
     @WorkerThread
-    suspend fun saveFcmToken(token: String)
+    suspend fun saveFcmToken()
 }

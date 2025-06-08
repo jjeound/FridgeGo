@@ -1,6 +1,5 @@
 package com.stone.fridge.presentation.feature.login
 
-import android.util.Log
 import androidx.compose.runtime.Stable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -14,8 +13,6 @@ import com.stone.fridge.domain.use_case.login.SaveFCMTokenUseCase
 import com.stone.fridge.domain.use_case.login.SetLocationUseCase
 import com.stone.fridge.domain.use_case.login.SetNicknameUseCase
 import com.stone.fridge.presentation.util.UiEvent
-import com.google.android.gms.tasks.OnCompleteListener
-import com.google.firebase.messaging.FirebaseMessaging
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -78,14 +75,7 @@ class LoginViewModel @Inject constructor(
                         it.data?.let{ result ->
                             _accountInfo.value = result
                             saveAppEntry()
-                            FirebaseMessaging.getInstance().token.addOnCompleteListener(OnCompleteListener { task ->
-                                if (!task. isSuccessful) {
-                                    Log.w("FCM", "Fetching FCM registration token failed", task.exception)
-                                    return@OnCompleteListener
-                                }
-                                val token = task.result
-                                saveFCMToken(token)
-                            })
+                            saveFCMToken()
                             uiState.tryEmit(LoginUiState.Success)
                         }
                     }
@@ -101,9 +91,9 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-    fun saveFCMToken(token: String){
+    fun saveFCMToken(){
         viewModelScope.launch {
-            saveFCMTokenUseCase(token)
+            saveFCMTokenUseCase()
         }
     }
 

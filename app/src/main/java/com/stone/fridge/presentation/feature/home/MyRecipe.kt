@@ -108,7 +108,8 @@ fun MyRecipe(recipe: RecipeRaw, modifier: Modifier = Modifier, onEvent: (HomeEve
             style = CustomTheme.typography.title1,
             color = CustomTheme.colors.textPrimary,
             overflow = TextOverflow.Ellipsis,
-            maxLines = 1
+            maxLines = 1,
+            softWrap = false,
         )
     }
 }

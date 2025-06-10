@@ -1,5 +1,6 @@
 package com.stone.fridge.navigation
 
+import android.util.Log
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -57,6 +58,7 @@ import com.stone.fridge.presentation.feature.post.search.PostSearchScreen
 import com.stone.fridge.presentation.feature.post.search.PostSearchViewModel
 import com.stone.fridge.presentation.util.AuthEvent
 import com.stone.fridge.presentation.util.UiEvent
+import java.time.LocalDateTime
 
 
 @Composable
@@ -321,8 +323,8 @@ fun Navigation(
                 val args = it.toRoute<Screen.ChattingRoomNav>()
                 LaunchedEffect(Unit) {
                     viewModel.enterChatRoom(args.id)
-                    viewModel.connectSocket(args.id)
                     viewModel.getMessages(args.id)
+                    viewModel.connectSocket(args.id)
                     viewModel.getUserId()
                     val isJoined = chattingRoomList.any{it.roomId == args.id}
                     if(!isJoined){
@@ -330,7 +332,14 @@ fun Navigation(
                     }
                 }
                 LaunchedEffect(messages.itemCount) {
-                    viewModel.sendRead(args.id)
+                    val lastIndex = messages.itemCount - 1
+                    val lastMessage = if (lastIndex >= 0) messages.peek(lastIndex) else null
+
+                    if (lastMessage != null && lastMessage.senderId != userId) {
+                        Log.d("sendRead", "navigation: ${lastMessage.senderId} != $userId")
+                        // 마지막 메시지가 내가 보낸 메시지가 아닐 때만 읽음 처리
+                        viewModel.sendRead(args.id)
+                    }
                 }
                 LaunchedEffect(true) {
                     viewModel.event.collect { event ->
@@ -536,9 +545,9 @@ fun Navigation(
 
                 LaunchedEffect(Unit) {
                     viewModel.enterChatRoom(args.id)
+                    viewModel.getMessages(args.id)
                     viewModel.connectSocket(args.id)
                     viewModel.checkWhoIsIn(args.id)
-                    viewModel.getMessages(args.id)
                     viewModel.getUserId()
                 }
                 if(args.isActive){
@@ -549,7 +558,13 @@ fun Navigation(
                         }
                     }
                     LaunchedEffect(messages.itemCount) {
-                        viewModel.sendRead(args.id)
+                        val lastMessage = if (messages.itemCount > 0) messages.peek(0) else null
+
+                        if (lastMessage != null && lastMessage.senderId != userId) {
+                            Log.d("sendRead", "navigation: $lastMessage ${lastMessage.senderId} != $userId")
+                            // 마지막 메시지가 내가 보낸 메시지가 아닐 때만 읽음 처리
+                            viewModel.sendRead(args.id)
+                        }
                     }
                 }
                 LaunchedEffect(true) {

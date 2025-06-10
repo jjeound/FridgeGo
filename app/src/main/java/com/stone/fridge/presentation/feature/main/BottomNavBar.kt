@@ -24,19 +24,19 @@ import androidx.navigation.NavDestination.Companion.hasRoute
 
 @Composable
 fun BottomNavBar(currentDestination: NavDestination?, navController: NavHostController){
+    val items = listOf(
+        BottomNavItems.Home,
+        BottomNavItems.Post,
+        BottomNavItems.Fridge,
+        BottomNavItems.Chat,
+        BottomNavItems.My
+    )
     NavigationBar(
         modifier = Modifier.height(80.dp).consumeWindowInsets(
             WindowInsets.navigationBars.asPaddingValues()
         ),
         containerColor = CustomTheme.colors.onSurface
     ) {
-        val items = listOf(
-            BottomNavItems.Home,
-            BottomNavItems.Post,
-            BottomNavItems.Fridge,
-            BottomNavItems.Chat,
-            BottomNavItems.My
-        )
         items.forEach { destination ->
             NavigationBarItem(
                 selected = currentDestination?.hierarchy?.any {

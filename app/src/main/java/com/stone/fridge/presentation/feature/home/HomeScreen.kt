@@ -76,6 +76,11 @@ fun HomeScreen(
                 isExpanded.value = (value == SheetValue.Expanded)
             }
     }
+    LaunchedEffect(key1 = recipeItems.loadState) {
+        if(recipeItems.loadState.refresh is LoadState.Error) {
+            Log.d("error", (recipeItems.loadState.refresh as LoadState.Error).error.message.toString())
+        }
+    }
     Column(
         modifier = Modifier.padding(
             horizontal = Dimens.surfaceHorizontalPadding)
@@ -120,11 +125,6 @@ fun HomeScreen(
                             contentDescription = "add_recipe",
                             tint = CustomTheme.colors.iconDefault
                         )
-                    }
-                }
-                LaunchedEffect(key1 = recipeItems.loadState) {
-                    if(recipeItems.loadState.refresh is LoadState.Error) {
-                        Log.d("error", (recipeItems.loadState.refresh as LoadState.Error).error.message.toString())
                     }
                 }
                 Box(

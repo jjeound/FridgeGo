@@ -38,12 +38,12 @@ fun NotificationCard(
                 modifier = Modifier.padding(vertical = Dimens.mediumPadding),
             ) {
                 Text(
-                    text = "유통기한",
+                    text = "소비기한",
                     style = CustomTheme.typography.body2,
                     color = CustomTheme.colors.textSecondary,
                 )
                 Text(
-                    text = notification.title,
+                    text = "${notification.title} ${notification.content ?: ""}",
                     style = CustomTheme.typography.body2,
                     color = CustomTheme.colors.textPrimary,
                 )
@@ -60,5 +60,5 @@ fun NotificationCard(
 @Preview
 @Composable
 fun NotificationCardPreview() {
-    NotificationCard(Notification("title", LocalDateTime.now(), false))
+    NotificationCard(Notification("title", "어쩌고 저쩌고", LocalDateTime.now(), false))
 }

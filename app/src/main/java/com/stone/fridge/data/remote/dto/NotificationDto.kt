@@ -8,6 +8,7 @@ import java.time.LocalDateTime
 data class NotificationDto(
     val id: Long,
     val ingredientName: String,
+    val content: String?,
     val scheduledAt: String,
     val status: String,
     val read: Boolean
@@ -15,6 +16,7 @@ data class NotificationDto(
     fun toDomain(): Notification{
         return Notification(
             title = ingredientName,
+            content = content,
             time = LocalDateTime.parse(scheduledAt),
             isRead = read
         )

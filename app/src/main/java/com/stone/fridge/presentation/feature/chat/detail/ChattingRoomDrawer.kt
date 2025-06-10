@@ -1,5 +1,6 @@
 package com.stone.fridge.presentation.feature.chat.detail
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -28,6 +29,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -58,11 +60,16 @@ fun ChattingRoomDrawer(
     navigate: (Screen) -> Unit,
 ){
     val scrollState = rememberScrollState()
-    if(uiState is ChatDetailUiState.Loading){
+    if(uiState == ChatDetailUiState.Loading){
         CircularProgressIndicator(
             modifier = Modifier.fillMaxSize(),
             color = CustomTheme.colors.primary
         )
+    }
+    LaunchedEffect(uiState) {
+        if(uiState == ChatDetailUiState.Success){
+            clearBackStack()
+        }
     }
 
     Scaffold(
@@ -101,8 +108,13 @@ fun ChattingRoomDrawer(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             AsyncImage(
-                modifier = Modifier.size(80.dp),
-                model = R.drawable.chattingroom_image,
+                model = R.drawable.thumbnail,
+                modifier = Modifier.size(80.dp).clip(CircleShape).border(
+                    width = 1.dp,
+                    color = CustomTheme.colors.border,
+                    shape = CircleShape
+                ),
+                contentScale = ContentScale.Crop,
                 contentDescription = "chatting room image",
             )
             Text(
@@ -198,7 +210,6 @@ fun ChattingRoomDrawer(
                         ),
                         onClick = {
                             closeChatRoom(roomId)
-                            clearBackStack()
                         },
                         enabled = isActive
                     ) {
@@ -217,7 +228,6 @@ fun ChattingRoomDrawer(
                         ),
                         onClick = {
                             exitChatRoom(roomId)
-                            clearBackStack()
                         }
                     ) {
                         Text(

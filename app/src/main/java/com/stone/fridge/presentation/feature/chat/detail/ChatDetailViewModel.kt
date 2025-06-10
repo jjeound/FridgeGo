@@ -15,10 +15,8 @@ import com.stone.fridge.domain.model.UnreadBroadcast
 import com.stone.fridge.domain.use_case.chat.CheckWhoIsInUseCase
 import com.stone.fridge.domain.use_case.chat.CloseChatRoomUseCase
 import com.stone.fridge.domain.use_case.chat.ConnectChatSocketUseCase
-import com.stone.fridge.domain.use_case.chat.DisconnectUseCase
 import com.stone.fridge.domain.use_case.chat.EnterChatRoomUseCase
 import com.stone.fridge.domain.use_case.chat.ExitChatRoomUseCase
-import com.stone.fridge.domain.use_case.chat.FCMEnterRoomUseCase
 import com.stone.fridge.domain.use_case.chat.FCMLeaveRoomUseCase
 import com.stone.fridge.domain.use_case.chat.GetMessagesUseCase
 import com.stone.fridge.domain.use_case.chat.GetMyChatRoomsUseCase
@@ -39,8 +37,10 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.time.LocalDateTime
 import javax.inject.Inject
 
 @HiltViewModel
@@ -58,11 +58,9 @@ class ChatDetailViewModel @Inject constructor(
     private val connectChatSocketUseCase: ConnectChatSocketUseCase,
     private val sendMessageUseCase: SendMessageUseCase,
     private val subscribeRoomUseCase: SubscribeRoomUseCase,
-    private val disconnectUseCase: DisconnectUseCase,
     private val sendReadChatUseCase: ReadChatUseCase,
     private val sendReadEventUseCase: SendReadEventUseCase,
     private val getMyRoomsUseCase: GetMyChatRoomsUseCase,
-    private val fcmEnterRoomUseCase: FCMEnterRoomUseCase,
     private val fcmLeaveRoomUseCase: FCMLeaveRoomUseCase,
     private val getUserIdUseCase: GetUserIdUseCase
 ): ViewModel() {
@@ -238,7 +236,7 @@ class ChatDetailViewModel @Inject constructor(
                 when(it){
                     is Resource.Success -> {
                         it.data?.let { message ->
-                            uiState.tryEmit(ChatDetailUiState.Idle)
+                            uiState.tryEmit(ChatDetailUiState.Success)
                         }
                     }
 
@@ -261,7 +259,7 @@ class ChatDetailViewModel @Inject constructor(
                 when(it){
                     is Resource.Success -> {
                         it.data?.let { message ->
-                            uiState.tryEmit(ChatDetailUiState.Idle)
+                            uiState.tryEmit(ChatDetailUiState.Success)
                         }
                     }
 
@@ -289,7 +287,7 @@ class ChatDetailViewModel @Inject constructor(
                     Log.d("socket", "error")
                 })
             } else {
-                _event.emit(UiEvent.ShowSnackbar("Token is null or blank"))
+                _event.emit(UiEvent.ShowSnackbar("알 수 없는 오류가 발생했습니다."))
             }
         }
     }
@@ -298,9 +296,6 @@ class ChatDetailViewModel @Inject constructor(
         viewModelScope.launch {
             subscribeRoomUseCase(
                 roomId,
-                onMessage = {
-                    //getMessages(roomId)
-                },
                 onUnreadUpdate = { unread ->
                     updateUnreadCount(unread)
                 }
@@ -330,14 +325,6 @@ class ChatDetailViewModel @Inject constructor(
         sendReadEventUseCase(roomId)
     }
 
-    fun disconnect() {
-        disconnectUseCase()
-    }
-
-    fun fcmEnterRoom(roomId: Long){
-        fcmEnterRoomUseCase(roomId)
-    }
-
     fun fcmLeaveRoom(roomId: Long){
         fcmLeaveRoomUseCase(roomId)
     }
@@ -346,5 +333,6 @@ class ChatDetailViewModel @Inject constructor(
 interface ChatDetailUiState {
     data object Idle : ChatDetailUiState
     data object Loading : ChatDetailUiState
+    data object Success : ChatDetailUiState
     data class Error(val message: String?) : ChatDetailUiState
 }

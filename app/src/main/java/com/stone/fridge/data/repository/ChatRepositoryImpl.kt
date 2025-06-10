@@ -219,6 +219,7 @@ class ChatRepositoryImpl @Inject constructor(
             val response = api.exitChatRoom(id)
             if(response.isSuccess){
                 emit(Resource.Success(response.result))
+                db.dao.clearMessages(id)
             }else{
                 emit(Resource.Error(response.message))
             }

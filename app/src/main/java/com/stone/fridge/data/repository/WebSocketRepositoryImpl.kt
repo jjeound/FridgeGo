@@ -25,7 +25,6 @@ class WebSocketRepositoryImpl @Inject constructor(
 
     override suspend fun subscribeRoom(
         roomId: Long,
-        onMessage: (MessageDto) -> Unit,
         onUnreadUpdate: (UnreadBroadcastDto) -> Unit
     ) {
         webSocketManager.subscribeRoom(
@@ -34,7 +33,7 @@ class WebSocketRepositoryImpl @Inject constructor(
                 CoroutineScope(ioDispatcher).launch {
                     saveMessageToDatabase(dto, roomId)
                 }
-                onMessage(dto) },
+                        },
             onUnreadUpdate = { dto ->
                 CoroutineScope(ioDispatcher).launch {
                     updateUnreadCount(
@@ -43,7 +42,6 @@ class WebSocketRepositoryImpl @Inject constructor(
                         unreadCount = dto.unreadCount
                     )
                 }
-                onUnreadUpdate(dto)
             }
         )
     }
@@ -54,14 +52,6 @@ class WebSocketRepositoryImpl @Inject constructor(
 
     override fun sendReadEvent(roomId: Long) {
         webSocketManager.sendReadEvent(roomId)
-    }
-
-    override fun disconnect() {
-        webSocketManager.disconnect()
-    }
-
-    override fun enterRoom(roomId: Long) {
-        webSocketManager.enterRoom(roomId)
     }
 
     override fun leaveRoom(roomId: Long) {

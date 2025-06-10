@@ -10,14 +10,8 @@ class SubscribeRoomUseCase @Inject constructor(
 ) {
     suspend operator fun invoke(
         roomId: Long,
-        onMessage: (Message) -> Unit,
         onUnreadUpdate: (UnreadBroadcast) -> Unit
     ) {
-        repository.subscribeRoom(roomId, onMessage = {
-            onMessage(it.toMessage())
-        } , onUnreadUpdate = {
-            onUnreadUpdate(it.toUnreadBroadcast())
-        }
-        )
+        repository.subscribeRoom(roomId, onUnreadUpdate = { onUnreadUpdate(it.toUnreadBroadcast()) })
     }
 }

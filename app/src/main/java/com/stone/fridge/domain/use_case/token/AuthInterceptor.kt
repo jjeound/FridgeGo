@@ -3,9 +3,6 @@ package com.stone.fridge.domain.use_case.token
 import com.stone.fridge.core.util.Constants.NETWORK_ERROR
 import com.stone.fridge.domain.repository.TokenRepository
 import com.kakao.sdk.common.Constants.AUTHORIZATION
-import com.stone.fridge.data.AppDispatchers
-import com.stone.fridge.data.Dispatcher
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

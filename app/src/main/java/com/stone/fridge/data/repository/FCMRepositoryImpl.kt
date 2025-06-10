@@ -28,7 +28,6 @@ class FCMRepositoryImpl @Inject constructor(
         val newToken = dataStore.data.map { prefs ->
             prefs[FCM_NEW_TOKEN]
         }.first()
-        Log.d("FCMRepositoryImpl", "$oldToken, $newToken")
         try {
             if(newToken == null && oldToken != null){
                 Log.d("FCMRepositoryImpl", "Old token saved: $oldToken")

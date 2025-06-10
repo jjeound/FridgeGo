@@ -19,7 +19,7 @@ class Application: Application(){
         KakaoSdk.init(this, BuildConfig.KAKAO_APP_KEY)
         KakaoMapSdk.init(this, BuildConfig.KAKAO_APP_KEY)
         FirebaseMessaging.getInstance().token.addOnCompleteListener(OnCompleteListener { task ->
-            if (!task. isSuccessful) {
+            if (!task.isSuccessful) {
                 Log.w("FCM", "Fetching FCM registration token failed", task.exception)
                 return@OnCompleteListener
             }

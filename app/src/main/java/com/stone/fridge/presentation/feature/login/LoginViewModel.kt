@@ -9,7 +9,6 @@ import com.stone.fridge.domain.model.Address
 import com.stone.fridge.domain.use_case.app_entry.SaveAppEntry
 import com.stone.fridge.domain.use_case.login.GetAddressByCoordUseCase
 import com.stone.fridge.domain.use_case.login.KakaoLoginUseCase
-import com.stone.fridge.domain.use_case.login.SaveFCMTokenUseCase
 import com.stone.fridge.domain.use_case.login.SetLocationUseCase
 import com.stone.fridge.domain.use_case.login.SetNicknameUseCase
 import com.stone.fridge.presentation.util.UiEvent
@@ -29,7 +28,6 @@ class LoginViewModel @Inject constructor(
     private val kakaoLoginUseCase: KakaoLoginUseCase,
     private val setNicknameUseCase: SetNicknameUseCase,
     private val setLocationUseCase: SetLocationUseCase,
-    private val saveFCMTokenUseCase: SaveFCMTokenUseCase
 ) : ViewModel() {
 
     val uiState: MutableStateFlow<LoginUiState> =
@@ -75,7 +73,6 @@ class LoginViewModel @Inject constructor(
                         it.data?.let{ result ->
                             _accountInfo.value = result
                             saveAppEntry()
-                            saveFCMToken()
                             uiState.tryEmit(LoginUiState.Success)
                         }
                     }
@@ -88,12 +85,6 @@ class LoginViewModel @Inject constructor(
                     }
                 }
             }
-        }
-    }
-
-    fun saveFCMToken(){
-        viewModelScope.launch {
-            saveFCMTokenUseCase()
         }
     }
 

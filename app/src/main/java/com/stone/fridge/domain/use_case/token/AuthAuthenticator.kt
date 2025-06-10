@@ -30,6 +30,8 @@ class AuthAuthenticator @Inject constructor(
             }
         } ?: return null
 
+        AuthEventBus.send(AuthEvent.Login)
+
         return response.request.newBuilder()
             .header(AUTHORIZATION, newToken.accessToken)
             .build()

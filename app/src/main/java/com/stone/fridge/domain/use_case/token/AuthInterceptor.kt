@@ -1,9 +1,14 @@
 package com.stone.fridge.domain.use_case.token
 
-import android.util.Log
 import com.stone.fridge.core.util.Constants.NETWORK_ERROR
 import com.stone.fridge.domain.repository.TokenRepository
 import com.kakao.sdk.common.Constants.AUTHORIZATION
+import com.stone.fridge.data.AppDispatchers
+import com.stone.fridge.data.Dispatcher
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -14,7 +19,7 @@ import okhttp3.ResponseBody.Companion.toResponseBody
 import javax.inject.Inject
 
 class AuthInterceptor @Inject constructor(
-    private val tokenManager: TokenRepository
+    private val tokenManager: TokenRepository,
 ) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         val token: String? = runBlocking {
@@ -27,22 +32,14 @@ class AuthInterceptor @Inject constructor(
 
         val request = chain.request().newBuilder().header(AUTHORIZATION, token).build()
 
-        val response = chain.proceed(request)
-        if (response.isSuccessful) {
-            response.header(AUTHORIZATION)?.let { newToken ->
-                runBlocking {
-                    tokenManager.saveAccessToken(newToken)
-                }
-            }
-        } else {
-            Log.d("${response.code}", "${response.request}, ${response.message}")
-        }
-
-        return response
+        return chain.proceed(request)
     }
 
     private fun errorResponse(request: Request): Response {
         val emptyBody = "".toResponseBody("application/json".toMediaTypeOrNull())
+        CoroutineScope(Dispatchers.IO).launch {
+            tokenManager.refreshAndSaveToken()
+        }
         return Response.Builder()
             .request(request)
             .protocol(Protocol.HTTP_2)

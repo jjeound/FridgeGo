@@ -2,6 +2,7 @@ package com.stone.fridge.data.repository
 
 import android.content.Context
 import android.util.Base64
+import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
@@ -13,7 +14,7 @@ import com.stone.fridge.core.util.Resource
 import com.stone.fridge.data.remote.dto.ApiResponse
 import com.stone.fridge.data.remote.dto.TokenDto
 import com.stone.fridge.data.remote.service.TokenApi
-import com.stone.fridge.data.util.ErrorCode.JWT4004
+import com.stone.fridge.data.util.ErrorCode.UNAUTHORIZED
 import com.stone.fridge.domain.repository.TokenRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.first
@@ -79,35 +80,38 @@ class TokenRepositoryImpl @Inject constructor(
         return try {
             val response = api.refreshToken(refreshToken)
             if(response.isSuccess){
-                Resource.Success(response)
+                response.result?.let {
+                    Log.d("TokenRepositoryImpl", "토큰 갱신 성공: ${response.result.accessToken}")
+                    Resource.Success(response)
+                } ?: run {
+                    Resource.Error(response.message)
+                }
             }else{
                 Resource.Error(response.message)
             }
         } catch (e: IOException) {
             Resource.Error(e.toString())
         } catch (e: HttpException) {
+            if (e.code().toString() == UNAUTHORIZED) {
+                Log.d("TokenRepositoryImpl", "토큰 갱신 실패: ${e.toString()}")
+                deleteTokens() // 토큰이 만료되었으므로 삭제
+            }
             Resource.Error(e.toString())
         }
     }
 
     override suspend fun refreshAndSaveToken(): TokenDto? {
-        val refreshToken = getRefreshToken() ?: return null
-        val response = refreshToken(refreshToken)
+        val refreshToken = getRefreshToken() ?: return null //리프레시 토큰 가져옴 없으면 null 반환
+        val response = refreshToken(refreshToken) // 리프레시 토큰으로 새 토큰 요청
 
         return when (response) {
             is Resource.Success -> {
-                val body = response.data
-                if (body == null || body.code == JWT4004 || body.result == null) {
-                    deleteTokens()
-                    null
-                } else {
-                    saveAccessToken(body.result.accessToken)
-                    saveRefreshToken(body.result.refreshToken)
-                    body.result
-                }
+                val body = response.data!!
+                saveAccessToken(body.result!!.accessToken)
+                saveRefreshToken(body.result.refreshToken)
+                body.result
             }
             is Resource.Error -> {
-                deleteTokens()
                 null
             }
             else -> null // Loading이 들어오면 무시

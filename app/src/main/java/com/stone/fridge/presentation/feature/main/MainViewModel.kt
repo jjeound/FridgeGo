@@ -8,13 +8,13 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.stone.fridge.core.util.Resource
-import com.stone.fridge.domain.repository.TokenRepository
 import com.stone.fridge.domain.use_case.app_entry.ReadAppEntry
 import com.stone.fridge.domain.use_case.login.SaveFCMTokenUseCase
 import com.stone.fridge.domain.use_case.my.GetLocationUseCase
 import com.stone.fridge.presentation.util.AuthEvent
 import com.stone.fridge.presentation.util.UiEvent
 import com.stone.fridge.domain.use_case.notification.GetUnreadCountUseCase
+import com.stone.fridge.presentation.util.AuthEventBus
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -28,7 +28,6 @@ import javax.inject.Inject
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val readAppEntry: ReadAppEntry,
-    private val tokenRepository: TokenRepository,
     private val saveFCMTokenUseCase: SaveFCMTokenUseCase,
     private val getLocationUseCase: GetLocationUseCase,
     private val getUnreadCountUseCase: GetUnreadCountUseCase
@@ -59,27 +58,20 @@ class MainViewModel @Inject constructor(
     init {
         appEntry()
         checkUnreadNotification()
+        saveFcmToken()
+        viewModelScope.launch {
+            for (event in AuthEventBus.authEventChannel) {
+                _authEvent.emit(event)
+            }
+        }
     }
 
     private fun appEntry(){
         viewModelScope.launch {
-            val hasEntered = readAppEntry()
-            if (hasEntered) {
-                checkToken()
+            if (readAppEntry()) {
                 delay(2000)
             }
             _splashCondition.value = false
-        }
-    }
-
-    private fun checkToken() {
-        viewModelScope.launch {
-            val token = tokenRepository.refreshAndSaveToken()
-            if (token == null) {
-                _authEvent.emit(AuthEvent.Logout)
-            } else {
-                _authEvent.emit(AuthEvent.Login)
-            }
         }
     }
 

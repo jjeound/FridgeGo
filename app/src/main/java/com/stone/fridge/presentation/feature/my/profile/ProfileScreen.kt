@@ -2,9 +2,11 @@ package com.stone.fridge.presentation.feature.my.profile
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -48,6 +50,7 @@ fun ProfileScreen(
         isImageChanged = true
     }
     Scaffold(
+        contentWindowInsets = WindowInsets.safeDrawing,
         containerColor = CustomTheme.colors.surface,
         topBar = {
             CenterAlignedTopAppBar(

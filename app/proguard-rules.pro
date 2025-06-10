@@ -62,7 +62,7 @@
 -keep class com.google.android.gms.ads.identifier.AdvertisingIdClient$Info { *; }
 
 # Keep the classes used by the AndroidX Navigation component
--keep class com.stone.fridge.** { *; }
+-keep class com.stone.fridge.data.remote.dto.** { *; }
 -keep @kotlinx.serialization.Serializable class * { *; }
 -keep class kotlinx.serialization.** { *; }
 

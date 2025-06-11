@@ -195,7 +195,6 @@ fun ChattingDetailScreen(
 //                            }
                             items(messages.itemCount){ index ->
                                 val message = messages[index]
-                                Log.d("message", message.toString())
                                 if (message != null) {
                                     val isMe = message.senderId == userId
                                     val userNickname = members.find{ it.userId == message.senderId }?.nickname

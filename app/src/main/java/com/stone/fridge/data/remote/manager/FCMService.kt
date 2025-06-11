@@ -70,8 +70,8 @@ class FCMService() : FirebaseMessagingService() {
 
     override fun onNewToken(token: String) {
         super.onNewToken(token)
-        val context = applicationContext
-        saveFcmToken(token, context)
+        Log.d("FCM", "onNewToken: $token")
+        saveFcmToken(token, applicationContext)
     }
     
     private fun saveFcmToken(token: String, context: Context){

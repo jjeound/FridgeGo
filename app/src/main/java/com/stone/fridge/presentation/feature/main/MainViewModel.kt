@@ -1,5 +1,6 @@
 package com.stone.fridge.presentation.feature.main
 
+import android.util.Log
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
@@ -9,11 +10,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.stone.fridge.core.util.Resource
 import com.stone.fridge.domain.use_case.app_entry.ReadAppEntry
+import com.stone.fridge.domain.use_case.app_entry.SaveAppEntry
 import com.stone.fridge.domain.use_case.login.SaveFCMTokenUseCase
 import com.stone.fridge.domain.use_case.my.GetLocationUseCase
 import com.stone.fridge.presentation.util.AuthEvent
 import com.stone.fridge.presentation.util.UiEvent
 import com.stone.fridge.domain.use_case.notification.GetUnreadCountUseCase
+import com.stone.fridge.navigation.Graph
 import com.stone.fridge.presentation.util.AuthEventBus
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
@@ -28,6 +31,7 @@ import javax.inject.Inject
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val readAppEntry: ReadAppEntry,
+    private val saveAppEntry: SaveAppEntry,
     private val saveFCMTokenUseCase: SaveFCMTokenUseCase,
     private val getLocationUseCase: GetLocationUseCase,
     private val getUnreadCountUseCase: GetUnreadCountUseCase
@@ -46,6 +50,9 @@ class MainViewModel @Inject constructor(
     private val _dong = MutableStateFlow<String?>(null)
     val dong = _dong.asStateFlow()
 
+    private val _startDestination = MutableStateFlow<Graph?>(null)
+    val startDestination = _startDestination.asStateFlow()
+
     var showBottomSheet by mutableStateOf(false)
         private set
 
@@ -56,20 +63,33 @@ class MainViewModel @Inject constructor(
     val event = _event.asSharedFlow()
 
     init {
-        appEntry()
         checkUnreadNotification()
-        saveFcmToken()
         viewModelScope.launch {
-            for (event in AuthEventBus.authEventChannel) {
-                _authEvent.emit(event)
+            AuthEventBus.authEventFlow.collect { event ->
+                when (event) {
+                    is AuthEvent.Login -> {
+                        Log.d("MainViewModel", "Login event received")
+                        _startDestination.value = Graph.HomeGraph
+                    }
+                    is AuthEvent.Logout -> {
+                        Log.d("MainViewModel", "Logout event received")
+                        _authEvent.emit(AuthEvent.Logout)
+                        _startDestination.value = Graph.LoginGraph
+                    }
+                }
             }
         }
+        appEntry()
+        saveFcmToken()
     }
 
     private fun appEntry(){
         viewModelScope.launch {
             if (readAppEntry()) {
-                delay(2000)
+                delay(3000)
+            } else {
+                _startDestination.value = Graph.OnBoardingGraph
+                saveAppEntry()
             }
             _splashCondition.value = false
         }
@@ -87,11 +107,13 @@ class MainViewModel @Inject constructor(
                 when(it){
                     is Resource.Success -> {
                         it.data?.let {
+                            _startDestination.value = Graph.HomeGraph
                             _isUnread.value = it > 0 == true
                         }
                         uiState.tryEmit(MainUiState.Idle)
                     }
                     is Resource.Error -> {
+                        _startDestination.value = Graph.LoginGraph
                         uiState.tryEmit(MainUiState.Error(it.message))
                         _event.emit(UiEvent.ShowSnackbar(it.message ?: "Unknown error"))
                     }

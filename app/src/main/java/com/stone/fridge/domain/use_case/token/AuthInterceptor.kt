@@ -3,9 +3,8 @@ package com.stone.fridge.domain.use_case.token
 import com.stone.fridge.core.util.Constants.NETWORK_ERROR
 import com.stone.fridge.domain.repository.TokenRepository
 import com.kakao.sdk.common.Constants.AUTHORIZATION
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import com.stone.fridge.presentation.util.AuthEvent
+import com.stone.fridge.presentation.util.AuthEventBus
 import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -34,9 +33,7 @@ class AuthInterceptor @Inject constructor(
 
     private fun errorResponse(request: Request): Response {
         val emptyBody = "".toResponseBody("application/json".toMediaTypeOrNull())
-        CoroutineScope(Dispatchers.IO).launch {
-            tokenManager.refreshAndSaveToken()
-        }
+        AuthEventBus.send(AuthEvent.Logout)
         return Response.Builder()
             .request(request)
             .protocol(Protocol.HTTP_2)

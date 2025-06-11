@@ -6,7 +6,6 @@ import androidx.lifecycle.viewModelScope
 import com.stone.fridge.core.util.Resource
 import com.stone.fridge.domain.model.AccountInfo
 import com.stone.fridge.domain.model.Address
-import com.stone.fridge.domain.use_case.app_entry.SaveAppEntry
 import com.stone.fridge.domain.use_case.login.GetAddressByCoordUseCase
 import com.stone.fridge.domain.use_case.login.KakaoLoginUseCase
 import com.stone.fridge.domain.use_case.login.SetLocationUseCase
@@ -23,7 +22,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    private val saveAppEntry: SaveAppEntry,
     private val getAddressByCoordUseCase: GetAddressByCoordUseCase,
     private val kakaoLoginUseCase: KakaoLoginUseCase,
     private val setNicknameUseCase: SetNicknameUseCase,
@@ -72,7 +70,6 @@ class LoginViewModel @Inject constructor(
                     is Resource.Success -> {
                         it.data?.let{ result ->
                             _accountInfo.value = result
-                            saveAppEntry()
                             uiState.tryEmit(LoginUiState.Success)
                         }
                     }

@@ -1,17 +1,13 @@
 package com.stone.fridge.presentation.util
 
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 
 object AuthEventBus {
-    val authEventChannel = Channel<AuthEvent>(Channel.BUFFERED)
+    private val _authEventFlow = MutableSharedFlow<AuthEvent>(replay = 0, extraBufferCapacity = 1)
+    val authEventFlow = _authEventFlow.asSharedFlow()
 
-    @OptIn(DelicateCoroutinesApi::class)
     fun send(event: AuthEvent) {
-        GlobalScope.launch {
-            authEventChannel.send(event)
-        }
+        _authEventFlow.tryEmit(event)
     }
 }

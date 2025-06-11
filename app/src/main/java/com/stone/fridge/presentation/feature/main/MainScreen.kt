@@ -56,6 +56,7 @@ fun MainScreen(viewModel: MainViewModel){
     val bottomBarDestination = screens.any { bottomRoute.equals(it) }
     val dong by viewModel.dong.collectAsStateWithLifecycle()
     val isUnread by viewModel.isUnread.collectAsStateWithLifecycle()
+    val startDestination by viewModel.startDestination.collectAsStateWithLifecycle()
 
     Scaffold(
         containerColor = CustomTheme.colors.surface,
@@ -154,14 +155,18 @@ fun MainScreen(viewModel: MainViewModel){
         },
         floatingActionButtonPosition = FabPosition.End
     ){  innerPadding ->
-        if(bottomBarDestination) {
-            Box(
-                modifier = Modifier.fillMaxSize().padding(innerPadding)
-            ){
-                Navigation(navController = navController, viewModel, snackbarHostState)
+        startDestination?.let { start ->
+            if (bottomBarDestination) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding)
+                ) {
+                    Navigation(navController = navController, viewModel, start, snackbarHostState)
+                }
+            } else {
+                Navigation(navController = navController, viewModel, start, snackbarHostState)
             }
-        }else{
-            Navigation(navController = navController, viewModel, snackbarHostState)
         }
     }
 }

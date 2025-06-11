@@ -19,6 +19,8 @@ import com.stone.fridge.domain.repository.TokenRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import okio.IOException
 import retrofit2.HttpException
 import javax.inject.Inject
@@ -29,7 +31,7 @@ class TokenRepositoryImpl @Inject constructor(
 ): TokenRepository {
 
     val dataStore = context.dataStore
-
+    private val mutex = Mutex()
 
     override suspend fun getAccessToken(): String? {
         val base64 = dataStore.data
@@ -81,7 +83,7 @@ class TokenRepositoryImpl @Inject constructor(
             val response = api.refreshToken(refreshToken)
             if(response.isSuccess){
                 response.result?.let {
-                    Log.d("TokenRepositoryImpl", "토큰 갱신 성공: ${response.result.accessToken}")
+                    Log.d("TokenRepositoryImpl", "토큰 갱신 성공")
                     Resource.Success(response)
                 } ?: run {
                     Resource.Error(response.message)
@@ -101,20 +103,19 @@ class TokenRepositoryImpl @Inject constructor(
     }
 
     override suspend fun refreshAndSaveToken(): TokenDto? {
-        val refreshToken = getRefreshToken() ?: return null //리프레시 토큰 가져옴 없으면 null 반환
-        val response = refreshToken(refreshToken) // 리프레시 토큰으로 새 토큰 요청
+        return mutex.withLock {
+            val refreshToken = getRefreshToken() ?: return null
+            val response = refreshToken(refreshToken)
 
-        return when (response) {
-            is Resource.Success -> {
-                val body = response.data!!
-                saveAccessToken(body.result!!.accessToken)
-                saveRefreshToken(body.result.refreshToken)
-                body.result
+            when (response) {
+                is Resource.Success -> {
+                    val body = response.data!!
+                    saveAccessToken(body.result!!.accessToken)
+                    saveRefreshToken(body.result.refreshToken)
+                    body.result
+                }
+                else -> null
             }
-            is Resource.Error -> {
-                null
-            }
-            else -> null // Loading이 들어오면 무시
         }
     }
 }

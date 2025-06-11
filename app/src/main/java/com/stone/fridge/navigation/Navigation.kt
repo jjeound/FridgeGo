@@ -58,16 +58,16 @@ import com.stone.fridge.presentation.feature.post.search.PostSearchScreen
 import com.stone.fridge.presentation.feature.post.search.PostSearchViewModel
 import com.stone.fridge.presentation.util.AuthEvent
 import com.stone.fridge.presentation.util.UiEvent
-import java.time.LocalDateTime
 
 
 @Composable
 fun Navigation(
     navController: NavHostController,
     mainViewModel: MainViewModel,
+    startDestination: Graph,
     snackbarHostState: SnackbarHostState,
 ) {
-    NavHost(navController = navController, startDestination = Graph.OnBoardingGraph){
+    NavHost(navController = navController, startDestination = startDestination){
         navigation<Graph.HomeGraph>(
             startDestination = Screen.Home
         ){
@@ -82,6 +82,15 @@ fun Navigation(
                         when (event) {
                             is UiEvent.ShowSnackbar -> {
                                 snackbarHostState.showSnackbar(event.message)
+                            }
+                        }
+                    }
+                }
+                LaunchedEffect(true) {
+                    mainViewModel.authEvent.collect { event ->
+                        when (event) {
+                            is AuthEvent.Logout -> {
+                                navController.navigate(route = Graph.LoginGraph)
                             }
                         }
                     }
@@ -175,6 +184,15 @@ fun Navigation(
                         when (event) {
                             is UiEvent.ShowSnackbar -> {
                                 snackbarHostState.showSnackbar(event.message)
+                            }
+                        }
+                    }
+                }
+                LaunchedEffect(true) {
+                    mainViewModel.authEvent.collect { event ->
+                        when (event) {
+                            is AuthEvent.Logout -> {
+                                navController.navigate(route = Graph.LoginGraph)
                             }
                         }
                     }
@@ -451,6 +469,15 @@ fun Navigation(
                     }
                 }
                 LaunchedEffect(true) {
+                    mainViewModel.authEvent.collect { event ->
+                        when (event) {
+                            is AuthEvent.Logout -> {
+                                navController.navigate(route = Graph.LoginGraph)
+                            }
+                        }
+                    }
+                }
+                LaunchedEffect(true) {
                     viewModel.getItems()
                 }
                 RefrigeratorScreen(
@@ -521,6 +548,15 @@ fun Navigation(
                         when (event) {
                             is UiEvent.ShowSnackbar -> {
                                 snackbarHostState.showSnackbar(event.message)
+                            }
+                        }
+                    }
+                }
+                LaunchedEffect(true) {
+                    mainViewModel.authEvent.collect { event ->
+                        when (event) {
+                            is AuthEvent.Logout -> {
+                                navController.navigate(route = Graph.LoginGraph)
                             }
                         }
                     }
@@ -689,6 +725,15 @@ fun Navigation(
             composable<Screen.My>{
                 val viewModel: MyViewModel = hiltViewModel()
                 val profile by viewModel.profile.collectAsStateWithLifecycle()
+                LaunchedEffect(true) {
+                    mainViewModel.authEvent.collect { event ->
+                        when (event) {
+                            is AuthEvent.Logout -> {
+                                navController.navigate(route = Graph.LoginGraph)
+                            }
+                        }
+                    }
+                }
                 MyScreen(
                     profile = profile,
                     navigate = {
@@ -931,21 +976,6 @@ fun Navigation(
         }
         navigation<Graph.OnBoardingGraph>(startDestination = Screen.OnBoarding) {
             composable<Screen.OnBoarding>{
-                LaunchedEffect(true) {
-                    mainViewModel.authEvent.collect { event ->
-                        when (event) {
-                            is AuthEvent.Login -> {
-                                navController.navigate(route = Graph.HomeGraph){
-                                    popUpTo(0) { inclusive = true } // 모든 백스택 제거
-                                    launchSingleTop = true          // 중복 방지
-                                }
-                            }
-                            is AuthEvent.Logout -> {
-                                navController.navigate(route = Graph.LoginGraph)
-                            }
-                        }
-                    }
-                }
                 OnBoarding(
                     navigateToLogin = {
                         navController.navigate(Screen.LoginNav)

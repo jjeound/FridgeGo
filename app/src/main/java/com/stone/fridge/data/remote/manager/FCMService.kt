@@ -19,7 +19,6 @@ import com.stone.fridge.data.repository.dataStore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class FCMService() : FirebaseMessagingService() {
     override fun onMessageReceived(remoteMessage: RemoteMessage) {

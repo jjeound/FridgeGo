@@ -10,17 +10,18 @@ plugins {
     id("kotlin-parcelize")
     kotlin("plugin.serialization") version "2.0.21"
     id("com.google.gms.google-services")
+    alias(libs.plugins.baselineprofile)
 }
 
     android {
         namespace = "com.stone.fridge"
-        compileSdk = 35
+        compileSdk = 36
 
         defaultConfig {
             applicationId = "com.stone.fridge"
             minSdk = 26
-            targetSdk = 35
-            versionCode = 21
+            targetSdk = 36
+            versionCode = 25
             versionName = "1.0"
 
             testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -73,15 +74,22 @@ plugins {
             }
         }
         compileOptions {
-            sourceCompatibility = JavaVersion.VERSION_11
-            targetCompatibility = JavaVersion.VERSION_11
+            sourceCompatibility = JavaVersion.VERSION_17
+            targetCompatibility = JavaVersion.VERSION_17
         }
-        kotlinOptions {
-            jvmTarget = "11"
+        kotlin {
+            compilerOptions {
+                freeCompilerArgs.add("-Xcontext-receivers")
+                jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+                freeCompilerArgs.add("-XXLanguage:+PropertyParamAnnotationDefaultTargetMode")
+            }
         }
         buildFeatures {
             compose = true
             buildConfig = true
+        }
+        hilt {
+            enableAggregatingTask = true
         }
         packaging {
             resources.excludes.add("META-INF/DEPENDENCIES")
@@ -92,6 +100,8 @@ plugins {
 dependencies {
     // Hilt
     implementation (libs.hilt.android)
+    implementation(libs.androidx.profileinstaller)
+    "baselineProfile"(project(":baselineprofile"))
     kapt (libs.hilt.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
 

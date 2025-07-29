@@ -1,4 +1,5 @@
 pluginManagement {
+    includeBuild("build-logic")
     repositories {
         google()
         mavenCentral()
@@ -18,3 +19,13 @@ dependencyResolutionManagement {
 
 rootProject.name = "Untitled_Capstone"
 include(":app")
+include(":core:data")
+include(":core:database")
+include(":core:datastore")
+include(":core:network")
+include(":core:designsystem")
+include(":core:model")
+include(":core:domain")
+include(":core:navigation")
+include(":feature:home")
+include(":baselineprofile")

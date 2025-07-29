@@ -38,6 +38,9 @@ class FridgeViewModel @Inject constructor(
     private val _fridgeItemPaged: MutableStateFlow<PagingData<FridgeItem>> = MutableStateFlow(PagingData.empty())
     val fridgeItemPaged = _fridgeItemPaged.asStateFlow()
 
+    private val _freezerItemPaged: MutableStateFlow<PagingData<FridgeItem>> = MutableStateFlow(PagingData.empty())
+    val freezerItemPaged = _freezerItemPaged.asStateFlow()
+
     private val _event = MutableSharedFlow<UiEvent>()
     val event = _event.asSharedFlow()
 
@@ -103,8 +106,10 @@ class FridgeViewModel @Inject constructor(
                 .distinctUntilChanged()
                 .cachedIn(viewModelScope)
                 .collect { pagingData ->
-                    _fridgeItemPaged.value = pagingData
+                    _fridgeItemPaged.value = pagingData.filter { it.isFridge }
+                    _freezerItemPaged.value = pagingData.filter { !it.isFridge }
                 }
+
         }
     }
 

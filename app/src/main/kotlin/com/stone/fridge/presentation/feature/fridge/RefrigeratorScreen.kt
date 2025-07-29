@@ -47,6 +47,7 @@ import com.stone.fridge.ui.theme.CustomTheme
 @Composable
 fun RefrigeratorScreen(
     fridgeItems: LazyPagingItems<FridgeItem>,
+    freezerItems: LazyPagingItems<FridgeItem>,
     uiState: FridgeUiState,
     topSelector: Boolean,
     navigate: (Screen) -> Unit,
@@ -60,6 +61,7 @@ fun RefrigeratorScreen(
     var alignMenu by remember { mutableStateOf("등록 순") }
     val showDialog = remember { mutableStateOf(false) }
     val context = LocalContext.current
+    val items = if (topSelector) fridgeItems else freezerItems
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -137,9 +139,9 @@ fun RefrigeratorScreen(
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding)
                 ) {
-                    items(count = fridgeItems.itemCount) { index ->
-                        val item = fridgeItems[index]
-                        if (item != null && item.isFridge == topSelector) {
+                    items(count = items.itemCount) { index ->
+                        val item = items[index]
+                        if (item != null) {
                             FridgeItemContainer(
                                 item = item,
                                 toggleNotification = toggleNotification,

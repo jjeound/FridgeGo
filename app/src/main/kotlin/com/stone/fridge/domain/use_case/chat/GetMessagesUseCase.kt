@@ -4,6 +4,8 @@ import com.stone.fridge.core.util.Resource
 import com.stone.fridge.domain.model.Message
 import com.stone.fridge.domain.repository.ChatRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.onEmpty
+import kotlinx.coroutines.flow.onStart
 import javax.inject.Inject
 
 class GetMessagesUseCase @Inject constructor(

@@ -38,7 +38,7 @@ class RecipePagingSource(
             }
 
             val response = api.getRecipe(
-                page = loadKey.toInt(),
+                page = loadKey,
                 size = state.config.pageSize
             )
 

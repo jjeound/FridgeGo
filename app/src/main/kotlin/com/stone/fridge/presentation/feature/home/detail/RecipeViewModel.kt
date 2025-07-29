@@ -130,7 +130,7 @@ class RecipeViewModel @Inject constructor(
 }
 
 @Stable
-interface RecipeUiState{
+sealed interface RecipeUiState{
     data object Idle: RecipeUiState
     data object Success: RecipeUiState
     data object Loading: RecipeUiState

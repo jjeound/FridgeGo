@@ -48,7 +48,6 @@ class ChatDetailViewModel @Inject constructor(
     private val getAccessTokenUseCase: GetAccessTokenUseCase,
     private val getMyNicknameUseCase: GetMyNicknameUseCase,
     private val getPagedMessagesUseCase: GetPagedMessagesUseCase,
-    private val getMessagesUseCase: GetMessagesUseCase,
     private val enterChatRoomUseCase: EnterChatRoomUseCase,
     private val readChatUseCase: ReadChatUseCase,
     private val joinChatRoomUseCase: JoinChatRoomUseCase,
@@ -58,9 +57,7 @@ class ChatDetailViewModel @Inject constructor(
     private val connectChatSocketUseCase: ConnectChatSocketUseCase,
     private val sendMessageUseCase: SendMessageUseCase,
     private val subscribeRoomUseCase: SubscribeRoomUseCase,
-    private val sendReadChatUseCase: ReadChatUseCase,
     private val sendReadEventUseCase: SendReadEventUseCase,
-    private val getMyRoomsUseCase: GetMyChatRoomsUseCase,
     private val fcmLeaveRoomUseCase: FCMLeaveRoomUseCase,
     private val getUserIdUseCase: GetUserIdUseCase
 ): ViewModel() {
@@ -98,30 +95,6 @@ class ChatDetailViewModel @Inject constructor(
                 }
         }
         uiState.tryEmit(ChatDetailUiState.Idle)
-    }
-
-    fun getMyRooms() {
-        viewModelScope.launch {
-            getMyRoomsUseCase().collectLatest{
-                when(it){
-                    is Resource.Success -> {
-                        it.data?.let { rooms ->
-                            _chattingRoomList.update { rooms }
-                            uiState.tryEmit(ChatDetailUiState.Idle)
-                        }
-                    }
-
-                    is Resource.Error -> {
-                        uiState.tryEmit(ChatDetailUiState.Error(it.message))
-                        _event.emit(UiEvent.ShowSnackbar(it.message ?: "Unknown error"))
-                    }
-
-                    is Resource.Loading -> {
-                        uiState.tryEmit(ChatDetailUiState.Loading)
-                    }
-                }
-            }
-        }
     }
 
     fun enterChatRoom(id: Long) {

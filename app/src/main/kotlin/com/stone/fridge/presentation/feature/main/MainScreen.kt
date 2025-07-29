@@ -1,14 +1,22 @@
 package com.stone.fridge.presentation.feature.main
 
+import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
@@ -23,6 +31,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -38,6 +48,7 @@ import com.stone.fridge.presentation.feature.post.PostTopBar
 import com.stone.fridge.presentation.util.CustomSnackbar
 import com.stone.fridge.ui.theme.CustomTheme
 
+@SuppressLint("ConfigurationScreenWidthHeight")
 @Composable
 fun MainScreen(viewModel: MainViewModel){
     val snackbarHostState = remember { SnackbarHostState() }
@@ -58,7 +69,9 @@ fun MainScreen(viewModel: MainViewModel){
     val isUnread by viewModel.isUnread.collectAsStateWithLifecycle()
     val startDestination by viewModel.startDestination.collectAsStateWithLifecycle()
 
+    val isTablet = LocalConfiguration.current.screenWidthDp >= 600
     Scaffold(
+        modifier = Modifier.windowInsetsPadding(WindowInsets.systemBars),
         containerColor = CustomTheme.colors.surface,
         snackbarHost = {
             Box(modifier = Modifier.fillMaxSize()) {
@@ -89,10 +102,11 @@ fun MainScreen(viewModel: MainViewModel){
             }
         },
         bottomBar = {
-            AnimatedVisibility(
-                modifier = Modifier.padding(bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() * 0.7f),
-                visible = bottomBarDestination, enter = fadeIn(), exit = fadeOut()) {
-                BottomNavBar(currentDestination = currentDestination, navController = navController)
+            if(!isTablet){
+                AnimatedVisibility(
+                    visible = bottomBarDestination, enter = fadeIn(), exit = fadeOut()) {
+                    BottomNavBar(currentDestination = currentDestination, navController = navController)
+                }
             }
         },
         floatingActionButton = {
@@ -156,16 +170,23 @@ fun MainScreen(viewModel: MainViewModel){
         floatingActionButtonPosition = FabPosition.End
     ){  innerPadding ->
         startDestination?.let { start ->
-            if (bottomBarDestination) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(innerPadding)
-                ) {
+            Row(
+                modifier = Modifier.fillMaxSize().padding(innerPadding)
+            ) {
+                if (isTablet && bottomBarDestination) {
+                    NavigationRailBar(currentDestination, navController, modifier = Modifier.width(80.dp))
+                }
+                if (bottomBarDestination) {
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight()
+                    ) {
+                        Navigation(navController = navController, viewModel, start, snackbarHostState)
+                    }
+                } else {
                     Navigation(navController = navController, viewModel, start, snackbarHostState)
                 }
-            } else {
-                Navigation(navController = navController, viewModel, start, snackbarHostState)
             }
         }
     }

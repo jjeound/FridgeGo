@@ -459,6 +459,7 @@ fun Navigation(
                 val viewModel: FridgeViewModel = hiltViewModel()
                 val uiState by viewModel.uiState.collectAsStateWithLifecycle()
                 val fridgeItems = viewModel.fridgeItemPaged.collectAsLazyPagingItems()
+                val freezerItems = viewModel.freezerItemPaged.collectAsLazyPagingItems()
                 LaunchedEffect(true) {
                     viewModel.event.collect { event ->
                         when (event) {
@@ -482,6 +483,7 @@ fun Navigation(
                 }
                 RefrigeratorScreen(
                     fridgeItems = fridgeItems,
+                    freezerItems = freezerItems,
                     uiState = uiState,
                     topSelector = mainViewModel.topSelector,
                     navigate = { route ->

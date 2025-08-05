@@ -1,10 +1,10 @@
-package com.stone.fridge.data.remote.service
+package com.stone.fridge.core.network.service
 
-import com.stone.fridge.data.remote.dto.ApiResponse
-import com.stone.fridge.data.remote.dto.ChatMemberDto
-import com.stone.fridge.data.remote.dto.ChatRoomResponse
-import com.stone.fridge.data.remote.dto.ChatRoomRawDto
-import com.stone.fridge.data.remote.dto.MessageDto
+import com.stone.fridge.core.model.ChatMember
+import com.stone.fridge.core.model.ChatRoomRaw
+import com.stone.fridge.core.model.ChatRoom
+import com.stone.fridge.core.model.Message
+import com.stone.fridge.core.network.model.ApiResponse
 import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
@@ -21,7 +21,7 @@ interface ChatApi {
     @POST("/api/chat/room/{roomId}/join")
     suspend fun joinChatRoom(
         @Path("roomId") roomId: Long
-    ): ApiResponse<ChatRoomResponse>
+    ): ApiResponse<ChatRoom>
 
     @POST("/api/chat/room/{roomId}/close")
     suspend fun closeChatRoom(
@@ -31,22 +31,22 @@ interface ChatApi {
     @GET("/api/chat/room/{roomId}")
     suspend fun enterChatRoom(
         @Path("roomId") roomId: Long
-    ): ApiResponse<ChatRoomResponse>
+    ): ApiResponse<ChatRoom>
 
     @GET("/api/chat/room/{roomId}/participants")
     suspend fun checkWhoIsIn(
         @Path("roomId") roomId: Long
-    ): ApiResponse<List<ChatMemberDto>>
+    ): ApiResponse<List<ChatMember>>
 
     @GET("/api/chat/room/{roomId}/messages/scroll")
     suspend fun getMessages(
         @Path("roomId") roomId: Long,
         @Query("lastMessageId") lastMessageId: Long? = null,
         @Query("size") size: Int = 20
-    ): ApiResponse<List<MessageDto>>
+    ): ApiResponse<List<Message>>
 
     @GET("/api/chat/my-rooms")
-    suspend fun getMyRooms(): ApiResponse<List<ChatRoomRawDto>>
+    suspend fun getMyRooms(): ApiResponse<List<ChatRoomRaw>>
 
     @DELETE("/api/chat/room/{roomId}/exit")
     suspend fun exitChatRoom(

@@ -1,13 +1,13 @@
-package com.stone.fridge.data.remote.service
+package com.stone.fridge.core.network.service
 
-import com.stone.fridge.data.remote.dto.ApiResponse
-import com.stone.fridge.data.remote.dto.ChatbotResultDto
-import com.stone.fridge.data.remote.dto.ModifyRecipeBody
-import com.stone.fridge.data.remote.dto.PreferenceDto
-import com.stone.fridge.data.remote.dto.RecipeDto
-import com.stone.fridge.data.remote.dto.RecipeLikedDto
-import com.stone.fridge.data.remote.dto.RecipeReqDto
-import com.stone.fridge.data.remote.dto.RecipeResultDto
+import com.stone.fridge.core.model.ChatbotResult
+import com.stone.fridge.core.model.ModifyRecipeBody
+import com.stone.fridge.core.model.Preference
+import com.stone.fridge.core.model.Recipe
+import com.stone.fridge.core.model.RecipeLiked
+import com.stone.fridge.core.model.RecipeReq
+import com.stone.fridge.core.model.RecipeResult
+import com.stone.fridge.core.network.model.ApiResponse
 import okhttp3.MultipartBody
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -21,39 +21,39 @@ import retrofit2.http.Query
 
 interface HomeApi {
     @GET("/api/user/taste-preference")
-    suspend fun getTastePreference(): ApiResponse<PreferenceDto>
+    suspend fun getTastePreference(): ApiResponse<Preference>
 
     @POST("/api/user/taste-preference")
     suspend fun setTastePreference(
-        @Body tastePreference: PreferenceDto
+        @Body tastePreference: Preference
     ): ApiResponse<String>
 
     @GET("/api/recipe")
     suspend fun getRecipe(
         @Query("page") page: Int = 1,
         @Query("size") size: Int = 10,
-    ): ApiResponse<RecipeResultDto>
+    ): ApiResponse<RecipeResult>
 
     @POST("/api/recipe")
     suspend fun addRecipe(
-        @Body recipe: RecipeReqDto
+        @Body recipe: RecipeReq
     ): ApiResponse<String>
 
     @GET("/api/recipe/{recipeId}")
     suspend fun getRecipeById(
         @Path("recipeId") recipeId: Long
-    ): ApiResponse<RecipeDto>
+    ): ApiResponse<Recipe>
 
     @PATCH("/api/recipe/like/{recipeId}")
     suspend fun toggleLike(
         @Path("recipeId") ingredientId: Long,
-    ): ApiResponse<RecipeLikedDto>
+    ): ApiResponse<RecipeLiked>
 
     @GET("/api/chatbot/recommend")
-    suspend fun getFirstRecommendation(): ApiResponse<ChatbotResultDto>
+    suspend fun getFirstRecommendation(): ApiResponse<ChatbotResult>
 
     @GET("/api/chatbot/recommend/another")
-    suspend fun getAnotherRecommendation(): ApiResponse<ChatbotResultDto>
+    suspend fun getAnotherRecommendation(): ApiResponse<ChatbotResult>
 
     @DELETE("/api/recipe/{recipeId}")
     suspend fun deleteRecipe(

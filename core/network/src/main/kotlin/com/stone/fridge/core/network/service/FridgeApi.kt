@@ -1,8 +1,8 @@
-package com.stone.fridge.data.remote.service
+package com.stone.fridge.core.network.service
 
-import com.stone.fridge.data.remote.dto.ApiResponse
-import com.stone.fridge.data.remote.dto.ContentDto
-import com.stone.fridge.data.remote.dto.FridgeResultDto
+import com.stone.fridge.core.model.Fridge
+import com.stone.fridge.core.model.FridgeResult
+import com.stone.fridge.core.network.model.ApiResponse
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.http.DELETE
@@ -20,13 +20,13 @@ interface FridgeApi {
     suspend fun getFridgeItems(
         @Query("page") page: Int = 1,
         @Query("size") size: Int = 10,
-    ): ApiResponse<FridgeResultDto>
+    ): ApiResponse<FridgeResult>
 
     @GET("/api/ingredient/useByDate")
     suspend fun getFridgeItemsByDate(
         @Query("page") page: Int = 1,
         @Query("size") size: Int = 10,
-    ): ApiResponse<FridgeResultDto>
+    ): ApiResponse<FridgeResult>
 
     @Multipart
     @POST("/api/ingredient")
@@ -57,6 +57,5 @@ interface FridgeApi {
     @GET("/api/ingredient/{ingredientId}")
     suspend fun getFridgeItemById(
         @Path("ingredientId") ingredientId: Long
-    ): ApiResponse<ContentDto>
-
+    ): ApiResponse<Fridge>
 }

@@ -1,6 +1,6 @@
-package com.stone.fridge.data.remote.service
+package com.stone.fridge.core.network.service
 
-import com.stone.fridge.data.remote.dto.ApiResponse
+import com.stone.fridge.core.network.model.ApiResponse
 import retrofit2.http.POST
 import retrofit2.http.Query
 

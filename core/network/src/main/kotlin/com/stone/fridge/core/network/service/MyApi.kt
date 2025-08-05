@@ -1,9 +1,9 @@
-package com.stone.fridge.data.remote.service
+package com.stone.fridge.core.network.service
 
-import com.stone.fridge.data.remote.dto.ApiResponse
-import com.stone.fridge.data.remote.dto.LocationDto
-import com.stone.fridge.data.remote.dto.ProfileDto
-import com.stone.fridge.data.remote.dto.ReportDto
+import com.stone.fridge.core.model.Location
+import com.stone.fridge.core.model.Profile
+import com.stone.fridge.core.model.Report
+import com.stone.fridge.core.network.model.ApiResponse
 import okhttp3.MultipartBody
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -17,18 +17,18 @@ import retrofit2.http.Query
 
 interface MyApi {
     @GET("/api/user/profile")
-    suspend fun getProfile(): ApiResponse<ProfileDto>
+    suspend fun getProfile(): ApiResponse<Profile>
 
     @GET("/api/user/profile/other")
     suspend fun getOtherProfile(
         @Query("nickname") nickname: String
-    ): ApiResponse<ProfileDto>
+    ): ApiResponse<Profile>
 
     @POST("/api/user/logout")
     suspend fun logout(): ApiResponse<String>
 
     @GET("/api/user/location")
-    suspend fun getLocation(): ApiResponse<LocationDto>
+    suspend fun getLocation(): ApiResponse<Location>
 
     @Multipart
     @POST("/api/s3/update-profile")
@@ -39,7 +39,7 @@ interface MyApi {
     @POST("/api/report/user/{targetUserId}")
     suspend fun reportUser(
         @Path ("targetUserId") targetUserId: Long,
-        @Body report: ReportDto
+        @Body report: Report
     ): ApiResponse<String>
 
     @DELETE("/api/s3/delete-profile")

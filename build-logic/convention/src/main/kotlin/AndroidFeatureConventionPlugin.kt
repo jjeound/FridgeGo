@@ -1,6 +1,6 @@
 import com.android.build.gradle.LibraryExtension
 import com.stone.fridge.configureKotlinAndroid
-import convention.src.main.kotlin.com.stone.fridge.configureAndroidCompose
+import com.stone.fridge.configureAndroidCompose
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
@@ -19,9 +19,8 @@ class AndroidFeatureConventionPlugin : Plugin<Project> {
       dependencies {
         add("implementation", project(":core:designsystem"))
         add("implementation", project(":core:navigation"))
-        add("implementation", project(":core:viewmodel"))
         add("implementation", project(":core:data"))
-        add("compileOnly", project(":core:preview"))
+        add("implementation", project(":core:ui"))
       }
 
       extensions.configure<LibraryExtension> {

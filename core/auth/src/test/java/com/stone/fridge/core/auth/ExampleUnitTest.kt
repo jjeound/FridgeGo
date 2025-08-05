@@ -1,4 +1,4 @@
-package com.stone.fridge.core.datastore
+package com.stone.fridge.core.auth
 
 import org.junit.Test
 

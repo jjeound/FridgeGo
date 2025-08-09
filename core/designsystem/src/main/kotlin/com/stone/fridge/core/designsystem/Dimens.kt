@@ -1,4 +1,4 @@
-package com.stone.fridge.core.util
+package com.stone.fridge.core.designsystem
 
 import androidx.compose.ui.unit.dp
 

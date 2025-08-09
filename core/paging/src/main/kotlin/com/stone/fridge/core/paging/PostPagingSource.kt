@@ -8,13 +8,13 @@ import androidx.room.withTransaction
 import com.stone.fridge.core.database.GoDatabase
 import com.stone.fridge.core.database.model.PostItemEntity
 import com.stone.fridge.core.database.model.toEntity
-import com.stone.fridge.core.network.service.PostApi
 import com.stone.fridge.core.network.service.PostClient
 import retrofit2.HttpException
 import java.io.IOException
+import javax.inject.Inject
 
 @OptIn(ExperimentalPagingApi::class)
-class PostPagingSource(
+class PostPagingSource @Inject constructor(
     private val postClient: PostClient,
     private val db: GoDatabase,
     private val keyword: String? = null,

@@ -9,15 +9,23 @@ import com.stone.fridge.core.database.model.FridgeItemEntity
 import com.stone.fridge.core.database.GoDatabase
 import com.stone.fridge.core.database.model.toEntity
 import com.stone.fridge.core.network.service.FridgeClient
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import retrofit2.HttpException
 import java.io.IOException
 
 @OptIn(ExperimentalPagingApi::class)
-class FridgePagingSource(
+class FridgePagingSource @AssistedInject constructor(
     private val fridgeClient: FridgeClient,
     private val db: GoDatabase,
-    private val fetchType: FridgeFetchType,
+    @Assisted private val fetchType: FridgeFetchType,
 ): RemoteMediator<Int, FridgeItemEntity>() {
+
+    @AssistedFactory
+    interface Factory {
+        fun create(fetchType: FridgeFetchType): FridgePagingSource
+    }
 
     override suspend fun load(
         loadType: LoadType,

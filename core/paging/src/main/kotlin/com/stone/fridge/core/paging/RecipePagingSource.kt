@@ -11,9 +11,10 @@ import com.stone.fridge.core.database.model.toEntity
 import com.stone.fridge.core.network.service.HomeClient
 import retrofit2.HttpException
 import java.io.IOException
+import javax.inject.Inject
 
 @OptIn(ExperimentalPagingApi::class)
-class RecipePagingSource(
+class RecipePagingSource @Inject constructor(
     private val homeClient: HomeClient,
     private val db: GoDatabase,
 ): RemoteMediator<Int, RecipeItemEntity>() {

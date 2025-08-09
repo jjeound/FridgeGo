@@ -9,13 +9,21 @@ import com.stone.fridge.core.database.GoDatabase
 import com.stone.fridge.core.database.model.MessageItemEntity
 import com.stone.fridge.core.database.model.toEntity
 import com.stone.fridge.core.network.service.ChatClient
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 
 @OptIn(ExperimentalPagingApi::class)
-class MessagePagingSource(
-    private val roomId: Long,
+class MessagePagingSource @AssistedInject constructor(
+    @Assisted private val roomId: Long,
     private val chatClient: ChatClient,
     private val db: GoDatabase
 ) : RemoteMediator<Int, MessageItemEntity>() {
+
+    @AssistedFactory
+    interface Factory {
+        fun create(roomId: Long): MessagePagingSource
+    }
 
     override suspend fun load(
         loadType: LoadType,

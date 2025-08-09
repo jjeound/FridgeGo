@@ -11,9 +11,10 @@ import com.stone.fridge.core.database.model.toLikedEntity
 import com.stone.fridge.core.network.service.PostClient
 import retrofit2.HttpException
 import java.io.IOException
+import javax.inject.Inject
 
 @OptIn(ExperimentalPagingApi::class)
-class LikedPostPagingSource(
+class LikedPostPagingSource @Inject constructor(
     private val postClient: PostClient,
     private val db: GoDatabase
 ): RemoteMediator<Int, LikedPostEntity>() {

@@ -1,4 +1,4 @@
-package com.stone.fridge.data.util
+package com.stone.fridge.core.data.util
 
 import android.content.Context
 import android.graphics.Bitmap

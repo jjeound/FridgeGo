@@ -4,7 +4,7 @@ plugins {
     alias(libs.plugins.kotlinx.serialization)
 }
 android {
-    namespace = "com.stone.fridge.feature.home"
+    namespace = "com.stone.fridge.feature.post"
 }
 
 dependencies {

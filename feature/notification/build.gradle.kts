@@ -4,9 +4,5 @@ plugins {
     alias(libs.plugins.kotlinx.serialization)
 }
 android {
-    namespace = "com.stone.fridge.feature.home"
-}
-
-dependencies {
-    implementation(libs.androidx.paging.compose.android)
+    namespace = "com.stone.fridge.feature.notification"
 }

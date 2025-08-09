@@ -1,6 +1,5 @@
-package com.stone.fridge.baselineprofile
+package com.stone.baselineprofile
 
-import android.annotation.SuppressLint
 import androidx.benchmark.macro.junit4.BaselineProfileRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -36,11 +35,9 @@ import org.junit.runner.RunWith
 @LargeTest
 class BaselineProfileGenerator {
 
-    @SuppressLint("NewApi")
     @get:Rule
     val rule = BaselineProfileRule()
 
-    @SuppressLint("NewApi")
     @Test
     fun generate() {
         // The application id for the running build variant is read from the instrumentation arguments.

@@ -1,23 +1,19 @@
+import com.android.build.api.dsl.ManagedVirtualDevice
+
 plugins {
     alias(libs.plugins.android.test)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.baselineprofile)
+    id("stone.fridge.spotless")
 }
 
 android {
-    namespace = "com.stone.fridge.baselineprofile"
+    namespace = "com.stone.baselineprofile"
     compileSdk = 36
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
-    }
-    kotlin {
-        compilerOptions {
-            freeCompilerArgs.add("-Xcontext-receivers")
-            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
-            freeCompilerArgs.add("-XXLanguage:+PropertyParamAnnotationDefaultTargetMode")
-        }
     }
 
     defaultConfig {
@@ -29,12 +25,23 @@ android {
 
     targetProjectPath = ":app"
 
+    // This code creates the gradle managed device used to generate baseline profiles.
+    // To use GMD please invoke generation through the command line:
+    // ./gradlew :app:generateBaselineProfile
+    testOptions.managedDevices.devices {
+        create<ManagedVirtualDevice>("pixel6Api34") {
+            device = "Pixel 6"
+            apiLevel = 34
+            systemImageSource = "google"
+        }
+    }
 }
 
 // This is the configuration block for the Baseline Profile plugin.
 // You can specify to run the generators on a managed devices or connected devices.
 baselineProfile {
-    useConnectedDevices = true
+    managedDevices += "pixel6Api34"
+    useConnectedDevices = false
 }
 
 dependencies {
@@ -49,7 +56,7 @@ androidComponents {
         val artifactsLoader = v.artifacts.getBuiltArtifactsLoader()
         v.instrumentationRunnerArguments.put(
             "targetAppId",
-            v.testedApks.map { artifactsLoader.load(it)?.applicationId ?: ""}
+            v.testedApks.map { artifactsLoader.load(it)?.applicationId }
         )
     }
 }

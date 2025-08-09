@@ -1,4 +1,4 @@
-package com.stone.fridge.baselineprofile
+package com.stone.baselineprofile
 
 import androidx.benchmark.macro.BaselineProfileMode
 import androidx.benchmark.macro.CompilationMode

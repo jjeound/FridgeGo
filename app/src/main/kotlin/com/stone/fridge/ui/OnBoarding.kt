@@ -1,4 +1,4 @@
-package com.stone.fridge.presentation.feature.onBoardiing
+package com.stone.fridge.ui
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -18,13 +18,33 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.stone.fridge.R
-import com.stone.fridge.core.util.Dimens
-import com.stone.fridge.ui.theme.CustomTheme
+import androidx.navigation.NavGraphBuilder
+import androidx.navigation.compose.composable
+import androidx.navigation.navigation
+import com.stone.fridge.core.designsystem.Dimens
+import com.stone.fridge.core.designsystem.R
+import com.stone.fridge.core.designsystem.theme.CustomTheme
+import com.stone.fridge.core.navigation.GoBaseRoute
+import com.stone.fridge.core.navigation.GoScreen
+import com.stone.fridge.core.navigation.currentComposeNavigator
+import com.stone.fridge.feature.login.navigation.LoginRoute
+import kotlinx.serialization.Serializable
 
+@Serializable data object OnBoardingRoute: GoScreen
+@Serializable data object OnBoardingBaseRoute: GoBaseRoute
+
+fun NavGraphBuilder.onBoardingNavigation(
+){
+    navigation<OnBoardingBaseRoute>(startDestination = OnBoardingRoute) {
+        composable<OnBoardingRoute>{
+            OnBoarding()
+        }
+    }
+}
 
 @Composable
-fun OnBoarding(navigateToLogin: () -> Unit){
+fun OnBoarding(){
+    val composeNavigator = currentComposeNavigator
     Column(
         modifier = Modifier.fillMaxSize().background(color = CustomTheme.colors.onSurface),
         verticalArrangement = Arrangement.Center,
@@ -33,7 +53,9 @@ fun OnBoarding(navigateToLogin: () -> Unit){
         Image(imageVector = ImageVector.vectorResource(R.drawable.logo),
            contentDescription = "Logo")
         Button(
-            onClick = { navigateToLogin() },
+            onClick = {
+                composeNavigator.navigate(LoginRoute)
+            },
             colors = ButtonDefaults.buttonColors(containerColor = CustomTheme.colors.primary),
             modifier = Modifier.width(600.dp).height(90.dp).padding(
                 Dimens.largePadding
@@ -51,7 +73,5 @@ fun OnBoarding(navigateToLogin: () -> Unit){
 @Preview
 @Composable
 fun OnBoardingPreview(){
-    OnBoarding(
-        {}
-    )
+    OnBoarding()
 }

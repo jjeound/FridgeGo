@@ -2,7 +2,6 @@ package com.stone.fridge.core.data.fridge
 
 import androidx.annotation.WorkerThread
 import androidx.paging.PagingData
-import com.stone.fridge.core.data.util.Resource
 import com.stone.fridge.core.model.Fridge
 import com.stone.fridge.core.model.ModifyFridgeReq
 import com.stone.fridge.core.model.NewFridge

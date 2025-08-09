@@ -7,7 +7,6 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.map
 import com.stone.fridge.core.auth.TokenDataSource
-import com.stone.fridge.core.database.GoDatabase
 import com.stone.fridge.core.database.dao.MessageDao
 import com.stone.fridge.core.database.model.toDomain
 import com.stone.fridge.core.database.model.toEntity

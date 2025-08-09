@@ -1,4 +1,4 @@
-package com.stone.fridge.domain.repository
+package com.stone.fridge.core.data.fcm
 
 import androidx.annotation.WorkerThread
 

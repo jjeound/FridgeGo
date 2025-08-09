@@ -1,7 +1,6 @@
 package com.stone.fridge.core.data.notification
 
 import androidx.annotation.WorkerThread
-import com.stone.fridge.core.data.util.Resource
 import com.stone.fridge.core.model.Notification
 import kotlinx.coroutines.flow.Flow
 

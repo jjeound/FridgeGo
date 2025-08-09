@@ -1,7 +1,6 @@
 package com.stone.fridge.core.data.login
 
 import androidx.annotation.WorkerThread
-import com.stone.fridge.core.data.util.Resource
 import com.stone.fridge.core.model.AccountInfo
 import com.stone.fridge.core.model.AddressInfo
 import kotlinx.coroutines.flow.Flow

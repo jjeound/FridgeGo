@@ -1,11 +1,11 @@
-package com.stone.fridge.data.local.remote
+package com.stone.fridge.core.database.dao
 
 import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import com.stone.fridge.data.local.entity.MessageItemEntity
+import com.stone.fridge.core.database.model.MessageItemEntity
 
 @Dao
 interface MessageDao {

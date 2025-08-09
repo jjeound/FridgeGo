@@ -1,10 +1,10 @@
-package com.stone.fridge.data.local.remote
+package com.stone.fridge.core.database.dao
 
 import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Upsert
-import com.stone.fridge.data.local.entity.PostItemEntity
+import com.stone.fridge.core.database.model.PostItemEntity
 
 @Dao
 interface PostItemDao {

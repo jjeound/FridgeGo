@@ -1,4 +1,4 @@
-package com.stone.fridge.data.util
+package com.stone.fridge.core.database.util
 
 import androidx.room.TypeConverter
 

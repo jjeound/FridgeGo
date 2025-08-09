@@ -1,15 +1,13 @@
 import java.util.Properties
 
 plugins {
-    alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.kotlin.compose)
-    id("kotlin-kapt")
-    alias(libs.plugins.ksp)
-    alias(libs.plugins.dagger.hilt)
-    id("kotlin-parcelize")
-    kotlin("plugin.serialization") version "2.0.21"
+    id("stone.fridge.android.application")
+    id("stone.fridge.android.application.compose")
+    id("stone.fridge.android.hilt")
+    id("stone.fridge.spotless")
+    alias(libs.plugins.kotlinx.serialization)
     id("com.google.gms.google-services")
+    alias(libs.plugins.android.application)
     alias(libs.plugins.baselineprofile)
 }
 
@@ -72,6 +70,11 @@ plugins {
                     "proguard-rules.pro"
                 )
             }
+            create("benchmark"){
+                matchingFallbacks += "release"
+                signingConfig = signingConfigs["debug"]
+                isDebuggable = false
+            }
         }
         compileOptions {
             sourceCompatibility = JavaVersion.VERSION_17
@@ -98,66 +101,43 @@ plugins {
     }
 
 dependencies {
-    // Hilt
-    implementation (libs.hilt.android)
+    implementation(projects.feature.home)
+    implementation(projects.feature.chat)
+    implementation(projects.feature.fridge)
+    implementation(projects.feature.post)
+    implementation(projects.feature.my)
+    implementation(projects.feature.notification)
+    implementation(projects.feature.login)
+
+    implementation(projects.core.ui)
+    implementation(projects.core.auth)
+    implementation(projects.core.common)
+    implementation(projects.core.designsystem)
+    implementation(projects.core.data)
+    implementation(projects.core.model)
+    implementation(projects.core.navigation)
+    implementation(projects.core.firebase)
+
+    implementation(libs.androidx.adaptive.android)
     implementation(libs.androidx.profileinstaller)
     "baselineProfile"(project(":baselineprofile"))
-    kapt (libs.hilt.compiler)
-    implementation(libs.androidx.hilt.navigation.compose)
 
-    // ViewModel
-    implementation(libs.androidx.lifecycle.viewmodel.compose)
-    implementation(libs.androidx.runtime.livedata)
-
-    // Navigation
-    implementation(libs.androidx.navigation.compose)
-    implementation(libs.kotlinx.serialization.json)
-
-    // Retrofit
-    implementation(libs.retrofit)
-    implementation (libs.converter.gson)
-    implementation (libs.okhttp)
-    implementation (libs.logging.interceptor)
-
-    // Paging
-    implementation (libs.androidx.paging.runtime.ktx)
-    implementation (libs.androidx.paging.compose)
-    implementation (libs.androidx.paging.common)
-
-    // Room
-    implementation (libs.androidx.room.ktx)
-    ksp (libs.androidx.room.compiler)
-    implementation (libs.androidx.room.paging)
+    ksp(libs.hilt.compiler)
 
     // FCM
     implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.analytics)
     implementation (libs.firebase.messaging.ktx)
 
     // login
     implementation (libs.v2.user)
-    implementation (libs.androidx.datastore.preferences)
-    implementation (libs.androidx.security.crypto)
     implementation (libs.android)
-    implementation (libs.play.services.location)
-    implementation (libs.play.services.maps)
-
-    // CameraX
-    implementation (libs.androidx.camera.core)
-    implementation (libs.androidx.camera.lifecycle)
-    implementation (libs.androidx.camera.view)
-    implementation (libs.androidx.camera.camera2)
-
-    // ML Kit - 텍스트 인식
-    implementation (libs.text.recognition)
-
-    //Websocket
-    implementation (libs.stompprotocolandroid)
-    implementation(libs.rxjava)
-    implementation(libs.rxandroid)
 
     implementation(libs.androidx.core.splashscreen)
-    implementation(libs.coil.compose)
+    implementation(libs.androidx.compose.material3.adaptive)
+    implementation(libs.androidx.compose.material3.adaptive.layout)
+    implementation(libs.androidx.compose.material3.adaptive.navigation)
+    implementation(libs.androidx.compose.material3.windowSizeClass)
+    implementation(libs.androidx.compose.material3.navigationSuite)
 
     implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.androidx.core.ktx)

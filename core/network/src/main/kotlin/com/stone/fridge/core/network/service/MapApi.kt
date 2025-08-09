@@ -1,6 +1,7 @@
 package com.stone.fridge.core.network.service
 
 import com.stone.fridge.core.model.CoordToAddress
+import com.stone.fridge.core.network.BuildConfig
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.Headers

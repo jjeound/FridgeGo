@@ -1,10 +1,10 @@
-package com.stone.fridge.data.util
+package com.stone.fridge.core.network
 
-import com.stone.fridge.data.remote.dto.ApiResponse
 import com.google.gson.JsonParser
 import com.google.gson.TypeAdapter
 import com.google.gson.stream.JsonReader
 import com.google.gson.stream.JsonWriter
+import com.stone.fridge.core.network.model.ApiResponse
 
 
 class ApiResponseTypeAdapter<T>(

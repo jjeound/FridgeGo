@@ -1,10 +1,10 @@
-package com.stone.fridge.data.util
+package com.stone.fridge.core.network
 
-import com.stone.fridge.data.remote.dto.ApiResponse
 import com.google.gson.Gson
 import com.google.gson.TypeAdapter
 import com.google.gson.TypeAdapterFactory
 import com.google.gson.reflect.TypeToken
+import com.stone.fridge.core.network.model.ApiResponse
 import java.lang.reflect.ParameterizedType
 
 class ApiResponseAdapterFactory : TypeAdapterFactory {

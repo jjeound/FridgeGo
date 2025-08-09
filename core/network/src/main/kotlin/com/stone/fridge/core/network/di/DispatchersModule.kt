@@ -1,7 +1,7 @@
-package com.stone.fridge.di
+package com.stone.fridge.core.network.di
 
-import com.stone.fridge.data.AppDispatchers
-import com.stone.fridge.data.Dispatcher
+import com.stone.fridge.core.network.AppDispatchers
+import com.stone.fridge.core.network.Dispatcher
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -12,7 +12,7 @@ import kotlinx.coroutines.Dispatchers
 
 @Module
 @InstallIn(SingletonComponent::class)
-object DispatchersModule {
+internal object DispatchersModule {
 
     @Provides
     @Dispatcher(AppDispatchers.IO)

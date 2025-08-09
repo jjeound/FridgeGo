@@ -15,14 +15,12 @@ class LoginClient @Inject constructor(
     ): ApiResponse<Callback> = loginApi.kakaoLogin(accessToken)
 
     suspend fun setNickname(
-        token: String,
         nickname: String
-    ): ApiResponse<String> = loginApi.setNickname(token, nickname)
+    ): ApiResponse<String> = loginApi.setNickname(nickname)
 
     suspend fun setLocation(
-        token: String,
         location: Location
-    ): ApiResponse<String> = loginApi.setLocation(token, location)
+    ): ApiResponse<String> = loginApi.setLocation(location)
 
     suspend fun loginTest(
         email: EmailReq

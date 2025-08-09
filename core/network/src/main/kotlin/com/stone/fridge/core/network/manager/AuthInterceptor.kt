@@ -1,10 +1,8 @@
-package com.stone.fridge.domain.use_case.token
+package com.stone.fridge.core.network.manager
 
-import com.stone.fridge.core.util.Constants.NETWORK_ERROR
-import com.stone.fridge.domain.repository.TokenRepository
-import com.kakao.sdk.common.Constants.AUTHORIZATION
-import com.stone.fridge.presentation.util.AuthEvent
-import com.stone.fridge.presentation.util.AuthEventBus
+import com.stone.fridge.core.auth.AuthEvent
+import com.stone.fridge.core.auth.AuthEventBus
+import com.stone.fridge.core.auth.TokenDataSource
 import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -15,18 +13,18 @@ import okhttp3.ResponseBody.Companion.toResponseBody
 import javax.inject.Inject
 
 class AuthInterceptor @Inject constructor(
-    private val tokenManager: TokenRepository,
+    private val tokenDataSource: TokenDataSource,
 ) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         val token: String? = runBlocking {
-            tokenManager.getAccessToken()
+            tokenDataSource.getAccessToken()
         }
 
         if (token.isNullOrEmpty()) {
             return errorResponse(chain.request())
         }
 
-        val request = chain.request().newBuilder().header(AUTHORIZATION, token).build()
+        val request = chain.request().newBuilder().header("Authorization", token).build()
 
         return chain.proceed(request)
     }
@@ -37,7 +35,7 @@ class AuthInterceptor @Inject constructor(
         return Response.Builder()
             .request(request)
             .protocol(Protocol.HTTP_2)
-            .code(NETWORK_ERROR)
+            .code(401)
             .message("Unauthorized")
             .body(emptyBody)
             .build()

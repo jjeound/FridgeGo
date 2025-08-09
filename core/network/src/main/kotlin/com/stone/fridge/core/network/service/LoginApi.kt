@@ -19,13 +19,11 @@ interface LoginApi {
 
     @POST("/api/user/nickname")
     suspend fun setNickname(
-        @Header("Authorization") token: String,
         @Query("nickname") nickname: String
     ): ApiResponse<String>
 
     @POST("/api/user/location")
     suspend fun setLocation(
-        @Header("Authorization") token: String,
         @Body location: Location
     ): ApiResponse<String>
 

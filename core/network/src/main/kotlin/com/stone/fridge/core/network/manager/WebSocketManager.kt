@@ -1,11 +1,10 @@
-package com.stone.fridge.data.remote.manager
+package com.stone.fridge.core.network.manager
 
 import android.annotation.SuppressLint
 import android.util.Log
-import com.stone.fridge.core.util.Constants.WS_URL
-import com.stone.fridge.data.remote.dto.MessageDto
-import com.stone.fridge.data.remote.dto.UnreadBroadcastDto
 import com.google.gson.Gson
+import com.stone.fridge.core.model.Message
+import com.stone.fridge.core.model.UnreadBroadcast
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -16,7 +15,9 @@ import ua.naiksoftware.stomp.dto.LifecycleEvent
 import ua.naiksoftware.stomp.dto.StompHeader
 import javax.inject.Inject
 
-class WebSocketManager @Inject constructor() {
+class WebSocketManager @Inject constructor(
+    private val gson: Gson,
+) {
     private var stompClient: StompClient? = null
     private var isManuallyDisconnected = false
     private var isReconnecting = false
@@ -28,7 +29,7 @@ class WebSocketManager @Inject constructor() {
 
         leaveRoom(roomId) // 기존 연결 정리
 
-        stompClient = Stomp.over(Stomp.ConnectionProvider.OKHTTP, WS_URL).apply {
+        stompClient = Stomp.over(Stomp.ConnectionProvider.OKHTTP, "wss://api.refrigerator.asia/ws/chat").apply {
             val headers = listOf(StompHeader("Authorization", "Bearer $token"))
 
             lifecycle().subscribe { event ->
@@ -68,27 +69,27 @@ class WebSocketManager @Inject constructor() {
     }
 
     @SuppressLint("CheckResult")
-    fun subscribeRoom(roomId: Long, onMessage: (MessageDto) -> Unit, onUnreadUpdate: (UnreadBroadcastDto) -> Unit) {
-        stompClient?.topic("/sub/chat/room/$roomId")?.subscribe ({ stompMessage ->
-            val message = Gson().fromJson(stompMessage.payload, MessageDto::class.java)
-            Log.d("onMessage", "Received message: $message")
-            onMessage(message)
-        }, { error ->
-            Log.e("WebSocketManager", "Error subscribing to room $roomId: ${error.message}")
-        })
+    fun subscribeRoom(roomId: Long, onMessage: (Message) -> Unit, onUnreadUpdate: (UnreadBroadcast) -> Unit) {
+            stompClient?.topic("/sub/chat/room/$roomId")?.subscribe ({ stompMessage ->
+                val message = gson.fromJson(stompMessage.payload, Message::class.java)
+                Log.d("onMessage", "Received message: $message")
+                onMessage(message)
+            }, { error ->
+                Log.e("WebSocketManager", "Error subscribing to room $roomId: ${error.message}")
+            })
 
-        stompClient?.topic("/sub/chat/room/$roomId/unread")?.subscribe ({ stompMessage ->
-            val unread = Gson().fromJson(stompMessage.payload, UnreadBroadcastDto::class.java)
-            Log.d("onUnreadUpdate", "Received unread update: $unread")
-            onUnreadUpdate(unread)
-        }, { error ->
-            Log.e("WebSocketManager", "Error subscribing to room $roomId: ${error.message}")
-        })
-    }
+            stompClient?.topic("/sub/chat/room/$roomId/unread")?.subscribe ({ stompMessage ->
+                val unread = gson.fromJson(stompMessage.payload, UnreadBroadcast::class.java)
+                Log.d("onUnreadUpdate", "Received unread update: $unread")
+                onUnreadUpdate(unread)
+            }, { error ->
+                Log.e("WebSocketManager", "Error subscribing to room $roomId: ${error.message}")
+            })
+        }
 
     @SuppressLint("CheckResult")
     fun sendMessage(roomId: Long, content: String) {
-        val payload = Gson().toJson(mapOf("roomId" to roomId, "content" to content))
+        val payload = gson.toJson(mapOf("roomId" to roomId, "content" to content))
         stompClient?.send("/pub/chat/message", payload)?.subscribe({
             Log.d("WebSocketManager", "Message sent successfully")
         }, { error ->
@@ -98,7 +99,7 @@ class WebSocketManager @Inject constructor() {
 
     @SuppressLint("CheckResult")
     fun sendReadEvent(roomId: Long) {
-        val payload = Gson().toJson(mapOf("roomId" to roomId))
+        val payload = gson.toJson(mapOf("roomId" to roomId))
         stompClient?.send("/pub/chat/read", payload)?.subscribe({
             Log.d("WebSocketManager", "Read event sent successfully")
         }, { error ->
@@ -117,7 +118,7 @@ class WebSocketManager @Inject constructor() {
 
     @SuppressLint("CheckResult")
     fun enterRoom(roomId: Long) {
-        val payload = Gson().toJson(mapOf("roomId" to roomId))
+        val payload = gson.toJson(mapOf("roomId" to roomId))
         stompClient?.send("/pub/chat/enter", payload)?.subscribe(
             { Log.d("WebSocketManager", "Entered room $roomId successfully") },
             { error -> Log.e("WebSocketManager", "Error entering room $roomId: ${error.message}") }
@@ -126,7 +127,7 @@ class WebSocketManager @Inject constructor() {
 
     @SuppressLint("CheckResult")
     fun leaveRoom(roomId: Long) {
-        val payload = Gson().toJson(mapOf("roomId" to roomId))
+        val payload = gson.toJson(mapOf("roomId" to roomId))
         stompClient?.send("/pub/chat/leave", payload)?.subscribe({
             Log.d("WebSocketManager", "Left room $roomId successfully")
         }, { error ->

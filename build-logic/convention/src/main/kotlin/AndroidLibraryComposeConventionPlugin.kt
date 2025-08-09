@@ -1,5 +1,5 @@
 import com.android.build.gradle.LibraryExtension
-import convention.src.main.kotlin.com.stone.fridge.configureAndroidCompose
+import com.stone.fridge.configureAndroidCompose
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.getByType

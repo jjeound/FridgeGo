@@ -1,4 +1,4 @@
-package convention.src.main.kotlin.com.stone.fridge
+package com.stone.fridge
 
 import com.android.build.api.dsl.CommonExtension
 import org.gradle.api.Project

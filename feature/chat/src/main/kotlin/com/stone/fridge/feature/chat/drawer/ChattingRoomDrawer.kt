@@ -55,6 +55,7 @@ fun ChattingRoomDrawer(
     roomId: Long,
     title: String,
     isActive: Boolean,
+    onProfileClick: (String) -> Unit,
 ){
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val members by viewModel.member.collectAsStateWithLifecycle()
@@ -73,7 +74,8 @@ fun ChattingRoomDrawer(
             isActive = isActive,
             closeChatRoom = viewModel::closeChatRoom,
             exitChatRoom = viewModel::exitChatRoom,
-            onShowSnackbar = onShowSnackbar
+            onShowSnackbar = onShowSnackbar,
+            onProfileClick = onProfileClick
         )
     }else {
         Box(
@@ -97,7 +99,8 @@ private fun ChattingRoomDrawerContent(
     isActive: Boolean,
     closeChatRoom: (Long) -> Unit,
     exitChatRoom: (Long) -> Unit,
-    onShowSnackbar: suspend (String, String?) -> Unit
+    onShowSnackbar: suspend (String, String?) -> Unit,
+    onProfileClick: (String) -> Unit,
 ){
     val scrollState = rememberScrollState()
     val composeNavigator = currentComposeNavigator
@@ -188,9 +191,7 @@ private fun ChattingRoomDrawerContent(
                                         .padding(
                                             vertical = Dimens.smallPadding,
                                         ).clickable{
-//                                            navigate(
-//                                                Screen.PostProfileNav(it.nickname)
-//                                            )
+                                            onProfileClick(it.nickname)
                                         },
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.spacedBy(Dimens.smallPadding)

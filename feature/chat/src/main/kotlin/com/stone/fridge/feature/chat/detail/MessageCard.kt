@@ -31,7 +31,6 @@ import com.stone.fridge.core.designsystem.Dimens
 import com.stone.fridge.core.designsystem.R
 import com.stone.fridge.core.designsystem.theme.CustomTheme
 import com.stone.fridge.core.model.Message
-import com.stone.fridge.core.navigation.currentComposeNavigator
 
 @Composable
 fun MyMessageCard(
@@ -103,8 +102,8 @@ fun YourMessageCard(
     userNickname: String?,
     profileImage: String?,
     isActive: Boolean,
+    onProfileClick: (String) -> Unit,
 ){
-    val composeNavigator = currentComposeNavigator
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.Start,
@@ -117,18 +116,13 @@ fun YourMessageCard(
                     .size(36.dp)
                     .clip(shape = RoundedCornerShape(36.dp))
                     .clickable {
-//                        navigate(Screen.PostProfileNav(
-//                            message.senderNickname
-//                        ))
-                        //composeNavigator.navigate()
+                        onProfileClick(message.senderNickname)
                     }
             )
         } else {
             Icon(
                 modifier = Modifier.clickable{
-//                    navigate(Screen.PostProfileNav(
-//                        message.senderNickname
-//                    ))
+                    onProfileClick(message.senderNickname)
                 },
                 imageVector = ImageVector.vectorResource(R.drawable.profile),
                 contentDescription = "get image",

@@ -97,25 +97,27 @@ private fun ChattingContent(
     ) {
         items(chattingRooms.size){ index ->
             val room = chattingRooms[index]
-            Box(
-                modifier = Modifier.clickable {
-                    composeNavigator.navigate(ChattingRoomNav(room.roomId, room.active))
-                }
-            ){
-                ChatItem(room = room)
-            }
+            ChatItem(
+                room = room,
+                onClick = {composeNavigator.navigate(ChattingRoomNav(room.roomId, room.active))}
+            )
         }
     }
 }
 
 @Composable
-private fun ChatItem(room: ChatRoomRaw){
+private fun ChatItem(
+    room: ChatRoomRaw,
+    onClick: ()  -> Unit,
+){
     Card(
         colors = CardDefaults.cardColors(
             containerColor = if(room.active) CustomTheme.colors.onSurface else CustomTheme.colors.surface,
         ),
         shape = RoundedCornerShape(Dimens.cornerRadius),
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth().clickable{
+            onClick()
+        }
     ){
         Row (
             modifier = Modifier.fillMaxSize().padding(Dimens.mediumPadding),

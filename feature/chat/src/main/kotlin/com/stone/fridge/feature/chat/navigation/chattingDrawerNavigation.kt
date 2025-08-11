@@ -13,6 +13,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable data class ChattingDrawerNav(val id: Long, val title: String, val isActive: Boolean): GoScreen
 fun NavGraphBuilder.chattingDrawerNavigation(
+    onProfileClick: (String) -> Unit,
     onShowSnackbar: suspend (String, String?) -> Unit,
 ) {
     composable<ChattingDrawerNav>{
@@ -27,6 +28,7 @@ fun NavGraphBuilder.chattingDrawerNavigation(
             roomId = args.id,
             title = args.title,
             isActive = args.isActive,
+            onProfileClick = onProfileClick,
         )
     }
 }

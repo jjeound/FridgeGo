@@ -56,6 +56,7 @@ import com.stone.fridge.core.model.ChatMember
 @Composable
 fun ChattingDetailScreen(
     viewModel: ChatDetailViewModel = hiltViewModel(),
+    onProfileClick: (String) -> Unit,
     onShowSnackbar: suspend (String, String?) -> Unit,
 ) {
     val roomId by viewModel.roomId.collectAsStateWithLifecycle()
@@ -63,17 +64,7 @@ fun ChattingDetailScreen(
     val messages = viewModel.message.collectAsLazyPagingItems()
     val members by viewModel.member.collectAsStateWithLifecycle()
     val chattingRoom by viewModel.chattingRoom.collectAsStateWithLifecycle()
-    val chattingRoomList by viewModel.chattingRoomList.collectAsStateWithLifecycle()
     val userId by viewModel.userId.collectAsStateWithLifecycle()
-    LaunchedEffect(roomId) {
-        roomId?.let { id ->
-            viewModel.connectSocket(id)
-            val isJoined = chattingRoomList.any{it.roomId == id}
-            if(!isJoined){
-                viewModel.joinChatRoom(id)
-            }
-        }
-    }
     if(uiState == ChatDetailUiState.Idle && roomId != null && chattingRoom != null && userId != null) {
         ChattingRoomContent(
             uiState = uiState,
@@ -83,9 +74,10 @@ fun ChattingDetailScreen(
             members = members,
             userId = userId!!,
             sendRead = viewModel::sendRead,
-            leaveRoom = viewModel::fcmLeaveRoom,
+            leaveRoom = viewModel::leaveRoom,
             sendMessage = viewModel::sendMessage,
-            onShowSnackbar = onShowSnackbar
+            onShowSnackbar = onShowSnackbar,
+            onProfileClick = onProfileClick
         )
     }else if(uiState == ChatDetailUiState.Loading){
         Box(
@@ -110,7 +102,8 @@ private fun ChattingRoomContent(
     sendRead: (Long) -> Unit,
     leaveRoom: (Long) -> Unit,
     sendMessage: (Long, String) -> Unit,
-    onShowSnackbar: suspend (String, String?) -> Unit
+    onShowSnackbar: suspend (String, String?) -> Unit,
+    onProfileClick: (String) -> Unit,
 ){
     val composeNavigator = currentComposeNavigator
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -208,7 +201,8 @@ private fun ChattingRoomContent(
                 userId = userId,
                 roomId = roomId,
                 sendMessage = sendMessage,
-                sendRead = sendRead
+                sendRead = sendRead,
+                onProfileClick = onProfileClick
             )
         }
     }
@@ -223,6 +217,7 @@ private fun ChattingRoomBody(
     roomId: Long,
     sendMessage: (Long, String) -> Unit,
     sendRead: (Long) -> Unit,
+    onProfileClick: (String) -> Unit
 ){
     val listState = rememberLazyListState()
     val focusManager = LocalFocusManager.current
@@ -281,7 +276,8 @@ private fun ChattingRoomBody(
                                 message = message,
                                 userNickname = userNickname,
                                 profileImage = profileImage,
-                                isActive = chattingRoom.active
+                                isActive = chattingRoom.active,
+                                onProfileClick = onProfileClick,
                             )
                         }
                     }

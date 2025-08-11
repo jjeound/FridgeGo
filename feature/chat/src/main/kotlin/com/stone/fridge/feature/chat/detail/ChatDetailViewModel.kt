@@ -37,7 +37,7 @@ class ChatDetailViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle
 ): ViewModel() {
 
-    val uiState = MutableStateFlow<ChatDetailUiState>(ChatDetailUiState.Loading)
+    internal val uiState = MutableStateFlow<ChatDetailUiState>(ChatDetailUiState.Loading)
 
     val roomId = savedStateHandle.getStateFlow<Long?>("id", null)
 
@@ -207,7 +207,7 @@ class ChatDetailViewModel @Inject constructor(
 }
 
 @Stable
-sealed interface ChatDetailUiState {
+internal sealed interface ChatDetailUiState {
     data object Idle : ChatDetailUiState
     data object Loading : ChatDetailUiState
     data object Success : ChatDetailUiState

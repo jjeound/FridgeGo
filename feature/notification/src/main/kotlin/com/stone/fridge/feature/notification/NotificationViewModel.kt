@@ -1,5 +1,6 @@
 package com.stone.fridge.feature.notification
 
+import androidx.compose.runtime.Stable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.stone.fridge.core.data.notification.NotificationRepository
@@ -8,7 +9,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.stateIn
@@ -19,10 +19,7 @@ class NotificationViewModel @Inject constructor(
     private val notificationRepository: NotificationRepository,
 ): ViewModel() {
 
-    val uiState: MutableStateFlow<NotificationUiState> = MutableStateFlow(NotificationUiState.Loading)
-
-    private val _notificationList = MutableStateFlow<List<Notification>>(emptyList())
-    val notificationList = _notificationList.asStateFlow()
+    internal val uiState: MutableStateFlow<NotificationUiState> = MutableStateFlow(NotificationUiState.Loading)
 
     val notifications: StateFlow<List<Notification>> = notificationRepository.getAllNotifications()
         .onCompletion { uiState.value = NotificationUiState.Idle }
@@ -34,8 +31,8 @@ class NotificationViewModel @Inject constructor(
         )
 }
 
-
-sealed interface NotificationUiState{
+@Stable
+internal sealed interface NotificationUiState{
     data object Idle : NotificationUiState
     data object Loading : NotificationUiState
     data class Error(val message: String) : NotificationUiState

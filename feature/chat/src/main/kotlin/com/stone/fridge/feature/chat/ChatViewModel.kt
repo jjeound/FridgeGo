@@ -20,7 +20,7 @@ class ChatViewModel @Inject constructor(
     private val chatRepository: ChatRepository
 ): ViewModel() {
 
-    val uiState = MutableStateFlow<ChatUiState>(ChatUiState.Loading)
+    internal val uiState = MutableStateFlow<ChatUiState>(ChatUiState.Loading)
 
     val chattingRooms: StateFlow<List<ChatRoomRaw>> = chatRepository.getMyRooms()
         .onCompletion {
@@ -37,7 +37,7 @@ class ChatViewModel @Inject constructor(
 }
 
 @Stable
-sealed interface ChatUiState {
+internal sealed interface ChatUiState {
     data object Idle : ChatUiState
     data object Loading : ChatUiState
     data class Error(val message: String) : ChatUiState

@@ -88,7 +88,7 @@ import com.stone.fridge.core.ui.PermissionDialog
 import java.io.File
 
 @Composable
-fun ModifyPostForm(
+internal fun ModifyPostForm(
     uiState: PostCRUDUiState,
     modifier: Modifier,
     post: Post,

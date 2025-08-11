@@ -19,7 +19,7 @@ class MyViewModel @Inject constructor(
     private val myRepository: MyRepository
 ): ViewModel(){
 
-    val uiState: MutableStateFlow<MyUiState> = MutableStateFlow(MyUiState.Loading)
+    internal val uiState: MutableStateFlow<MyUiState> = MutableStateFlow(MyUiState.Loading)
 
     val profile: StateFlow<Profile?> = myRepository.getMyProfile()
         .onCompletion { uiState.value = MyUiState.Idle }
@@ -32,7 +32,7 @@ class MyViewModel @Inject constructor(
 }
 
 @Stable
-sealed interface MyUiState {
+internal sealed interface MyUiState {
     data object Idle: MyUiState
     data object Loading: MyUiState
     data class Error(val message: String): MyUiState

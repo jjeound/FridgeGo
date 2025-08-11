@@ -47,7 +47,7 @@ import com.stone.fridge.core.navigation.currentComposeNavigator
 import com.stone.fridge.feature.my.navigation.ProfileModifyRoute
 
 @Composable
-fun ProfileDetail(
+internal fun ProfileDetail(
     uiState: ProfileUiState,
     profile: Profile,
     onLogout: () -> Unit,

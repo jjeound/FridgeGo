@@ -23,7 +23,7 @@ class PostCRUDViewModel @Inject constructor(
     private val postRepository: PostRepository,
     savedStateHandle: SavedStateHandle
 ): ViewModel()  {
-    val uiState: MutableStateFlow<PostCRUDUiState> = MutableStateFlow(PostCRUDUiState.Idle)
+    internal val uiState: MutableStateFlow<PostCRUDUiState> = MutableStateFlow(PostCRUDUiState.Idle)
 
     val post = savedStateHandle.getStateFlow<Post?>("post", null)
 
@@ -85,7 +85,7 @@ class PostCRUDViewModel @Inject constructor(
 }
 
 @Stable
-sealed interface PostCRUDUiState{
+internal sealed interface PostCRUDUiState{
     data object Idle: PostCRUDUiState
     data object Success: PostCRUDUiState
     data object Loading: PostCRUDUiState

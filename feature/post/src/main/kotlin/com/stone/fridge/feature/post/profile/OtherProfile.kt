@@ -32,7 +32,7 @@ import com.stone.fridge.core.navigation.currentComposeNavigator
 import com.stone.fridge.feature.post.navigation.ReportRoute
 
 @Composable
-fun OtherProfile(
+internal fun OtherProfile(
     uiState: PostProfileUiState,
     profile: Profile,
     isMe: Boolean,

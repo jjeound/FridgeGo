@@ -26,7 +26,7 @@ class FridgeViewModel @Inject constructor(
     private val fridgeRepository: FridgeRepository
 ): ViewModel() {
 
-    val uiState: MutableStateFlow<FridgeUiState> = MutableStateFlow(FridgeUiState.Idle)
+    internal val uiState: MutableStateFlow<FridgeUiState> = MutableStateFlow(FridgeUiState.Idle)
 
     private val _fridgeItemPaged: MutableStateFlow<PagingData<Fridge>> = MutableStateFlow(PagingData.empty())
     val fridgeItemPaged = _fridgeItemPaged.asStateFlow()
@@ -106,7 +106,7 @@ class FridgeViewModel @Inject constructor(
 }
 
 @Stable
-sealed interface FridgeUiState {
+internal sealed interface FridgeUiState {
     data object Idle : FridgeUiState
     data object Loading : FridgeUiState
     data class Error(val message: String) : FridgeUiState

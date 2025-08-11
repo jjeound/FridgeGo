@@ -31,7 +31,7 @@ import com.stone.fridge.core.navigation.currentComposeNavigator
 import com.stone.fridge.feature.login.navigation.NicknameRoute
 
 @Composable
-fun KakaoLogin(
+internal fun KakaoLogin(
     uiState: LoginUiState,
     login: (String) -> Unit,
     accountInfo : AccountInfo? = null,

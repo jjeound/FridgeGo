@@ -31,7 +31,7 @@ class MyPostViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
 ): ViewModel() {
 
-    val uiState: MutableStateFlow<MyPostUiState> = MutableStateFlow(MyPostUiState.Idle)
+    internal val uiState: MutableStateFlow<MyPostUiState> = MutableStateFlow(MyPostUiState.Idle)
 
     val type = savedStateHandle.getStateFlow<Boolean?>("type", null)
 
@@ -82,7 +82,7 @@ class MyPostViewModel @Inject constructor(
 }
 
 @Stable
-sealed interface MyPostUiState {
+internal sealed interface MyPostUiState {
     data object Idle : MyPostUiState
     data object Loading : MyPostUiState
     data class Error(val message: String) : MyPostUiState

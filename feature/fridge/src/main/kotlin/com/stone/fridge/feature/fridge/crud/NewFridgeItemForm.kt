@@ -83,7 +83,7 @@ import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NewFridgeItemForm(
+internal fun NewFridgeItemForm(
     fridge: Fridge?,
     uiState: FridgeCRUDUiState,
     scannedDate: String?,

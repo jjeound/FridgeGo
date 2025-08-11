@@ -82,7 +82,7 @@ fun RecipeScreen(
 }
 
 @Composable
-fun RecipeContent(
+private fun RecipeContent(
     uiState: RecipeUiState,
     recipe: Recipe,
     toggleLike: (Long, Boolean) -> Unit,

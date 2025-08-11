@@ -86,7 +86,7 @@ import com.stone.fridge.core.ui.PermissionDialog
 import java.io.File
 
 @Composable
-fun NewPostForm(
+internal fun NewPostForm(
     uiState: PostCRUDUiState,
     modifier: Modifier,
     addNewPost: (NewPost, List<File>?) -> Unit,

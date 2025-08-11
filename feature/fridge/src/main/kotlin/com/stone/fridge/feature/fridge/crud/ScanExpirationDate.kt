@@ -124,7 +124,7 @@ private fun extractExpirationDate(text: String): String? {
 }
 
 @OptIn(ExperimentalGetImage::class)
-fun processImageProxy(imageProxy: ImageProxy, onTextExtracted: (String) -> Unit) {
+private fun processImageProxy(imageProxy: ImageProxy, onTextExtracted: (String) -> Unit) {
     val mediaImage = imageProxy.image
     if (mediaImage != null) {
         val image = InputImage.fromMediaImage(mediaImage, imageProxy.imageInfo.rotationDegrees)

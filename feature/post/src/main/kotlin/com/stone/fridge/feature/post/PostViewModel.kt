@@ -25,7 +25,7 @@ class PostViewModel @Inject constructor(
     private val localUserRepository: LocalUserRepository
 ): ViewModel() {
 
-    val uiState: MutableStateFlow<PostUiState> = MutableStateFlow(PostUiState.Loading)
+    internal val uiState: MutableStateFlow<PostUiState> = MutableStateFlow(PostUiState.Loading)
 
     private val _posts: MutableStateFlow<PagingData<PostRaw>> = MutableStateFlow(PagingData.empty())
     val posts = _posts.asStateFlow()
@@ -85,7 +85,7 @@ class PostViewModel @Inject constructor(
 }
 
 @Stable
-sealed interface PostUiState {
+internal sealed interface PostUiState {
     data object Idle : PostUiState
     data object Success : PostUiState
     data object Loading : PostUiState

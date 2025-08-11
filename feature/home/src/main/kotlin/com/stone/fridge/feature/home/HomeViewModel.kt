@@ -23,8 +23,8 @@ class HomeViewModel @Inject constructor(
     private val homeRepository: HomeRepository
 ): ViewModel(){
 
-    val homeUIState = MutableStateFlow<HomeUiState>(HomeUiState.Idle)
-    val aiUIState = MutableStateFlow<AIUIState>(AIUIState.Idle)
+    internal val homeUIState = MutableStateFlow<HomeUiState>(HomeUiState.Idle)
+    internal val aiUIState = MutableStateFlow<AIUIState>(AIUIState.Idle)
 
     private val _tastePref = MutableStateFlow<String?>(null)
     val tastePref = _tastePref.asStateFlow()
@@ -155,7 +155,7 @@ class HomeViewModel @Inject constructor(
 }
 
 @Stable
-sealed interface HomeUiState{
+internal sealed interface HomeUiState{
     data object Idle: HomeUiState
     data object Loading: HomeUiState
     data class Success(val message: String): HomeUiState
@@ -163,7 +163,7 @@ sealed interface HomeUiState{
 }
 
 @Stable
-sealed interface AIUIState{
+internal sealed interface AIUIState{
     data object Idle: AIUIState
     data object Loading: AIUIState
     data object Success: AIUIState

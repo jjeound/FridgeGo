@@ -56,7 +56,7 @@ import com.stone.fridge.core.designsystem.theme.CustomTheme
 import kotlinx.coroutines.launch
 
 @Composable
-fun ChatBotBottomSheet(
+internal fun ChatBotBottomSheet(
     aiUIState: AIUIState,
     aiResponse: List<String>,
     addRecipe: (String) -> Unit,
@@ -280,7 +280,7 @@ fun ChatBotBottomSheet(
 }
 
 @Composable
-fun DotLoadingAnimation(modifier: Modifier = Modifier) {
+private fun DotLoadingAnimation(modifier: Modifier = Modifier) {
     val transition = rememberInfiniteTransition(label = "dot_loading")
 
     val alpha1 by transition.animateFloat(
@@ -322,7 +322,7 @@ fun DotLoadingAnimation(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun Circle(alpha: Float) {
+private fun Circle(alpha: Float) {
     Box(
         modifier = Modifier
             .size(12.dp)

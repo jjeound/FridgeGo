@@ -32,7 +32,7 @@ class HomeViewModel @Inject constructor(
     private val _aiResponse = MutableStateFlow<List<String>>(emptyList())
     val aiResponse = _aiResponse.asStateFlow()
 
-    private val _recipePagingData: MutableStateFlow<PagingData<RecipeRaw>> = MutableStateFlow(PagingData.empty<RecipeRaw>())
+    private val _recipePagingData: MutableStateFlow<PagingData<RecipeRaw>> = MutableStateFlow(PagingData.empty())
     val recipePagingData = _recipePagingData.asStateFlow()
 
     init {

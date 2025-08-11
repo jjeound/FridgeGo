@@ -27,6 +27,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -70,20 +73,31 @@ fun HomeScreen(
             isUnread = isUnread,
             navigateToNotification = navigateToNotification
         )
-        HomeContent(
-            homeUiState = homeUiState,
-            aiUIState = aiUIState,
-            recipeItems = recipeItems,
-            aiResponse = aiResponse,
-            tastePref = tastePref,
-            shouldShowBottomSheet = shouldShowBottomSheet,
-            hideBottomSheet = hideBottomSheet,
-            addRecipe = viewModel::addRecipe,
-            toggleLike = viewModel::toggleLike,
-            setTastePreference = viewModel::setTastePreference,
-            getAIRecipe = viewModel::getAIRecipe,
-            onShowSnackbar = onShowSnackbar
-        )
+        if(homeUiState == HomeUiState.Loading){
+            Box(
+                modifier = Modifier.weight(1f)
+            ){
+                CircularProgressIndicator(
+                    modifier = Modifier.align(Alignment.Center),
+                    color = CustomTheme.colors.primary
+                )
+            }
+        } else {
+            HomeContent(
+                homeUiState = homeUiState,
+                aiUIState = aiUIState,
+                recipeItems = recipeItems,
+                aiResponse = aiResponse,
+                tastePref = tastePref,
+                shouldShowBottomSheet = shouldShowBottomSheet,
+                hideBottomSheet = hideBottomSheet,
+                addRecipe = viewModel::addRecipe,
+                toggleLike = viewModel::toggleLike,
+                setTastePreference = viewModel::setTastePreference,
+                getAIRecipe = viewModel::getAIRecipe,
+                onShowSnackbar = onShowSnackbar
+            )
+        }
     }
 }
 
@@ -103,6 +117,7 @@ private fun HomeContent(
     onShowSnackbar: suspend (String, String?) -> Unit,
 ){
     val focusManager = LocalFocusManager.current
+    var text by remember { mutableStateOf(tastePref ?: "") }
     LaunchedEffect(homeUiState) {
         if(homeUiState is HomeUiState.Error) {
             onShowSnackbar(homeUiState.message, null)
@@ -125,7 +140,8 @@ private fun HomeContent(
                 })}
     ) {
         TasteTextField(
-            tastePref = tastePref,
+            text = text,
+            onValueChange = { text = it },
             setTastePreference = setTastePreference
         )
         Spacer(modifier = Modifier.height(Dimens.largePadding))
@@ -212,15 +228,21 @@ private fun RecipeBox(
                         horizontalArrangement = Arrangement.spacedBy(Dimens.hugePadding),
                     ) {
                         items( recipeItems.itemCount){ index ->
-                            val item = recipeItems[index]
-                            if(item != null){
+                            val recipe = recipeItems[index]
+                            if(recipe != null){
+                                var isLiked by remember { mutableStateOf(recipe.liked) }
                                 MyRecipe(
-                                    recipe = item ,
+                                    recipe = recipe,
                                     modifier = Modifier.fillMaxWidth().padding(Dimens.smallPadding),
-                                    toggleLike = toggleLike,
-                                ){
-                                    composeNavigator.navigate(RecipeNav(item.id))
-                                }
+                                    isLiked = isLiked,
+                                    onClick = {
+                                        composeNavigator.navigate(RecipeNav(recipe.id))
+                                    } ,
+                                    onToggleLike = {
+                                        toggleLike(recipe.id, !recipe.liked)
+                                        isLiked = !isLiked
+                                    }
+                                )
                             }
                         }
                         item {

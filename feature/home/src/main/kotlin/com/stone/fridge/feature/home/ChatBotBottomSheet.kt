@@ -54,6 +54,7 @@ import com.stone.fridge.core.designsystem.Dimens
 import com.stone.fridge.core.designsystem.R
 import com.stone.fridge.core.designsystem.theme.CustomTheme
 import kotlinx.coroutines.launch
+import kotlin.text.trim
 
 @Composable
 internal fun ChatBotBottomSheet(
@@ -89,7 +90,7 @@ internal fun ChatBotBottomSheet(
     }
     LaunchedEffect(aiResponse.size) {
         if (aiResponse.isNotEmpty()) {
-            listState.animateScrollToItem(aiResponse.size + 3)
+            listState.animateScrollToItem(aiResponse.size + 2)
         }
     }
     ModalBottomSheet(
@@ -116,103 +117,16 @@ internal fun ChatBotBottomSheet(
                 items(
                     count = aiResponse.size
                 ) {
-                    var recipe = aiResponse[it].replace("\\n", "").replace("\"", "").replace("+", "")
+                    val recipe = aiResponse[it].replace("\\n", "").replace("\"", "").replace("+", "")
                     val regex = "\\[(.*?)]".toRegex() // [ ] 안의 텍스트 추출 정규식
                     val parts = regex.split(recipe) // [] 기준으로 텍스트 나누기
                     val matches = regex.findAll(recipe).map { it.groupValues[1] }.toList() // [] 안의 내용 추출
-                    Row(
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Icon(
-                            imageVector = ImageVector.vectorResource(R.drawable.ai_small),
-                            tint = Color.Unspecified,
-                            contentDescription = "ai"
-                        )
-                        Spacer(
-                            modifier = Modifier.size(Dimens.mediumPadding)
-                        )
-                        Card(
-                            colors = CardDefaults.cardColors(
-                                containerColor = CustomTheme.colors.textTertiary,
-                            ),
-                            shape = RoundedCornerShape(Dimens.cornerRadius),
-                            modifier = Modifier
-                                .wrapContentSize()
-                        ) {
-                            Column(
-                                modifier = Modifier.padding(Dimens.largePadding),
-                                verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding)
-                            ) {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                ) {
-                                    Text(
-                                        text = matches[0].trim(), // title
-                                        style = CustomTheme.typography.title1,
-                                        color = Color.Black,
-                                    )
-                                    Row(
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        IconButton(
-                                            modifier = Modifier.then(Modifier.size(24.dp)),
-                                            onClick = {
-                                                addRecipe(recipe)
-                                            }
-                                        ) {
-                                            Icon(
-                                                imageVector = ImageVector.vectorResource(R.drawable.flag),
-                                                tint = Color.Black,
-                                                contentDescription = "save"
-                                            )
-                                        }
-                                        Text(
-                                            text = "저장",
-                                            style = CustomTheme.typography.caption1,
-                                            color = Color.Black
-                                        )
-                                    }
-                                }
-                                parts.forEachIndexed { index, text ->
-                                    if (index > 1) { // 첫 번째 항목은 [] 앞에 있는 내용이므로 제외
-                                        if(index == 2){
-                                            Text(
-                                                text = "${matches[index - 1].trim()} 📌", // 재료
-                                                style = CustomTheme.typography.title1,
-                                                color = Color.Black,
-                                            )
-                                        }
-                                        if(index == 3){
-                                            Text(
-                                                text = "${matches[index - 1].trim()} \uD83D\uDE80", // 레시피
-                                                style = CustomTheme.typography.title1,
-                                                color = Color.Black,
-                                            )
-                                        }
-                                    }
-                                    if(index == 2){
-                                        Text(
-                                            text = text
-                                                .split(",").joinToString("\n") {
-                                                    it.trim().replaceFirst("- ", "✅ ")
-                                                },
-                                            style = CustomTheme.typography.body1,
-                                            color = Color.Black,
-                                        )
-                                    }
-                                    if(index == 3){
-                                        Text(
-                                            text = text.trim(),
-                                            style = CustomTheme.typography.body1,
-                                            color = Color.Black,
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    RecipeCard(
+                        title = matches[0].trim(), // 첫 번째 항목은 제목
+                        onSaveRecipe = {addRecipe(recipe)},
+                        recipes = parts,
+                        matches = matches,
+                    )
                 }
                 item{
                     Row(
@@ -242,37 +156,111 @@ internal fun ChatBotBottomSheet(
                     }
                 }
                 item {
-                    Box(
-                        modifier = Modifier.fillMaxWidth()
+                    RecommendationButton(
+                        onClick = getAIRecipe,
+                        isExpanded = isExpanded,
+                        enabled = aiUIState != AIUIState.Loading
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun RecipeCard(
+    title: String,
+    onSaveRecipe: () -> Unit,
+    recipes: List<String>,
+    matches: List<String>,
+){
+    Row(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Icon(
+            imageVector = ImageVector.vectorResource(R.drawable.ai_small),
+            tint = Color.Unspecified,
+            contentDescription = "ai"
+        )
+        Spacer(
+            modifier = Modifier.size(Dimens.mediumPadding)
+        )
+        Card(
+            colors = CardDefaults.cardColors(
+                containerColor = CustomTheme.colors.textTertiary,
+            ),
+            shape = RoundedCornerShape(Dimens.cornerRadius),
+            modifier = Modifier
+                .wrapContentSize()
+        ) {
+            Column(
+                modifier = Modifier.padding(Dimens.largePadding),
+                verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                ) {
+                    Text(
+                        text = title,
+                        style = CustomTheme.typography.title1,
+                        color = Color.Black,
+                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        ElevatedButton(
-                            modifier = Modifier.align(
-                                alignment = if (isExpanded) Alignment.BottomEnd else Alignment.TopEnd
-                            ),
-                            onClick = {
-                                getAIRecipe()
-                            },
-                            enabled = aiUIState != AIUIState.Loading,
-                            shape = ButtonDefaults.filledTonalShape,
-                            elevation = ButtonDefaults.elevatedButtonElevation(),
-                            colors = ButtonColors(
-                                containerColor = CustomTheme.colors.primary,
-                                contentColor = CustomTheme.colors.onPrimary,
-                                disabledContainerColor = CustomTheme.colors.buttonBorderUnfocused,
-                                disabledContentColor = CustomTheme.colors.textSecondary,
-                            ),
+                        IconButton(
+                            modifier = Modifier.then(Modifier.size(24.dp)),
+                            onClick = onSaveRecipe
                         ) {
+                            Icon(
+                                imageVector = ImageVector.vectorResource(R.drawable.flag),
+                                tint = Color.Black,
+                                contentDescription = "save"
+                            )
+                        }
+                        Text(
+                            text = "저장",
+                            style = CustomTheme.typography.caption1,
+                            color = Color.Black
+                        )
+                    }
+                }
+                recipes.forEachIndexed { index, text ->
+                    if (index > 1) { // 첫 번째 항목은 [] 앞에 있는 내용이므로 제외
+                        if(index == 2){
                             Text(
-                                text = "레시피 추천 받기",
-                                style = CustomTheme.typography.button1,
+                                text = "${matches[index - 1].trim()} 📌", // 재료
+                                style = CustomTheme.typography.title1,
+                                color = Color.Black,
+                            )
+                        }
+                        if(index == 3){
+                            Text(
+                                text = "${matches[index - 1].trim()} \uD83D\uDE80", // 레시피
+                                style = CustomTheme.typography.title1,
+                                color = Color.Black,
                             )
                         }
                     }
-                }
-                item {
-                    Spacer(
-                        modifier = Modifier.height(Dimens.hugePadding)
-                    )
+                    if(index == 2){
+                        Text(
+                            text = text
+                                .split(",").joinToString("\n") {
+                                    it.trim().replaceFirst("- ", "✅ ")
+                                },
+                            style = CustomTheme.typography.body1,
+                            color = Color.Black,
+                        )
+                    }
+                    if(index == 3){
+                        Text(
+                            text = text.trim(),
+                            style = CustomTheme.typography.body1,
+                            color = Color.Black,
+                        )
+                    }
                 }
             }
         }
@@ -329,4 +317,39 @@ private fun Circle(alpha: Float) {
             .graphicsLayer(alpha = alpha)
             .background(CustomTheme.colors.border, shape = CircleShape)
     )
+}
+
+@Composable
+private fun RecommendationButton(
+    onClick: () -> Unit,
+    isExpanded: Boolean,
+    enabled: Boolean,
+){
+    Box(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        ElevatedButton(
+            modifier = Modifier.align(
+                alignment = if (isExpanded) Alignment.BottomEnd else Alignment.TopEnd
+            ),
+            onClick = onClick,
+            enabled = enabled,
+            shape = ButtonDefaults.filledTonalShape,
+            elevation = ButtonDefaults.elevatedButtonElevation(),
+            colors = ButtonColors(
+                containerColor = CustomTheme.colors.primary,
+                contentColor = CustomTheme.colors.onPrimary,
+                disabledContainerColor = CustomTheme.colors.buttonBorderUnfocused,
+                disabledContentColor = CustomTheme.colors.textSecondary,
+            ),
+        ) {
+            Text(
+                text = "레시피 추천 받기",
+                style = CustomTheme.typography.button1,
+            )
+        }
+        Spacer(
+            modifier = Modifier.height(Dimens.hugePadding)
+        )
+    }
 }

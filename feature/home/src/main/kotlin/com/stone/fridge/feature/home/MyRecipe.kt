@@ -13,10 +13,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -35,14 +31,14 @@ import com.stone.fridge.core.designsystem.R
 fun MyRecipe(
     recipe: RecipeRaw,
     modifier: Modifier = Modifier,
-    toggleLike: (Long, Boolean) -> Unit,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    isLiked: Boolean,
+    onToggleLike: () -> Unit,
 ){
-    var isLiked by remember { mutableStateOf(recipe.liked) }
     Column(
-        modifier = modifier.clickable{
-            onClick()
-        }
+        modifier = modifier.clickable(
+            onClick = onClick
+        )
     ) {
         if(recipe.imageUrl != null){
             Box{
@@ -56,10 +52,7 @@ fun MyRecipe(
                 )
                 IconButton(
                     modifier = Modifier.align(Alignment.BottomEnd),
-                    onClick = {
-                        toggleLike(recipe.id, !recipe.liked)
-                        isLiked = !isLiked
-                    }
+                    onClick = onToggleLike
                 ) {
                     if(isLiked){
                         Icon(
@@ -84,10 +77,7 @@ fun MyRecipe(
             ){
                 IconButton(
                     modifier = Modifier.align(Alignment.BottomEnd),
-                    onClick = {
-                        toggleLike(recipe.id, !recipe.liked)
-                        isLiked = !isLiked
-                    }
+                    onClick = onToggleLike
                 ) {
                     if(isLiked){
                         Icon(

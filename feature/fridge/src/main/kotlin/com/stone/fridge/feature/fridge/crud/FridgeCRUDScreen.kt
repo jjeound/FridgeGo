@@ -1,7 +1,11 @@
 package com.stone.fridge.feature.fridge.crud
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -11,9 +15,12 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.stone.fridge.core.designsystem.R
@@ -34,9 +41,16 @@ fun FridgeCRUDScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val fridge by viewModel.fridge.collectAsStateWithLifecycle()
     val scannedDate by viewModel.scannedDate.collectAsStateWithLifecycle()
+    val storageType = remember { mutableStateOf(
+        fridge == null || fridge?.storageType == true
+    ) }
+    val storage = if(storageType.value) "냉장고" else "냉동고"
     FridgeCRUDScreenContent(
         uiState = uiState,
         fridge = fridge,
+        storage = storage,
+        storageType = storageType.value,
+        onTopBarClick = { storageType.value = !storageType.value },
         scannedDate = scannedDate,
         addFridgeItem = viewModel::addItem,
         modifyFridgeItem = viewModel::modifyItem,
@@ -48,6 +62,9 @@ fun FridgeCRUDScreen(
 private fun FridgeCRUDScreenContent(
     uiState: FridgeCRUDUiState,
     fridge: Fridge?,
+    storage: String,
+    storageType: Boolean,
+    onTopBarClick: () -> Unit,
     scannedDate: String?,
     addFridgeItem: (NewFridge, File?) -> Unit,
     modifyFridgeItem: (Long, ModifyFridgeReq, File?) -> Unit,
@@ -60,11 +77,23 @@ private fun FridgeCRUDScreenContent(
             CenterAlignedTopAppBar(
                 modifier = Modifier.padding(horizontal = Dimens.topBarPadding),
                 title = {
-                    Text(
-                        text = "등록하기",
-                        style = CustomTheme.typography.title1,
-                        color = CustomTheme.colors.textPrimary,
-                    )
+                    Row(
+                        modifier = Modifier.clickable(
+                            onClick = onTopBarClick
+                        )
+                    ) {
+                        Text(
+                            text = storage,
+                            style = CustomTheme.typography.title1,
+                            color = CustomTheme.colors.textPrimary,
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Icon(
+                            imageVector = ImageVector.vectorResource(R.drawable.chevron_down),
+                            contentDescription = "storage type",
+                            tint = CustomTheme.colors.iconSelected
+                        )
+                    }
                 },
                 navigationIcon = {
                     IconButton(
@@ -96,6 +125,7 @@ private fun FridgeCRUDScreenContent(
             NewFridgeItemForm(
                 fridge = fridge,
                 uiState = uiState,
+                storageType = storageType,
                 scannedDate = scannedDate,
                 addFridgeItem = addFridgeItem,
                 modifyFridgeItem = modifyFridgeItem,

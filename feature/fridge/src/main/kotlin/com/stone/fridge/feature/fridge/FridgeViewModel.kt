@@ -96,11 +96,11 @@ class FridgeViewModel @Inject constructor(
     fun getItems(fetchType: FridgeFetchType) {
         viewModelScope.launch {
             fridgeRepository.getFridgeItems(fetchType)
+                .cachedIn(viewModelScope)
                 .collect { pagingData ->
                     _fridgeItemPaged.value = pagingData.filter { it.storageType }
                     _freezerItemPaged.value = pagingData.filter { !it.storageType }
                 }
-
         }
     }
 }

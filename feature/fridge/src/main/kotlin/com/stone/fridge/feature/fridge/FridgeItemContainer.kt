@@ -4,7 +4,6 @@ import android.Manifest
 import android.app.Activity
 import android.content.pm.PackageManager
 import android.os.Build
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
@@ -74,7 +73,6 @@ fun FridgeItemContainer(
             if (isGranted) {
                 toggleNotification(item.id, item.alarmStatus) // 알림 토글
                 isNotification.value = !isNotification.value
-                Log.d("Alarm", "알람 등록")
             }
         })
     Card(

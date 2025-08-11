@@ -70,7 +70,6 @@ fun FridgeScreen(
         FridgeScreenContent(
             uiState = uiState,
             items = items,
-            topSelector = topSelector,
             getItems = viewModel::getItems,
             deleteItem = viewModel::deleteItem,
             toggleNotification = viewModel::toggleNotification,
@@ -83,7 +82,6 @@ fun FridgeScreen(
 private fun FridgeScreenContent(
     uiState: FridgeUiState,
     items: LazyPagingItems<Fridge>,
-    topSelector: Boolean,
     getItems: (FridgeFetchType) -> Unit,
     deleteItem: (Long) -> Unit,
     toggleNotification: (Long, Boolean) -> Unit,
@@ -164,22 +162,16 @@ private fun FridgeScreenContent(
         FridgeBody(
             items = items,
             toggleNotification = toggleNotification,
-            topSelector = topSelector,
             onShowDialog = { showDialog.value = true },
             deleteItem = deleteItem
         )
     }
     PermissionDialog(
-        showDialog = showDialog,
+        showDialog = showDialog.value,
         message = "알람 권한이 필요합니다.",
-        onDismiss = { showDialog.value = false },
-        onConfirm = {
-            showDialog.value = false
-            val intent = Intent()
-            intent.action = Settings.ACTION_APP_NOTIFICATION_SETTINGS
-            intent.putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
-            context.startActivity(intent)
-        }
+        onEvent = { showDialog.value = false },
+        context = context,
+        intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
     )
 }
 
@@ -187,7 +179,6 @@ private fun FridgeScreenContent(
 private fun FridgeBody(
     items: LazyPagingItems<Fridge>,
     toggleNotification: (Long, Boolean) -> Unit,
-    topSelector: Boolean,
     onShowDialog: () -> Unit,
     deleteItem: (Long) -> Unit,
 ){

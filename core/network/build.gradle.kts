@@ -46,4 +46,8 @@ dependencies {
     // json parsing
     implementation(libs.kotlinx.serialization.json)
     implementation (libs.converter.gson)
+
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
 }

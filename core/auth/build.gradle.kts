@@ -19,4 +19,6 @@ dependencies {
 
     // unit test
     testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
 }

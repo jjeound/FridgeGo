@@ -9,5 +9,10 @@ android {
 }
 
 dependencies {
+    implementation(projects.core.domain)
     implementation(libs.androidx.paging.compose.android)
+
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
 }

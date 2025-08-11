@@ -17,4 +17,8 @@ dependencies {
 
     // ML Kit - 텍스트 인식
     implementation (libs.text.recognition)
+
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
 }

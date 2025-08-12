@@ -21,6 +21,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.stone.fridge.core.common.levelToKor
@@ -29,6 +30,7 @@ import com.stone.fridge.core.designsystem.R
 import com.stone.fridge.core.designsystem.theme.CustomTheme
 import com.stone.fridge.core.model.Profile
 import com.stone.fridge.core.navigation.currentComposeNavigator
+import com.stone.fridge.core.ui.GoPreviewTheme
 import com.stone.fridge.feature.post.navigation.ReportRoute
 
 @Composable
@@ -114,5 +116,25 @@ internal fun OtherProfile(
                 )
             }
         }
+    }
+}
+
+@Preview
+@Composable
+fun OtherProfilePreview() {
+    GoPreviewTheme {
+        OtherProfile(
+            uiState = PostProfileUiState.Idle,
+            profile = Profile(
+                id = 1,
+                nickname = "User",
+                email = "wdw@dsa.com",
+                imageUrl = null,
+                trustLevelImageUrl = null,
+                trustLevel = null
+            ),
+            isMe = true,
+            onShowSnackbar = { _, _ -> }
+        )
     }
 }

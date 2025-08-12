@@ -39,10 +39,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.LoadState
+import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.stone.fridge.core.designsystem.Dimens
@@ -51,9 +53,11 @@ import com.stone.fridge.core.designsystem.theme.CustomTheme
 import com.stone.fridge.core.model.Keyword
 import com.stone.fridge.core.model.PostRaw
 import com.stone.fridge.core.navigation.currentComposeNavigator
+import com.stone.fridge.core.ui.GoPreviewTheme
 import com.stone.fridge.feature.post.PostListContainer
 import com.stone.fridge.feature.post.navigation.PostDetailRoute
 import com.stone.fridge.feature.post.navigation.PostRoute
+import kotlinx.coroutines.flow.MutableStateFlow
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -64,10 +68,62 @@ fun PostSearchScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val searchResult = viewModel.searchResult.collectAsLazyPagingItems()
     val searchedKeywords by viewModel.keywords.collectAsStateWithLifecycle()
-    val composeNavigator = currentComposeNavigator
-    var text by remember { mutableStateOf("") }
+    var searchKeyword by remember { mutableStateOf("") }
     val focusManager = LocalFocusManager.current
     var showResult by remember { mutableStateOf(false) }
+    PostSearchScreenContent(
+        uiState = uiState,
+        searchKeyword = searchKeyword,
+        onKeywordChange = { searchKeyword = it },
+        searchResult = searchResult,
+        showResult = showResult,
+        onFucusChange = { isFocused ->
+            if (isFocused){
+                showResult = false
+            }
+        },
+        searchedKeywords = searchedKeywords,
+        toggleLike = viewModel::toggleLike,
+        deleteSearchHistory = viewModel::deleteSearchHistory,
+        deleteAllSearchHistory = viewModel::deleteAllSearchHistory,
+        onShowSnackbar = onShowSnackbar,
+        onSearch = {
+            focusManager.clearFocus()
+            if(searchKeyword.isNotBlank()){
+                viewModel.searchPost(searchKeyword)
+                showResult = true
+            }
+        },
+        onClickSearchHistory = { keyword ->
+            focusManager.clearFocus()
+            viewModel.searchPost(keyword)
+            showResult = true
+        }
+    )
+}
+
+@Composable
+private fun PostSearchScreenContent(
+    uiState: SearchUiState,
+    searchKeyword: String,
+    onKeywordChange: (String) -> Unit,
+    searchResult: LazyPagingItems<PostRaw>,
+    showResult: Boolean,
+    onFucusChange: (Boolean) -> Unit ,
+    searchedKeywords: List<Keyword>,
+    toggleLike: (Long) -> Unit,
+    deleteSearchHistory: (String) -> Unit,
+    deleteAllSearchHistory: () -> Unit,
+    onShowSnackbar: suspend (String, String?) -> Unit,
+    onSearch: () -> Unit,
+    onClickSearchHistory: (String) -> Unit,
+){
+    val composeNavigator = currentComposeNavigator
+    LaunchedEffect(uiState) {
+        if(uiState is SearchUiState.Error) {
+            onShowSnackbar(uiState.message, null)
+        }
+    }
     Scaffold(
         containerColor = CustomTheme.colors.surface,
         topBar = {
@@ -102,12 +158,10 @@ fun PostSearchScreen(
                         modifier = Modifier
                             .weight(1f).height(48.dp)
                             .onFocusChanged {
-                                if (it.isFocused) {
-                                    showResult = false
-                                }
+                                onFucusChange(it.isFocused)
                             },
-                        value = text,
-                        onValueChange = { text = it },
+                        value = searchKeyword,
+                        onValueChange = onKeywordChange,
                         placeholder = {
                             Text(
                                 text = "검색",
@@ -129,13 +183,7 @@ fun PostSearchScreen(
                         shape = RoundedCornerShape(Dimens.cornerRadius),
                         singleLine = true,
                         maxLines = 1,
-                        keyboardActions = KeyboardActions(onDone = {
-                            focusManager.clearFocus()
-                            if (text.isNotBlank()) {
-                                viewModel.searchPost(text)
-                                showResult = true
-                            }
-                        })
+                        keyboardActions = KeyboardActions(onDone = { onSearch() })
                     )
                     Box(
                         modifier = Modifier.size(48.dp),
@@ -143,7 +191,7 @@ fun PostSearchScreen(
                     ) {
                         Text(modifier = Modifier.clickable {
                             composeNavigator.navigateAndClearBackStack(PostRoute)
-                            },
+                        },
                             text = "닫기",
                             style = CustomTheme.typography.button1,
                             color = CustomTheme.colors.textPrimary,
@@ -152,111 +200,16 @@ fun PostSearchScreen(
                 }
             }
         },
-    ){ innerPadding ->
-        PostSearchScreenContent(
-            modifier = Modifier.padding(innerPadding).fillMaxSize(),
-            uiState = uiState,
-            searchResult = searchResult,
-            showResult = showResult,
-            searchedKeywords = searchedKeywords,
-            toggleLike = viewModel::toggleLike,
-            deleteSearchHistory = viewModel::deleteSearchHistory,
-            deleteAllSearchHistory = viewModel::deleteAllSearchHistory,
-            onShowSnackbar = onShowSnackbar,
-            onSearch = { keyword ->
-                viewModel.searchPost(keyword)
-                showResult = true
-                focusManager.clearFocus()
-                text = keyword
-            }
-        )
-    }
-}
-
-@Composable
-private fun PostSearchScreenContent(
-    modifier: Modifier,
-    uiState: SearchUiState,
-    searchResult: LazyPagingItems<PostRaw>,
-    showResult: Boolean,
-    searchedKeywords: List<Keyword>,
-    toggleLike: (Long) -> Unit,
-    deleteSearchHistory: (String) -> Unit,
-    deleteAllSearchHistory: () -> Unit,
-    onShowSnackbar: suspend (String, String?) -> Unit,
-    onSearch: (String) -> Unit
-){
-    val composeNavigator = currentComposeNavigator
-    LaunchedEffect(uiState) {
-        if(uiState is SearchUiState.Error) {
-            onShowSnackbar(uiState.message, null)
-        }
-    }
-    Column(
-        modifier = modifier
-            .padding(
-                horizontal = Dimens.surfaceHorizontalPadding,
-                vertical = Dimens.surfaceVerticalPadding
-            )
-            .background(CustomTheme.colors.surface),
-    ){
-        if(showResult){
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(Dimens.mediumPadding),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = "검색 결과",
-                    style = CustomTheme.typography.button2,
-                    color = CustomTheme.colors.textPrimary,
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier.fillMaxSize().padding(innerPadding)
+                .padding(
+                    horizontal = Dimens.surfaceHorizontalPadding,
+                    vertical = Dimens.surfaceVerticalPadding
                 )
-            }
-            if(searchResult.itemCount == 0){
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ){
-                    Text(
-                        text = "검색 결과가 없습니다.",
-                        style = CustomTheme.typography.body1,
-                        color = CustomTheme.colors.textPrimary,
-                    )
-                }
-            } else {
-                LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding)
-                ) {
-                    items(searchResult.itemCount) { index ->
-                        val post = searchResult[index]
-                        if(post != null){
-                            Box(
-                                modifier = Modifier.clickable {
-                                    composeNavigator.navigate(PostDetailRoute(post.id))
-                                }
-                            ){
-                                PostListContainer(
-                                    post = post,
-                                    toggleLike = toggleLike
-                                )
-                            }
-                        }
-                    }
-                    item {
-                        if (searchResult.loadState.append is LoadState.Loading && searchResult.itemCount > 10) {
-                            CircularProgressIndicator(modifier = Modifier
-                                .fillMaxWidth()
-                                .wrapContentWidth(Alignment.CenterHorizontally))
-                        }
-                    }
-                }
-            }
-        }else{
-            Column(
-                modifier = Modifier.fillMaxHeight(),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
+                .background(CustomTheme.colors.surface),
+        ) {
+            if (showResult) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -264,71 +217,130 @@ private fun PostSearchScreenContent(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(
-                        text = "최근 검색",
+                        text = "검색 결과",
                         style = CustomTheme.typography.button2,
                         color = CustomTheme.colors.textPrimary,
                     )
-                    Text(
-                        modifier = Modifier.clickable{
-                            if(searchedKeywords.isNotEmpty()){
-                                deleteAllSearchHistory()
-                            }
-                        },
-                        text = "전체 삭제",
-                        style = CustomTheme.typography.button2,
-                        color = CustomTheme.colors.textSecondary,
-                    )
                 }
-                Spacer(
-                    modifier = Modifier.height(Dimens.mediumPadding)
-                )
-                if(uiState == SearchUiState.Loading) {
-                    CircularProgressIndicator(
-                        color = CustomTheme.colors.primary
-                    )
-                }else {
-                    LazyColumn (
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(
-                                vertical = Dimens.mediumPadding,
-                                horizontal = 6.dp
-                            ),
+                if (searchResult.itemCount == 0) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "검색 결과가 없습니다.",
+                            style = CustomTheme.typography.body1,
+                            color = CustomTheme.colors.textPrimary,
+                        )
+                    }
+                } else {
+                    LazyColumn(
                         verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding)
                     ) {
-                        items(searchedKeywords.size) { index ->
-                            val keyword = searchedKeywords[index]
-                            Row(
-                                modifier = Modifier.fillMaxWidth().clickable{
-                                    onSearch(keyword.keyword)
-                                },
-                                verticalAlignment = Alignment.CenterVertically
-                            ){
-                                Icon(
-                                    imageVector = ImageVector.vectorResource(R.drawable.history),
-                                    contentDescription = "search",
-                                    tint = CustomTheme.colors.iconDefault
+                        items(searchResult.itemCount) { index ->
+                            val post = searchResult[index]
+                            if (post != null) {
+                                Box(
+                                    modifier = Modifier.clickable {
+                                        composeNavigator.navigate(PostDetailRoute(post.id))
+                                    }
+                                ) {
+                                    PostListContainer(
+                                        post = post,
+                                        toggleLike = toggleLike
+                                    )
+                                }
+                            }
+                        }
+                        item {
+                            if (searchResult.loadState.append is LoadState.Loading && searchResult.itemCount > 10) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .wrapContentWidth(Alignment.CenterHorizontally)
                                 )
-                                Spacer(
-                                    modifier = Modifier.width(Dimens.mediumPadding)
-                                )
-                                Text(
-                                    modifier = Modifier.weight(1f),
-                                    text = keyword.keyword,
-                                    style = CustomTheme.typography.body1,
-                                    color = CustomTheme.colors.textPrimary,
-                                )
-                                IconButton(
-                                    onClick = {
-                                        deleteSearchHistory(keyword.keyword)
+                            }
+                        }
+                    }
+                }
+            } else {
+                Column(
+                    modifier = Modifier.fillMaxHeight(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(Dimens.mediumPadding),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = "최근 검색",
+                            style = CustomTheme.typography.button2,
+                            color = CustomTheme.colors.textPrimary,
+                        )
+                        Text(
+                            modifier = Modifier.clickable {
+                                if (searchedKeywords.isNotEmpty()) {
+                                    deleteAllSearchHistory()
+                                }
+                            },
+                            text = "전체 삭제",
+                            style = CustomTheme.typography.button2,
+                            color = CustomTheme.colors.textSecondary,
+                        )
+                    }
+                    Spacer(
+                        modifier = Modifier.height(Dimens.mediumPadding)
+                    )
+                    if (uiState == SearchUiState.Loading) {
+                        CircularProgressIndicator(
+                            color = CustomTheme.colors.primary
+                        )
+                    } else {
+                        LazyColumn(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(
+                                    vertical = Dimens.mediumPadding,
+                                    horizontal = 6.dp
+                                ),
+                            verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding)
+                        ) {
+                            items(searchedKeywords.size) { index ->
+                                val keyword = searchedKeywords[index]
+                                Row(
+                                    modifier = Modifier.fillMaxWidth().clickable{
+                                        onClickSearchHistory(keyword.keyword)
                                     },
-                                    modifier = Modifier.size(24.dp)
-                                ){
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
                                     Icon(
-                                        imageVector = ImageVector.vectorResource(R.drawable.close),
-                                        contentDescription = "close",
+                                        imageVector = ImageVector.vectorResource(R.drawable.history),
+                                        contentDescription = "search",
                                         tint = CustomTheme.colors.iconDefault
                                     )
+                                    Spacer(
+                                        modifier = Modifier.width(Dimens.mediumPadding)
+                                    )
+                                    Text(
+                                        modifier = Modifier.weight(1f),
+                                        text = keyword.keyword,
+                                        style = CustomTheme.typography.body1,
+                                        color = CustomTheme.colors.textPrimary,
+                                    )
+                                    IconButton(
+                                        onClick = {
+                                            deleteSearchHistory(keyword.keyword)
+                                        },
+                                        modifier = Modifier.size(24.dp)
+                                    ) {
+                                        Icon(
+                                            imageVector = ImageVector.vectorResource(R.drawable.close),
+                                            contentDescription = "close",
+                                            tint = CustomTheme.colors.iconDefault
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -336,5 +348,31 @@ private fun PostSearchScreenContent(
                 }
             }
         }
+    }
+}
+
+@Preview
+@Composable
+fun PostSearchScreenContentPreview(){
+    GoPreviewTheme {
+        PostSearchScreenContent(
+            uiState = SearchUiState.Idle,
+            searchKeyword = "",
+            onKeywordChange = { },
+            searchResult = MutableStateFlow(PagingData.empty<PostRaw>()).collectAsLazyPagingItems(),
+            showResult = false,
+            onFucusChange = {},
+            searchedKeywords = listOf(
+                Keyword("동네"),
+                Keyword("맛집"),
+                Keyword("카페")
+            ),
+            toggleLike = {},
+            deleteSearchHistory = {},
+            deleteAllSearchHistory = {},
+            onShowSnackbar = { _, _ -> },
+            onSearch = {},
+            onClickSearchHistory = {}
+        )
     }
 }

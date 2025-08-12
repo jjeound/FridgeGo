@@ -18,16 +18,20 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.LoadState
+import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.stone.fridge.core.designsystem.Dimens
 import com.stone.fridge.core.designsystem.theme.CustomTheme
 import com.stone.fridge.core.model.PostRaw
 import com.stone.fridge.core.navigation.currentComposeNavigator
+import com.stone.fridge.core.ui.GoPreviewTheme
 import com.stone.fridge.feature.post.navigation.PostDetailRoute
+import kotlinx.coroutines.flow.MutableStateFlow
 
 @Composable
 fun PostScreen(
@@ -128,5 +132,18 @@ private fun PostScreenContent(
                 }
             }
         }
+    }
+}
+
+@Preview
+@Composable
+fun PostScreenContentPreview() {
+    GoPreviewTheme {
+        PostScreenContent(
+            uiState = PostUiState.Success,
+            posts = MutableStateFlow(PagingData.empty<PostRaw>()).collectAsLazyPagingItems(),
+            toggleLike = {},
+            onShowSnackbar = { _, _ -> }
+        )
     }
 }

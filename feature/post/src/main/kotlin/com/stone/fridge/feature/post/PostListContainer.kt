@@ -25,12 +25,14 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.stone.fridge.core.designsystem.Dimens
 import com.stone.fridge.core.designsystem.R
 import com.stone.fridge.core.designsystem.theme.CustomTheme
 import com.stone.fridge.core.model.PostRaw
+import com.stone.fridge.core.ui.GoPreviewTheme
 
 @Composable
 fun PostListContainer(
@@ -145,5 +147,29 @@ fun PostListContainer(
                 }
             }
         }
+    }
+}
+
+@Preview
+@Composable
+fun PostListContainerPreview() {
+    GoPreviewTheme {
+        PostListContainer(
+            post = PostRaw(
+                id = 1L,
+                title = "Sample Post",
+                price = 10000,
+                neighborhood = "Sample Neighborhood",
+                timeAgo = "2 hours ago",
+                imageUrls = emptyList(),
+                currentParticipants = 2,
+                memberCount = 5,
+                liked = true,
+                likeCount = 10,
+                district = "남구",
+                roomActive = true
+            ),
+            toggleLike = {}
+        )
     }
 }

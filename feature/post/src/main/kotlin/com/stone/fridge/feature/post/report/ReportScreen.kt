@@ -1,6 +1,5 @@
 package com.stone.fridge.feature.post.report
 
-import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -43,6 +42,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -50,7 +50,7 @@ import com.stone.fridge.core.designsystem.Dimens
 import com.stone.fridge.core.designsystem.R
 import com.stone.fridge.core.designsystem.theme.CustomTheme
 import com.stone.fridge.core.navigation.currentComposeNavigator
-import com.stone.fridge.feature.post.detail.PostDetailUiState
+import com.stone.fridge.core.ui.GoPreviewTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -61,7 +61,58 @@ fun ReportScreen(
     onShowSnackbar: suspend (String, String?) -> Unit,
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    var isExpanded by remember { mutableStateOf(false) }
+    var reportTypeText by remember { mutableStateOf("") }
+    var content by remember { mutableStateOf("") }
+    if(uiState == ReportUiState.Loading){
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ){
+            CircularProgressIndicator(
+                color = CustomTheme.colors.primary,
+            )
+        }
+    } else {
+        ReportScreenContent(
+            uiState = uiState,
+            isExpanded = isExpanded,
+            reportTypeText = reportTypeText,
+            content = content,
+            onContentChange = { content = it },
+            onClickTrailingIcon = { isExpanded = true},
+            onDismissRequest = { isExpanded = false },
+            onClickReportType = {
+                isExpanded = false
+                reportTypeText = it
+            },
+            reportUser = viewModel::reportUser,
+            reportPost = viewModel::reportPost,
+            isPost = isPost,
+            id = id,
+            onShowSnackbar = onShowSnackbar
+        )
+    }
+}
+
+@Composable
+private fun ReportScreenContent(
+    uiState: ReportUiState,
+    isExpanded: Boolean,
+    reportTypeText: String,
+    content: String,
+    onContentChange: (String) -> Unit,
+    onClickTrailingIcon: () -> Unit,
+    onDismissRequest: () -> Unit,
+    onClickReportType: (String) -> Unit,
+    reportUser: (Long, String, String) -> Unit,
+    reportPost: (Long, String, String) -> Unit,
+    isPost: Boolean,
+    id: Long,
+    onShowSnackbar: suspend (String, String?) -> Unit
+){
     val composeNavigator = currentComposeNavigator
+    val focusManager = LocalFocusManager.current
     val reportType = listOf(
         "욕설",
         "사기",
@@ -82,6 +133,13 @@ fun ReportScreen(
         "• 신고된 내용은 운영진의 판단에 따라 처리되며, 처리 결과는 별도로 안내되지 않을 수 있습니다.",
         "• 신고는 익명으로 처리되며, 신고자의 정보는 상대방에게 공개되지 않습니다."
     )
+    LaunchedEffect(uiState) {
+        if (uiState is ReportUiState.Success) {
+            onShowSnackbar(uiState.message, null)
+        } else if (uiState is ReportUiState.Error){
+            onShowSnackbar(uiState.message, null)
+        }
+    }
     Scaffold(
         containerColor = CustomTheme.colors.onSurface,
         topBar = {
@@ -113,230 +171,206 @@ fun ReportScreen(
             )
         },
     ) { innerPadding ->
-        if(uiState == ReportUiState.Loading){
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ){
-                CircularProgressIndicator(
-                    color = CustomTheme.colors.primary,
-                )
-            }
-        } else {
-            ReportScreenContent(
-                modifier = Modifier.fillMaxSize()
-                    .padding(innerPadding),
-                uiState = uiState,
-                reportType = reportType,
-                cautions = cautions,
-                reportUser = viewModel::reportUser,
-                reportPost = viewModel::reportPost,
-                isPost = isPost,
-                id = id,
-                onShowSnackbar = onShowSnackbar
-            )
-        }
-    }
-}
-
-@Composable
-private fun ReportScreenContent(
-    modifier: Modifier,
-    uiState: ReportUiState,
-    reportType: List<String>,
-    cautions: List<String>,
-    reportUser: (Long, String, String) -> Unit,
-    reportPost: (Long, String, String) -> Unit,
-    isPost: Boolean,
-    id: Long,
-    onShowSnackbar: suspend (String, String?) -> Unit
-){
-    var isExpanded by remember { mutableStateOf(false) }
-    var reportTypeText by remember { mutableStateOf("") }
-    var content by remember { mutableStateOf("") }
-    val focusManager = LocalFocusManager.current
-    LaunchedEffect(uiState) {
-        if (uiState is ReportUiState.Success) {
-            onShowSnackbar(uiState.message, null)
-        } else if (uiState is ReportUiState.Error){
-            onShowSnackbar(uiState.message, null)
-        }
-    }
-    Column(
-        modifier = modifier
-            .padding(horizontal = Dimens.surfaceHorizontalPadding,
-                vertical = Dimens.surfaceVerticalPadding)
-            .verticalScroll(
-                rememberScrollState()
-            )
-            .clickable{
-                focusManager.clearFocus()
-            },
-        verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding)
-    ){
         Column(
-            modifier = Modifier.fillMaxWidth()
-                .padding(Dimens.mediumPadding),
-            verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding),
-            horizontalAlignment = Alignment.Start
-        ) {
-            Text(
-                text = "신고 유형",
-                style = CustomTheme.typography.title2,
-                color = CustomTheme.colors.textPrimary,
-            )
-            OutlinedTextField(
-                modifier = Modifier.fillMaxWidth(),
-                value = reportTypeText,
-                onValueChange = {},
-                placeholder = {
-                    Text(
-                        text = "신고 유형을 선택해주세요.",
-                        style = CustomTheme.typography.body2,
-                        color = CustomTheme.colors.textSecondary
-                    )
+            modifier = Modifier.fillMaxSize().padding(innerPadding)
+                .padding(
+                    horizontal = Dimens.surfaceHorizontalPadding,
+                    vertical = Dimens.surfaceVerticalPadding
+                )
+                .verticalScroll(
+                    rememberScrollState()
+                )
+                .clickable {
+                    focusManager.clearFocus()
                 },
-                trailingIcon = {
-                    IconButton(
-                        onClick = { isExpanded = true }
-                    ) {
-                        Icon(
-                            imageVector = ImageVector.vectorResource(R.drawable.chevron_down),
-                            contentDescription = "expand dropdown",
+            verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding)
+        ) {
+            Column(
+                modifier = Modifier.fillMaxWidth()
+                    .padding(Dimens.mediumPadding),
+                verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding),
+                horizontalAlignment = Alignment.Start
+            ) {
+                Text(
+                    text = "신고 유형",
+                    style = CustomTheme.typography.title2,
+                    color = CustomTheme.colors.textPrimary,
+                )
+                OutlinedTextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    value = reportTypeText,
+                    onValueChange = {},
+                    placeholder = {
+                        Text(
+                            text = "신고 유형을 선택해주세요.",
+                            style = CustomTheme.typography.body2,
+                            color = CustomTheme.colors.textSecondary
+                        )
+                    },
+                    trailingIcon = {
+                        IconButton(
+                            onClick = onClickTrailingIcon
+                        ) {
+                            Icon(
+                                imageVector = ImageVector.vectorResource(R.drawable.chevron_down),
+                                contentDescription = "expand dropdown",
+                            )
+                        }
+                    },
+                    textStyle = CustomTheme.typography.body2,
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = CustomTheme.colors.onSurface,
+                        focusedIndicatorColor = CustomTheme.colors.border,
+                        unfocusedTextColor = CustomTheme.colors.textPrimary,
+                        unfocusedContainerColor = CustomTheme.colors.onSurface,
+                        unfocusedIndicatorColor = CustomTheme.colors.border,
+                        unfocusedTrailingIconColor = CustomTheme.colors.iconSelected,
+                    ),
+                    shape = RoundedCornerShape(Dimens.cornerRadius),
+                    readOnly = true,
+                )
+                DropdownMenu(
+                    expanded = isExpanded,
+                    onDismissRequest = onDismissRequest,
+                    containerColor = CustomTheme.colors.onSurface,
+                    border = BorderStroke(
+                        width = 1.dp,
+                        color = CustomTheme.colors.border
+                    ),
+                    shadowElevation = 0.dp,
+                    tonalElevation = 0.dp,
+                    shape = RoundedCornerShape(Dimens.cornerRadius),
+                ) {
+                    reportType.forEach { option ->
+                        DropdownMenuItem(
+                            text = {
+                                Text(
+                                    text = option,
+                                    style = CustomTheme.typography.body2,
+                                    color = CustomTheme.colors.textPrimary,
+                                )
+                            },
+                            onClick = {
+                                onClickReportType(option)
+                            },
                         )
                     }
-                },
-                textStyle = CustomTheme.typography.body2,
-                colors = TextFieldDefaults.colors(
-                    focusedContainerColor = CustomTheme.colors.onSurface,
-                    focusedIndicatorColor = CustomTheme.colors.border,
-                    unfocusedTextColor = CustomTheme.colors.textPrimary,
-                    unfocusedContainerColor = CustomTheme.colors.onSurface,
-                    unfocusedIndicatorColor = CustomTheme.colors.border,
-                    unfocusedTrailingIconColor = CustomTheme.colors.iconSelected,
-                ),
+                }
+            }
+            Column(
+                modifier = Modifier.fillMaxWidth()
+                    .padding(Dimens.mediumPadding),
+                verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding),
+                horizontalAlignment = Alignment.Start
+            ) {
+                Text(
+                    text = "신고 내용",
+                    style = CustomTheme.typography.title2,
+                    color = CustomTheme.colors.textPrimary,
+                )
+                OutlinedTextField(
+                    modifier = Modifier.fillMaxWidth()
+                        .height(120.dp),
+                    value = content,
+                    onValueChange = onContentChange,
+                    placeholder = {
+                        Text(
+                            text = "신고 내용을 작성해주세요.",
+                            style = CustomTheme.typography.body2,
+                            color = CustomTheme.colors.textSecondary
+                        )
+                    },
+                    textStyle = CustomTheme.typography.body2,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = CustomTheme.colors.textFieldBorder,
+                        unfocusedBorderColor = CustomTheme.colors.border,
+                        focusedTextColor = CustomTheme.colors.textPrimary,
+                        unfocusedTextColor = CustomTheme.colors.textPrimary,
+                        focusedContainerColor = CustomTheme.colors.onSurface,
+                        unfocusedContainerColor = CustomTheme.colors.onSurface,
+                        cursorColor = CustomTheme.colors.textPrimary,
+                        errorCursorColor = CustomTheme.colors.error,
+                    ),
+                    shape = RoundedCornerShape(Dimens.cornerRadius),
+                    keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
+                )
+            }
+            Column(
+                modifier = Modifier.fillMaxWidth()
+                    .padding(Dimens.mediumPadding),
+                verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding),
+                horizontalAlignment = Alignment.Start
+            ) {
+                Text(
+                    text = "주의사항 \uD83D\uDEA8",
+                    style = CustomTheme.typography.title2,
+                    color = CustomTheme.colors.textPrimary,
+                )
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.Start
+                ) {
+                    cautions.forEach {
+                        Text(
+                            text = it,
+                            style = CustomTheme.typography.caption1,
+                            color = CustomTheme.colors.textPrimary,
+                        )
+                    }
+                }
+            }
+            Spacer(modifier = Modifier.weight(1f))
+            Button(
+                modifier = Modifier
+                    .fillMaxWidth(),
                 shape = RoundedCornerShape(Dimens.cornerRadius),
-                readOnly = true,
-            )
-            DropdownMenu(
-                expanded = isExpanded,
-                onDismissRequest = { isExpanded = false },
-                containerColor = CustomTheme.colors.onSurface,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = CustomTheme.colors.primary,
+                    disabledContainerColor = CustomTheme.colors.onSurface,
+                    contentColor = CustomTheme.colors.onPrimary,
+                    disabledContentColor = CustomTheme.colors.textTertiary
+                ),
                 border = BorderStroke(
                     width = 1.dp,
                     color = CustomTheme.colors.border
                 ),
-                shadowElevation = 0.dp,
-                tonalElevation = 0.dp,
-                shape = RoundedCornerShape(Dimens.cornerRadius),
+                enabled = reportTypeText.isNotBlank() && content.isNotBlank(),
+                onClick = {
+                    if (isPost) {
+                        reportPost(id, ReportType.fromKor(reportTypeText) ?: "OTHER", content)
+                    } else {
+                        reportUser(id, ReportType.fromKor(reportTypeText) ?: "OTHER", content)
+                    }
+                }
             ) {
-                reportType.forEach { option ->
-                    DropdownMenuItem(
-                        text = {
-                            Text(
-                                text = option,
-                                style = CustomTheme.typography.body2,
-                                color = CustomTheme.colors.textPrimary,
-                            )},
-                        onClick = {
-                            isExpanded = false
-                            reportTypeText = option
-                        },
-                    )
-                }
+                Text(
+                    text = "신고하기",
+                    style = CustomTheme.typography.button1,
+                )
             }
         }
-        Column(
-            modifier = Modifier.fillMaxWidth()
-                .padding(Dimens.mediumPadding),
-            verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding),
-            horizontalAlignment = Alignment.Start
-        ) {
-            Text(
-                text = "신고 내용",
-                style = CustomTheme.typography.title2,
-                color = CustomTheme.colors.textPrimary,
-            )
-            OutlinedTextField(
-                modifier = Modifier.fillMaxWidth()
-                    .height(120.dp),
-                value = content,
-                onValueChange = {content = it},
-                placeholder = {
-                    Text(
-                        text = "신고 내용을 작성해주세요.",
-                        style = CustomTheme.typography.body2,
-                        color = CustomTheme.colors.textSecondary
-                    )
-                },
-                textStyle = CustomTheme.typography.body2,
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = CustomTheme.colors.textFieldBorder,
-                    unfocusedBorderColor = CustomTheme.colors.border,
-                    focusedTextColor = CustomTheme.colors.textPrimary,
-                    unfocusedTextColor = CustomTheme.colors.textPrimary,
-                    focusedContainerColor = CustomTheme.colors.onSurface,
-                    unfocusedContainerColor = CustomTheme.colors.onSurface,
-                    cursorColor = CustomTheme.colors.textPrimary,
-                    errorCursorColor = CustomTheme.colors.error,
-                ),
-                shape = RoundedCornerShape(Dimens.cornerRadius),
-                keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
-            )
-        }
-        Column(
-            modifier = Modifier.fillMaxWidth()
-                .padding(Dimens.mediumPadding),
-            verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding),
-            horizontalAlignment = Alignment.Start
-        ) {
-            Text(
-                text = "주의사항 \uD83D\uDEA8",
-                style = CustomTheme.typography.title2,
-                color = CustomTheme.colors.textPrimary,
-            )
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.Start
-            ){
-                cautions.forEach {
-                    Text(
-                        text = it,
-                        style = CustomTheme.typography.caption1,
-                        color = CustomTheme.colors.textPrimary,
-                    )
-                }
-            }
-        }
-        Spacer(modifier = Modifier.weight(1f))
-        Button(
-            modifier = Modifier
-                .fillMaxWidth(),
-            shape = RoundedCornerShape(Dimens.cornerRadius),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = CustomTheme.colors.primary,
-                disabledContainerColor = CustomTheme.colors.onSurface,
-                contentColor = CustomTheme.colors.onPrimary,
-                disabledContentColor = CustomTheme.colors.textTertiary
-            ),
-            border = BorderStroke(
-                width = 1.dp,
-                color = CustomTheme.colors.border
-            ),
-            enabled = reportTypeText.isNotBlank() && content.isNotBlank(),
-            onClick = {
-                if(isPost){
-                    reportPost(id, ReportType.fromKor(reportTypeText) ?: "OTHER", content)
-                }else{
-                    reportUser(id, ReportType.fromKor(reportTypeText) ?: "OTHER", content)
-                }
-            }
-        ) {
-            Text(
-                text = "신고하기",
-                style = CustomTheme.typography.button1,
-            )
-        }
+    }
+}
+
+@Preview
+@Composable
+fun ReportScreenContentPreview() {
+    GoPreviewTheme {
+        ReportScreenContent(
+            uiState = ReportUiState.Idle,
+            isExpanded = false,
+            reportTypeText = "",
+            content = "",
+            onContentChange = {},
+            onClickTrailingIcon = {},
+            onDismissRequest = {},
+            onClickReportType = {},
+            reportUser = { _, _, _ -> },
+            reportPost = { _, _, _ -> },
+            isPost = true,
+            id = 1L,
+            onShowSnackbar = { _, _ -> }
+        )
     }
 }

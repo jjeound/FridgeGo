@@ -21,11 +21,13 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import coil.compose.AsyncImage
 import com.stone.fridge.core.designsystem.Dimens
 import com.stone.fridge.core.designsystem.theme.CustomTheme
 import com.stone.fridge.core.model.RecipeRaw
 import com.stone.fridge.core.designsystem.R
+import com.stone.fridge.core.ui.GoPreviewTheme
 
 @Composable
 fun MyRecipe(
@@ -105,6 +107,24 @@ fun MyRecipe(
             overflow = TextOverflow.Ellipsis,
             maxLines = 1,
             softWrap = false,
+        )
+    }
+}
+
+@Preview
+@Composable
+fun MyRecipePreview() {
+    GoPreviewTheme {
+        MyRecipe(
+            recipe = RecipeRaw(
+                id = 1L,
+                title = "Sample Recipe",
+                imageUrl = null,
+                liked = true
+            ),
+            onClick = {},
+            isLiked = false,
+            onToggleLike = {}
         )
     }
 }

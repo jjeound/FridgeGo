@@ -41,6 +41,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -50,6 +51,7 @@ import com.stone.fridge.core.designsystem.theme.CustomTheme
 import com.stone.fridge.core.designsystem.R
 import com.stone.fridge.core.model.Recipe
 import com.stone.fridge.core.navigation.currentComposeNavigator
+import com.stone.fridge.core.ui.GoPreviewTheme
 import com.stone.fridge.feature.home.navigation.HomeRoute
 import com.stone.fridge.feature.home.navigation.RecipeModifyNav
 
@@ -307,5 +309,26 @@ private fun RecipeBody(
                 }
             }
         }
+    }
+}
+
+@Preview
+@Composable
+private fun RecipeScreenPreview() {
+    GoPreviewTheme {
+        RecipeContent(
+            uiState = RecipeUiState.Idle,
+            recipe = Recipe(
+                id = 1L,
+                title = "Sample Recipe",
+                imageUrl = null,
+                ingredients = listOf("Ingredient 1", "Ingredient 2"),
+                instructions = "1. Step one.\n2. Step two.",
+                liked = true
+            ),
+            toggleLike = { _, _ -> },
+            deleteRecipe = {},
+            onShowSnackbar = { _, _ -> }
+        )
     }
 }

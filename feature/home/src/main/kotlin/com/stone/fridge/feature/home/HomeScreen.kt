@@ -36,10 +36,12 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.LoadState
+import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import coil.compose.AsyncImage
@@ -48,7 +50,9 @@ import com.stone.fridge.core.designsystem.theme.CustomTheme
 import com.stone.fridge.core.model.RecipeRaw
 import com.stone.fridge.core.designsystem.R
 import com.stone.fridge.core.navigation.currentComposeNavigator
+import com.stone.fridge.core.ui.GoPreviewTheme
 import com.stone.fridge.feature.home.navigation.RecipeNav
+import kotlinx.coroutines.flow.MutableStateFlow
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -261,5 +265,37 @@ private fun RecipeBox(
                 }
             }
         }
+    }
+}
+
+@Preview
+@Composable
+fun HomeTopbarPreview(){
+    GoPreviewTheme {
+        HomeTopBar(
+            isUnread = true,
+            navigateToNotification = {}
+        )
+    }
+}
+
+@Preview
+@Composable
+fun HomeContentPreview() {
+    GoPreviewTheme {
+        HomeContent(
+            homeUiState = HomeUiState.Idle,
+            aiUIState = AIUIState.Idle,
+            recipeItems = MutableStateFlow(PagingData.empty<RecipeRaw>()).collectAsLazyPagingItems(),
+            aiResponse = emptyList(),
+            tastePref = "고기를 좋아해",
+            shouldShowBottomSheet = false,
+            hideBottomSheet = {},
+            addRecipe = {},
+            toggleLike = {_, _ -> },
+            setTastePreference = {},
+            getAIRecipe = {},
+            onShowSnackbar = { _, _ -> }
+        )
     }
 }

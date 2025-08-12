@@ -49,10 +49,12 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.stone.fridge.core.designsystem.Dimens
 import com.stone.fridge.core.designsystem.R
 import com.stone.fridge.core.designsystem.theme.CustomTheme
+import com.stone.fridge.core.ui.GoPreviewTheme
 import kotlinx.coroutines.launch
 import kotlin.text.trim
 
@@ -350,6 +352,22 @@ private fun RecommendationButton(
         }
         Spacer(
             modifier = Modifier.height(Dimens.hugePadding)
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun ChatBotBottomSheetPreview() {
+    GoPreviewTheme {
+        ChatBotBottomSheet(
+            aiUIState = AIUIState.Idle,
+            aiResponse = listOf(
+                "[치킨 스튜] [재료] 닭고기, 감자, 당근, 양파, 마늘, 토마토 소스 [레시피] 1. 닭고기를 볶는다. 2. 야채를 추가한다. 3. 토마토 소스를 넣고 끓인다."
+            ),
+            addRecipe = {},
+            getAIRecipe = {},
+            hideBottomSheet = {}
         )
     }
 }

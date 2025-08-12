@@ -65,6 +65,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
 import androidx.core.content.ContextCompat
@@ -78,6 +79,7 @@ import com.stone.fridge.core.designsystem.theme.CustomTheme
 import com.stone.fridge.core.model.Recipe
 import com.stone.fridge.core.navigation.currentComposeNavigator
 import com.stone.fridge.core.designsystem.R
+import com.stone.fridge.core.ui.GoPreviewTheme
 import com.stone.fridge.core.ui.PermissionDialog
 import kotlinx.coroutines.launch
 import java.io.File
@@ -120,7 +122,7 @@ private fun RecipeModifyContent(
     val showDialog = remember { mutableStateOf(false) }
     val context = LocalContext.current
     var title by rememberSaveable { mutableStateOf(recipe.title) }
-    val ingredients = rememberSaveable { recipe.ingredients.toMutableStateList() }
+    val ingredients = remember { recipe.ingredients.toMutableStateList() }
     var instructions by rememberSaveable { mutableStateOf(recipe.instructions) }
     var image by rememberSaveable { mutableStateOf(recipe.imageUrl) }
     var imageFile by remember { mutableStateOf<File?>(null) }
@@ -635,4 +637,24 @@ private fun InstructionsField(
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
         keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() })
     )
+}
+
+@Preview
+@Composable
+fun RecipeModifyScreenContentPreview() {
+    GoPreviewTheme {
+        RecipeModifyContent(
+            recipe = Recipe(
+                id = 1L,
+                title = "제목",
+                imageUrl = null,
+                ingredients = listOf("재료1", "재료2"),
+                instructions = "1. 레시피 설명",
+                liked = false
+            ),
+            uiState = RecipeUiState.Idle,
+            uploadImageThenModifyRecipe = { _, _ -> },
+            onShowSnackbar = { _, _ -> }
+        )
+    }
 }

@@ -41,6 +41,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
 import androidx.core.content.ContextCompat
@@ -50,6 +51,7 @@ import com.stone.fridge.core.designsystem.R
 import com.stone.fridge.core.designsystem.theme.CustomTheme
 import com.stone.fridge.core.model.Fridge
 import com.stone.fridge.core.navigation.currentComposeNavigator
+import com.stone.fridge.core.ui.GoPreviewTheme
 import com.stone.fridge.feature.fridge.crud.convertMillisToDate
 import com.stone.fridge.feature.fridge.navigation.FridgeCRUDRoute
 
@@ -225,5 +227,26 @@ fun FridgeItemContainer(
                 }
             }
         }
+    }
+}
+
+@Preview
+@Composable
+fun FridgeItemContainerPreview(){
+    GoPreviewTheme {
+        FridgeItemContainer(
+            item = Fridge(
+                id = 1L,
+                foodName = "두부",
+                useByDate = 1735689600000L,
+                count = 3,
+                imageUrl = null,
+                alarmStatus = true,
+                storageType = true,
+            ),
+            toggleNotification = { _, _ -> },
+            onShowDialog = {},
+            deleteItem = {}
+        )
     }
 }

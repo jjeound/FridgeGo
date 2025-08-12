@@ -33,10 +33,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.LoadState
+import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.stone.fridge.core.designsystem.Dimens
@@ -44,7 +46,9 @@ import com.stone.fridge.core.designsystem.R
 import com.stone.fridge.core.designsystem.theme.CustomTheme
 import com.stone.fridge.core.model.Fridge
 import com.stone.fridge.core.paging.FridgeFetchType
+import com.stone.fridge.core.ui.GoPreviewTheme
 import com.stone.fridge.core.ui.PermissionDialog
+import kotlinx.coroutines.flow.MutableStateFlow
 
 @Composable
 fun FridgeScreen(
@@ -215,5 +219,33 @@ private fun FridgeBody(
                 }
             }
         }
+    }
+}
+
+@Preview
+@Composable
+private fun FridgeTopBarPreview(){
+    GoPreviewTheme {
+        FridgeTopBar(
+            topSelector = true,
+            updateTopSelector = {},
+            isUnread = false,
+            navigateToNotification = {}
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun FridgeScreenContentPreview() {
+    GoPreviewTheme {
+        FridgeScreenContent(
+            uiState = FridgeUiState.Idle,
+            items = MutableStateFlow(PagingData.empty<Fridge>()).collectAsLazyPagingItems(),
+            getItems = {},
+            deleteItem = {},
+            toggleNotification = { _, _ -> },
+            onShowSnackbar = { _, _ -> }
+        )
     }
 }

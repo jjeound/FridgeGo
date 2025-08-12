@@ -4,7 +4,6 @@ import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Build
 import android.provider.Settings
 import android.util.Log
@@ -62,6 +61,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
 import androidx.core.content.ContextCompat
@@ -75,6 +75,7 @@ import com.stone.fridge.core.model.Fridge
 import com.stone.fridge.core.model.ModifyFridgeReq
 import com.stone.fridge.core.model.NewFridge
 import com.stone.fridge.core.navigation.currentComposeNavigator
+import com.stone.fridge.core.ui.GoPreviewTheme
 import com.stone.fridge.core.ui.PermissionDialog
 import com.stone.fridge.feature.fridge.navigation.FridgeScanRoute
 import java.io.File
@@ -95,7 +96,6 @@ internal fun NewFridgeItemForm(
 ){
     val context = LocalContext.current
     val activity = context as? Activity
-    val packageName = context.packageName
     val focusManager = LocalFocusManager.current
     val composeNavigator = currentComposeNavigator
     val showDialog = remember { mutableStateOf(false) }
@@ -626,4 +626,20 @@ fun parseDateToMillis(dateString: String): Long {
 
     // 모든 포맷이 실패하면 0L 반환
     return 0L
+}
+
+@Preview
+@Composable
+fun NewFridgeItemFormPreview() {
+    GoPreviewTheme {
+        NewFridgeItemForm(
+            fridge = null,
+            uiState = FridgeCRUDUiState.Idle,
+            storageType = true,
+            scannedDate = null,
+            modifyFridgeItem = { _, _, _ -> },
+            addFridgeItem = { _, _ -> },
+            onShowSnackbar = { _, _ -> }
+        )
+    }
 }

@@ -20,6 +20,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -30,6 +31,7 @@ import com.stone.fridge.core.model.Fridge
 import com.stone.fridge.core.model.ModifyFridgeReq
 import com.stone.fridge.core.model.NewFridge
 import com.stone.fridge.core.navigation.currentComposeNavigator
+import com.stone.fridge.core.ui.GoPreviewTheme
 import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -132,5 +134,23 @@ private fun FridgeCRUDScreenContent(
                 onShowSnackbar = onShowSnackbar,
             )
         }
+    }
+}
+
+@Preview
+@Composable
+fun FridgeCRUDScreenContentPreview() {
+    GoPreviewTheme {
+        FridgeCRUDScreenContent(
+            uiState = FridgeCRUDUiState.Idle,
+            fridge = null,
+            storage = "냉장고",
+            storageType = true,
+            onTopBarClick = {},
+            scannedDate = null,
+            addFridgeItem = { _, _ -> },
+            modifyFridgeItem = { _, _, _ -> },
+            onShowSnackbar = { _, _ -> }
+        )
     }
 }

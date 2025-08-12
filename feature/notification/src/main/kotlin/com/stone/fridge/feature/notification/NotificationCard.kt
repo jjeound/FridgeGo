@@ -16,6 +16,7 @@ import com.stone.fridge.core.common.formatLocaleDateTimeToKoreanDateTime
 import com.stone.fridge.core.designsystem.Dimens
 import com.stone.fridge.core.designsystem.theme.CustomTheme
 import com.stone.fridge.core.model.Notification
+import com.stone.fridge.core.ui.GoPreviewTheme
 
 @Composable
 fun NotificationCard(
@@ -59,14 +60,16 @@ fun NotificationCard(
 @Preview
 @Composable
 fun NotificationCardPreview() {
-    NotificationCard(
-        Notification(
-            0L,
-            "어쩌고 저쩌고",
-            "어쩌고 저쩌고",
-            "",
-            "",
-            false
+    GoPreviewTheme {
+        NotificationCard(
+            notification = Notification(
+                id = 1L,
+                ingredientName = "사과",
+                content = "소비기한이 곧 만료됩니다.",
+                scheduledAt = "2023-10-01T12:00:00",
+                read = false,
+                status = ""
+            )
         )
-    )
+    }
 }

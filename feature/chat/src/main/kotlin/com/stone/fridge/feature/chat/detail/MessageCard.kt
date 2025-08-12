@@ -24,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.stone.fridge.core.common.formatLocaleDateTimeToKoreanDateTime
@@ -31,6 +32,7 @@ import com.stone.fridge.core.designsystem.Dimens
 import com.stone.fridge.core.designsystem.R
 import com.stone.fridge.core.designsystem.theme.CustomTheme
 import com.stone.fridge.core.model.Message
+import com.stone.fridge.core.ui.GoPreviewTheme
 
 @Composable
 fun MyMessageCard(
@@ -194,4 +196,45 @@ fun YourMessageCard(
     Spacer(
         modifier = Modifier.height(Dimens.mediumPadding)
     )
+}
+
+@Preview
+@Composable
+fun MyMessageCardPreview() {
+    GoPreviewTheme {
+        MyMessageCard(
+            message = Message(
+                messageId = 0L,
+                content = "안녕하세요! 이 메시지는 테스트용입니다.",
+                sentAt = "2023-10-01T12:00:00",
+                senderNickname = "테스트 유저",
+                unreadCount = 2,
+                read = true,
+                senderId = 1L
+            ),
+            isActive = true
+        )
+    }
+}
+
+@Preview
+@Composable
+fun YourMessageCardPreview() {
+    GoPreviewTheme {
+        YourMessageCard(
+            message = Message(
+                messageId = 0L,
+                content = "안녕하세요! 이 메시지는 테스트용입니다.",
+                sentAt = "2023-10-01T12:00:00",
+                senderNickname = "유저",
+                unreadCount = 2,
+                read = true,
+                senderId = 1L
+            ),
+            userNickname = "테스트 유저",
+            profileImage = null,
+            isActive = true,
+            onProfileClick = {}
+        )
+    }
 }

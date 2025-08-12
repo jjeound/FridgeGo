@@ -33,6 +33,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
@@ -40,6 +41,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.LoadState
+import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.stone.fridge.core.designsystem.Dimens
@@ -51,6 +53,8 @@ import com.stone.fridge.feature.chat.navigation.ChatRoute
 import com.stone.fridge.feature.chat.navigation.ChattingDrawerNav
 import com.stone.fridge.core.designsystem.R
 import com.stone.fridge.core.model.ChatMember
+import com.stone.fridge.core.ui.GoPreviewTheme
+import kotlinx.coroutines.flow.MutableStateFlow
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -304,5 +308,36 @@ private fun ChattingRoomBody(
                 }
             }
         }
+    }
+}
+
+@Preview
+@Composable
+fun ChattingRoomContentPreview(){
+    GoPreviewTheme {
+        ChattingRoomContent(
+            uiState = ChatDetailUiState.Idle,
+            roomId = 1L,
+            chattingRoom = ChatRoom(
+                roomId = 1L,
+                name = "Sample Room",
+                currentParticipants = 5,
+                maxParticipants = 10,
+                active = true
+            ),
+            messages = MutableStateFlow(
+                PagingData.empty<Message>()
+            ).collectAsLazyPagingItems(),
+            members = listOf(
+                ChatMember(userId = 1L, nickname = "User1", imageUrl = null, host = false),
+                ChatMember(userId = 2L, nickname = "User2", imageUrl = null, host = false)
+            ),
+            userId = 1L,
+            sendRead = {},
+            leaveRoom = {},
+            sendMessage = { _, _ -> },
+            onShowSnackbar = { _, _ -> },
+            onProfileClick = {}
+        )
     }
 }

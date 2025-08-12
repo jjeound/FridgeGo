@@ -15,26 +15,19 @@ import com.stone.fridge.core.data.util.asResult
 import com.stone.fridge.core.domain.EnterAndConnectChatRoomUseCase
 import com.stone.fridge.core.model.ChatMember
 import com.stone.fridge.core.model.ChatRoom
-import com.stone.fridge.core.model.ChatRoomRaw
 import com.stone.fridge.core.model.Message
 import com.stone.fridge.core.model.UnreadBroadcast
-import com.stone.fridge.feature.chat.ChatUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.onStart
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 

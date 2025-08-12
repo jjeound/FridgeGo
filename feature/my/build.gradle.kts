@@ -10,4 +10,8 @@ android {
 dependencies {
     implementation (libs.v2.user)
     implementation(libs.androidx.paging.compose.android)
+
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
 }

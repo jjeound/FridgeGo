@@ -15,10 +15,6 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -29,10 +25,10 @@ import com.stone.fridge.core.designsystem.theme.CustomTheme
 
 @Composable
 fun TasteTextField(
-    tastePref: String?,
+    text: String,
+    onValueChange: (String) -> Unit,
     setTastePreference: (String) -> Unit
 ) {
-    var text by rememberSaveable { mutableStateOf("") }
     val focusManager = LocalFocusManager.current
     val context = LocalContext.current
 
@@ -46,11 +42,6 @@ fun TasteTextField(
         else -> null
     }
 
-    LaunchedEffect(tastePref) {
-        if (!tastePref.isNullOrEmpty()) {
-            text = tastePref
-        }
-    }
     LaunchedEffect(errorMessage) {
         errorMessage?.let {
             Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
@@ -82,7 +73,7 @@ fun TasteTextField(
             TextField(
                 modifier = Modifier.fillMaxWidth(),
                 value = text,
-                onValueChange = {text = it},
+                onValueChange = onValueChange,
                 placeholder = {
                     Text(
                         text = "나의 취향 입력하기!",

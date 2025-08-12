@@ -3,7 +3,7 @@ package com.stone.fridge.feature.chat
 import androidx.compose.runtime.Stable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.stone.fridge.core.data.chat.ChatRepository
+import com.stone.fridge.core.domain.GetSortedMyChatRoomsUseCase
 import com.stone.fridge.core.model.ChatRoomRaw
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,12 +17,12 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ChatViewModel @Inject constructor(
-    private val chatRepository: ChatRepository
+    private val getSortedMyChatRoomsUseCase: GetSortedMyChatRoomsUseCase
 ): ViewModel() {
 
-    val uiState = MutableStateFlow<ChatUiState>(ChatUiState.Loading)
+    internal val uiState = MutableStateFlow<ChatUiState>(ChatUiState.Loading)
 
-    val chattingRooms: StateFlow<List<ChatRoomRaw>> = chatRepository.getMyRooms()
+    val chattingRooms: StateFlow<List<ChatRoomRaw>> = getSortedMyChatRoomsUseCase()
         .onCompletion {
             uiState.value = ChatUiState.Idle
         }
@@ -37,7 +37,7 @@ class ChatViewModel @Inject constructor(
 }
 
 @Stable
-sealed interface ChatUiState {
+internal sealed interface ChatUiState {
     data object Idle : ChatUiState
     data object Loading : ChatUiState
     data class Error(val message: String) : ChatUiState

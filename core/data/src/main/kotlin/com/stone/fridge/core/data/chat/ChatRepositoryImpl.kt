@@ -86,11 +86,7 @@ class ChatRepositoryImpl @Inject constructor(
     @WorkerThread
     override fun getMyRooms(): Flow<List<ChatRoomRaw>> = flow {
         chatClient.getMyRooms().result?.let {
-            emit(it.sortedWith(compareByDescending<ChatRoomRaw> { room ->
-                room.active
-            }.thenByDescending { room ->
-                room.lastMessageTime ?: room.createdAt
-            }))
+            emit(it)
         }
     }.flowOn(ioDispatcher)
 

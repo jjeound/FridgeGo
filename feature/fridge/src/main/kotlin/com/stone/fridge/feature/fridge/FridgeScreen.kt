@@ -33,10 +33,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.LoadState
+import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.stone.fridge.core.designsystem.Dimens
@@ -44,7 +46,9 @@ import com.stone.fridge.core.designsystem.R
 import com.stone.fridge.core.designsystem.theme.CustomTheme
 import com.stone.fridge.core.model.Fridge
 import com.stone.fridge.core.paging.FridgeFetchType
+import com.stone.fridge.core.ui.GoPreviewTheme
 import com.stone.fridge.core.ui.PermissionDialog
+import kotlinx.coroutines.flow.MutableStateFlow
 
 @Composable
 fun FridgeScreen(
@@ -70,7 +74,6 @@ fun FridgeScreen(
         FridgeScreenContent(
             uiState = uiState,
             items = items,
-            topSelector = topSelector,
             getItems = viewModel::getItems,
             deleteItem = viewModel::deleteItem,
             toggleNotification = viewModel::toggleNotification,
@@ -83,7 +86,6 @@ fun FridgeScreen(
 private fun FridgeScreenContent(
     uiState: FridgeUiState,
     items: LazyPagingItems<Fridge>,
-    topSelector: Boolean,
     getItems: (FridgeFetchType) -> Unit,
     deleteItem: (Long) -> Unit,
     toggleNotification: (Long, Boolean) -> Unit,
@@ -164,22 +166,16 @@ private fun FridgeScreenContent(
         FridgeBody(
             items = items,
             toggleNotification = toggleNotification,
-            topSelector = topSelector,
             onShowDialog = { showDialog.value = true },
             deleteItem = deleteItem
         )
     }
     PermissionDialog(
-        showDialog = showDialog,
+        showDialog = showDialog.value,
         message = "알람 권한이 필요합니다.",
-        onDismiss = { showDialog.value = false },
-        onConfirm = {
-            showDialog.value = false
-            val intent = Intent()
-            intent.action = Settings.ACTION_APP_NOTIFICATION_SETTINGS
-            intent.putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
-            context.startActivity(intent)
-        }
+        onEvent = { showDialog.value = false },
+        context = context,
+        intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
     )
 }
 
@@ -187,7 +183,6 @@ private fun FridgeScreenContent(
 private fun FridgeBody(
     items: LazyPagingItems<Fridge>,
     toggleNotification: (Long, Boolean) -> Unit,
-    topSelector: Boolean,
     onShowDialog: () -> Unit,
     deleteItem: (Long) -> Unit,
 ){
@@ -224,5 +219,33 @@ private fun FridgeBody(
                 }
             }
         }
+    }
+}
+
+@Preview
+@Composable
+private fun FridgeTopBarPreview(){
+    GoPreviewTheme {
+        FridgeTopBar(
+            topSelector = true,
+            updateTopSelector = {},
+            isUnread = false,
+            navigateToNotification = {}
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun FridgeScreenContentPreview() {
+    GoPreviewTheme {
+        FridgeScreenContent(
+            uiState = FridgeUiState.Idle,
+            items = MutableStateFlow(PagingData.empty<Fridge>()).collectAsLazyPagingItems(),
+            getItems = {},
+            deleteItem = {},
+            toggleNotification = { _, _ -> },
+            onShowSnackbar = { _, _ -> }
+        )
     }
 }

@@ -24,10 +24,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.stone.fridge.core.designsystem.Dimens
 import com.stone.fridge.core.designsystem.R
 import com.stone.fridge.core.designsystem.theme.CustomTheme
+import com.stone.fridge.core.ui.GoPreviewTheme
 
 @Composable
 fun NewMessageForm(
@@ -79,5 +81,16 @@ fun NewMessageForm(
                 tint = CustomTheme.colors.iconDefault
             )
         }
+    }
+}
+
+@Preview
+@Composable
+fun NewMessageFormPreview() {
+    GoPreviewTheme {
+        NewMessageForm(
+            roomId = 0L,
+            sendMessage = {_, _ -> }
+        )
     }
 }

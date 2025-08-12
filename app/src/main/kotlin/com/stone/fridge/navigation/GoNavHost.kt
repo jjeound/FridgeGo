@@ -28,6 +28,7 @@ import com.stone.fridge.feature.my.navigation.profileNavigation
 import com.stone.fridge.feature.notification.navigation.navigateToNotification
 import com.stone.fridge.feature.notification.navigation.notifNavigation
 import com.stone.fridge.feature.post.navigation.navigateToPostDetail
+import com.stone.fridge.feature.post.navigation.navigateToPostProfile
 import com.stone.fridge.feature.post.navigation.postCRUDNavigation
 import com.stone.fridge.feature.post.navigation.postDetailNavigation
 import com.stone.fridge.feature.post.navigation.postNavigation
@@ -100,9 +101,11 @@ fun GoNavHost(
             onShowSnackbar = onShowSnackbar
         ){}
         chattingRoomNavigation(
+            onProfileClick = navController::navigateToPostProfile,
             onShowSnackbar = onShowSnackbar,
         )
         chattingDrawerNavigation(
+            onProfileClick = navController::navigateToPostProfile,
             onShowSnackbar = onShowSnackbar,
         )
         myNavigation(

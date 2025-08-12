@@ -13,4 +13,8 @@ android {
 dependencies {
     // Kotlin Serialization for Json
     implementation(libs.kotlinx.serialization.json)
+
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
 }

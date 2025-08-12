@@ -37,6 +37,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.contentType
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -44,6 +45,7 @@ import com.stone.fridge.core.designsystem.Dimens
 import com.stone.fridge.core.designsystem.R
 import com.stone.fridge.core.designsystem.theme.CustomTheme
 import com.stone.fridge.core.navigation.currentComposeNavigator
+import com.stone.fridge.core.ui.GoPreviewTheme
 import com.stone.fridge.feature.login.navigation.LocationRoute
 
 @Composable
@@ -52,7 +54,41 @@ fun NickNameScreen(
     onShowSnackbar: suspend (String, String?) -> Unit,
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    var error by remember { mutableStateOf(false) }
+    var nickname by remember { mutableStateOf("") }
+    NicknameScreenContent(
+        uiState = uiState,
+        setNickname = viewModel::setNickname,
+        nickname = nickname,
+        onNameChange = { nickname = it },
+        error = error,
+        onErrorChange = { error = it },
+        onShowSnackbar = onShowSnackbar,
+    )
+}
+
+@Composable
+private fun NicknameScreenContent(
+    uiState: LoginUiState,
+    setNickname: (String) -> Unit,
+    nickname: String,
+    onNameChange: (String) -> Unit,
+    error: Boolean,
+    onErrorChange: (Boolean) -> Unit,
+    onShowSnackbar: suspend (String, String?) -> Unit,
+){
+    val focusManager = LocalFocusManager.current
     val composeNavigator = currentComposeNavigator
+    LaunchedEffect(uiState) {
+        if(uiState == LoginUiState.Success){
+            onErrorChange(false)
+            focusManager.clearFocus()
+            composeNavigator.navigate(LocationRoute(false))
+        }else if(uiState is LoginUiState.Error){
+            onErrorChange(true)
+            onShowSnackbar(uiState.message, null)
+        }
+    }
     Scaffold(
         containerColor = CustomTheme.colors.onSurface,
         topBar = {
@@ -91,123 +127,112 @@ fun NickNameScreen(
                     vertical = Dimens.surfaceVerticalPadding
                 )
         ){
-            NicknameScreenContent(
-                uiState = uiState,
-                setNickname = viewModel::setNickname,
-                onShowSnackbar = onShowSnackbar,
-            )
-        }
-    }
-}
-
-@Composable
-private fun NicknameScreenContent(
-    uiState: LoginUiState,
-    setNickname: (String) -> Unit,
-    onShowSnackbar: suspend (String, String?) -> Unit,
-){
-    var error by remember { mutableStateOf(false) }
-    var nickname by remember { mutableStateOf("") }
-    val focusManager = LocalFocusManager.current
-    val composeNavigator = currentComposeNavigator
-    LaunchedEffect(uiState) {
-        if(uiState == LoginUiState.Success){
-            error = false
-            focusManager.clearFocus()
-            composeNavigator.navigate(LocationRoute(false))
-        }else if(uiState is LoginUiState.Error){
-            error = true
-            onShowSnackbar(uiState.message, null)
-        }
-    }
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .imePadding(),
-        verticalArrangement = Arrangement.SpaceBetween,
-    ){
-        Column(
-            verticalArrangement = Arrangement.spacedBy(Dimens.smallPadding)
-        ) {
-            OutlinedTextField(
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(48.dp).semantics{
-                        contentType = ContentType.Username
-                    },
-                value = nickname,
-                onValueChange = { nickname = it },
-                placeholder = {
-                    Text(
-                        text = "닉네임",
-                        style = CustomTheme.typography.caption2,
-                        color = CustomTheme.colors.textSecondary
+                    .fillMaxSize()
+                    .imePadding(),
+                verticalArrangement = Arrangement.SpaceBetween,
+            ){
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(Dimens.smallPadding)
+                ) {
+                    OutlinedTextField(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(48.dp).semantics{
+                                contentType = ContentType.Username
+                            },
+                        value = nickname,
+                        onValueChange = onNameChange,
+                        placeholder = {
+                            Text(
+                                text = "닉네임",
+                                style = CustomTheme.typography.caption2,
+                                color = CustomTheme.colors.textSecondary
+                            )
+                        },
+                        trailingIcon = {
+                            if (nickname.isNotBlank()) {
+                                IconButton(
+                                    onClick = { onNameChange("") }
+                                ) {
+                                    Icon(
+                                        imageVector = ImageVector.vectorResource(R.drawable.delete),
+                                        contentDescription = "delete",
+                                    )
+                                }
+                            }
+                        },
+                        textStyle = CustomTheme.typography.body3,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = CustomTheme.colors.textSecondary,
+                            unfocusedBorderColor = CustomTheme.colors.textSecondary,
+                            focusedTextColor = CustomTheme.colors.textPrimary,
+                            unfocusedTextColor = CustomTheme.colors.textPrimary,
+                            focusedContainerColor = CustomTheme.colors.onSurface,
+                            unfocusedContainerColor = CustomTheme.colors.onSurface,
+                            cursorColor = CustomTheme.colors.textPrimary,
+                            errorCursorColor = CustomTheme.colors.error,
+                            focusedTrailingIconColor = CustomTheme.colors.iconDefault,
+                            unfocusedTrailingIconColor = Color.Transparent,
+                            errorBorderColor = CustomTheme.colors.error,
+                        ),
+                        isError = error,
+                        shape = RoundedCornerShape(Dimens.cornerRadius),
+                        singleLine = true,
+                        keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
                     )
-                },
-                trailingIcon = {
-                    if (nickname.isNotBlank()) {
-                        IconButton(
-                            onClick = { nickname = "" }
-                        ) {
-                            Icon(
-                                imageVector = ImageVector.vectorResource(R.drawable.delete),
-                                contentDescription = "delete",
+                    if(uiState == LoginUiState.Loading){
+                        Box(
+                            modifier = Modifier.fillMaxWidth(),
+                            contentAlignment = Alignment.Center
+                        ){
+                            CircularProgressIndicator(
+                                color = CustomTheme.colors.primary,
                             )
                         }
                     }
-                },
-                textStyle = CustomTheme.typography.body3,
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = CustomTheme.colors.textSecondary,
-                    unfocusedBorderColor = CustomTheme.colors.textSecondary,
-                    focusedTextColor = CustomTheme.colors.textPrimary,
-                    unfocusedTextColor = CustomTheme.colors.textPrimary,
-                    focusedContainerColor = CustomTheme.colors.onSurface,
-                    unfocusedContainerColor = CustomTheme.colors.onSurface,
-                    cursorColor = CustomTheme.colors.textPrimary,
-                    errorCursorColor = CustomTheme.colors.error,
-                    focusedTrailingIconColor = CustomTheme.colors.iconDefault,
-                    unfocusedTrailingIconColor = Color.Transparent,
-                    errorBorderColor = CustomTheme.colors.error,
-                ),
-                isError = error,
-                shape = RoundedCornerShape(Dimens.cornerRadius),
-                singleLine = true,
-                keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
-            )
-            if(uiState == LoginUiState.Loading){
-                Box(
-                    modifier = Modifier.fillMaxWidth(),
-                    contentAlignment = Alignment.Center
-                ){
-                    CircularProgressIndicator(
-                        color = CustomTheme.colors.primary,
+                }
+                Button(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    shape = RoundedCornerShape(Dimens.cornerRadius),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = CustomTheme.colors.primary,
+                        disabledContainerColor = CustomTheme.colors.onSurface,
+                        contentColor = CustomTheme.colors.onPrimary,
+                        disabledContentColor = CustomTheme.colors.textTertiary
+                    ),
+                    border = BorderStroke(
+                        width = 1.dp,
+                        color = CustomTheme.colors.border
+                    ),
+                    onClick = {
+                        setNickname(nickname)
+                    }
+                ) {
+                    Text(
+                        text = "설정하기",
+                        style = CustomTheme.typography.button1,
                     )
                 }
             }
         }
-        Button(
-            modifier = Modifier
-                .fillMaxWidth(),
-            shape = RoundedCornerShape(Dimens.cornerRadius),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = CustomTheme.colors.primary,
-                disabledContainerColor = CustomTheme.colors.onSurface,
-                contentColor = CustomTheme.colors.onPrimary,
-                disabledContentColor = CustomTheme.colors.textTertiary
-            ),
-            border = BorderStroke(
-                width = 1.dp,
-                color = CustomTheme.colors.border
-            ),
-            onClick = {
-                setNickname(nickname)
-            }
-        ) {
-            Text(
-                text = "설정하기",
-                style = CustomTheme.typography.button1,
-            )
-        }
+    }
+}
+
+@Preview
+@Composable
+fun NicknameScreenPreview() {
+    GoPreviewTheme {
+        NicknameScreenContent(
+            uiState = LoginUiState.Idle,
+            setNickname = {},
+            nickname = "User",
+            onNameChange = {},
+            error = false,
+            onErrorChange = {},
+            onShowSnackbar = { _, _ -> }
+        )
     }
 }

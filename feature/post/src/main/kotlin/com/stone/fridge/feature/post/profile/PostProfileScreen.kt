@@ -20,13 +20,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.stone.fridge.core.designsystem.Dimens
 import com.stone.fridge.core.designsystem.R
 import com.stone.fridge.core.designsystem.theme.CustomTheme
+import com.stone.fridge.core.model.Profile
 import com.stone.fridge.core.navigation.currentComposeNavigator
+import com.stone.fridge.core.ui.GoPreviewTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -37,6 +40,21 @@ fun PostProfileScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val userName by viewModel.userName.collectAsStateWithLifecycle()
     val profile by viewModel.profile.collectAsStateWithLifecycle()
+    PostProfileScreenContent(
+        uiState = uiState,
+        profile = profile,
+        userName = userName,
+        onShowSnackbar = onShowSnackbar
+    )
+}
+
+@Composable
+internal fun PostProfileScreenContent(
+    uiState: PostProfileUiState,
+    profile: Profile?,
+    userName: String?,
+    onShowSnackbar: suspend (String, String?) -> Unit,
+){
     val composeNavigator = currentComposeNavigator
     Scaffold(
         containerColor = CustomTheme.colors.surface,
@@ -98,7 +116,7 @@ fun PostProfileScreen(
                     if (profile != null) {
                         OtherProfile(
                             uiState = uiState,
-                            profile = profile!!,
+                            profile = profile,
                             isMe = userName == null,
                             onShowSnackbar = onShowSnackbar,
                         )
@@ -106,5 +124,25 @@ fun PostProfileScreen(
                 }
             }
         }
+    }
+}
+
+@Preview
+@Composable
+fun PostProfileScreenPreview() {
+    GoPreviewTheme {
+        PostProfileScreenContent(
+            uiState = PostProfileUiState.Idle,
+            profile = Profile(
+                id = 1,
+                nickname = "User",
+                email = "wdw@dsa.com",
+                imageUrl = null,
+                trustLevelImageUrl = null,
+                trustLevel = null
+            ),
+            userName = "User2",
+            onShowSnackbar = { _, _ -> }
+        )
     }
 }

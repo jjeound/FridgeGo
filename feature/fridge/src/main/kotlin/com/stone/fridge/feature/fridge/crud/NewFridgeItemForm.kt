@@ -4,7 +4,6 @@ import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Build
 import android.provider.Settings
 import android.util.Log
@@ -35,6 +34,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.DatePickerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -61,6 +61,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
 import androidx.core.content.ContextCompat
@@ -74,6 +75,7 @@ import com.stone.fridge.core.model.Fridge
 import com.stone.fridge.core.model.ModifyFridgeReq
 import com.stone.fridge.core.model.NewFridge
 import com.stone.fridge.core.navigation.currentComposeNavigator
+import com.stone.fridge.core.ui.GoPreviewTheme
 import com.stone.fridge.core.ui.PermissionDialog
 import com.stone.fridge.feature.fridge.navigation.FridgeScanRoute
 import java.io.File
@@ -83,9 +85,10 @@ import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NewFridgeItemForm(
+internal fun NewFridgeItemForm(
     fridge: Fridge?,
     uiState: FridgeCRUDUiState,
+    storageType: Boolean,
     scannedDate: String?,
     modifyFridgeItem: (Long, ModifyFridgeReq, File?) -> Unit,
     addFridgeItem : (NewFridge, File?) -> Unit,
@@ -93,7 +96,6 @@ fun NewFridgeItemForm(
 ){
     val context = LocalContext.current
     val activity = context as? Activity
-    val packageName = context.packageName
     val focusManager = LocalFocusManager.current
     val composeNavigator = currentComposeNavigator
     val showDialog = remember { mutableStateOf(false) }
@@ -102,12 +104,13 @@ fun NewFridgeItemForm(
     var imageFile by rememberSaveable { mutableStateOf<File?>(null) }
     var name by rememberSaveable { mutableStateOf("") }
     var quantity by rememberSaveable { mutableStateOf("") }
-    var storageType by rememberSaveable { mutableStateOf(true) } // true for fridge, false for freezer
 
     var showDatePicker by remember { mutableStateOf(false) }
     val datePickerState = rememberDatePickerState()
-    var expirationDate by remember { mutableLongStateOf(fridge?.useByDate ?: 0L) }
-    val scannedDate by remember { mutableStateOf(scannedDate) }
+    val initialExpirationDate = fridge?.useByDate
+        ?: scannedDate?.let { parseDateToMillis(it) }
+        ?: 0L
+    var expirationDate by rememberSaveable { mutableLongStateOf(initialExpirationDate) }
     var selectedDate by remember { mutableStateOf("") }
 
     LaunchedEffect(datePickerState.selectedDateMillis) {
@@ -127,25 +130,14 @@ fun NewFridgeItemForm(
         }
     }
 
-    LaunchedEffect(scannedDate) {
-        scannedDate?.let {
-            if (it.isNotBlank()) {
-                val parsed = parseDateToMillis(it)
-                expirationDate = parsed
-                selectedDate = convertMillisToDate(parsed)
-            }
-        }
-    }
-
-    var validator by remember { mutableStateOf(false) }
-    var isQuantityInt by remember { mutableStateOf(true) }
-    validator = name.isNotBlank() && selectedDate.isNotBlank() && quantity.isNotBlank()
+    val validator = name.isNotBlank() && selectedDate.isNotBlank() && quantity.isNotBlank()
+    val isQuantityInt = quantity.all { it.isDigit() }
 
     LaunchedEffect(uiState) {
-        if(uiState == FridgeCRUDUiState.Success){
-            composeNavigator.navigateUp()
-        } else if(uiState is FridgeCRUDUiState.Error){
-            onShowSnackbar(uiState.message, null)
+        when(uiState) {
+            FridgeCRUDUiState.Success -> composeNavigator.navigateUp()
+            is FridgeCRUDUiState.Error -> onShowSnackbar(uiState.message, null)
+            else -> {}
         }
     }
 
@@ -157,7 +149,6 @@ fun NewFridgeItemForm(
                     image = it.toString()
                     val filePath = context.getRealPathFromURI(it)
                     imageFile = filePath?.let { path -> File(path) } ?: context.copyUriToFile(it)
-                    Log.d("TargetSDK", "imageUri - selected : $uri")
                 }
             }
         }
@@ -214,343 +205,87 @@ fun NewFridgeItemForm(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(Dimens.largePadding)
         ) {
-            if(image != null){
-                Box{
-                    AsyncImage(
-                        model = image,
-                        contentDescription = "image",
-                        alignment = Alignment.Center,
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier
-                            .size(100.dp)
-                            .clip(shape = RoundedCornerShape(Dimens.cornerRadius))
-                    )
-                    IconButton(
-                        modifier = Modifier
-                            .align(Alignment.TopEnd),
-                        onClick = {
-                            image = null
-                            imageFile = null
-                        }
-                    ){
-                        Icon(
-                            imageVector = ImageVector.vectorResource(R.drawable.close),
-                            contentDescription = "delete image",
-                            tint = CustomTheme.colors.iconDefault,
-                        )
-                    }
-                    IconButton(
-                        modifier = Modifier
-                            .align(Alignment.BottomEnd),
-                        onClick = {
-                            albumLauncher.launch(imageAlbumIntent)
-                        }
-                    ){
-                        Icon(
-                            imageVector = ImageVector.vectorResource(R.drawable.camera),
-                            contentDescription = "get image",
-                            tint = CustomTheme.colors.iconDefault,
-                        )
+            ImageSelectorSection(
+                image = image,
+                onDelete = {
+                    image = null
+                    imageFile = null
+                },
+                onSelectImage = {
+                    if (ContextCompat.checkSelfPermission(context, galleryPermissions[0]) == PackageManager.PERMISSION_GRANTED) {
+                        albumLauncher.launch(imageAlbumIntent)
+                    } else if (activity != null && shouldShowRequestPermissionRationale(activity, galleryPermissions[0])) {
+                        showDialog.value = true
+                    } else {
+                        requestPermissionLauncher.launch(galleryPermissions)
                     }
                 }
-            } else {
-                Box(
-                    modifier = Modifier
-                        .size(100.dp)
-                        .clip(shape = RoundedCornerShape(Dimens.cornerRadius))
-                        .background(CustomTheme.colors.surface)
-                ){
-                    IconButton(
-                        modifier = Modifier
-                            .align(Alignment.BottomEnd),
-                        onClick = {
-                            when {
-                                ContextCompat.checkSelfPermission(
-                                    context,
-                                    galleryPermissions[0]
-                                ) == PackageManager.PERMISSION_GRANTED ->  {
-                                    albumLauncher.launch(imageAlbumIntent)
-                                }
-                                activity!= null && shouldShowRequestPermissionRationale(
-                                    activity,
-                                    galleryPermissions[0]
-                                ) -> {
-                                    showDialog.value = true
-                                }
-                                else -> {
-                                    requestPermissionLauncher.launch(galleryPermissions)
-                                }
-                            }
-                        }
-                    ){
-                        Icon(
-                            imageVector = ImageVector.vectorResource(R.drawable.camera),
-                            contentDescription = "get image",
-                            tint = CustomTheme.colors.iconDefault,
-                        )
-                    }
+            )
+            InputFieldsSection(
+                name = name,
+                onNameChange = { name = it },
+                quantity = quantity,
+                onQuantityChange = { quantity = it },
+                isQuantityInt = isQuantityInt,
+                selectedDate = selectedDate,
+                onDateClick = {
+                    showDatePicker = !showDatePicker
+                    focusManager.clearFocus()
                 }
-            }
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(Dimens.mediumPadding)
-            ) {
-                TextField(
-                    label = {
-                        Row {
-                            Text(
-                                text = "이름",
-                                style = CustomTheme.typography.caption1,
-                                color = CustomTheme.colors.textSecondary,
-                            )
-                            Text(
-                                text = " *",
-                                style = CustomTheme.typography.caption1,
-                                color = CustomTheme.colors.iconRed,
-                            )
-                        }
-                    },
-                    value = name,
-                    onValueChange = {name = it},
-                    modifier = Modifier.width(80.dp),
-                    textStyle = CustomTheme.typography.button2,
-                    colors = TextFieldDefaults.colors(
-                        focusedTextColor = CustomTheme.colors.textPrimary,
-                        unfocusedTextColor = CustomTheme.colors.textPrimary,
-                        focusedContainerColor = CustomTheme.colors.onSurface,
-                        unfocusedContainerColor = CustomTheme.colors.onSurface,
-                        cursorColor = CustomTheme.colors.textPrimary,
-                        focusedIndicatorColor = CustomTheme.colors.primary,
-                        unfocusedIndicatorColor = CustomTheme.colors.border,
-                        focusedTrailingIconColor = CustomTheme.colors.iconDefault,
-                        unfocusedTrailingIconColor = Color.Transparent,
-                    ),
-                    keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
-                    singleLine = true,
-                    maxLines = 1
-                )
-                TextField(
-                    label = {
-                        Row {
-                            Text(
-                                text = "수량/g",
-                                style = CustomTheme.typography.caption1,
-                                color = CustomTheme.colors.textSecondary,
-                            )
-                            Text(
-                                text = " *",
-                                style = CustomTheme.typography.caption1,
-                                color = CustomTheme.colors.iconRed,
-                            )
-                        }
-                    },
-                    value = quantity,
-                    onValueChange = {quantity = it},
-                    modifier = Modifier.width(80.dp),
-                    textStyle = CustomTheme.typography.button2,
-                    colors = TextFieldDefaults.colors(
-                        focusedTextColor = CustomTheme.colors.textPrimary,
-                        unfocusedTextColor = CustomTheme.colors.textPrimary,
-                        focusedContainerColor = CustomTheme.colors.onSurface,
-                        unfocusedContainerColor = CustomTheme.colors.onSurface,
-                        cursorColor = CustomTheme.colors.textPrimary,
-                        focusedIndicatorColor = CustomTheme.colors.primary,
-                        unfocusedIndicatorColor = CustomTheme.colors.border,
-                        focusedTrailingIconColor = CustomTheme.colors.iconDefault,
-                        unfocusedTrailingIconColor = Color.Transparent,
-                        errorIndicatorColor = CustomTheme.colors.error,
-                        errorContainerColor = CustomTheme.colors.onSurface
-                    ),
-                    keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    singleLine = true,
-                    maxLines = 1,
-                    isError = !isQuantityInt
-                )
-            }
-            TextField(
-                label = {
-                    Row {
-                        Text(
-                            text = "유통기한",
-                            style = CustomTheme.typography.caption1,
-                            color = CustomTheme.colors.textSecondary,
-                        )
-                        Text(
-                            text = " *",
-                            style = CustomTheme.typography.caption1,
-                            color = CustomTheme.colors.iconRed,
-                        )
-                    }
-                },
-                modifier = Modifier.width(300.dp),
-                value = selectedDate,
-                onValueChange = { },
-                textStyle = CustomTheme.typography.button2,
-                readOnly = true,
-                trailingIcon = {
-                    IconButton(onClick = {
-                        showDatePicker = !showDatePicker
-                        focusManager.clearFocus()
-                    }) {
-                        Icon(
-                            imageVector = ImageVector.vectorResource(R.drawable.calendar),
-                            contentDescription = "Select date",
-                            tint = CustomTheme.colors.iconSelected
-                        )
-                    }
-                },
-                colors = TextFieldDefaults.colors(
-                    focusedTextColor = CustomTheme.colors.textPrimary,
-                    unfocusedTextColor = CustomTheme.colors.textPrimary,
-                    focusedContainerColor = CustomTheme.colors.onSurface,
-                    unfocusedContainerColor = CustomTheme.colors.onSurface,
-                    cursorColor = CustomTheme.colors.textPrimary,
-                    focusedIndicatorColor = CustomTheme.colors.primary,
-                    unfocusedIndicatorColor = CustomTheme.colors.border,
-                    focusedTrailingIconColor = CustomTheme.colors.iconDefault,
-                    unfocusedTrailingIconColor = Color.Transparent,
-                ),
-
             )
             if(showDatePicker){
-                DatePickerDialog(
-                    onDismissRequest = {},
-                    confirmButton = {
-                        TextButton(onClick = {
-                            showDatePicker = false
-                        }) {
-                            Text(
-                                text = "확인",
-                                color = CustomTheme.colors.textPrimary,
-                                style = CustomTheme.typography.button2,
-                            )
-                        }
-                    },
-                    dismissButton = {
-                        TextButton(onClick = {showDatePicker = false}) {
-                            Text(
-                                text = "취소",
-                                color = CustomTheme.colors.textPrimary,
-                                style = CustomTheme.typography.button2,
-                            )
-                        }
-                    },
-                    colors = DatePickerDefaults.colors(
-                        containerColor = CustomTheme.colors.onSurface
-                    )
-                ) {
-                    DatePicker(
-                        state = datePickerState,
-                        showModeToggle = false,
-                        title = {
-                            Text(
-                                text = ""
-                            )
-                        },
-                        colors = DatePickerDefaults.colors(
-                            containerColor = CustomTheme.colors.onSurface,
-                            titleContentColor = CustomTheme.colors.textPrimary,
-
-                            selectedDayContentColor = CustomTheme.colors.onSurface,
-                            selectedDayContainerColor = CustomTheme.colors.primary,
-
-                            selectedYearContentColor = CustomTheme.colors.onSurface,
-                            selectedYearContainerColor = CustomTheme.colors.primary,
-                            currentYearContentColor = CustomTheme.colors.textPrimary,
-
-                            todayDateBorderColor = CustomTheme.colors.primary,
-                            todayContentColor = CustomTheme.colors.primary,
-
-                            weekdayContentColor = CustomTheme.colors.textPrimary, // 요일 텍스트 (월~일)
-                            dayContentColor = CustomTheme.colors.textPrimary, // 일반 날짜 텍스트
-                            yearContentColor = CustomTheme.colors.textPrimary, // 연도 선택 화면에서 일반 연도 텍스트
-                            navigationContentColor = CustomTheme.colors.textPrimary // 월 변경 화살표 아이콘
-                        )
-                    )
-                }
+                DatePickerDialogSection(
+                    datePickerState = datePickerState,
+                    onDismiss = { showDatePicker = false },
+                    onConfirm = { showDatePicker = false },
+                    onCancel = { showDatePicker = false }
+                )
             }
-            Button(
+            ScanButton(
                 onClick = {
                     when {
-                        ContextCompat.checkSelfPermission(
-                            context,
-                            Manifest.permission.CAMERA
-                        ) == PackageManager.PERMISSION_GRANTED ->  {
+                        ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED -> {
                             composeNavigator.navigate(FridgeScanRoute(null))
                         }
-                        activity != null && shouldShowRequestPermissionRationale(
-                            activity,
-                            Manifest.permission.CAMERA
-                        ) -> {
+                        activity != null && shouldShowRequestPermissionRationale(activity, Manifest.permission.CAMERA) -> {
                             showDialog.value = true
                         }
                         else -> {
                             cameraLauncher.launch(Manifest.permission.CAMERA)
                         }
                     }
-                },
-                shape = RoundedCornerShape(Dimens.cornerRadius),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = CustomTheme.colors.primary,
-                ),
-                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)
-            ) {
-                Text(
-                    text = "스캔하기",
-                    style = CustomTheme.typography.button1,
-                    color = CustomTheme.colors.onPrimary
-                )
-            }
+                }
+            )
         }
         PermissionDialog(
-            showDialog = showDialog,
+            showDialog = showDialog.value,
             message = "저장소 권한이 필요합니다.",
-            onDismiss = { showDialog.value = false },
-            onConfirm = {
-                showDialog.value = false
-                context.startActivity(
-                    Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                        data = Uri.fromParts("package", packageName, null)
-                    }
-                )
-            }
+            onEvent = { showDialog.value = false },
+            context = context,
+            intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
         )
-        Button(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(Dimens.mediumPadding),
-            shape = RoundedCornerShape(Dimens.cornerRadius),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = CustomTheme.colors.primary,
-                disabledContainerColor = CustomTheme.colors.onSurface,
-                contentColor = CustomTheme.colors.onPrimary,
-                disabledContentColor = CustomTheme.colors.textTertiary
-            ),
-            border = BorderStroke(
-                width = 1.dp,
-                color = CustomTheme.colors.border
-            ),
-            enabled = validator,
+        SubmitButton(
+            enabled = validator && isQuantityInt,
             onClick = {
-                if(quantity.all { it.isDigit() }){
-                    fridge?.let {
+                if (validator && isQuantityInt) {
+                    if (fridge != null) {
                         modifyFridgeItem(
-                            it.id,
+                            fridge.id,
                             ModifyFridgeReq(
                                 foodName = name,
                                 imageUrl = image,
-                                count = if(quantity.isNotBlank()) quantity.toInt() else 0,
+                                count = quantity.toInt(),
                                 useByDate = expirationDate,
-                                alarmStatus = it.alarmStatus,
-                                storageType = it.storageType
+                                alarmStatus = fridge.alarmStatus,
+                                storageType = storageType
                             ),
-                            imageFile,
+                            imageFile
                         )
-                    } ?: run {
+                    } else {
                         addFridgeItem(
                             NewFridge(
                                 foodName = name,
-                                count = if(quantity.isNotBlank()) quantity.toInt() else 0,
+                                count = quantity.toInt(),
                                 useByDate = expirationDate,
                                 alarmStatus = false,
                                 storageType = storageType
@@ -558,20 +293,308 @@ fun NewFridgeItemForm(
                             imageFile
                         )
                     }
-                    composeNavigator.navControllerFlow.value?.currentBackStackEntry?.savedStateHandle?.remove(
-                        "date"
-                    )
-                }else{
-                    isQuantityInt = false
+                    composeNavigator.navControllerFlow.value?.currentBackStackEntry?.savedStateHandle?.remove("date")
+                } else {
                     Toast.makeText(context, "수량은 숫자만 입력 가능합니다.", Toast.LENGTH_SHORT).show()
                 }
-            }
-        ) {
-            Text(
-                text = if(fridge != null) "수정하기" else "등록하기",
-                style = CustomTheme.typography.button1,
+            },
+            text = if (fridge != null) "수정하기" else "등록하기"
+        )
+    }
+}
+
+@Composable
+private fun ImageSelectorSection(
+    image: String?,
+    onDelete: () -> Unit,
+    onSelectImage: () -> Unit
+){
+    if(image != null){
+        Box{
+            AsyncImage(
+                model = image,
+                contentDescription = "image",
+                alignment = Alignment.Center,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .size(100.dp)
+                    .clip(shape = RoundedCornerShape(Dimens.cornerRadius))
             )
+            IconButton(
+                modifier = Modifier
+                    .align(Alignment.TopEnd),
+                onClick = onDelete
+            ){
+                Icon(
+                    imageVector = ImageVector.vectorResource(R.drawable.close),
+                    contentDescription = "delete image",
+                    tint = CustomTheme.colors.iconDefault,
+                )
+            }
+            IconButton(
+                modifier = Modifier
+                    .align(Alignment.BottomEnd),
+                onClick = onSelectImage
+            ){
+                Icon(
+                    imageVector = ImageVector.vectorResource(R.drawable.camera),
+                    contentDescription = "get image",
+                    tint = CustomTheme.colors.iconDefault,
+                )
+            }
         }
+    } else {
+        Box(
+            modifier = Modifier
+                .size(100.dp)
+                .clip(shape = RoundedCornerShape(Dimens.cornerRadius))
+                .background(CustomTheme.colors.surface)
+        ){
+            IconButton(
+                modifier = Modifier
+                    .align(Alignment.BottomEnd),
+                onClick = onSelectImage
+            ){
+                Icon(
+                    imageVector = ImageVector.vectorResource(R.drawable.camera),
+                    contentDescription = "get image",
+                    tint = CustomTheme.colors.iconDefault,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun InputFieldsSection(
+    name: String,
+    onNameChange: (String) -> Unit,
+    quantity: String,
+    onQuantityChange: (String) -> Unit,
+    isQuantityInt: Boolean,
+    selectedDate: String,
+    onDateClick: () -> Unit
+){
+    val focusManager = LocalFocusManager.current
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(Dimens.mediumPadding)
+    ) {
+        TextField(
+            label = {
+                Row {
+                    Text(
+                        text = "이름",
+                        style = CustomTheme.typography.caption1,
+                        color = CustomTheme.colors.textSecondary,
+                    )
+                    Text(
+                        text = " *",
+                        style = CustomTheme.typography.caption1,
+                        color = CustomTheme.colors.iconRed,
+                    )
+                }
+            },
+            value = name,
+            onValueChange = onNameChange,
+            modifier = Modifier.width(80.dp),
+            textStyle = CustomTheme.typography.button2,
+            colors = TextFieldDefaults.colors(
+                focusedTextColor = CustomTheme.colors.textPrimary,
+                unfocusedTextColor = CustomTheme.colors.textPrimary,
+                focusedContainerColor = CustomTheme.colors.onSurface,
+                unfocusedContainerColor = CustomTheme.colors.onSurface,
+                cursorColor = CustomTheme.colors.textPrimary,
+                focusedIndicatorColor = CustomTheme.colors.primary,
+                unfocusedIndicatorColor = CustomTheme.colors.border,
+                focusedTrailingIconColor = CustomTheme.colors.iconDefault,
+                unfocusedTrailingIconColor = Color.Transparent,
+            ),
+            keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
+            singleLine = true,
+            maxLines = 1
+        )
+        TextField(
+            label = {
+                Row {
+                    Text(
+                        text = "수량/g",
+                        style = CustomTheme.typography.caption1,
+                        color = CustomTheme.colors.textSecondary,
+                    )
+                    Text(
+                        text = " *",
+                        style = CustomTheme.typography.caption1,
+                        color = CustomTheme.colors.iconRed,
+                    )
+                }
+            },
+            value = quantity,
+            onValueChange = onQuantityChange,
+            modifier = Modifier.width(80.dp),
+            textStyle = CustomTheme.typography.button2,
+            colors = TextFieldDefaults.colors(
+                focusedTextColor = CustomTheme.colors.textPrimary,
+                unfocusedTextColor = CustomTheme.colors.textPrimary,
+                focusedContainerColor = CustomTheme.colors.onSurface,
+                unfocusedContainerColor = CustomTheme.colors.onSurface,
+                cursorColor = CustomTheme.colors.textPrimary,
+                focusedIndicatorColor = CustomTheme.colors.primary,
+                unfocusedIndicatorColor = CustomTheme.colors.border,
+                focusedTrailingIconColor = CustomTheme.colors.iconDefault,
+                unfocusedTrailingIconColor = Color.Transparent,
+                errorIndicatorColor = CustomTheme.colors.error,
+                errorContainerColor = CustomTheme.colors.onSurface
+            ),
+            keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            singleLine = true,
+            maxLines = 1,
+            isError = !isQuantityInt
+        )
+    }
+    TextField(
+        label = {
+            Row {
+                Text(
+                    text = "유통기한",
+                    style = CustomTheme.typography.caption1,
+                    color = CustomTheme.colors.textSecondary,
+                )
+                Text(
+                    text = " *",
+                    style = CustomTheme.typography.caption1,
+                    color = CustomTheme.colors.iconRed,
+                )
+            }
+        },
+        modifier = Modifier.width(300.dp),
+        value = selectedDate,
+        onValueChange = { },
+        textStyle = CustomTheme.typography.button2,
+        readOnly = true,
+        trailingIcon = {
+            IconButton(onClick = onDateClick) {
+                Icon(
+                    imageVector = ImageVector.vectorResource(R.drawable.calendar),
+                    contentDescription = "Select date",
+                    tint = CustomTheme.colors.iconSelected
+                )
+            }
+        },
+        colors = TextFieldDefaults.colors(
+            focusedTextColor = CustomTheme.colors.textPrimary,
+            unfocusedTextColor = CustomTheme.colors.textPrimary,
+            focusedContainerColor = CustomTheme.colors.onSurface,
+            unfocusedContainerColor = CustomTheme.colors.onSurface,
+            cursorColor = CustomTheme.colors.textPrimary,
+            focusedIndicatorColor = CustomTheme.colors.primary,
+            unfocusedIndicatorColor = CustomTheme.colors.border,
+            focusedTrailingIconColor = CustomTheme.colors.iconDefault,
+            unfocusedTrailingIconColor = Color.Transparent,
+        ),
+    )
+}
+
+@Composable
+private fun DatePickerDialogSection(
+    datePickerState: DatePickerState,
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit,
+    onCancel: () -> Unit
+){
+    DatePickerDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            TextButton(onClick = onConfirm) {
+                Text(
+                    text = "확인",
+                    color = CustomTheme.colors.textPrimary,
+                    style = CustomTheme.typography.button2,
+                )
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onCancel) {
+                Text(
+                    text = "취소",
+                    color = CustomTheme.colors.textPrimary,
+                    style = CustomTheme.typography.button2,
+                )
+            }
+        },
+        colors = DatePickerDefaults.colors(
+            containerColor = CustomTheme.colors.onSurface
+        )
+    ) {
+        DatePicker(
+            state = datePickerState,
+            showModeToggle = false,
+            title = {
+                Text(
+                    text = ""
+                )
+            },
+            colors = DatePickerDefaults.colors(
+                containerColor = CustomTheme.colors.onSurface,
+                titleContentColor = CustomTheme.colors.textPrimary,
+
+                selectedDayContentColor = CustomTheme.colors.onSurface,
+                selectedDayContainerColor = CustomTheme.colors.primary,
+
+                selectedYearContentColor = CustomTheme.colors.onSurface,
+                selectedYearContainerColor = CustomTheme.colors.primary,
+                currentYearContentColor = CustomTheme.colors.textPrimary,
+
+                todayDateBorderColor = CustomTheme.colors.primary,
+                todayContentColor = CustomTheme.colors.primary,
+
+                weekdayContentColor = CustomTheme.colors.textPrimary, // 요일 텍스트 (월~일)
+                dayContentColor = CustomTheme.colors.textPrimary, // 일반 날짜 텍스트
+                yearContentColor = CustomTheme.colors.textPrimary, // 연도 선택 화면에서 일반 연도 텍스트
+                navigationContentColor = CustomTheme.colors.textPrimary // 월 변경 화살표 아이콘
+            )
+        )
+    }
+}
+
+@Composable
+private fun ScanButton(onClick: () -> Unit) {
+    Button(
+        onClick = onClick,
+        shape = RoundedCornerShape(Dimens.cornerRadius),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = CustomTheme.colors.primary,
+        ),
+        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)
+    ) {
+        Text(
+            text = "스캔하기",
+            style = CustomTheme.typography.button1,
+            color = CustomTheme.colors.onPrimary
+        )
+    }
+}
+
+@Composable
+private fun SubmitButton(
+    enabled: Boolean,
+    onClick: () -> Unit,
+    text: String
+) {
+    Button(
+        modifier = Modifier.fillMaxWidth().padding(Dimens.mediumPadding),
+        shape = RoundedCornerShape(Dimens.cornerRadius),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = if(enabled) CustomTheme.colors.primary else CustomTheme.colors.onSurface,
+            disabledContainerColor = CustomTheme.colors.onSurface,
+            contentColor = CustomTheme.colors.onPrimary,
+            disabledContentColor = CustomTheme.colors.textTertiary
+        ),
+        border = BorderStroke(width = 1.dp, color = CustomTheme.colors.border),
+        enabled = enabled,
+        onClick = onClick
+    ) {
+        Text(text = text, style = CustomTheme.typography.button1)
     }
 }
 
@@ -603,4 +626,20 @@ fun parseDateToMillis(dateString: String): Long {
 
     // 모든 포맷이 실패하면 0L 반환
     return 0L
+}
+
+@Preview
+@Composable
+fun NewFridgeItemFormPreview() {
+    GoPreviewTheme {
+        NewFridgeItemForm(
+            fridge = null,
+            uiState = FridgeCRUDUiState.Idle,
+            storageType = true,
+            scannedDate = null,
+            modifyFridgeItem = { _, _, _ -> },
+            addFridgeItem = { _, _ -> },
+            onShowSnackbar = { _, _ -> }
+        )
+    }
 }

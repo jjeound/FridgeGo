@@ -1,6 +1,7 @@
 package com.stone.fridge.feature.my
 
 import android.content.Intent
+import android.content.res.Configuration
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -19,11 +20,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.net.toUri
 import com.stone.fridge.core.designsystem.Dimens
 import com.stone.fridge.core.designsystem.R
 import com.stone.fridge.core.designsystem.theme.CustomTheme
 import com.stone.fridge.core.navigation.currentComposeNavigator
+import com.stone.fridge.core.ui.GoPreviewTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -83,5 +86,13 @@ fun AppInfoScreen() {
                 color = CustomTheme.colors.textPrimary,
             )
         }
+    }
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_NO)
+@Composable
+fun AppInfoScreenPreview() {
+    GoPreviewTheme {
+        AppInfoScreen()
     }
 }

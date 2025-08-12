@@ -30,7 +30,7 @@ class FridgeCRUDViewModel @Inject constructor(
     private val fridgeRepository: FridgeRepository,
     savedStateHandle: SavedStateHandle
 ): ViewModel() {
-    val uiState: MutableStateFlow<FridgeCRUDUiState> = MutableStateFlow(FridgeCRUDUiState.Idle)
+    internal val uiState: MutableStateFlow<FridgeCRUDUiState> = MutableStateFlow(FridgeCRUDUiState.Idle)
 
     val id = savedStateHandle.getStateFlow<Long?>("id", null)
 
@@ -81,7 +81,7 @@ class FridgeCRUDViewModel @Inject constructor(
 }
 
 @Stable
-sealed interface FridgeCRUDUiState {
+internal sealed interface FridgeCRUDUiState {
     data object Idle : FridgeCRUDUiState
     data object Success: FridgeCRUDUiState
     data object Loading : FridgeCRUDUiState

@@ -1,5 +1,6 @@
 package com.stone.fridge.feature.my.profile
 
+import android.content.res.Configuration
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.clickable
@@ -33,6 +34,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
@@ -44,10 +46,11 @@ import com.stone.fridge.core.designsystem.R
 import com.stone.fridge.core.designsystem.theme.CustomTheme
 import com.stone.fridge.core.model.Profile
 import com.stone.fridge.core.navigation.currentComposeNavigator
+import com.stone.fridge.core.ui.GoPreviewTheme
 import com.stone.fridge.feature.my.navigation.ProfileModifyRoute
 
 @Composable
-fun ProfileDetail(
+internal fun ProfileDetail(
     uiState: ProfileUiState,
     profile: Profile,
     onLogout: () -> Unit,
@@ -292,22 +295,24 @@ private fun unlink(onSuccess: () -> Unit, onFailure: (String) -> Unit){
 }
 
 
-@Preview(showBackground = true)
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun ProfileDetailPreview() {
-    ProfileDetail(
-        profile = Profile(
-            id = 1,
-            nickname = "닉네임",
-            email = "이메일",
-            imageUrl = null,
-            trustLevelImageUrl = "",
-            trustLevel = "",
-        ),
-        uiState = ProfileUiState.Idle,
-        onLogout = {},
-        logout = {},
-        deleteUser = {},
-        onShowSnackbar = {_, _ -> }
-    )
+    GoPreviewTheme {
+        ProfileDetail(
+            profile = Profile(
+                id = 1,
+                nickname = "바보",
+                email = "asds@naver.com",
+                imageUrl = null,
+                trustLevelImageUrl = null,
+                trustLevel = null,
+            ),
+            uiState = ProfileUiState.Idle,
+            onLogout = {},
+            logout = {},
+            deleteUser = {},
+            onShowSnackbar = {_, _ -> }
+        )
+    }
 }

@@ -16,10 +16,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.tooling.preview.Preview
 import com.stone.fridge.core.designsystem.Dimens
 import com.stone.fridge.core.designsystem.R
 import com.stone.fridge.core.designsystem.theme.CustomTheme
 import com.stone.fridge.core.navigation.currentComposeNavigator
+import com.stone.fridge.core.ui.GoPreviewTheme
 import com.stone.fridge.feature.post.navigation.PostSearchRoute
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -96,4 +98,16 @@ fun PostTopBar(
             actionIconContentColor = Color.Unspecified
         )
     )
+}
+
+@Preview
+@Composable
+fun PostTopBarPreview() {
+    GoPreviewTheme {
+        PostTopBar(
+            location = "무거동",
+            isUnread = true,
+            navigateToNotification = {}
+        )
+    }
 }

@@ -21,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.stone.fridge.core.designsystem.Dimens
@@ -28,6 +29,7 @@ import com.stone.fridge.core.designsystem.R
 import com.stone.fridge.core.designsystem.theme.CustomTheme
 import com.stone.fridge.core.model.Notification
 import com.stone.fridge.core.navigation.currentComposeNavigator
+import com.stone.fridge.core.ui.GoPreviewTheme
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -113,5 +115,34 @@ private fun NotificationScreenContent(
                 }
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun NotificationScreenPreview() {
+    GoPreviewTheme {
+        NotificationScreenContent(
+            uiState = NotificationUiState.Idle,
+            notifications = listOf(
+                Notification(
+                    id = 1L,
+                    ingredientName = "사과",
+                    content = "소비기한이 곧 만료됩니다.",
+                    scheduledAt = "2023-10-01T12:00:00",
+                    read = false,
+                    status = ""
+                ),
+                Notification(
+                    id = 1L,
+                    ingredientName = "사과",
+                    content = "소비기한이 곧 만료됩니다.",
+                    scheduledAt = "2023-10-01T12:00:00",
+                    read = true,
+                    status = ""
+                )
+            ),
+            onShowSnackbar = { _, _ -> }
+        )
     }
 }

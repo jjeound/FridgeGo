@@ -36,6 +36,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
@@ -44,6 +45,7 @@ import com.stone.fridge.core.designsystem.R
 import com.stone.fridge.core.designsystem.theme.CustomTheme
 import com.stone.fridge.core.model.ChatMember
 import com.stone.fridge.core.navigation.currentComposeNavigator
+import com.stone.fridge.core.ui.GoPreviewTheme
 import com.stone.fridge.feature.chat.detail.ChatDetailUiState
 import com.stone.fridge.feature.chat.detail.ChatDetailViewModel
 import com.stone.fridge.feature.chat.navigation.ChatRoute
@@ -55,6 +57,7 @@ fun ChattingRoomDrawer(
     roomId: Long,
     title: String,
     isActive: Boolean,
+    onProfileClick: (String) -> Unit,
 ){
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val members by viewModel.member.collectAsStateWithLifecycle()
@@ -73,7 +76,8 @@ fun ChattingRoomDrawer(
             isActive = isActive,
             closeChatRoom = viewModel::closeChatRoom,
             exitChatRoom = viewModel::exitChatRoom,
-            onShowSnackbar = onShowSnackbar
+            onShowSnackbar = onShowSnackbar,
+            onProfileClick = onProfileClick
         )
     }else {
         Box(
@@ -97,7 +101,8 @@ private fun ChattingRoomDrawerContent(
     isActive: Boolean,
     closeChatRoom: (Long) -> Unit,
     exitChatRoom: (Long) -> Unit,
-    onShowSnackbar: suspend (String, String?) -> Unit
+    onShowSnackbar: suspend (String, String?) -> Unit,
+    onProfileClick: (String) -> Unit,
 ){
     val scrollState = rememberScrollState()
     val composeNavigator = currentComposeNavigator
@@ -188,9 +193,7 @@ private fun ChattingRoomDrawerContent(
                                         .padding(
                                             vertical = Dimens.smallPadding,
                                         ).clickable{
-//                                            navigate(
-//                                                Screen.PostProfileNav(it.nickname)
-//                                            )
+                                            onProfileClick(it.nickname)
                                         },
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.spacedBy(Dimens.smallPadding)
@@ -293,5 +296,27 @@ private fun ChattingRoomDrawerContent(
                 }
             }
         }
+    }
+}
+
+@Preview
+@Composable
+fun ChattingRoomDrawerContentPreview() {
+    GoPreviewTheme {
+        ChattingRoomDrawerContent(
+            uiState = ChatDetailUiState.Idle,
+            members = listOf(
+                ChatMember(nickname = "User1", imageUrl = null, host = true, userId = 1L),
+                ChatMember(nickname = "User2", imageUrl = null, host = false, userId = 2L)
+            ),
+            roomId = 1L,
+            name = "User1",
+            title = "Chat Room Title",
+            isActive = true,
+            closeChatRoom = {},
+            exitChatRoom = {},
+            onShowSnackbar = { _, _ -> },
+            onProfileClick = {}
+        )
     }
 }

@@ -4,7 +4,6 @@ import android.Manifest
 import android.app.Activity
 import android.content.pm.PackageManager
 import android.os.Build
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
@@ -42,6 +41,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
 import androidx.core.content.ContextCompat
@@ -51,6 +51,7 @@ import com.stone.fridge.core.designsystem.R
 import com.stone.fridge.core.designsystem.theme.CustomTheme
 import com.stone.fridge.core.model.Fridge
 import com.stone.fridge.core.navigation.currentComposeNavigator
+import com.stone.fridge.core.ui.GoPreviewTheme
 import com.stone.fridge.feature.fridge.crud.convertMillisToDate
 import com.stone.fridge.feature.fridge.navigation.FridgeCRUDRoute
 
@@ -74,7 +75,6 @@ fun FridgeItemContainer(
             if (isGranted) {
                 toggleNotification(item.id, item.alarmStatus) // 알림 토글
                 isNotification.value = !isNotification.value
-                Log.d("Alarm", "알람 등록")
             }
         })
     Card(
@@ -227,5 +227,26 @@ fun FridgeItemContainer(
                 }
             }
         }
+    }
+}
+
+@Preview
+@Composable
+fun FridgeItemContainerPreview(){
+    GoPreviewTheme {
+        FridgeItemContainer(
+            item = Fridge(
+                id = 1L,
+                foodName = "두부",
+                useByDate = 1735689600000L,
+                count = 3,
+                imageUrl = null,
+                alarmStatus = true,
+                storageType = true,
+            ),
+            toggleNotification = { _, _ -> },
+            onShowDialog = {},
+            deleteItem = {}
+        )
     }
 }

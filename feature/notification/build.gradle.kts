@@ -6,3 +6,9 @@ plugins {
 android {
     namespace = "com.stone.fridge.feature.notification"
 }
+
+dependencies {
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
+}

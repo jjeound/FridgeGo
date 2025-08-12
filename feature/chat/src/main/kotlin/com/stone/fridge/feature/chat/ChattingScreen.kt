@@ -29,6 +29,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -39,6 +40,7 @@ import com.stone.fridge.core.designsystem.R
 import com.stone.fridge.core.designsystem.theme.CustomTheme
 import com.stone.fridge.core.model.ChatRoomRaw
 import com.stone.fridge.core.navigation.currentComposeNavigator
+import com.stone.fridge.core.ui.GoPreviewTheme
 import com.stone.fridge.feature.chat.navigation.ChattingRoomNav
 
 
@@ -68,7 +70,8 @@ fun ChattingScreen(
                 )
             }
         } else {
-            ChattingContent(
+            ChattingScreenContent(
+                modifier = Modifier.weight(1f),
                 uiState = uiState,
                 chattingRooms = chattingRooms,
                 onShowSnackbar = onShowSnackbar
@@ -78,7 +81,8 @@ fun ChattingScreen(
 }
 
 @Composable
-private fun ChattingContent(
+private fun ChattingScreenContent(
+    modifier: Modifier,
     uiState: ChatUiState,
     chattingRooms: List<ChatRoomRaw>,
     onShowSnackbar: suspend (String, String?) -> Unit,
@@ -90,32 +94,34 @@ private fun ChattingContent(
         }
     }
     LazyColumn(
-        modifier = Modifier.padding(
+        modifier = modifier.padding(
             horizontal = Dimens.surfaceHorizontalPadding,
             vertical = Dimens.surfaceVerticalPadding),
         verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding)
     ) {
         items(chattingRooms.size){ index ->
             val room = chattingRooms[index]
-            Box(
-                modifier = Modifier.clickable {
-                    composeNavigator.navigate(ChattingRoomNav(room.roomId, room.active))
-                }
-            ){
-                ChatItem(room = room)
-            }
+            ChatItem(
+                room = room,
+                onClick = {composeNavigator.navigate(ChattingRoomNav(room.roomId, room.active))}
+            )
         }
     }
 }
 
 @Composable
-private fun ChatItem(room: ChatRoomRaw){
+private fun ChatItem(
+    room: ChatRoomRaw,
+    onClick: ()  -> Unit,
+){
     Card(
         colors = CardDefaults.cardColors(
             containerColor = if(room.active) CustomTheme.colors.onSurface else CustomTheme.colors.surface,
         ),
         shape = RoundedCornerShape(Dimens.cornerRadius),
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth().clickable{
+            onClick()
+        }
     ){
         Row (
             modifier = Modifier.fillMaxSize().padding(Dimens.mediumPadding),
@@ -196,5 +202,52 @@ private fun ChatItem(room: ChatRoomRaw){
                 }
             }
         }
+    }
+}
+
+@Preview
+@Composable
+fun ChatTopBarPreview() {
+    GoPreviewTheme {
+        ChatTopbar(
+            isUnread = true,
+            navigateToNotification = {}
+        )
+    }
+}
+
+@Preview
+@Composable
+fun ChattingScreenContentPreview() {
+    GoPreviewTheme {
+        ChattingScreenContent(
+            modifier = Modifier.fillMaxSize(),
+            uiState = ChatUiState.Idle,
+            chattingRooms = listOf(
+                ChatRoomRaw(
+                    roomId = 1L,
+                    name = "Chat Room 1",
+                    lastMessage = "Hello!",
+                    lastMessageTime = "2023-10-01T12:00:00",
+                    currentParticipants = 5,
+                    unreadCount = 2,
+                    active = true,
+                    host = false,
+                    createdAt = "2023-10-01T11:00:00"
+                ),
+                ChatRoomRaw(
+                    roomId = 2L,
+                    name = "Chat Room 2",
+                    lastMessage = "How are you?",
+                    lastMessageTime = "2023-10-01T11:30:00",
+                    currentParticipants = 3,
+                    unreadCount = 0,
+                    active = false,
+                    host = true,
+                    createdAt = "2023-10-01T10:00:00"
+                )
+            ),
+            onShowSnackbar = { _, _ -> }
+        )
     }
 }

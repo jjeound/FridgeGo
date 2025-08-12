@@ -23,14 +23,21 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.LoadState
+import androidx.paging.PagingData
+import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.stone.fridge.core.designsystem.Dimens
 import com.stone.fridge.core.designsystem.R
 import com.stone.fridge.core.designsystem.theme.CustomTheme
+import com.stone.fridge.core.model.PostRaw
 import com.stone.fridge.core.navigation.currentComposeNavigator
+import com.stone.fridge.core.ui.GoPreviewTheme
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -39,6 +46,19 @@ fun MyPostScreen(
     navigateToPostDetail: (Long) -> Unit,
 ){
     val posts = viewModel.posts.collectAsLazyPagingItems()
+    MyPostScreenContent(
+        posts = posts,
+        navigateToPostDetail = navigateToPostDetail,
+        toggleLike = viewModel::toggleLike
+    )
+}
+
+@Composable
+fun MyPostScreenContent(
+    posts: LazyPagingItems<PostRaw>,
+    navigateToPostDetail: (Long) -> Unit,
+    toggleLike: (Long) -> Unit
+){
     val composeNavigator = currentComposeNavigator
     Scaffold(
         containerColor = CustomTheme.colors.surface,
@@ -96,7 +116,7 @@ fun MyPostScreen(
                             ){
                                 PostListContainer(
                                     post = post,
-                                    toggleLike = viewModel::toggleLike
+                                    toggleLike = toggleLike
                                 )
                             }
                         }
@@ -109,5 +129,17 @@ fun MyPostScreen(
                 }
             }
         }
+    }
+}
+
+@Preview
+@Composable
+fun MyPostScreenContentPreview(){
+    GoPreviewTheme {
+        MyPostScreenContent(
+            posts = MutableStateFlow(PagingData.empty<PostRaw>()).collectAsLazyPagingItems(),
+            navigateToPostDetail = {},
+            toggleLike = {}
+        )
     }
 }

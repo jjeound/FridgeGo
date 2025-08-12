@@ -4,7 +4,6 @@ import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Build
 import android.provider.Settings
 import android.util.Log
@@ -42,18 +41,20 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -64,6 +65,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
 import androidx.core.content.ContextCompat
@@ -77,6 +79,7 @@ import com.stone.fridge.core.designsystem.theme.CustomTheme
 import com.stone.fridge.core.model.Recipe
 import com.stone.fridge.core.navigation.currentComposeNavigator
 import com.stone.fridge.core.designsystem.R
+import com.stone.fridge.core.ui.GoPreviewTheme
 import com.stone.fridge.core.ui.PermissionDialog
 import kotlinx.coroutines.launch
 import java.io.File
@@ -89,14 +92,7 @@ fun RecipeModifyScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val recipe by viewModel.recipe.collectAsStateWithLifecycle()
-    if (uiState == RecipeUiState.Idle && recipe != null) {
-        RecipeModifyContent(
-            recipe = recipe!!,
-            uiState = uiState,
-            uploadImageThenModifyRecipe = viewModel::uploadImageThenModify,
-            onShowSnackbar = onShowSnackbar
-        )
-    } else {
+    if (uiState == RecipeUiState.Loading && recipe != null) {
         Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
@@ -105,6 +101,13 @@ fun RecipeModifyScreen(
                 color = CustomTheme.colors.primary
             )
         }
+    } else if(recipe != null) {
+        RecipeModifyContent(
+            recipe = recipe!!,
+            uiState = uiState,
+            uploadImageThenModifyRecipe = viewModel::uploadImageThenModify,
+            onShowSnackbar = onShowSnackbar
+        )
     }
 }
 
@@ -116,10 +119,20 @@ private fun RecipeModifyContent(
     onShowSnackbar: suspend (String, String?) -> Unit,
 ){
     val composeNavigator = currentComposeNavigator
-    var saveFlag by remember { mutableStateOf(false) }
     val showDialog = remember { mutableStateOf(false) }
     val context = LocalContext.current
-    var validator by remember { mutableStateOf(true) }
+    var title by rememberSaveable { mutableStateOf(recipe.title) }
+    val ingredients = remember { recipe.ingredients.toMutableStateList() }
+    var instructions by rememberSaveable { mutableStateOf(recipe.instructions) }
+    var image by rememberSaveable { mutableStateOf(recipe.imageUrl) }
+    var imageFile by remember { mutableStateOf<File?>(null) }
+    val isValid by remember {
+        derivedStateOf {
+            title.isNotBlank() &&
+                    ingredients.any { it.isNotBlank() } &&
+                    instructions.isNotBlank()
+        }
+    }
     LaunchedEffect(uiState) {
         if(uiState == RecipeUiState.Success){
             composeNavigator.navigateUp()
@@ -147,9 +160,19 @@ private fun RecipeModifyContent(
                 },
                 actions = {
                     TextButton(
-                        enabled = validator,
+                        enabled = isValid,
                         onClick = {
-                            saveFlag = true
+                            uploadImageThenModifyRecipe(
+                                Recipe(
+                                    id = recipe.id,
+                                    title = title,
+                                    imageUrl = image,
+                                    ingredients = ingredients.filter { it.isNotBlank() }.toList(),
+                                    instructions = instructions,
+                                    liked = recipe.liked
+                                ),
+                                imageFile
+                            )
                         },
                         colors = ButtonDefaults.textButtonColors(
                             contentColor = CustomTheme.colors.textPrimary,
@@ -184,28 +207,34 @@ private fun RecipeModifyContent(
         )
         RecipeDetail(
             modifier = Modifier.padding(innerPadding),
-            recipe = recipe,
-            uploadImageThenModifyRecipe = uploadImageThenModifyRecipe,
-            saveFlag = saveFlag,
-            onValid = {
-                validator = it
+            title = title,
+            onTitleChange = {title = it},
+            onTitleClear = {title = ""},
+            ingredients = ingredients,
+            onAddIngredient = { ingredients.add("") },
+            onIngredientChange = { index, ing -> ingredients[index] = ing },
+            onRemoveIngredient = { ingredients.removeAt(it)},
+            instructions = instructions,
+            onInstructionsChange = { instructions = it },
+            image = image,
+            onImageChange = { uri, file ->
+                image = uri
+                imageFile = file
             },
-            onShowDialog = {
+            onDeleteImage = {
+                image = null
+                imageFile = null
+            },
+            onRequestPermissionDialog = {
                 showDialog.value = true
             }
         )
         PermissionDialog(
-            showDialog = showDialog,
+            showDialog = showDialog.value,
             message = "이미지를 업로드하려면 저장소 접근 권한이 필요합니다.",
-            onDismiss = { showDialog.value = false },
-            onConfirm = {
-                showDialog.value = false
-                context.startActivity(
-                    Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                        data = Uri.fromParts("package", context.packageName, null)
-                    }
-                )
-            }
+            onEvent = { showDialog.value = false },
+            context = context,
+            intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
         )
     }
 }
@@ -213,36 +242,33 @@ private fun RecipeModifyContent(
 @Composable
 private fun RecipeDetail(
     modifier: Modifier,
-    recipe: Recipe,
-    uploadImageThenModifyRecipe: (Recipe, File?) -> Unit,
-    saveFlag: Boolean,
-    onValid: (Boolean) -> Unit,
-    onShowDialog: () -> Unit,
+    title: String,
+    onTitleChange: (String) -> Unit,
+    onTitleClear: () -> Unit,
+    ingredients: SnapshotStateList<String>,
+    onAddIngredient: () -> Unit,
+    onIngredientChange: (Int, String) -> Unit,
+    onRemoveIngredient: (Int) -> Unit,
+    instructions: String,
+    onInstructionsChange: (String) -> Unit,
+    image: String?,
+    onImageChange: (String?, File?) -> Unit,
+    onDeleteImage: () -> Unit,
+    onRequestPermissionDialog: () -> Unit
 ){
     val listState = rememberLazyListState()
     val focusManager = LocalFocusManager.current
     val scope = rememberCoroutineScope()
-    val currentSaveFlag by rememberUpdatedState(saveFlag)
-    var title by rememberSaveable { mutableStateOf(recipe.title)}
-    val ingredients = rememberSaveable { recipe.ingredients.toMutableStateList() }
-    var instructions by rememberSaveable { mutableStateOf("")}
-    var image by rememberSaveable { mutableStateOf(recipe.imageUrl) }
-    val validator =
-        title.isNotEmpty() &&
-                ingredients.isNotEmpty() &&
-                instructions.isNotEmpty()
     val context = LocalContext.current
     val activity = context as? Activity
-    var imageFile by remember { mutableStateOf<File?>(null) }
     val albumLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
                 val uri = result.data?.data
                 uri?.let {
-                    image = it.toString()
                     val filePath = context.getRealPathFromURI(it)
-                    imageFile = filePath?.let { path -> File(path) } ?: context.copyUriToFile(it)
-                    Log.d("TargetSDK", "imageUri - selected : $uri")
+                    val imageFile = filePath?.let { path -> File(path) } ?: context.copyUriToFile(it)
+                    onImageChange(it.toString(), imageFile)
                 }
             }
         }
@@ -277,24 +303,6 @@ private fun RecipeDetail(
             listState.animateScrollToItem(ingredients.size + 3)
         }
     }
-    LaunchedEffect(validator) {
-        onValid(validator)
-    }
-    LaunchedEffect(currentSaveFlag) {
-        if(currentSaveFlag){
-            uploadImageThenModifyRecipe(
-                Recipe(
-                    id = recipe.id,
-                    title = title,
-                    imageUrl = image,
-                    ingredients = ingredients.filter { it.isNotBlank() }.toList(),
-                    instructions = instructions,
-                    liked = recipe.liked
-                ),
-                imageFile
-            )
-        }
-    }
     LazyColumn (
         state = listState,
         modifier = modifier.fillMaxSize()
@@ -312,213 +320,51 @@ private fun RecipeDetail(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         item{
-            Column {
-                TextField(
-                    value = title,
-                    onValueChange = { title = it },
-                    placeholder = {
-                        Text(
-                            text = "제목",
-                            style = CustomTheme.typography.title1,
-                            color = CustomTheme.colors.textSecondary
-                        )
-                    },
-                    trailingIcon = {
-                        IconButton(
-                            onClick = {
-                                title = ""
-                            }
-                        ) {
-                            Icon(
-                                imageVector = ImageVector.vectorResource(R.drawable.delete),
-                                contentDescription = "delete",
-                                tint = CustomTheme.colors.iconDefault,
-                            )
-                        }
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    textStyle = CustomTheme.typography.title1,
-                    colors = TextFieldDefaults.colors(
-                        focusedTextColor = CustomTheme.colors.textPrimary,
-                        unfocusedTextColor = CustomTheme.colors.textPrimary,
-                        focusedContainerColor = CustomTheme.colors.onSurface,
-                        unfocusedContainerColor = CustomTheme.colors.onSurface,
-                        cursorColor = CustomTheme.colors.textPrimary,
-                        focusedIndicatorColor = CustomTheme.colors.border,
-                        unfocusedIndicatorColor = Color.Transparent,
-                        focusedTrailingIconColor = CustomTheme.colors.iconDefault,
-                        unfocusedTrailingIconColor = Color.Transparent,
-                    ),
-                    keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() })
-                )
-                HorizontalDivider(
-                    thickness = 1.dp,
-                    color = CustomTheme.colors.borderLight
-                )
-            }
+            TitleField(
+                title = title,
+                onTitleChange = onTitleChange,
+                onTitleClear = onTitleClear,
+                focusManager = focusManager
+            )
         }
         item{
-            Box(
-                modifier = Modifier
-                    .size(100.dp)
-                    .clip(shape = RoundedCornerShape(Dimens.cornerRadius))
-                    .background(CustomTheme.colors.surface),
-                contentAlignment = Alignment.BottomEnd,
-            ){
-                if (image != null) {
-                    AsyncImage(
-                        model = image,
-                        contentDescription = recipe.title,
-                        alignment = Alignment.Center,
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier
-                            .size(100.dp)
-                            .clip(shape = RoundedCornerShape(Dimens.cornerRadius))
-                    )
-                }
-                Column(
-                    verticalArrangement = Arrangement.SpaceBetween
-                ) {
-                    IconButton(
-                        onClick = {
-                            image = null
-                            imageFile = null
+            ImagePickerBox(
+                image = image,
+                onDelete = onDeleteImage,
+                onCheckPermission = {
+                    when {
+                        ContextCompat.checkSelfPermission(
+                            context,
+                            galleryPermissions[0]
+                        ) == PackageManager.PERMISSION_GRANTED ->  {
+                            albumLauncher.launch(imageAlbumIntent)
                         }
-                    ) {
-                        Icon(
-                            imageVector = ImageVector.vectorResource(R.drawable.close),
-                            contentDescription = "delete",
-                            tint = CustomTheme.colors.iconDefault,
-                        )
-                    }
-                    IconButton(
-                        onClick = {
-                            when {
-                                ContextCompat.checkSelfPermission(
-                                    context,
-                                    galleryPermissions[0]
-                                ) == PackageManager.PERMISSION_GRANTED ->  {
-                                    albumLauncher.launch(imageAlbumIntent)
-                                }
-                                activity != null && shouldShowRequestPermissionRationale(
-                                    activity,
-                                    galleryPermissions[0]
-                                ) -> {
-                                    onShowDialog()
-                                }
-                                else -> {
-                                    requestPermissionLauncher.launch(galleryPermissions)
-                                }
-                            }
+                        activity != null && shouldShowRequestPermissionRationale(
+                            activity,
+                            galleryPermissions[0]
+                        ) -> {
+                            onRequestPermissionDialog()
                         }
-                    ) {
-                        Icon(
-                            imageVector = ImageVector.vectorResource(R.drawable.camera),
-                            contentDescription = "like",
-                            tint = CustomTheme.colors.iconDefault,
-                        )
+                        else -> {
+                            requestPermissionLauncher.launch(galleryPermissions)
+                        }
                     }
                 }
-            }
+            )
         }
         item{
-            Column{
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        modifier = Modifier.padding(vertical = 6.dp),
-                        text = "재료 \uD83D\uDCCC",
-                        style = CustomTheme.typography.title1,
-                        color = CustomTheme.colors.textPrimary,
-                    )
-                    IconButton(
-                        onClick = {
-                            ingredients.add("")
-                        }
-                    ) {
-                        Icon(
-                            imageVector = ImageVector.vectorResource(R.drawable.add),
-                            contentDescription = "add",
-                            tint = CustomTheme.colors.iconDefault,
-                        )
-                    }
-                }
-                HorizontalDivider(
-                    thickness = 1.dp,
-                    color = CustomTheme.colors.borderLight
-                )
-            }
+            IngredientHeader(
+                onAddItem = onAddIngredient
+            )
         }
         items(ingredients.size){ index ->
-            val i = ingredients[index]
-            Row(
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "✅",
-                    style = CustomTheme.typography.body2,
-                    color = CustomTheme.colors.textPrimary,
-                )
-                TextField(
-                    value = i,
-                    onValueChange = { ingredients[index] = it },
-                    placeholder = {
-                        Text(
-                            text = "재료 추가..//",
-                            style = CustomTheme.typography.body3,
-                            color = CustomTheme.colors.textSecondary
-                        )
-                    },
-                    trailingIcon = {
-                        IconButton(
-                            onClick = {
-                                ingredients.removeAt(index)
-                            }
-                        ) {
-                            Icon(
-                                imageVector = ImageVector.vectorResource(R.drawable.delete),
-                                contentDescription = "delete",
-                                tint = CustomTheme.colors.iconDefault,
-                            )
-                        }
-                    },
-                    textStyle = CustomTheme.typography.body2,
-                    colors = TextFieldDefaults.colors(
-                        focusedTextColor = CustomTheme.colors.textPrimary,
-                        unfocusedTextColor = CustomTheme.colors.textPrimary,
-                        focusedContainerColor = CustomTheme.colors.onSurface,
-                        unfocusedContainerColor = CustomTheme.colors.onSurface,
-                        cursorColor = CustomTheme.colors.textPrimary,
-                        focusedIndicatorColor = CustomTheme.colors.border,
-                        unfocusedIndicatorColor = Color.Transparent,
-                        focusedTrailingIconColor = CustomTheme.colors.iconDefault,
-                        unfocusedTrailingIconColor = Color.Transparent,
-                    ),
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Text,
-                        imeAction = ImeAction.Next
-                    ),
-                    keyboardActions = KeyboardActions (
-                        onDone = { focusManager.clearFocus() },
-                        onNext = { focusManager.moveFocus(FocusDirection.Down) }
-                    )
-                )
-                IconButton(
-                    onClick = {
-                        ingredients.removeAt(index)
-                    }
-                ) {
-                    Icon(
-                        imageVector = ImageVector.vectorResource(R.drawable.close),
-                        contentDescription = "delete",
-                        tint = CustomTheme.colors.iconDefault,
-                    )
-                }
-            }
+            val ingredient = ingredients[index]
+            IngredientField(
+                ingredient = ingredient,
+                onIngredientChange = {onIngredientChange(index, it)},
+                onDelete = {onRemoveIngredient(index)},
+                focusManager = focusManager
+            )
         }
         item{
             Column{
@@ -535,42 +381,280 @@ private fun RecipeDetail(
             }
         }
         item{
-            TextField(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight().onFocusChanged(
-                        onFocusChanged = {
-                            if (it.isFocused) {
-                                scope.launch {
-                                    listState.animateScrollToItem(ingredients.size + 6)
-                                }
-                            }
+            InstructionsField(
+                instructions = instructions,
+                onInstructionsChange = onInstructionsChange,
+                onFocusChanged = {
+                    if(it){
+                        scope.launch {
+                            listState.animateScrollToItem(ingredients.size + 6)
                         }
-                    ),
-                value = instructions,
-                onValueChange = { instructions = it },
-                placeholder = {
-                    Text(
-                        text = "레시피..//",
-                        style = CustomTheme.typography.body3,
-                        color = CustomTheme.colors.textSecondary
-                    )
+                    }
                 },
-                textStyle = CustomTheme.typography.body2,
-                colors = TextFieldDefaults.colors(
-                    focusedTextColor = CustomTheme.colors.textPrimary,
-                    unfocusedTextColor = CustomTheme.colors.textPrimary,
-                    focusedContainerColor = CustomTheme.colors.onSurface,
-                    unfocusedContainerColor = CustomTheme.colors.onSurface,
-                    cursorColor = CustomTheme.colors.textPrimary,
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent,
-                    focusedTrailingIconColor = CustomTheme.colors.iconDefault,
-                    unfocusedTrailingIconColor = Color.Transparent,
-                ),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-                keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() })
+                focusManager = focusManager
             )
         }
+    }
+}
+
+@Composable
+private fun TitleField(
+    title: String,
+    onTitleChange: (String) -> Unit,
+    onTitleClear: () -> Unit,
+    focusManager: FocusManager
+){
+    Column {
+        TextField(
+            value = title,
+            onValueChange = onTitleChange,
+            placeholder = {
+                Text(
+                    text = "제목",
+                    style = CustomTheme.typography.title1,
+                    color = CustomTheme.colors.textSecondary
+                )
+            },
+            trailingIcon = {
+                IconButton(
+                    onClick = onTitleClear
+                ) {
+                    Icon(
+                        imageVector = ImageVector.vectorResource(R.drawable.delete),
+                        contentDescription = "delete",
+                        tint = CustomTheme.colors.iconDefault,
+                    )
+                }
+            },
+            modifier = Modifier.fillMaxWidth(),
+            textStyle = CustomTheme.typography.title1,
+            colors = TextFieldDefaults.colors(
+                focusedTextColor = CustomTheme.colors.textPrimary,
+                unfocusedTextColor = CustomTheme.colors.textPrimary,
+                focusedContainerColor = CustomTheme.colors.onSurface,
+                unfocusedContainerColor = CustomTheme.colors.onSurface,
+                cursorColor = CustomTheme.colors.textPrimary,
+                focusedIndicatorColor = CustomTheme.colors.border,
+                unfocusedIndicatorColor = Color.Transparent,
+                focusedTrailingIconColor = CustomTheme.colors.iconDefault,
+                unfocusedTrailingIconColor = Color.Transparent,
+            ),
+            keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() })
+        )
+        HorizontalDivider(
+            thickness = 1.dp,
+            color = CustomTheme.colors.borderLight
+        )
+    }
+}
+
+@Composable
+private fun ImagePickerBox(
+    image: String?,
+    onDelete: () -> Unit,
+    onCheckPermission: () -> Unit,
+){
+    Box(
+        modifier = Modifier
+            .size(100.dp)
+            .clip(shape = RoundedCornerShape(Dimens.cornerRadius))
+            .background(CustomTheme.colors.surface),
+        contentAlignment = Alignment.BottomEnd,
+    ){
+        if (image != null) {
+            AsyncImage(
+                model = image,
+                contentDescription = "recipe image",
+                alignment = Alignment.Center,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .size(100.dp)
+                    .clip(shape = RoundedCornerShape(Dimens.cornerRadius))
+            )
+        }
+        Column(
+            verticalArrangement = Arrangement.SpaceBetween
+        ) {
+            IconButton(
+                onClick = onDelete
+            ) {
+                Icon(
+                    imageVector = ImageVector.vectorResource(R.drawable.close),
+                    contentDescription = "delete",
+                    tint = CustomTheme.colors.iconDefault,
+                )
+            }
+            IconButton(
+                onClick = onCheckPermission
+            ) {
+                Icon(
+                    imageVector = ImageVector.vectorResource(R.drawable.camera),
+                    contentDescription = "like",
+                    tint = CustomTheme.colors.iconDefault,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun IngredientHeader(
+    onAddItem: () -> Unit,
+){
+    Column{
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                modifier = Modifier.padding(vertical = 6.dp),
+                text = "재료 \uD83D\uDCCC",
+                style = CustomTheme.typography.title1,
+                color = CustomTheme.colors.textPrimary,
+            )
+            IconButton(
+                onClick = onAddItem
+            ) {
+                Icon(
+                    imageVector = ImageVector.vectorResource(R.drawable.add),
+                    contentDescription = "add",
+                    tint = CustomTheme.colors.iconDefault,
+                )
+            }
+        }
+        HorizontalDivider(
+            thickness = 1.dp,
+            color = CustomTheme.colors.borderLight
+        )
+    }
+}
+
+@Composable
+private fun IngredientField(
+    ingredient: String,
+    onIngredientChange: (String) -> Unit,
+    onDelete: () -> Unit,
+    focusManager: FocusManager
+){
+    Row(
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = "✅",
+            style = CustomTheme.typography.body2,
+            color = CustomTheme.colors.textPrimary,
+        )
+        TextField(
+            value = ingredient,
+            onValueChange = onIngredientChange,
+            placeholder = {
+                Text(
+                    text = "재료 추가..//",
+                    style = CustomTheme.typography.body3,
+                    color = CustomTheme.colors.textSecondary
+                )
+            },
+            trailingIcon = {
+                IconButton(
+                    onClick = onDelete
+                ) {
+                    Icon(
+                        imageVector = ImageVector.vectorResource(R.drawable.delete),
+                        contentDescription = "delete",
+                        tint = CustomTheme.colors.iconDefault,
+                    )
+                }
+            },
+            textStyle = CustomTheme.typography.body2,
+            colors = TextFieldDefaults.colors(
+                focusedTextColor = CustomTheme.colors.textPrimary,
+                unfocusedTextColor = CustomTheme.colors.textPrimary,
+                focusedContainerColor = CustomTheme.colors.onSurface,
+                unfocusedContainerColor = CustomTheme.colors.onSurface,
+                cursorColor = CustomTheme.colors.textPrimary,
+                focusedIndicatorColor = CustomTheme.colors.border,
+                unfocusedIndicatorColor = Color.Transparent,
+                focusedTrailingIconColor = CustomTheme.colors.iconDefault,
+                unfocusedTrailingIconColor = Color.Transparent,
+            ),
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Text,
+                imeAction = ImeAction.Next
+            ),
+            keyboardActions = KeyboardActions (
+                onDone = { focusManager.clearFocus() },
+                onNext = { focusManager.moveFocus(FocusDirection.Down) }
+            )
+        )
+        IconButton(
+            onClick = onDelete
+        ) {
+            Icon(
+                imageVector = ImageVector.vectorResource(R.drawable.close),
+                contentDescription = "delete",
+                tint = CustomTheme.colors.iconDefault,
+            )
+        }
+    }
+}
+
+@Composable
+private fun InstructionsField(
+    instructions: String,
+    onInstructionsChange: (String) -> Unit,
+    onFocusChanged: (Boolean) -> Unit,
+    focusManager: FocusManager
+){
+    TextField(
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentHeight().onFocusChanged(
+                onFocusChanged ={onFocusChanged(it.isFocused)}
+            ),
+        value = instructions,
+        onValueChange = onInstructionsChange,
+        placeholder = {
+            Text(
+                text = "레시피..//",
+                style = CustomTheme.typography.body3,
+                color = CustomTheme.colors.textSecondary
+            )
+        },
+        textStyle = CustomTheme.typography.body2,
+        colors = TextFieldDefaults.colors(
+            focusedTextColor = CustomTheme.colors.textPrimary,
+            unfocusedTextColor = CustomTheme.colors.textPrimary,
+            focusedContainerColor = CustomTheme.colors.onSurface,
+            unfocusedContainerColor = CustomTheme.colors.onSurface,
+            cursorColor = CustomTheme.colors.textPrimary,
+            focusedIndicatorColor = Color.Transparent,
+            unfocusedIndicatorColor = Color.Transparent,
+            focusedTrailingIconColor = CustomTheme.colors.iconDefault,
+            unfocusedTrailingIconColor = Color.Transparent,
+        ),
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+        keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() })
+    )
+}
+
+@Preview
+@Composable
+fun RecipeModifyScreenContentPreview() {
+    GoPreviewTheme {
+        RecipeModifyContent(
+            recipe = Recipe(
+                id = 1L,
+                title = "제목",
+                imageUrl = null,
+                ingredients = listOf("재료1", "재료2"),
+                instructions = "1. 레시피 설명",
+                liked = false
+            ),
+            uiState = RecipeUiState.Idle,
+            uploadImageThenModifyRecipe = { _, _ -> },
+            onShowSnackbar = { _, _ -> }
+        )
     }
 }

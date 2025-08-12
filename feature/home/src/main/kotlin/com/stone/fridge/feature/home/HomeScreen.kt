@@ -27,16 +27,21 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.LoadState
+import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import coil.compose.AsyncImage
@@ -45,7 +50,9 @@ import com.stone.fridge.core.designsystem.theme.CustomTheme
 import com.stone.fridge.core.model.RecipeRaw
 import com.stone.fridge.core.designsystem.R
 import com.stone.fridge.core.navigation.currentComposeNavigator
+import com.stone.fridge.core.ui.GoPreviewTheme
 import com.stone.fridge.feature.home.navigation.RecipeNav
+import kotlinx.coroutines.flow.MutableStateFlow
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -70,20 +77,31 @@ fun HomeScreen(
             isUnread = isUnread,
             navigateToNotification = navigateToNotification
         )
-        HomeContent(
-            homeUiState = homeUiState,
-            aiUIState = aiUIState,
-            recipeItems = recipeItems,
-            aiResponse = aiResponse,
-            tastePref = tastePref,
-            shouldShowBottomSheet = shouldShowBottomSheet,
-            hideBottomSheet = hideBottomSheet,
-            addRecipe = viewModel::addRecipe,
-            toggleLike = viewModel::toggleLike,
-            setTastePreference = viewModel::setTastePreference,
-            getAIRecipe = viewModel::getAIRecipe,
-            onShowSnackbar = onShowSnackbar
-        )
+        if(homeUiState == HomeUiState.Loading){
+            Box(
+                modifier = Modifier.weight(1f)
+            ){
+                CircularProgressIndicator(
+                    modifier = Modifier.align(Alignment.Center),
+                    color = CustomTheme.colors.primary
+                )
+            }
+        } else {
+            HomeContent(
+                homeUiState = homeUiState,
+                aiUIState = aiUIState,
+                recipeItems = recipeItems,
+                aiResponse = aiResponse,
+                tastePref = tastePref,
+                shouldShowBottomSheet = shouldShowBottomSheet,
+                hideBottomSheet = hideBottomSheet,
+                addRecipe = viewModel::addRecipe,
+                toggleLike = viewModel::toggleLike,
+                setTastePreference = viewModel::setTastePreference,
+                getAIRecipe = viewModel::getAIRecipe,
+                onShowSnackbar = onShowSnackbar
+            )
+        }
     }
 }
 
@@ -103,6 +121,7 @@ private fun HomeContent(
     onShowSnackbar: suspend (String, String?) -> Unit,
 ){
     val focusManager = LocalFocusManager.current
+    var text by remember { mutableStateOf(tastePref ?: "") }
     LaunchedEffect(homeUiState) {
         if(homeUiState is HomeUiState.Error) {
             onShowSnackbar(homeUiState.message, null)
@@ -125,7 +144,8 @@ private fun HomeContent(
                 })}
     ) {
         TasteTextField(
-            tastePref = tastePref,
+            text = text,
+            onValueChange = { text = it },
             setTastePreference = setTastePreference
         )
         Spacer(modifier = Modifier.height(Dimens.largePadding))
@@ -212,15 +232,21 @@ private fun RecipeBox(
                         horizontalArrangement = Arrangement.spacedBy(Dimens.hugePadding),
                     ) {
                         items( recipeItems.itemCount){ index ->
-                            val item = recipeItems[index]
-                            if(item != null){
+                            val recipe = recipeItems[index]
+                            if(recipe != null){
+                                var isLiked by remember { mutableStateOf(recipe.liked) }
                                 MyRecipe(
-                                    recipe = item ,
+                                    recipe = recipe,
                                     modifier = Modifier.fillMaxWidth().padding(Dimens.smallPadding),
-                                    toggleLike = toggleLike,
-                                ){
-                                    composeNavigator.navigate(RecipeNav(item.id))
-                                }
+                                    isLiked = isLiked,
+                                    onClick = {
+                                        composeNavigator.navigate(RecipeNav(recipe.id))
+                                    } ,
+                                    onToggleLike = {
+                                        toggleLike(recipe.id, !recipe.liked)
+                                        isLiked = !isLiked
+                                    }
+                                )
                             }
                         }
                         item {
@@ -239,5 +265,37 @@ private fun RecipeBox(
                 }
             }
         }
+    }
+}
+
+@Preview
+@Composable
+fun HomeTopbarPreview(){
+    GoPreviewTheme {
+        HomeTopBar(
+            isUnread = true,
+            navigateToNotification = {}
+        )
+    }
+}
+
+@Preview
+@Composable
+fun HomeContentPreview() {
+    GoPreviewTheme {
+        HomeContent(
+            homeUiState = HomeUiState.Idle,
+            aiUIState = AIUIState.Idle,
+            recipeItems = MutableStateFlow(PagingData.empty<RecipeRaw>()).collectAsLazyPagingItems(),
+            aiResponse = emptyList(),
+            tastePref = "고기를 좋아해",
+            shouldShowBottomSheet = false,
+            hideBottomSheet = {},
+            addRecipe = {},
+            toggleLike = {_, _ -> },
+            setTastePreference = {},
+            getAIRecipe = {},
+            onShowSnackbar = { _, _ -> }
+        )
     }
 }

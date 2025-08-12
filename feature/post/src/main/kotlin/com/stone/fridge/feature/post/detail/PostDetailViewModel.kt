@@ -29,7 +29,7 @@ class PostDetailViewModel @Inject constructor(
     private val chatRepository: ChatRepository,
     savedStateHandle: SavedStateHandle
 ): ViewModel() {
-    val uiState: MutableStateFlow<PostDetailUiState> = MutableStateFlow(PostDetailUiState.Loading)
+    internal val uiState: MutableStateFlow<PostDetailUiState> = MutableStateFlow(PostDetailUiState.Loading)
 
     val postId = savedStateHandle.getStateFlow<Long?>("postId", null)
 
@@ -101,7 +101,7 @@ class PostDetailViewModel @Inject constructor(
 }
 
 @Stable
-sealed interface PostDetailUiState {
+internal sealed interface PostDetailUiState {
     data object Idle : PostDetailUiState
     data object Success : PostDetailUiState
     data object Loading : PostDetailUiState

@@ -32,7 +32,7 @@ class RecipeViewModel @Inject constructor(
     private val homeRepository: HomeRepository,
     savedStateHandle: SavedStateHandle,
 ): ViewModel() {
-    val uiState: MutableStateFlow<RecipeUiState> =
+    internal val uiState: MutableStateFlow<RecipeUiState> =
         MutableStateFlow(RecipeUiState.Loading)
 
     val recipeId = savedStateHandle.getStateFlow<Long?>("id", null)
@@ -135,7 +135,7 @@ class RecipeViewModel @Inject constructor(
 }
 
 @Stable
-sealed interface RecipeUiState{
+internal sealed interface RecipeUiState{
     data object Idle: RecipeUiState
     data object Success: RecipeUiState
     data object Loading: RecipeUiState

@@ -17,7 +17,7 @@ class ReportViewModel @Inject constructor(
     private val postRepository: PostRepository
 ): ViewModel() {
 
-    val uiState: MutableStateFlow<ReportUiState> =
+    internal val uiState: MutableStateFlow<ReportUiState> =
         MutableStateFlow(ReportUiState.Idle)
 
     fun reportPost(id: Long, reportType: String, content: String) {
@@ -50,7 +50,7 @@ class ReportViewModel @Inject constructor(
 }
 
 @Stable
-sealed interface ReportUiState {
+internal sealed interface ReportUiState {
     data object Idle: ReportUiState
     data class Success(val message: String): ReportUiState
     data object Loading: ReportUiState

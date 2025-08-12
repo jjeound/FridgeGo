@@ -20,13 +20,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.stone.fridge.core.designsystem.Dimens
 import com.stone.fridge.core.designsystem.R
 import com.stone.fridge.core.designsystem.theme.CustomTheme
+import com.stone.fridge.core.model.ModifyPost
+import com.stone.fridge.core.model.NewPost
+import com.stone.fridge.core.model.Post
 import com.stone.fridge.core.navigation.currentComposeNavigator
+import com.stone.fridge.core.ui.GoPreviewTheme
+import java.io.File
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -37,6 +43,25 @@ fun PostCRUDScreen(
 ){
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val post by viewModel.post.collectAsStateWithLifecycle()
+    PostCRUDScreenContent(
+        uiState = uiState,
+        post = post,
+        addNewPost = viewModel::addNewPost,
+        modifyPost = viewModel::modifyPost,
+        deletePostImage = viewModel::deletePostImage,
+        onShowSnackbar = onShowSnackbar,
+    )
+}
+
+@Composable
+internal fun PostCRUDScreenContent(
+    uiState: PostCRUDUiState,
+    post: Post?,
+    addNewPost: (NewPost, List<File>?) -> Unit,
+    modifyPost: (Long, ModifyPost, List<File>) -> Unit,
+    deletePostImage: (Long, Long) -> Unit,
+    onShowSnackbar: suspend (String, String?) -> Unit,
+){
     val composeNavigator = currentComposeNavigator
     Scaffold(
         containerColor = CustomTheme.colors.onSurface,
@@ -87,19 +112,34 @@ fun PostCRUDScreen(
                 ModifyPostForm(
                     uiState = uiState,
                     modifier = Modifier.padding(innerPadding),
-                    post = post!!,
-                    deletePostImage = viewModel::deletePostImage,
-                    modifyPost = viewModel::modifyPost,
+                    post = post,
+                    deletePostImage = deletePostImage,
+                    modifyPost = modifyPost,
                     onShowSnackbar = onShowSnackbar,
                 )
             }else{
                 NewPostForm(
                     uiState = uiState,
                     modifier = Modifier.padding(innerPadding),
-                    addNewPost = viewModel::addNewPost,
+                    addNewPost = addNewPost,
                     onShowSnackbar = onShowSnackbar,
                 )
             }
         }
+    }
+}
+
+@Preview
+@Composable
+fun PostCRUDScreenContentPreview() {
+    GoPreviewTheme {
+        PostCRUDScreenContent(
+            uiState = PostCRUDUiState.Idle,
+            post = null,
+            addNewPost = { _, _ -> },
+            modifyPost = { _, _, _ -> },
+            deletePostImage = { _, _ -> },
+            onShowSnackbar = { _, _ -> }
+        )
     }
 }

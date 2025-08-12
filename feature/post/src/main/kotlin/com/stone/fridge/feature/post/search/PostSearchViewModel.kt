@@ -22,7 +22,7 @@ import javax.inject.Inject
 class PostSearchViewModel @Inject constructor(
     private val postRepository: PostRepository
 ): ViewModel() {
-    val uiState: MutableStateFlow<SearchUiState> = MutableStateFlow(SearchUiState.Loading)
+    internal val uiState: MutableStateFlow<SearchUiState> = MutableStateFlow(SearchUiState.Loading)
 
     private val _searchResult: MutableStateFlow<PagingData<PostRaw>> = MutableStateFlow(PagingData.empty())
     val searchResult = _searchResult.asStateFlow()
@@ -129,7 +129,7 @@ class PostSearchViewModel @Inject constructor(
 }
 
 @Stable
-sealed interface SearchUiState {
+internal sealed interface SearchUiState {
     data object Idle : SearchUiState
     data object Success: SearchUiState
     data object Loading : SearchUiState

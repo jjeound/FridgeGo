@@ -42,6 +42,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.content.ContextCompat
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
@@ -64,7 +65,9 @@ import com.stone.fridge.core.designsystem.R
 import com.stone.fridge.core.designsystem.theme.CustomTheme
 import com.stone.fridge.core.model.AddressInfo
 import com.stone.fridge.core.navigation.currentComposeNavigator
+import com.stone.fridge.core.ui.GoPreviewTheme
 import com.stone.fridge.core.ui.PermissionDialog
+import com.stone.fridge.feature.login.KakaoMap
 
 @Composable
 fun LocationScreen(
@@ -75,13 +78,35 @@ fun LocationScreen(
 ){
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val address by viewModel.address.collectAsStateWithLifecycle()
+    LocationScreenContent(
+        uiState = uiState,
+        address = address,
+        onShowSnackbar = onShowSnackbar,
+        onLocationSet = onLocationSet,
+        getAddressByCoord = viewModel::getAddressByCoord,
+        setLocation = viewModel::setLocation,
+        from = from,
+    )
+}
+
+@Composable
+private fun LocationScreenContent(
+    uiState: LoginUiState,
+    address: AddressInfo?,
+    onShowSnackbar: suspend (String, String?) -> Unit,
+    onLocationSet: () -> Unit,
+    getAddressByCoord: (lon: String, lat: String) -> Unit,
+    setLocation: (gu: String, dong: String) -> Unit,
+    from: Boolean,
+){
     val context = LocalContext.current
-    var showMap by remember { mutableStateOf(false) }
-    val showDialog = remember { mutableStateOf(false) }
     val composeNavigator = currentComposeNavigator
-    LaunchedEffect(address) {
-        if(address != null){
-            showMap = true
+    val showDialog = remember { mutableStateOf(false) }
+    LaunchedEffect(uiState) {
+        if(uiState == LoginUiState.LocationSet && !from){
+            onLocationSet()
+        } else if (uiState is LoginUiState.Error){
+            onShowSnackbar(uiState.message, null)
         }
     }
     Scaffold(
@@ -129,108 +154,55 @@ fun LocationScreen(
                         color = CustomTheme.colors.primary,
                     )
                 }
-            } else if(showMap){
+            } else if(address != null){
                 KakaoMap(
-                    uiState = uiState,
                     modifier = Modifier.fillMaxWidth().weight(1f),
                     address = address,
-                    getAddressByCoord = viewModel::getAddressByCoord,
-                    onShowDialog = { showDialog.value = true},
-                    from = from,
-                    onLocationSet = onLocationSet,
-                    onShowSnackbar = onShowSnackbar
+                    getAddressByCoord = getAddressByCoord,
+                    onShowDialog = { showDialog.value = true },
                 )
             }
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(Dimens.largePadding),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                if(!from){
-                    Button(
-                        modifier = Modifier
-                            .weight(1f),
-                        shape = RoundedCornerShape(Dimens.cornerRadius),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = CustomTheme.colors.onSurface,
-                            contentColor = CustomTheme.colors.textSecondary,
-                        ),
-                        onClick = {
-                            onLocationSet()
-                        },
-                    ) {
-                        Text(
-                            text = "나중에 하기",
-                            style = CustomTheme.typography.button1,
-                        )
-                    }
-                }
-                Button(
-                    modifier = Modifier
-                        .weight(1f),
-                    shape = RoundedCornerShape(Dimens.cornerRadius),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = CustomTheme.colors.primary,
-                        disabledContainerColor = CustomTheme.colors.onSurface,
-                        contentColor = CustomTheme.colors.onPrimary,
-                        disabledContentColor = CustomTheme.colors.textTertiary
-                    ),
-                    onClick = {
-                        if(address != null){
-                            viewModel.setLocation(address!!.regionGu, address!!.regionDong)
-                        }
-                    }
-                ) {
-                    Text(
-                        text = "동네 설정하기",
-                        style = CustomTheme.typography.button1,
-                    )
-                }
-            }
+            SubmitButton(
+                address = address,
+                setLocation = setLocation,
+                onLocationSet = onLocationSet,
+                from = from
+            )
         }
         PermissionDialog(
-            showDialog = showDialog,
+            showDialog = showDialog.value,
             message = "위치 권한이 필요합니다.",
-            onDismiss = { showDialog.value = false },
-            onConfirm = {
-                showDialog.value = false
-                context.startActivity(
-                    Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                        data = Uri.fromParts("package", context.packageName, null)
-                    }
-                )
-            }
+            onEvent = { showDialog.value = false},
+            context = context,
+            intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
         )
     }
 }
 
+
+
 @Composable
 private fun KakaoMap(
-    uiState: LoginUiState,
     modifier: Modifier,
     address: AddressInfo?,
     getAddressByCoord: (lon: String, lat: String) -> Unit,
     onShowDialog: () -> Unit,
-    from: Boolean,
-    onLocationSet: () -> Unit,
-    onShowSnackbar: suspend (String, String?) -> Unit
 ){
     val context = LocalContext.current
     val mapView = remember { MapView(context) }
     var lat by remember { mutableDoubleStateOf(0.0) }
     var lon by remember { mutableDoubleStateOf(0.0) }
-    var isGranted by remember { mutableStateOf(false) }
     val activity = context as? Activity
-    val locationPermissions = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)
+    val locationPermission = Manifest.permission.ACCESS_COARSE_LOCATION
     val requestPermissionLauncher =
         rememberLauncherForActivityResult(
-            contract = ActivityResultContracts.RequestMultiplePermissions(),
-            onResult = { permissions ->
-                locationPermissions.forEach { permission ->
-                    if (permissions[permission] == true){
-                        isGranted = true
-                        Log.d(permission, "위치 권한이 허용되었습니다.")
+            contract = ActivityResultContracts.RequestPermission(),
+            onResult = { isGranted ->
+                if (isGranted){
+                    getCurrentLocation(context) { latitude, longitude ->
+                        lat = latitude
+                        lon = longitude
+                        getAddressByCoord(lon.toString(), lat.toString())
                     }
                 }
             }
@@ -239,11 +211,11 @@ private fun KakaoMap(
         when {
             ContextCompat.checkSelfPermission(
                 context,
-                locationPermissions[0]
+                locationPermission
             ) == PackageManager.PERMISSION_GRANTED &&
                     ContextCompat.checkSelfPermission(
                         context,
-                        locationPermissions[1]
+                        locationPermission
                     ) == PackageManager.PERMISSION_GRANTED->  {
                 getCurrentLocation(context) { latitude, longitude ->
                     lat = latitude
@@ -253,29 +225,13 @@ private fun KakaoMap(
             }
             activity != null && shouldShowRequestPermissionRationale(
                 activity,
-                locationPermissions[0]
+                locationPermission
             ) -> {
                 onShowDialog()
             }
             else -> {
-                requestPermissionLauncher.launch(locationPermissions)
+                requestPermissionLauncher.launch(locationPermission)
             }
-        }
-    }
-    LaunchedEffect(isGranted) {
-        if(isGranted){
-            getCurrentLocation(context) { latitude, longitude ->
-                lat = latitude
-                lon = longitude
-                getAddressByCoord(lon.toString(), lat.toString())
-            }
-        }
-    }
-    LaunchedEffect(uiState) {
-        if(uiState == LoginUiState.LocationSet && !from){
-            onLocationSet()
-        } else if (uiState is LoginUiState.Error){
-            onShowSnackbar(uiState.message, null)
         }
     }
     AndroidView(
@@ -326,7 +282,63 @@ private fun KakaoMap(
     )
 }
 
-@RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
+@Composable
+private fun SubmitButton(
+    address: AddressInfo? = null,
+    setLocation: (gu: String, dong: String) -> Unit,
+    onLocationSet: () -> Unit,
+    from: Boolean
+){
+    Row(
+        modifier = Modifier
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(Dimens.largePadding),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        if(!from){
+            Button(
+                modifier = Modifier
+                    .weight(1f),
+                shape = RoundedCornerShape(Dimens.cornerRadius),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = CustomTheme.colors.onSurface,
+                    contentColor = CustomTheme.colors.textSecondary,
+                ),
+                onClick = {
+                    onLocationSet()
+                },
+            ) {
+                Text(
+                    text = "나중에 하기",
+                    style = CustomTheme.typography.button1,
+                )
+            }
+        }
+        Button(
+            modifier = Modifier
+                .weight(1f),
+            shape = RoundedCornerShape(Dimens.cornerRadius),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = CustomTheme.colors.primary,
+                disabledContainerColor = CustomTheme.colors.onSurface,
+                contentColor = CustomTheme.colors.onPrimary,
+                disabledContentColor = CustomTheme.colors.textTertiary
+            ),
+            onClick = {
+                if(address != null){
+                    setLocation(address.regionGu, address.regionDong)
+                }
+            }
+        ) {
+            Text(
+                text = "동네 설정하기",
+                style = CustomTheme.typography.button1,
+            )
+        }
+    }
+}
+
+@RequiresPermission(allOf = [Manifest.permission.ACCESS_COARSE_LOCATION])
 fun getCurrentLocation(context: Context, onLocationReceived: (lat: Double, lon: Double) -> Unit) {
     val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
 
@@ -339,5 +351,19 @@ fun getCurrentLocation(context: Context, onLocationReceived: (lat: Double, lon: 
     }
 }
 
-
+@Preview
+@Composable
+fun LocationScreenContentPreview() {
+    GoPreviewTheme {
+        LocationScreenContent(
+            uiState = LoginUiState.Idle,
+            address = AddressInfo("서울특별시", "강남구"),
+            onShowSnackbar = { _, _ -> },
+            onLocationSet = {},
+            getAddressByCoord = { _, _ -> },
+            setLocation = { _, _ -> },
+            from = false
+        )
+    }
+}
 

@@ -20,7 +20,7 @@ class LoginViewModel @Inject constructor(
     private val loginRepository: LoginRepository
 ) : ViewModel() {
 
-    val uiState: MutableStateFlow<LoginUiState> =
+    internal val uiState: MutableStateFlow<LoginUiState> =
         MutableStateFlow(LoginUiState.Idle)
 
     private val _accountInfo = MutableStateFlow<AccountInfo?>(null)
@@ -96,7 +96,7 @@ class LoginViewModel @Inject constructor(
 }
 
 @Stable
-sealed interface LoginUiState {
+internal sealed interface LoginUiState {
     data object Idle: LoginUiState
     data object Success: LoginUiState
     data object LocationSet: LoginUiState

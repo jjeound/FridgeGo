@@ -1,5 +1,6 @@
 package com.stone.fridge.feature.my
 
+import android.content.res.Configuration
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,6 +16,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.stone.fridge.core.designsystem.Dimens
@@ -22,6 +24,7 @@ import com.stone.fridge.core.designsystem.R
 import com.stone.fridge.core.designsystem.theme.CustomTheme
 import com.stone.fridge.core.model.Profile
 import com.stone.fridge.core.navigation.currentComposeNavigator
+import com.stone.fridge.core.ui.GoPreviewTheme
 import com.stone.fridge.feature.my.navigation.AppInfoRoute
 import com.stone.fridge.feature.my.navigation.MyPostsRoute
 
@@ -125,5 +128,25 @@ private fun MyScreenContent(
                 }
             }
         }
+    }
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+fun MyScreenContentPreview() {
+    GoPreviewTheme {
+        MyScreenContent(
+            uiState = MyUiState.Idle,
+            profile = Profile(
+                id = 0,
+                nickname = "User",
+                email = "das@dsaji.com",
+                imageUrl = null,
+                trustLevel = null,
+                trustLevelImageUrl = null
+            ),
+            onShowSnackbar = { _, _ -> },
+            navigateToLocation = {}
+        )
     }
 }

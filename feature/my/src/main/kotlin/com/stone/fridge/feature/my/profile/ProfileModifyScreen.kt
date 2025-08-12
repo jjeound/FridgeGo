@@ -4,7 +4,7 @@ import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.net.Uri
+import android.content.res.Configuration
 import android.os.Build
 import android.provider.Settings
 import android.util.Log
@@ -65,6 +65,7 @@ import com.stone.fridge.core.designsystem.R
 import com.stone.fridge.core.designsystem.theme.CustomTheme
 import com.stone.fridge.core.model.Profile
 import com.stone.fridge.core.navigation.currentComposeNavigator
+import com.stone.fridge.core.ui.GoPreviewTheme
 import com.stone.fridge.core.ui.PermissionDialog
 import java.io.File
 
@@ -77,94 +78,47 @@ fun ProfileModifyScreen(
     val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val profile by viewModel.profile.collectAsStateWithLifecycle()
-    val composeNavigator = currentComposeNavigator
     val showDialog = remember { mutableStateOf(false) }
     val isDone = remember { mutableStateOf(false) }
-    Scaffold(
-        containerColor = CustomTheme.colors.onSurface,
-        topBar = {
-            CenterAlignedTopAppBar(
-                modifier = Modifier.padding(Dimens.topBarPadding),
-                title = {
-                    Text(
-                        text = "프로필 수정",
-                        style = CustomTheme.typography.title1,
-                        color = CustomTheme.colors.textPrimary,
-                    )
-                },
-                navigationIcon = {
-                    IconButton(
-                        onClick = { composeNavigator.navigateUp() }
-                    ) {
-                        Icon(
-                            imageVector = ImageVector.vectorResource(R.drawable.chevron_left),
-                            tint = CustomTheme.colors.iconSelected,
-                            contentDescription = "back",
-                        )
-                    }
-                },
-                actions = {
-                    Text(
-                        modifier = Modifier.clickable{
-                            isDone.value = true
-                        },
-                        text = "완료",
-                        style = CustomTheme.typography.button1,
-                        color = CustomTheme.colors.textPrimary
-                    )
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = CustomTheme.colors.onSurface
-                )
+    if(uiState == ProfileUiState.Loading){
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ){
+            CircularProgressIndicator(
+                color = CustomTheme.colors.primary,
             )
         }
-    ){ innerPadding ->
-        if(uiState == ProfileUiState.Loading){
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ){
-                CircularProgressIndicator(
-                    color = CustomTheme.colors.primary,
-                )
-            }
-        } else if(profile != null) {
-            ProfileModifyScreenContent(
-                uiState = uiState,
-                modifier = Modifier.fillMaxSize().padding(innerPadding),
-                profile = profile!!,
-                onShowSnackbar = onShowSnackbar,
-                onShowDialog = { showDialog.value = true},
-                isDone = isDone.value,
-                uploadProfileImage = viewModel::uploadProfileImage,
-                deleteProfileImage = viewModel::deleteProfileImage,
-                modifyNickname = viewModel::modifyNickname
-            )
-        }
-        PermissionDialog(
-            showDialog = showDialog,
-            message = "저장소 권한이 필요합니다.",
-            onDismiss = { showDialog.value = false },
-            onConfirm = {
-                showDialog.value = false
-                context.startActivity(
-                    Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                        data = Uri.fromParts("package", context.packageName, null)
-                    }
-                )
-            }
+    } else if(profile != null) {
+        ProfileModifyScreenContent(
+            uiState = uiState,
+            profile = profile!!,
+            onShowSnackbar = onShowSnackbar,
+            onShowDialog = { showDialog.value = true},
+            isDone = isDone.value,
+            onDone = { isDone.value = true },
+            uploadProfileImage = viewModel::uploadProfileImage,
+            deleteProfileImage = viewModel::deleteProfileImage,
+            modifyNickname = viewModel::modifyNickname
         )
     }
+    PermissionDialog(
+        showDialog = showDialog.value,
+        message = "저장소 권한이 필요합니다.",
+        onEvent = { showDialog.value = false },
+        context = context,
+        intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+    )
 }
 
 @Composable
 private fun ProfileModifyScreenContent(
     uiState: ProfileUiState,
-    modifier: Modifier,
     profile: Profile,
     onShowSnackbar: suspend (String, String?) -> Unit,
     onShowDialog: () -> Unit,
     isDone: Boolean,
+    onDone: () -> Unit,
     uploadProfileImage: (File) -> Unit,
     deleteProfileImage: () -> Unit,
     modifyNickname: (String) -> Unit,
@@ -236,151 +190,208 @@ private fun ProfileModifyScreenContent(
             onShowSnackbar(uiState.message, null)
         }
     }
-    Box(
-        modifier = modifier
-            .padding(
-                horizontal = Dimens.surfaceHorizontalPadding,
-                vertical = Dimens.surfaceVerticalPadding
-            )
-    ){
-        Column(
-            modifier = Modifier
-                .fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(Dimens.largePadding)
-        ){
-            if(image != null){
-                Box{
-                    AsyncImage(
-                        model = image,
-                        contentDescription = "image",
-                        alignment = Alignment.Center,
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier.size(90.dp).clip(CircleShape),
-                    )
-                    IconButton(
-                        modifier = Modifier
-                            .align(Alignment.TopEnd),
-                        onClick = {
-                            image = null
-                            imageFile = null
-                        }
-                    ){
-                        Icon(
-                            imageVector = ImageVector.vectorResource(R.drawable.close),
-                            contentDescription = "delete image",
-                            tint = CustomTheme.colors.iconDefault,
-                        )
-                    }
-                    IconButton(
-                        modifier = Modifier
-                            .align(Alignment.BottomEnd),
-                        onClick = {
-                            albumLauncher.launch(imageAlbumIntent)
-                        }
-                    ){
-                        Icon(
-                            imageVector = ImageVector.vectorResource(R.drawable.camera),
-                            contentDescription = "get image",
-                            tint = CustomTheme.colors.iconDefault,
-                        )
-                    }
-                }
-            } else {
-                Box(
-                    modifier = Modifier.size(90.dp)
-                ){
-                    Icon(
-                        modifier = Modifier.size(80.dp),
-                        imageVector = ImageVector.vectorResource(R.drawable.profile),
-                        contentDescription = "profile image",
-                        tint = CustomTheme.colors.iconDefault)
-                    IconButton(
-                        modifier = Modifier
-                            .align(Alignment.BottomEnd),
-                        onClick = {
-                            when {
-                                ContextCompat.checkSelfPermission(
-                                    context,
-                                    galleryPermissions[0]
-                                ) == PackageManager.PERMISSION_GRANTED ->  {
-                                    albumLauncher.launch(imageAlbumIntent)
-                                }
-                                activity != null && shouldShowRequestPermissionRationale(
-                                    activity,
-                                    galleryPermissions[0]
-                                ) -> {
-                                    onShowDialog()
-                                }
-                                else -> {
-                                    requestPermissionLauncher.launch(galleryPermissions)
-                                }
-                            }
-                        }
-                    ){
-                        Icon(
-                            imageVector = ImageVector.vectorResource(R.drawable.camera),
-                            contentDescription = "get image",
-                            tint = CustomTheme.colors.iconDefault,
-                        )
-                    }
-                }
-            }
-
-            OutlinedTextField(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(48.dp).semantics{
-                        contentType = ContentType.Username
-                    },
-                value = nickname,
-                onValueChange = { nickname = it },
-                placeholder = {
+    Scaffold(
+        containerColor = CustomTheme.colors.onSurface,
+        topBar = {
+            CenterAlignedTopAppBar(
+                modifier = Modifier.padding(Dimens.topBarPadding),
+                title = {
                     Text(
-                        text = "닉네임",
-                        style = CustomTheme.typography.caption2,
-                        color = CustomTheme.colors.textSecondary
+                        text = "프로필 수정",
+                        style = CustomTheme.typography.title1,
+                        color = CustomTheme.colors.textPrimary,
                     )
                 },
-                trailingIcon = {
-                    if (nickname.isNotBlank()) {
+                navigationIcon = {
+                    IconButton(
+                        onClick = { composeNavigator.navigateUp() }
+                    ) {
+                        Icon(
+                            imageVector = ImageVector.vectorResource(R.drawable.chevron_left),
+                            tint = CustomTheme.colors.iconSelected,
+                            contentDescription = "back",
+                        )
+                    }
+                },
+                actions = {
+                    Text(
+                        modifier = Modifier.clickable(
+                            onClick = onDone
+                        ),
+                        text = "완료",
+                        style = CustomTheme.typography.button1,
+                        color = CustomTheme.colors.textPrimary
+                    )
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = CustomTheme.colors.onSurface
+                )
+            )
+        }
+    ){ innerPadding ->
+        Box(
+            modifier = Modifier.padding(innerPadding).fillMaxSize()
+                .padding(
+                    horizontal = Dimens.surfaceHorizontalPadding,
+                    vertical = Dimens.surfaceVerticalPadding
+                )
+        ){
+            Column(
+                modifier = Modifier
+                    .fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(Dimens.largePadding)
+            ){
+                if(image != null){
+                    Box{
+                        AsyncImage(
+                            model = image,
+                            contentDescription = "image",
+                            alignment = Alignment.Center,
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.size(90.dp).clip(CircleShape),
+                        )
                         IconButton(
-                            onClick = { nickname = "" }
-                        ) {
+                            modifier = Modifier
+                                .align(Alignment.TopEnd),
+                            onClick = {
+                                image = null
+                                imageFile = null
+                            }
+                        ){
                             Icon(
-                                imageVector = ImageVector.vectorResource(R.drawable.delete),
-                                contentDescription = "delete",
+                                imageVector = ImageVector.vectorResource(R.drawable.close),
+                                contentDescription = "delete image",
+                                tint = CustomTheme.colors.iconDefault,
+                            )
+                        }
+                        IconButton(
+                            modifier = Modifier
+                                .align(Alignment.BottomEnd),
+                            onClick = {
+                                albumLauncher.launch(imageAlbumIntent)
+                            }
+                        ){
+                            Icon(
+                                imageVector = ImageVector.vectorResource(R.drawable.camera),
+                                contentDescription = "get image",
+                                tint = CustomTheme.colors.iconDefault,
                             )
                         }
                     }
-                },
-                textStyle = CustomTheme.typography.body3,
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = CustomTheme.colors.textSecondary,
-                    unfocusedBorderColor = CustomTheme.colors.textSecondary,
-                    focusedTextColor = CustomTheme.colors.textPrimary,
-                    unfocusedTextColor = CustomTheme.colors.textPrimary,
-                    focusedContainerColor = CustomTheme.colors.onSurface,
-                    unfocusedContainerColor = CustomTheme.colors.onSurface,
-                    cursorColor = CustomTheme.colors.textPrimary,
-                    errorCursorColor = CustomTheme.colors.error,
-                    focusedTrailingIconColor = CustomTheme.colors.iconDefault,
-                    unfocusedTrailingIconColor = Color.Transparent,
-                    errorBorderColor = CustomTheme.colors.error,
-                ),
-                isError = error,
-                shape = RoundedCornerShape(Dimens.cornerRadius),
-                singleLine = true,
-                keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
-            )
+                } else {
+                    Box(
+                        modifier = Modifier.size(90.dp)
+                    ){
+                        Icon(
+                            modifier = Modifier.size(80.dp),
+                            imageVector = ImageVector.vectorResource(R.drawable.profile),
+                            contentDescription = "profile image",
+                            tint = CustomTheme.colors.iconDefault)
+                        IconButton(
+                            modifier = Modifier
+                                .align(Alignment.BottomEnd),
+                            onClick = {
+                                when {
+                                    ContextCompat.checkSelfPermission(
+                                        context,
+                                        galleryPermissions[0]
+                                    ) == PackageManager.PERMISSION_GRANTED ->  {
+                                        albumLauncher.launch(imageAlbumIntent)
+                                    }
+                                    activity != null && shouldShowRequestPermissionRationale(
+                                        activity,
+                                        galleryPermissions[0]
+                                    ) -> {
+                                        onShowDialog()
+                                    }
+                                    else -> {
+                                        requestPermissionLauncher.launch(galleryPermissions)
+                                    }
+                                }
+                            }
+                        ){
+                            Icon(
+                                imageVector = ImageVector.vectorResource(R.drawable.camera),
+                                contentDescription = "get image",
+                                tint = CustomTheme.colors.iconDefault,
+                            )
+                        }
+                    }
+                }
+
+                OutlinedTextField(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp).semantics{
+                            contentType = ContentType.Username
+                        },
+                    value = nickname,
+                    onValueChange = { nickname = it },
+                    placeholder = {
+                        Text(
+                            text = "닉네임",
+                            style = CustomTheme.typography.caption2,
+                            color = CustomTheme.colors.textSecondary
+                        )
+                    },
+                    trailingIcon = {
+                        if (nickname.isNotBlank()) {
+                            IconButton(
+                                onClick = { nickname = "" }
+                            ) {
+                                Icon(
+                                    imageVector = ImageVector.vectorResource(R.drawable.delete),
+                                    contentDescription = "delete",
+                                )
+                            }
+                        }
+                    },
+                    textStyle = CustomTheme.typography.body3,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = CustomTheme.colors.textSecondary,
+                        unfocusedBorderColor = CustomTheme.colors.textSecondary,
+                        focusedTextColor = CustomTheme.colors.textPrimary,
+                        unfocusedTextColor = CustomTheme.colors.textPrimary,
+                        focusedContainerColor = CustomTheme.colors.onSurface,
+                        unfocusedContainerColor = CustomTheme.colors.onSurface,
+                        cursorColor = CustomTheme.colors.textPrimary,
+                        errorCursorColor = CustomTheme.colors.error,
+                        focusedTrailingIconColor = CustomTheme.colors.iconDefault,
+                        unfocusedTrailingIconColor = Color.Transparent,
+                        errorBorderColor = CustomTheme.colors.error,
+                    ),
+                    isError = error,
+                    shape = RoundedCornerShape(Dimens.cornerRadius),
+                    singleLine = true,
+                    keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
+                )
+            }
         }
     }
 }
 
-@Preview(showBackground = true)
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun ProfileModifyScreenPreview() {
-    ProfileModifyScreen(
-        onShowSnackbar = { _, _ -> }
-    )
+    GoPreviewTheme {
+        ProfileModifyScreenContent(
+            uiState = ProfileUiState.Idle,
+            profile = Profile(
+                id = 0L,
+                nickname = "닉네임",
+                email = "wdsadj@naver.com",
+                imageUrl = null,
+                trustLevel = null,
+                trustLevelImageUrl = null
+            ),
+            onShowSnackbar = { _, _ -> },
+            onShowDialog = {},
+            isDone = false,
+            onDone = {},
+            uploadProfileImage = {},
+            deleteProfileImage = {},
+            modifyNickname = {}
+        )
+    }
 }

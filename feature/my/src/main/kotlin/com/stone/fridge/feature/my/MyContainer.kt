@@ -13,9 +13,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.tooling.preview.Preview
 import com.stone.fridge.core.designsystem.Dimens
 import com.stone.fridge.core.designsystem.R
 import com.stone.fridge.core.designsystem.theme.CustomTheme
+import com.stone.fridge.core.ui.GoPreviewTheme
 
 @Composable
 fun MyContainer(
@@ -50,5 +52,15 @@ fun MyContainer(
             contentDescription = "navigate",
             tint = CustomTheme.colors.iconDefault
         )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun MyContainerPreview() {
+    GoPreviewTheme {
+        MyContainer(
+            "좋아요한 글", R.drawable.heart
+        ) {}
     }
 }

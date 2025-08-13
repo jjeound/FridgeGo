@@ -38,6 +38,7 @@ class FCMService () : FirebaseMessagingService() {
         val notification = if(roomId != null){
             val activityIntent = Intent(Intent.ACTION_VIEW, "deeplink://chat/$roomId".toUri()).apply {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                putExtra("roomId", roomId)
             }
 
             val pendingIntent = PendingIntent.getActivity(

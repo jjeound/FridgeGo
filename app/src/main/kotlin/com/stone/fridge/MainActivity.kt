@@ -19,6 +19,7 @@ import com.stone.fridge.core.designsystem.theme.GoTheme
 import com.stone.fridge.core.navigation.AppComposeNavigator
 import com.stone.fridge.core.navigation.GoScreen
 import com.stone.fridge.core.navigation.LocalComposeNavigator
+import com.stone.fridge.feature.chat.navigation.ChattingRoomNav
 import com.stone.fridge.feature.home.navigation.HomeBaseRoute
 import com.stone.fridge.feature.login.navigation.LoginBaseRoute
 import com.stone.fridge.ui.GoMain
@@ -63,6 +64,10 @@ class MainActivity : ComponentActivity() {
             val isUnread by viewModel.isUnread.collectAsStateWithLifecycle()
             val location by viewModel.location.collectAsStateWithLifecycle()
             val startDestination by viewModel.startDestination.collectAsStateWithLifecycle()
+            val roomId = intent.getLongExtra("roomId", -1L)
+            if (roomId != -1L) {
+                composeNavigator.navigate(ChattingRoomNav(roomId, true))
+            }
             CompositionLocalProvider(
                 LocalComposeNavigator provides composeNavigator,
             ){

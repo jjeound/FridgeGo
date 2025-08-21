@@ -1,5 +1,7 @@
 package com.stone.fridge.core.ui
 
+import android.content.Context
+import android.content.Intent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -19,14 +21,15 @@ import com.stone.fridge.core.designsystem.theme.CustomTheme
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PermissionDialog(
-    showDialog: MutableState<Boolean>,
+    showDialog: Boolean,
     message: String,
-    onDismiss: () -> Unit,
-    onConfirm: () -> Unit,
+    onEvent: () -> Unit,
+    context: Context,
+    intent: Intent
 ) {
-    if (showDialog.value) {
+    if (showDialog) {
         AlertDialog(
-            onDismissRequest = { showDialog.value = false },
+            onDismissRequest = onEvent,
             text = {
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(
@@ -49,9 +52,7 @@ fun PermissionDialog(
                         containerColor = CustomTheme.colors.onSurface,
                         contentColor = CustomTheme.colors.textPrimary,
                     ),
-                    onClick = {
-                        onDismiss()
-                    }
+                    onClick = onEvent
                 ) {
                     Text(
                         text = "닫기",
@@ -66,7 +67,8 @@ fun PermissionDialog(
                         contentColor = CustomTheme.colors.onPrimary,
                     ),
                     onClick = {
-                        onConfirm()
+                        onEvent()
+                        context.startActivity(intent)
                     }
                 ) {
                     Text(

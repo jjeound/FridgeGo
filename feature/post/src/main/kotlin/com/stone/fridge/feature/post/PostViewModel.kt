@@ -1,10 +1,10 @@
 package com.stone.fridge.feature.post
 
 import androidx.compose.runtime.Stable
-import androidx.compose.ui.Modifier
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import androidx.paging.map
 import com.stone.fridge.core.data.local.LocalUserRepository
 import com.stone.fridge.core.data.post.PostRepository
@@ -40,6 +40,7 @@ class PostViewModel @Inject constructor(
     fun fetchPosts(){
         viewModelScope.launch {
             postRepository.getMyPosts()
+                .cachedIn(viewModelScope)
                 .collectLatest { pagingData ->
                     _posts.value = pagingData
                 }

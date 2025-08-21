@@ -4,6 +4,7 @@ import androidx.compose.runtime.Stable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import androidx.paging.map
 import com.stone.fridge.core.data.post.PostRepository
 import com.stone.fridge.core.data.util.Resource
@@ -30,11 +31,16 @@ class PostSearchViewModel @Inject constructor(
     private val _keywords = MutableStateFlow<List<Keyword>>(emptyList())
     val keywords = _keywords.asStateFlow()
 
+    init {
+        getSearchHistory()
+    }
+
 
     fun searchPost(keyword: String){
         addSearchHistory(keyword)
         viewModelScope.launch {
             postRepository.searchPosts(keyword)
+                .cachedIn(viewModelScope)
                 .collectLatest { pagingData ->
                     _searchResult.value = pagingData
                 }

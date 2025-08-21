@@ -1,6 +1,7 @@
 package com.stone.fridge.feature.login
 
 import android.content.Context
+import android.content.res.Configuration
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -19,6 +20,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.kakao.sdk.auth.model.OAuthToken
 import com.kakao.sdk.common.model.ClientError
@@ -28,6 +30,7 @@ import com.stone.fridge.core.designsystem.Dimens
 import com.stone.fridge.core.designsystem.R
 import com.stone.fridge.core.model.AccountInfo
 import com.stone.fridge.core.navigation.currentComposeNavigator
+import com.stone.fridge.core.ui.GoPreviewTheme
 import com.stone.fridge.feature.login.navigation.NicknameRoute
 
 @Composable
@@ -111,3 +114,16 @@ private fun kakaoLogin(context: Context, onResult: (String) -> Unit){
     }
 }
 
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+fun KakaoLoginPreview() {
+    GoPreviewTheme {
+        KakaoLogin(
+            uiState = LoginUiState.Idle,
+            login = {},
+            accountInfo = null,
+            onLogin = {},
+            onShowSnackbar = { _, _ -> }
+        )
+    }
+}

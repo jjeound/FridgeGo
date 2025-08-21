@@ -4,6 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -16,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavGraphBuilder
@@ -27,6 +29,7 @@ import com.stone.fridge.core.designsystem.theme.CustomTheme
 import com.stone.fridge.core.navigation.GoBaseRoute
 import com.stone.fridge.core.navigation.GoScreen
 import com.stone.fridge.core.navigation.currentComposeNavigator
+import com.stone.fridge.core.ui.GoPreviewTheme
 import com.stone.fridge.feature.login.navigation.LoginRoute
 import kotlinx.serialization.Serializable
 
@@ -50,8 +53,13 @@ fun OnBoarding(){
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Image(imageVector = ImageVector.vectorResource(R.drawable.logo),
-           contentDescription = "Logo")
+        Image(
+            imageVector = ImageVector.vectorResource(R.drawable.logo),
+            contentDescription = "Logo"
+        )
+        Spacer(
+            modifier = Modifier.height(Dimens.hugePadding)
+        )
         Button(
             onClick = {
                 composeNavigator.navigate(LoginRoute)
@@ -70,8 +78,10 @@ fun OnBoarding(){
     }
 }
 
-@Preview
+@Preview(device = Devices.PHONE)
 @Composable
 fun OnBoardingPreview(){
-    OnBoarding()
+    GoPreviewTheme {
+        OnBoarding()
+    }
 }

@@ -60,13 +60,13 @@ class RecipeViewModel @Inject constructor(
                     when(it){
                         is Resource.Success -> {
                             _recipe.value = _recipe.value?.copy(liked = it.data)
-                            uiState.tryEmit(RecipeUiState.Idle)
+                            uiState.emit(RecipeUiState.Idle)
                         }
                         is Resource.Error -> {
-                            uiState.tryEmit(RecipeUiState.Error(it.message))
+                            uiState.emit(RecipeUiState.Error(it.message))
                         }
                         is Resource.Loading -> {
-                            uiState.tryEmit(RecipeUiState.Loading)
+                            uiState.emit(RecipeUiState.Loading)
                         }
                     }
                 }
@@ -80,13 +80,13 @@ class RecipeViewModel @Inject constructor(
                 .collectLatest {
                     when(it){
                         is Resource.Success -> {
-                            uiState.tryEmit(RecipeUiState.Success)
+                            uiState.emit(RecipeUiState.Success)
                         }
                         is Resource.Error -> {
-                            uiState.tryEmit(RecipeUiState.Error(it.message))
+                            uiState.emit(RecipeUiState.Error(it.message))
                         }
                         is Resource.Loading -> {
-                            uiState.tryEmit(RecipeUiState.Loading)
+                            uiState.emit(RecipeUiState.Loading)
                         }
                     }
                 }

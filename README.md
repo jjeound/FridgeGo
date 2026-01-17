@@ -1,7 +1,9 @@
 # 📚 냉장GO
 
 >  1인 가구를 위한 식재료 유통기한 관리 및 AI 레시피 추천 앱
+
 <a href="https://play.google.com/store/apps/details?id=com.stone.fridge&hl=ko">앱 다운로드</a>
+
 ---
 
 ## 🧩 프로젝트 소개
@@ -23,6 +25,9 @@
 ---
 
 ## 🖼 Preview
+
+<img width="5640" height="2400" alt="Image" src="https://github.com/user-attachments/assets/929ef78a-3b95-4f72-a31b-c7a0b3586d1a" />
+<img width="5640" height="2400" alt="Image" src="https://github.com/user-attachments/assets/b07b5bbc-8141-44b8-9e4c-8e22052ea368" />
 
 ---
 

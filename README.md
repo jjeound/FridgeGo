@@ -66,6 +66,7 @@
 ## 🚀 트러블 슈팅
 
 <a href="https://velog.io/@wjdwlsdl321/%EC%95%88%EB%93%9C%EB%A1%9C%EC%9D%B4%EB%93%9C-%EC%9E%90%EB%8F%99-%EB%A1%9C%EA%B7%B8%EC%9D%B8-%ED%8A%B8%EB%9F%AC%EB%B8%94-%EC%8A%88%ED%8C%85">자동 로그인 트러블 슈팅</a>
+
 <a href="https://velog.io/@wjdwlsdl321/Android-%EC%83%88%EB%A1%9C%EC%9A%B4-%EA%B8%80%EA%B3%BC-%EC%88%98%EC%A0%95-%EA%B5%AC%ED%98%84%ED%95%98%EA%B8%B0">새로운 글과 수정 구현하기 및 최적화</a>
 
 ---

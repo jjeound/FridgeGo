@@ -7,133 +7,155 @@ import com.stone.fridge.core.model.Message
 import com.stone.fridge.core.model.UnreadBroadcast
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import ua.naiksoftware.stomp.Stomp
 import ua.naiksoftware.stomp.StompClient
 import ua.naiksoftware.stomp.dto.LifecycleEvent
 import ua.naiksoftware.stomp.dto.StompHeader
+import io.reactivex.disposables.CompositeDisposable
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class WebSocketManager @Inject constructor(
     private val gson: Gson,
 ) {
     private var stompClient: StompClient? = null
     private var isManuallyDisconnected = false
     private var isReconnecting = false
+    private var retryCount = 0
+
+    // 재연결 로직을 관리할 전용 스코프 (SupervisorJob으로 하나가 실패해도 다른 작업에 영향 X)
+    private val managerScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+
+    // 구독 리소스를 한꺼번에 해제하기 위한 관리자
+    private val compositeDisposable = CompositeDisposable()
 
     @SuppressLint("CheckResult")
     fun connect(token: String, roomId: Long, onConnected: () -> Unit, onError: (Throwable) -> Unit) {
         if (stompClient?.isConnected == true) return
+
         isManuallyDisconnected = false
 
-        leaveRoom(roomId) // 기존 연결 정리
+        // 기존 연결 및 구독 정보 초기화
+        clearResources()
 
         stompClient = Stomp.over(Stomp.ConnectionProvider.OKHTTP, "wss://api.refrigerator.asia/ws/chat").apply {
             val headers = listOf(StompHeader("Authorization", "Bearer $token"))
 
-            lifecycle().subscribe { event ->
+            val lifecycleDisposable = lifecycle().subscribe { event ->
                 when (event.type) {
                     LifecycleEvent.Type.OPENED -> {
+                        Log.d("WebSocketManager", "STOMP Connection Opened")
                         isReconnecting = false
+                        retryCount = 0 // 성공 시 재시도 횟수 초기화
                         enterRoom(roomId)
                         onConnected()
                     }
 
                     LifecycleEvent.Type.ERROR -> {
-                        if (!isReconnecting) {
-                            isReconnecting = true
-                            retryConnect(token, roomId, onConnected, onError)
-                        }
+                        Log.e("WebSocketManager", "STOMP Error", event.exception)
+                        handleRetry(token, roomId, onConnected, onError)
                         onError(event.exception)
                     }
 
                     LifecycleEvent.Type.CLOSED -> {
-                        if (!isManuallyDisconnected && !isReconnecting) { // 자동 재연결 시도
-                            isReconnecting = true
-                            retryConnect(token, roomId, onConnected, onError)
+                        Log.d("WebSocketManager", "STOMP Connection Closed")
+                        if (!isManuallyDisconnected) {
+                            handleRetry(token, roomId, onConnected, onError)
                         }
                     }
-
                     else -> {}
                 }
             }
+            compositeDisposable.add(lifecycleDisposable)
             connect(headers)
         }
     }
 
-    fun disconnect() {
-        isManuallyDisconnected = true // 수동으로 연결을 끊었음을 표시
-        stompClient?.disconnect()
-        stompClient = null
-    }
+    private fun handleRetry(token: String, roomId: Long, onConnected: () -> Unit, onError: (Throwable) -> Unit) {
+        if (isReconnecting) return
+        isReconnecting = true
 
-    @SuppressLint("CheckResult")
-    fun subscribeRoom(roomId: Long, onMessage: (Message) -> Unit, onUnreadUpdate: (UnreadBroadcast) -> Unit) {
-            stompClient?.topic("/sub/chat/room/$roomId")?.subscribe ({ stompMessage ->
-                val message = gson.fromJson(stompMessage.payload, Message::class.java)
-                Log.d("onMessage", "Received message: $message")
-                onMessage(message)
-            }, { error ->
-                Log.e("WebSocketManager", "Error subscribing to room $roomId: ${error.message}")
-            })
+        managerScope.launch {
+            // 지수 백오프: 5초, 10초, 20초... 최대 60초까지
+            val delayTime = (5000L * (1 shl (retryCount.coerceAtMost(4)))).coerceAtMost(60000L)
+            Log.d("WebSocketManager", "Retrying connection in ${delayTime/1000}s... (Attempt: ${retryCount + 1})")
 
-            stompClient?.topic("/sub/chat/room/$roomId/unread")?.subscribe ({ stompMessage ->
-                val unread = gson.fromJson(stompMessage.payload, UnreadBroadcast::class.java)
-                Log.d("onUnreadUpdate", "Received unread update: $unread")
-                onUnreadUpdate(unread)
-            }, { error ->
-                Log.e("WebSocketManager", "Error subscribing to room $roomId: ${error.message}")
-            })
-        }
-
-    @SuppressLint("CheckResult")
-    fun sendMessage(roomId: Long, content: String) {
-        val payload = gson.toJson(mapOf("roomId" to roomId, "content" to content))
-        stompClient?.send("/pub/chat/message", payload)?.subscribe({
-            Log.d("WebSocketManager", "Message sent successfully")
-        }, { error ->
-            Log.e("WebSocketManager", "Error sending message: ${error.message}")
-        })
-    }
-
-    @SuppressLint("CheckResult")
-    fun sendReadEvent(roomId: Long) {
-        val payload = gson.toJson(mapOf("roomId" to roomId))
-        stompClient?.send("/pub/chat/read", payload)?.subscribe({
-            Log.d("WebSocketManager", "Read event sent successfully")
-        }, { error ->
-            Log.e("WebSocketManager", "Error sending read event: ${error.message}")
-        })
-    }
-
-    private fun retryConnect(
-        token: String, roomId: Long, onConnected: () -> Unit, onError: (Throwable) -> Unit
-    ) {
-        CoroutineScope(Dispatchers.IO).launch {
-            delay(5000) // 5초 간격으로 재시도
+            delay(delayTime)
+            retryCount++
             connect(token, roomId, onConnected, onError)
         }
     }
 
-    @SuppressLint("CheckResult")
-    fun enterRoom(roomId: Long) {
-        val payload = gson.toJson(mapOf("roomId" to roomId))
-        stompClient?.send("/pub/chat/enter", payload)?.subscribe(
-            { Log.d("WebSocketManager", "Entered room $roomId successfully") },
-            { error -> Log.e("WebSocketManager", "Error entering room $roomId: ${error.message}") }
-        )
+    fun disconnect() {
+        isManuallyDisconnected = true
+        stompClient?.disconnect()
+        clearResources()
+        Log.d("WebSocketManager", "Disconnected manually")
     }
 
     @SuppressLint("CheckResult")
+    fun subscribeRoom(roomId: Long, onMessage: (Message) -> Unit, onUnreadUpdate: (UnreadBroadcast) -> Unit) {
+        val messageSub = stompClient?.topic("/sub/chat/room/$roomId")?.subscribe({ stompMessage ->
+            val message = gson.fromJson(stompMessage.payload, Message::class.java)
+            onMessage(message)
+        }, { error ->
+            Log.e("WebSocketManager", "Msg Sub Error: ${error.message}")
+        })
+
+        val unreadSub = stompClient?.topic("/sub/chat/room/$roomId/unread")?.subscribe({ stompMessage ->
+            val unread = gson.fromJson(stompMessage.payload, UnreadBroadcast::class.java)
+            onUnreadUpdate(unread)
+        }, { error ->
+            Log.e("WebSocketManager", "Unread Sub Error: ${error.message}")
+        })
+
+        messageSub?.let { compositeDisposable.add(it) }
+        unreadSub?.let { compositeDisposable.add(it) }
+    }
+
+    fun sendMessage(roomId: Long, content: String) {
+        val payload = gson.toJson(mapOf("roomId" to roomId, "content" to content))
+        sendData("/pub/chat/message", payload)
+    }
+
+    fun sendReadEvent(roomId: Long) {
+        val payload = gson.toJson(mapOf("roomId" to roomId))
+        sendData("/pub/chat/read", payload)
+    }
+
+    private fun sendData(destination: String, payload: String) {
+        val disposable = stompClient?.send(destination, payload)?.subscribe({
+            Log.d("WebSocketManager", "Sent to $destination")
+        }, { error ->
+            Log.e("WebSocketManager", "Send Error to $destination: ${error.message}")
+        })
+        disposable?.let { compositeDisposable.add(it) }
+    }
+
+    private fun enterRoom(roomId: Long) {
+        val payload = gson.toJson(mapOf("roomId" to roomId))
+        sendData("/pub/chat/enter", payload)
+    }
+
     fun leaveRoom(roomId: Long) {
         val payload = gson.toJson(mapOf("roomId" to roomId))
-        stompClient?.send("/pub/chat/leave", payload)?.subscribe({
-            Log.d("WebSocketManager", "Left room $roomId successfully")
-        }, { error ->
-            Log.e("WebSocketManager", "Error leaving room $roomId: ${error.message}")
-        })
+        sendData("/pub/chat/leave", payload)
         disconnect()
     }
 
+    private fun clearResources() {
+        compositeDisposable.clear() // 모든 구독 해제
+        isReconnecting = false
+    }
+
+    // ViewModel이나 App 종료 시 호출하여 코루틴 취소
+    fun onDestroy() {
+        managerScope.cancel()
+        disconnect()
+    }
 }

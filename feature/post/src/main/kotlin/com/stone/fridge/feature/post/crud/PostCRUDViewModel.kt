@@ -13,7 +13,7 @@ import com.stone.fridge.core.model.Post
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.zip
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import java.io.File
 import javax.inject.Inject
@@ -43,33 +43,33 @@ class PostCRUDViewModel @Inject constructor(
 
     fun modifyPost(id: Long, modifyPost: ModifyPost, images: List<File>) {
         viewModelScope.launch {
-            postRepository.uploadImages(id, images).asResult()
-                .zip(postRepository.modifyPost(id, modifyPost).asResult()) { uploadResult, modifyResult ->
-                    when {
-                        uploadResult is Resource.Loading || modifyResult is Resource.Loading -> {
-                            Resource.Loading
-                        }
-                        uploadResult is Resource.Error -> {
-                            Resource.Error(uploadResult.message)
-                        }
-                        modifyResult is Resource.Error -> {
-                            Resource.Error(modifyResult.message)
-                        }
-                        uploadResult is Resource.Success && modifyResult is Resource.Success -> {
-                            Resource.Success(Unit)
-                        }
-                        else -> {
-                            Resource.Error("알 수 없는 에러")
-                        }
+            combine(
+                postRepository.uploadImages(id, images).asResult(),
+                postRepository.modifyPost(id, modifyPost).asResult()
+            ){
+                uploadResult, modifyResult -> Pair(uploadResult, modifyResult)
+            }.collectLatest {
+                (uploadResult, modifyResult) ->
+                when {
+                    uploadResult is Resource.Loading || modifyResult is Resource.Loading -> {
+                        uiState.emit(PostCRUDUiState.Loading)
+                    }
+                    uploadResult is Resource.Error -> {
+                        uiState.emit(PostCRUDUiState.Error(uploadResult.message))
+                        return@collectLatest
+                    }
+                    modifyResult is Resource.Error -> {
+                        uiState.emit(PostCRUDUiState.Error(modifyResult.message))
+                        return@collectLatest
+                    }
+                    uploadResult is Resource.Success && modifyResult is Resource.Success -> {
+                        uiState.emit(PostCRUDUiState.Success)
+                    }
+                    else -> {
+                        uiState.emit(PostCRUDUiState.Error("알 수 없는 에러"))
                     }
                 }
-                .collectLatest { result ->
-                    when (result) {
-                        is Resource.Success -> uiState.emit(PostCRUDUiState.Success)
-                        is Resource.Error -> uiState.emit(PostCRUDUiState.Error(result.message))
-                        is Resource.Loading -> uiState.emit(PostCRUDUiState.Loading)
-                    }
-                }
+            }
         }
     }
 

@@ -190,6 +190,11 @@ class ChatDetailViewModel @Inject constructor(
     fun leaveRoom(roomId: Long){
         chatRepository.leaveRoom(roomId)
     }
+
+    override fun onCleared() {
+        super.onCleared()
+        chatRepository.onDestroy()
+    }
 }
 
 @Stable

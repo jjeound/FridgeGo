@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -35,7 +34,6 @@ import com.stone.fridge.core.ui.GoPreviewTheme
 import java.io.File
 
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PostCRUDScreen(
     viewModel: PostCRUDViewModel = hiltViewModel(),

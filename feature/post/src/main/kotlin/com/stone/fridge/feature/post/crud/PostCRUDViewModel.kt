@@ -41,30 +41,34 @@ class PostCRUDViewModel @Inject constructor(
         }
     }
 
-    fun modifyPost(id: Long, modifyPost: ModifyPost, images: List<File>){
+    fun modifyPost(id: Long, modifyPost: ModifyPost, images: List<File>) {
         viewModelScope.launch {
-            if(images.isNotEmpty()) {
-                postRepository.uploadImages(id, images).combine(
-                    postRepository.modifyPost(id, modifyPost), ::Pair
-                )
-                    .asResult()
-                    .collectLatest { result ->
-                        when(result){
-                            is Resource.Success -> uiState.emit(PostCRUDUiState.Success)
-                            is Resource.Error -> uiState.emit(PostCRUDUiState.Error(result.message))
-                            is Resource.Loading -> uiState.emit(PostCRUDUiState.Loading)
-                        }
+            combine(
+                postRepository.uploadImages(id, images).asResult(),
+                postRepository.modifyPost(id, modifyPost).asResult()
+            ){
+                uploadResult, modifyResult -> Pair(uploadResult, modifyResult)
+            }.collectLatest {
+                (uploadResult, modifyResult) ->
+                when {
+                    uploadResult is Resource.Loading || modifyResult is Resource.Loading -> {
+                        uiState.emit(PostCRUDUiState.Loading)
                     }
-            } else {
-                postRepository.modifyPost(id, modifyPost)
-                    .asResult()
-                    .collectLatest { result ->
-                        when(result){
-                            is Resource.Success -> uiState.emit(PostCRUDUiState.Success)
-                            is Resource.Error -> uiState.emit(PostCRUDUiState.Error(result.message))
-                            is Resource.Loading -> uiState.emit(PostCRUDUiState.Loading)
-                        }
+                    uploadResult is Resource.Error -> {
+                        uiState.emit(PostCRUDUiState.Error(uploadResult.message))
+                        return@collectLatest
                     }
+                    modifyResult is Resource.Error -> {
+                        uiState.emit(PostCRUDUiState.Error(modifyResult.message))
+                        return@collectLatest
+                    }
+                    uploadResult is Resource.Success && modifyResult is Resource.Success -> {
+                        uiState.emit(PostCRUDUiState.Success)
+                    }
+                    else -> {
+                        uiState.emit(PostCRUDUiState.Error("알 수 없는 에러"))
+                    }
+                }
             }
         }
     }

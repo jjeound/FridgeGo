@@ -157,6 +157,10 @@ class ChatRepositoryImpl @Inject constructor(
         webSocketManager.leaveRoom(roomId)
     }
 
+    override fun onDestroy() {
+        webSocketManager.onDestroy()
+    }
+
     private suspend fun saveMessageToDatabase(message: Message, roomId: Long) {
         dao.insert(message.toEntity(roomId))
     }

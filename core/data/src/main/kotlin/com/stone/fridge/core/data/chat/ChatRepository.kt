@@ -36,4 +36,5 @@ interface ChatRepository {
     fun sendMessage(roomId: Long, content: String)
     fun sendReadEvent(roomId: Long)
     fun leaveRoom(roomId: Long)
+    fun onDestroy()
 }

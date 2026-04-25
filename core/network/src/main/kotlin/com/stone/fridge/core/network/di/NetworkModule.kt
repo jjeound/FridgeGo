@@ -82,7 +82,7 @@ internal object NetworkModule {
     @Singleton
     fun provideBaseRetrofit(@BaseClient okHttpClient: OkHttpClient, gson: Gson): Retrofit {
         return Retrofit.Builder()
-            .baseUrl("https://api.refrigerator.asia/")
+            .baseUrl(BuildConfig.BASE_URL)
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
@@ -93,7 +93,7 @@ internal object NetworkModule {
     @Singleton
     fun provideAuthRetrofit(@AuthClient okHttpClient: OkHttpClient, gson: Gson): Retrofit {
         return Retrofit.Builder()
-            .baseUrl("https://api.refrigerator.asia/")
+            .baseUrl(BuildConfig.BASE_URL)
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
